@@ -68,7 +68,7 @@ class oAuth:
 
 	@staticmethod
 	def get_db_guild_data(guild_id):
-		conn = mysql.connector.connect(user = 'root', password = '9fr8-PkM;M4+', host = 'localhost', database = 'data')
+		conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
 		cursor = conn.cursor(buffered = True)
 
 		cursor.execute("""SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s""", (guild_id, guild_id))

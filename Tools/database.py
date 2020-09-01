@@ -1,4 +1,5 @@
 import mysql.connector
+import os
 import time
 import json
 import discord
@@ -7,7 +8,7 @@ import discord
 class DB:
 
 	def __init__(self):
-		self.conn = mysql.connector.connect(user = 'root', password = '9fr8-PkM;M4+', host = 'localhost', database = 'data')
+		self.conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
 		self.cursor = self.conn.cursor(buffered = True)
 
 
