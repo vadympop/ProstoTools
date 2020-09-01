@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block url_css_1 %}
+{{ url_for('static', filename='css/main.css') }}
+{% endblock %}
+
+{% block title %}
+Ошибка - 404
+{% endblock %}
+
+{% block body %}
+
+<div class="container d-flex justify-content-center align-items-center flex-column" style="height: 80vh;">
+    <i class="fas fa-frown" style="color: #444; font-size: 150px; margin-bottom: 3%;"></i>
+    <h1 style="color: #444;">Такой страницы не существует, введите ссылку правильно</h1>
+</div>
+
+{% endblock %}

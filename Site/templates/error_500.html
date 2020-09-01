@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block url_css_1 %}
+{{ url_for('static', filename='css/main.css') }}
+{% endblock %}
+
+{% block title %}
+Ошибка - 500
+{% endblock %}
+
+{% block body %}
+
+<div class="container d-flex justify-content-center align-items-center flex-column" style="height: 80vh;">
+    <i class="fas fa-exclamation-triangle" style="color: #444; font-size: 150px; margin-bottom: 3%;"></i>
+    <h1 style="color: #444; margin-bottom: 3%;">Произошла неизвестная ошибка. Администрация уже была оповещена</h1>
+    <span style="color: #444;">Код ошибки: {{error}}</span>    
+</div>
+
+{% endblock %}

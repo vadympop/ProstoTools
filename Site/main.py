@@ -42,7 +42,6 @@ def site_run(client):
 
 		access_token = session['access_token']
 		user_datas = oAuth.get_user_data(access_token)
-		print(user_datas[0])
 
 		if len(user_datas[0]['username']) > 16:
 			user_name = user_datas[0]['username'][:14]+'...#'+user_datas[0]['discriminator']
@@ -102,14 +101,15 @@ def site_run(client):
 
 	@app.route('/dashboard/<int:guild_id>', methods=['POST', 'GET'])
 	def dashboard(guild_id):
-		print(request.form)
 		datas_guild = oAuth.get_guild_channel_roles(guild_id)
 		guilds = session['user_guilds']
 		guild_data = oAuth.get_db_guild_data(guild_id)
 		new_idea_channel = 0
 
 		if request.method == 'POST':
-			if len(request.form['new_prefix']) > 3:
+			if len(request.form['new_prefix']) < 1:
+				return render_template('dashboard.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global', alert=['danger', 'Укажите префикс'])
+			elif len(request.form['new_prefix']) > 3:
 				return render_template('dashboard.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global', alert=['danger', 'Префикс должен быть меньше 4 символов'])
 			else:
 				new_prefix = request.form['new_prefix']
@@ -234,6 +234,21 @@ def site_run(client):
 		session.pop('user_guilds', None)
 
 		return redirect('/')
+
+	
+	@app.errorhandler(404)
+	def not_found_error(error):
+		try:
+			return render_template('error_404.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name']), 404
+		except:
+			return render_template('error_404.html', url=oAuth.discord_login_uri), 404
+
+	@app.errorhandler(500)
+	def internal_error(error):
+		try:
+			return render_template('error_500.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], error=error), 500
+		except:
+			return render_template('error_500.html', url=oAuth.discord_login_uri, error=error), 500
 
 	app.run()
 
