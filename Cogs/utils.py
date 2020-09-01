@@ -2,6 +2,7 @@ import discord
 import json
 import asyncio
 import time
+import os
 import mysql.connector
 from discord.ext import commands, tasks
 from discord.utils import get

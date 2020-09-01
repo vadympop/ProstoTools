@@ -1,6 +1,7 @@
 import discord
 import json
 import random
+import os
 import typing
 import asyncio
 import mysql.connector

@@ -2,6 +2,7 @@ import discord
 import mysql.connector
 import json
 import typing
+import os
 from discord.ext import commands
 from discord.utils import get
 from discord.voice_client import VoiceClient

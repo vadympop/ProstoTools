@@ -28,7 +28,7 @@ def get_prefix( client, message ):
 	return str(data['prefix'])
 
 
-client = commands.Bot( command_prefix = get_prefix )
+client = commands.Bot( command_prefix = get_prefix, case_insensitive = True )
 client.remove_command( 'help' )
 load_error = ''
 now_date = str(datetime.datetime.today())[:-16]
