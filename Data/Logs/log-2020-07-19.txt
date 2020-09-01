@@ -1,0 +1,51 @@
+
+
+=============================================================
+Время: 2020-07-19 11:35:51.232190
+
+Ошибка:
+Command raised an exception: TypeError: 'NoneType' object is not subscriptable
+=============================================================
+
+=============================================================
+Время: 2020-07-19 11:37:20.351872
+
+Ошибка:
+Command raised an exception: TypeError: unsupported operand type(s) for +=: 'int' and 'str'
+=============================================================
+
+=============================================================
+Время: 2020-07-19 11:39:36.606320
+
+Ошибка:
+You are on cooldown. Try again in 14375.84s
+=============================================================
+
+=============================================================
+Время: 2020-07-19 12:35:57.290635
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 779, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 916, in get_code
+  File "<frozen importlib._bootstrap_external>", line 846, in source_to_code
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\events.py", line 381
+    messages[2][1] = str(datetime.datetime.now())[:-7]
+    ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.events' raised an error: SyntaxError: invalid syntax (events.py, line 381)
+
+=============================================================

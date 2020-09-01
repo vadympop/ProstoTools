@@ -1,0 +1,95 @@
+
+
+=============================================================
+Время: 2020-07-09 18:35:04.283182
+
+Ошибка:
+Extension 'Cogs.works' raised an error: SyntaxError: invalid syntax (works.py, line 68)
+=============================================================
+
+=============================================================
+Время: 2020-07-09 18:40:32.016268
+
+Ошибка:
+Extension 'Cogs.works' raised an error: SyntaxError: invalid syntax (works.py, line 68)
+=============================================================
+
+=============================================================
+Время: 2020-07-09 18:45:07.555121
+
+Ошибка:
+Extension 'Cogs.works' raised an error: SyntaxError: invalid syntax (works.py, line 68)
+=============================================================
+
+=============================================================
+Время: 2020-07-09 18:45:32.250045
+
+Ошибка:
+Extension 'Cogs.works' raised an error: SyntaxError: invalid syntax (works.py, line 68)
+=============================================================
+
+=============================================================
+Время: 2020-07-09 18:48:02.327304
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 779, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 916, in get_code
+  File "<frozen importlib._bootstrap_external>", line 846, in source_to_code
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\works.py", line 68
+    emb = discord.Embed( title = 'Список работ', description = '**Грузчик - *work loader**\nДля работы нужно иметь более 3-го уровня и перчатки, кулдавн 3 часа после двух попыток, зарабатывает от 80$ до 100$\n\n**Охотник за кладом - *work treasure-hunter**\nДля работы нужен металоискатель(любого уровня), кулдавн 5 часов, может ничего не найти(0$, металоискатель 2-го уровня повышает шанс найти клад на 30%), если найдёт от 1$ до 500$\n\n**Барман - *work barman**\nДля работы нужно иметь более 4-го уровня, кулдавн 3 часа, зарабатывает от 150 до 200\n\n**Уборщик - *work cleaner**\nДля повышения эфективности работы нужно иметь веник или швабру, кулдавн 2 часа после 3 попыток\n\n**Мойщик окон - *work window-washer**\nДля работы нужно иметь более 5-го уровня, кулдавн 5 часов, от 250$ до 300$, может упасть и потерать 300$', colour = discord.Color.green() )
+    ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.works' raised an error: SyntaxError: invalid syntax (works.py, line 68)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-09 18:48:45.562257
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 779, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 916, in get_code
+  File "<frozen importlib._bootstrap_external>", line 846, in source_to_code
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\works.py", line 68
+    emb = discord.Embed( title = 'Список работ', description = '**Грузчик - *work loader**\nДля работы нужно иметь более 3-го уровня и перчатки, кулдавн 3 часа после двух попыток, зарабатывает от 80$ до 100$\n\n**Охотник за кладом - *work treasure-hunter**\nДля работы нужен металоискатель(любого уровня), кулдавн 5 часов, может ничего не найти(0$, металоискатель 2-го уровня повышает шанс найти клад на 30%), если найдёт от 1$ до 500$\n\n**Барман - *work barman**\nДля работы нужно иметь более 4-го уровня, кулдавн 3 часа, зарабатывает от 150 до 200\n\n**Уборщик - *work cleaner**\nДля повышения эфективности работы нужно иметь веник или швабру, кулдавн 2 часа после 3 попыток\n\n**Мойщик окон - *work window-washer**\nДля работы нужно иметь более 5-го уровня, кулдавн 5 часов, от 250$ до 300$, может упасть и потерать 300$', colour = discord.Color.green() )
+    ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.works' raised an error: SyntaxError: invalid syntax (works.py, line 68)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-09 18:48:49.816069
+
+Ошибка:
+NoneType: None
+
+=============================================================

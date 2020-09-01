@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% block url_css_1 %}
+{{ url_for('static', filename='css/dashboard.css') }}
+{% endblock %}
+{% block url_css_2 %}
+{{ url_for('static', filename='css/main.css') }}
+{% endblock %}
+
+{% block title %}
+Панель управления 
+{% endblock %}
+
+{% block body %}
+
+<div class="sidebar">
+    <a href="/dashboard/{{ guild_data[0][0] }}">
+        <span class="sidebar-btn">
+                <i class="fas fa-globe"></i>
+                <span>Общее</span>
+        </span>
+    </a>
+
+    <a href="/dashboard/{{ guild_data[0][0] }}/moderation">
+        <span class="sidebar-btn">
+                <i class="fas fa-hammer"></i>
+                <span>Модерирование</span>
+        </span>
+    </a>
+    
+    <a href="/dashboard/{{ guild_data[0][0] }}/economy">
+        <span class="sidebar-btn">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Экономика</span>
+        </span>
+    </a>
+    
+    <a href="/dashboard/{{ guild_data[0][0] }}/welcome">
+        <span class="sidebar-btn">
+                <i class="fas fa-hand-paper"></i>
+                <span>Приветствие</span>
+        </span>
+    </a>
+
+    <a href="/dashboard/{{ guild_data[0][0] }}/levels">
+        <span class="sidebar-btn">
+            <i class="fas fa-sitemap"></i>
+            <span>Система уровней</span>
+        </span>
+    </a>
+
+    <a href="/dashboard/{{ guild_data[0][0] }}/utils">
+        <span class="sidebar-btn">
+            <i class="fas fa-tools"></i>
+            <span>Утилиты</span>
+        </span>
+    </a>
+
+</div>
+
+<div class="container d-flex justify-content-center flex-column align-items-center">
+    {% if alert %}
+        <div class="alert alert-{{ alert[0] }}" role="alert">
+            {{ alert[1] }}
+        </div>
+    {% endif %}
+
+    <div class="guild-card">
+        <img src="{{ guild_data[0][1] }}" alt="" width="140px" class="guild-card-img">
+        <h1 class="guild-card-text">{{ guild_data[0][2] }}</h1>
+    </div>
+
+    {% if category == "global" %}
+
+        <form class="form" action="/dashboard/{{ guild_data[0][0] }}" method="POST">
+            <h2 class="form-title">Общее</h2>
+
+            <div class="group-form">
+                <input class="form-input" type="text" value='{{ guild_data[1]["prefix"] }}' name='new_prefix'>
+                <label class="form-label">Префикс</label>    
+            </div>
+
+            <div class="group-form">
+                <div class="select">
+                    <span class="select-label">Канал идей</span>    
+                    <select name='idea_channel'>
+                        <option selected disabled>&nbsp;Выберете канал</option>
+                        {% for channel in guild_data[2][0] %}
+                            {% if channel['type'] == 0 %}
+                                <option {% if channel['id'] == guild_data[1]["idea_channel"] %} selected {% endif %}>&nbsp;{{ channel['name'] }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="group-form">
+                <div class="select">
+                    <span class="select-label">Очистка команд</span>    
+                    <select name='clear_commands'>
+                        <option {% if guild_data[1]["purge"] == 1 %} selected {% endif %}>&nbsp;Включена</option>
+                        <option {% if guild_data[1]["purge"] == 0 %} selected {% endif %}>&nbsp;Выключена</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="group-form">
+                <div class="multi-select">
+                    <span class="multi-select-label">Статистика сервера</span>
+                    <select name='server_stats'>
+                        <option selected disabled>&nbsp;Выберете тип счетчика статистики</option>
+                        <option>&nbsp;Все</option>
+                        <option>&nbsp;Только боты</option>
+                        <option>&nbsp;Только люди</option>
+                        <option>&nbsp;Каналы</option>
+                        <option>&nbsp;Роли</option>
+                    </select>
+                </div>
+                <button class='multi-select-btn' type="submit">Добавить</button>
+            </div>
+            <div class="group-form">
+                <div class="wrap">
+                    {% for stat in guild_data[1]["server_stats"] %}
+                        <div class="stat-card">
+                            <button class="butt" type="button">&#9932;</button>
+                            <input disabled type="text" name='server_stats_remove' value="{{ stat }}" readonly>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="group-form">
+                <div class="multi-select">
+                    <span class="multi-select-label">Каналы для авто-реакций</span>
+                    <select name='react_channel'>
+                        <option selected disabled>&nbsp;Выберете канал</option>
+                        {% for channel in guild_data[2][0] %}
+                            {% if channel['type'] == 0 %}
+                                <option>&nbsp;{{ channel['name'] }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <button class='multi-select-btn' type="submit">Добавить</button>
+            </div>
+            <div class="group-form">
+                <div class="wrap">
+                    {% for channel in guild_data[1]["react_channels"] %}
+                        <div class="stat-card">
+                            <button class="butt" type="button">&#9932;</button>
+                            <input disabled type="text" name='react_channels_remove' {% for i in guild_data[2][0] %} {% if i['id'] == channel %} value="{{ i['name'] }}" {% endif %} {% endfor %} readonly>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="switch">
+                <input type="checkbox" name='switch'>
+            </div>
+
+            <div class="group-form"><button class='btn-save-data' type="submit">Сохранить</button></div>
+        </form>
+    {% endif %}
+    {% if category == "moderation" %}
+        <h1>{{ category }}</h1>
+        <p>{{ category }}{{ guild_data[1] }}</p>
+    {% endif %}
+    {% if category == "economy" %}
+        <h1>{{ category }}</h1>
+        <p>{{ category }}{{ guild_data[1] }}</p>
+    {% endif %}
+    {% if category == "welcome" %}
+        <h1>{{ category }}</h1>
+        <p>{{ category }}{{ guild_data[1] }}</p>
+    {% endif %}
+    {% if category == "levels" %}
+        <h1>{{ category }}</h1>
+        <p>{{ category }}{{ guild_data[1] }}</p>
+    {% endif %}
+    {% if category == "utils" %}
+        <h1>{{ category }}</h1>
+        <p>{{ category }}{{ guild_data[1] }}</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

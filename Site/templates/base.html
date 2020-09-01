@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">   
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
+    <link rel="stylesheet" href="{% block url_css_2 %}{% endblock %}">
+    <link rel="stylesheet" href="{% block url_css_1 %}{% endblock %}">
+    <link rel="icon" href="https://images-ext-1.discordapp.net/external/j4-QnlPZ6xpHiWzf8Gp_m3k1jGobjFsRYqwVsy-AUic/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/700767394154414142/a4d4fc8af51537eed30b3929b362d18e.webp?width=664&height=664">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    <div class="page">
+        <header class="header">
+            <div class="urls">
+                <h1 class="main-text text-muted"><a href="/">ProstoTools</a></h1>
+                <nav class="navigation">
+                    <ul>
+                        <li><a href="#"><i class="fas fa-address-book"></i>Команды</a></li>
+                        <li><a href="#"><i class="fas fa-file-alt"></i>Документация</a></li>
+                        <li><a href="https://discord.gg/Gs3FMhV"><i class="fab fa-discord"></i>Дискорд</a></li>
+                    </ul>
+                </nav>
+            </div>
+            
+            <div class="buttons-login">
+                {% if not login %}
+                    <button type="button" class="btn-header-login btn"><span class="text-muted"><a href={{ url }}>Войти</a></span></button>
+                {% endif %}
+                {% if login %}
+                    <span href="" class="drop-menu">
+                        <img src="{{ avatar }}" alt="" class="img-login-avatar avatar-hover" width=60px>
+                    </span>
+                    <button type="button" class="btn-header-servers btn"><span class="text-muted"><a href="/servers">Мои сервера</a></span></button>
+                    <div class="dropdown-profile hidden">
+                        <img src="{{ avatar }}" alt="" class="img-login-avatar" width=80px>
+                        <span class="user-name-text">{{ user_name }}</span>
+                        <span class="btn-logout"><a href="/logout">Выйти</a></span>
+                    </div>
+                {% endif %}
+            </div>
+        </header>
+        {% block body %}{% endblock %}
+        <footer class="footer">
+            <span class="footer-text"><i class="fas fa-user-check"></i>Создатель - Vython.lui#5389</span>
+            <span class="footer-text"><i class="fas fa-shield-alt"></i>Все права зарезервированы 2020</span>
+        </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function(){
+            $(".drop-menu").on('click', function(){
+                $(".dropdown-profile").toggle(500);
+            })
+        })
+
+        $(document).ready(function(){
+            $(".stat-card button").on('click', function(){
+                $(".stat-card input").addClass("clicked");
+                $(".stat-card .clicked input").removeAttr("disabled");
+            })
+        })
+        
+        const a = document.querySelectorAll('.butt')
+        a.forEach(function(i) {
+            i.addEventListener("click", function() {
+                let next = this.nextElementSibling;
+                this.parentElement.classList.toggle("if_u_need_class");
+                if(next.disabled) {
+                    next.disabled = false;
+                } else {
+                    next.disabled = true;
+                }
+            })
+        })
+
+    </script>
+    
+</body>
+</html>

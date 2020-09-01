@@ -1,0 +1,92 @@
+
+
+=============================================================
+Время: 2020-07-27 09:11:51.144526
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-27 09:12:49.444781
+
+Ошибка:
+Command raised an exception: ValueError: invalid literal for int() with base 10: 'False'
+=============================================================
+
+=============================================================
+Время: 2020-07-27 09:13:23.896966
+
+Ошибка:
+Command raised an exception: ValueError: invalid literal for int() with base 10: 'False'
+=============================================================
+
+=============================================================
+Время: 2020-07-27 09:54:17.646005
+
+Ошибка:
+Command raised an exception: ProgrammingError: Not enough parameters for the SQL statement
+=============================================================
+
+=============================================================
+Время: 2020-07-27 10:01:52.161282
+
+Ошибка:
+Member "33831476" not found
+=============================================================
+
+=============================================================
+Время: 2020-07-27 17:33:16.651087
+
+Ошибка:
+Command raised an exception: NameError: name 'DB' is not defined
+=============================================================
+
+=============================================================
+Время: 2020-07-27 17:35:37.430712
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'purge = 0 WHERE guild_id = 679023516716367892 AND guild_id = 679023516716367892' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-27 17:36:26.554862
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'purge = 0 WHERE guild_id = 679023516716367892 AND guild_id = 679023516716367892' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-27 17:37:38.110267
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'purge = 0 WHERE guild_id = 679023516716367892' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-27 17:37:59.293416
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'purge = 0 WHERE guild_id = 679023516716367892 AND guild_id = 679023516716367892' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-27 22:05:18.197833
+
+Ошибка:
+Command raised an exception: NameError: name 'load' is not defined
+=============================================================
+
+=============================================================
+Время: 2020-07-27 22:05:24.026106
+
+Ошибка:
+Command raised an exception: NameError: name 'load' is not defined
+=============================================================
+
+=============================================================
+Время: 2020-07-27 22:05:32.677824
+
+Ошибка:
+Command raised an exception: NameError: name 'load' is not defined
+=============================================================

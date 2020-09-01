@@ -1,0 +1,1072 @@
+
+
+=============================================================
+Время: 2020-07-26 12:06:12.933294
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\different.py", line 13, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.different' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:13.034050
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\economy.py", line 11, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.economy' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:13.045022
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\events.py", line 10, in <module>
+    from Tools.commands import Commands
+  File "E:\PyProg\ProstoTools(Original version)\Tools\commands.py", line 8, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.events' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:14.261564
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\moderate.py", line 8, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.moderate' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:14.277522
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\works.py", line 10, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.works' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:12.933294
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\different.py", line 13, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.different' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:13.034050
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\economy.py", line 11, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.economy' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:13.045022
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\events.py", line 10, in <module>
+    from Tools.commands import Commands
+  File "E:\PyProg\ProstoTools(Original version)\Tools\commands.py", line 8, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.events' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:14.261564
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\moderate.py", line 8, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.moderate' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:14.277522
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\works.py", line 10, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.works' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:12.933294
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\different.py", line 13, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.different' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:13.034050
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\economy.py", line 11, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.economy' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:13.045022
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\events.py", line 10, in <module>
+    from Tools.commands import Commands
+  File "E:\PyProg\ProstoTools(Original version)\Tools\commands.py", line 8, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.events' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:14.261564
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\moderate.py", line 8, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.moderate' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:14.277522
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\works.py", line 10, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.works' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:12.933294
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\different.py", line 13, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.different' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:13.034050
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\economy.py", line 11, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.economy' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:13.045022
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\events.py", line 10, in <module>
+    from Tools.commands import Commands
+  File "E:\PyProg\ProstoTools(Original version)\Tools\commands.py", line 8, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.events' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:14.261564
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\moderate.py", line 8, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.moderate' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:14.277522
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\works.py", line 10, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.works' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:12.933294
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\different.py", line 13, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.different' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:13.034050
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\economy.py", line 11, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.economy' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:13.045022
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\events.py", line 10, in <module>
+    from Tools.commands import Commands
+  File "E:\PyProg\ProstoTools(Original version)\Tools\commands.py", line 8, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.events' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:14.261564
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\moderate.py", line 8, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.moderate' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:14.277522
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\works.py", line 10, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 81
+    donate =
+            ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.works' raised an error: SyntaxError: invalid syntax (database.py, line 81)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:59.190992
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\different.py", line 13, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 101
+    'clans': json.loads(data[13]),
+    ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.different' raised an error: SyntaxError: invalid syntax (database.py, line 101)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:59.261802
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\economy.py", line 11, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 101
+    'clans': json.loads(data[13]),
+    ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.economy' raised an error: SyntaxError: invalid syntax (database.py, line 101)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:59.269782
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\events.py", line 10, in <module>
+    from Tools.commands import Commands
+  File "E:\PyProg\ProstoTools(Original version)\Tools\commands.py", line 8, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 101
+    'clans': json.loads(data[13]),
+    ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.events' raised an error: SyntaxError: invalid syntax (database.py, line 101)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:59.680682
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\moderate.py", line 8, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 101
+    'clans': json.loads(data[13]),
+    ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.moderate' raised an error: SyntaxError: invalid syntax (database.py, line 101)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:06:59.694646
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "E:\PyProg\ProstoTools(Original version)\Cogs\works.py", line 10, in <module>
+    from Tools.database import DB
+  File "E:\PyProg\ProstoTools(Original version)\Tools\database.py", line 101
+    'clans': json.loads(data[13]),
+    ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.works' raised an error: SyntaxError: invalid syntax (database.py, line 101)
+
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:28:47.847306
+
+Ошибка:
+Command raised an exception: AttributeError: 'int' object has no attribute 'id'
+=============================================================
+
+=============================================================
+Время: 2020-07-26 12:29:39.819570
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-26 14:51:32.392291
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-26 14:52:20.527542
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-26 14:53:01.836407
+
+Ошибка:
+Command raised an exception: TypeError: 'NoneType' object is not subscriptable
+=============================================================
+
+=============================================================
+Время: 2020-07-26 14:54:18.175099
+
+Ошибка:
+Command raised an exception: IntegrityError: 1062 (23000): Duplicate entry '717776571406090310' for key 'guilds.PRIMARY'
+=============================================================
+
+=============================================================
+Время: 2020-07-26 14:55:37.765375
+
+Ошибка:
+Command raised an exception: IntegrityError: 1062 (23000): Duplicate entry '717776571406090310' for key 'guilds.PRIMARY'
+=============================================================
+
+=============================================================
+Время: 2020-07-26 14:59:03.658283
+
+Ошибка:
+Command raised an exception: IntegrityError: 1062 (23000): Duplicate entry '717776571406090310' for key 'guilds.PRIMARY'
+=============================================================
+
+=============================================================
+Время: 2020-07-26 15:00:21.172985
+
+Ошибка:
+Command raised an exception: IntegrityError: 1062 (23000): Duplicate entry '717776571406090310-1-0-0-0-1-0-0' for key 'guilds.PRIMARY'
+=============================================================
+
+=============================================================
+Время: 2020-07-26 15:02:32.711835
+
+Ошибка:
+Command raised an exception: IntegrityError: 1062 (23000): Duplicate entry '717776571406090310-1-0-0-0-1-0-0' for key 'guilds.PRIMARY'
+=============================================================
+
+=============================================================
+Время: 2020-07-26 15:02:59.599181
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-26 15:04:13.004071
+
+Ошибка:
+Command raised an exception: IntegrityError: 1062 (23000): Duplicate entry '717776571406090310-1-0-0-0-1-0-0' for key 'guilds.PRIMARY'
+=============================================================
+
+=============================================================
+Время: 2020-07-26 15:08:34.836244
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-26 15:16:29.795109
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-26 15:19:16.222104
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-26 15:19:51.203990
+
+Ошибка:
+Command raised an exception: IntegrityError: 1062 (23000): Duplicate entry '717776571406090310-1-0-0-0-1-0-0' for key 'guilds.PRIMARY'
+=============================================================
+
+=============================================================
+Время: 2020-07-26 15:26:24.982989
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-26 15:28:12.597289
+
+Ошибка:
+Command raised an exception: AttributeError: 'MySQLConnection' object has no attribute 'query'
+=============================================================
+
+=============================================================
+Время: 2020-07-26 15:28:48.872937
+
+Ошибка:
+Command raised an exception: TypeError: cursor() got an unexpected keyword argument 'connect_timeout'
+=============================================================
+
+=============================================================
+Время: 2020-07-26 15:40:24.506896
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-07-26 18:15:54.777367
+
+Ошибка:
+Command raised an exception: UnboundLocalError: local variable 'emb' referenced before assignment
+=============================================================
+
+=============================================================
+Время: 2020-07-26 18:18:46.424803
+
+Ошибка:
+Command raised an exception: SyntaxError: invalid syntax (<unknown>, line 4)
+=============================================================
+
+=============================================================
+Время: 2020-07-26 18:20:11.785464
+
+Ошибка:
+Command raised an exception: TypeError: unsupported operand type(s) for +: 'int' and 'str'
+=============================================================
+
+=============================================================
+Время: 2020-07-26 18:35:51.883013
+
+Ошибка:
+Command raised an exception: NameError: name 'channel' is not defined
+=============================================================
+
+=============================================================
+Время: 2020-07-26 18:37:26.089824
+
+Ошибка:
+Converting to "int" failed for parameter "amount".
+=============================================================
+
+=============================================================
+Время: 2020-07-26 18:37:30.021162
+
+Ошибка:
+Command raised an exception: AttributeError: 'coroutine' object has no attribute 'name'
+=============================================================
+
+=============================================================
+Время: 2020-07-26 18:40:34.271907
+
+Ошибка:
+Command raised an exception: AttributeError: 'HistoryIterator' object has no attribute 'remove'
+=============================================================

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block url_css_1 %}
+{{ url_for('static', filename='css/servers.css') }}
+{% endblock %}
+{% block url_css_2 %}
+{{ url_for('static', filename='css/main.css') }}
+{% endblock %}
+
+{% block title %}
+Сервера
+{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    {% if datas != [] %}
+        <div class="wrap">
+            {% for data in datas %}
+                {% if not data[1] %}
+                    <div class="guild-card">
+                        <div class="up-part">
+                            <img src="{{ data[0] }}" alt="" width="60px" class="icon-guild rounded">
+                            <span class="name-guild">{{ data[2] }}</span>
+                        </div>
+                        <div class="bottom-part">
+                            <span class="btn-guild-card"><a href="https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot">Пригласить</a></span>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if data[1] %}
+                    <div class="guild-card">
+                        <div class="up-part">
+                            <img src="{{ data[0] }}" alt="" width="60px" class="icon-guild rounded">
+                            <span class="name-guild">{{ data[2] }}</span>
+                        </div>
+                        <div class="bottom-part">
+                            <span class="btn-guild-card"><a href="/dashboard/{{ data[3] }}">Настроить</a></span>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+    {% endif %}
+    {% if datas == [] %}
+        <div class="d-flex justify-content-center align-items-center flex-column not-servers">
+            <i class="fas fa-comment-slash"></i>
+            <h2>У вас ещё нет серверов</h2>
+            <a href='https://discord.com/guilds/create'>Создать сервер</a>
+        </div>
+    {% endif %}
+    </div>
+</div>
+
+{% endblock %}
