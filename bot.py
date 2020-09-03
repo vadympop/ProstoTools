@@ -71,7 +71,7 @@ for filename in os.listdir('./Cogs'):
 
 print(Fore.RESET)
 
-thread_bot = Thread(target=client.run, args=["NzAwNzY3Mzk0MTU0NDE0MTQy.Xpnufg.-D-UKTfJagpoyQpBvghXi3J57Io"])
+thread_bot = Thread(target=client.run, args=[configs["TOKEN"]])
 thread_site = Thread(target=site_run, args=[client])
 
 thread_bot.start()

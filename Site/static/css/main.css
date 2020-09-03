@@ -156,6 +156,10 @@
     font-size: 22px;
 }
 
+.btn-group{
+    margin-right: 5%;
+}
+
 .dropdown-toggle{
     background: none;
     outline: none;
@@ -193,10 +197,6 @@
 	white-space: nowrap;
 	background-color: transparent;
 	border: 0;
-}
-
-.user-name-text{
-    margin-left: 18%;
 }
 
 .btn-main-block-invite{

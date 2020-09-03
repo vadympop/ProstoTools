@@ -11,7 +11,7 @@ class oAuth:
 	discord_login_uri = f'https://discord.com/api/oauth2/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}'
 	discord_token_url = 'https://discord.com/api/v6/oauth2/token'
 	discord_api_url = 'https://discord.com/api/v6'
-	client_token = "NzAwNzY3Mzk0MTU0NDE0MTQy.Xpnufg.-D-UKTfJagpoyQpBvghXi3J57Io"
+	client_token = os.environ['BOT_TOKEN']
 
 	@staticmethod
 	def get_access_token(code):
