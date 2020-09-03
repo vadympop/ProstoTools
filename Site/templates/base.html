@@ -17,7 +17,7 @@
                 <h1 class="main-text text-muted"><a href="/">ProstoTools</a></h1>
                 <nav class="navigation">
                     <ul>
-                        <li><a href="#"><i class="fas fa-address-book"></i>Команды</a></li>
+                        <li><a href="/commands"><i class="fas fa-address-book"></i>Команды</a></li>
                         <li><a href="#"><i class="fas fa-file-alt"></i>Документация</a></li>
                         <li><a href="https://discord.gg/Gs3FMhV"><i class="fab fa-discord"></i>Дискорд</a></li>
                     </ul>
@@ -29,15 +29,18 @@
                     <button type="button" class="btn-header-login btn"><span class="text-muted"><a href={{ url }}>Войти</a></span></button>
                 {% endif %}
                 {% if login %}
-                    <span href="" class="drop-menu">
-                        <img src="{{ avatar }}" alt="" class="img-login-avatar avatar-hover" width=60px>
-                    </span>
                     <button type="button" class="btn-header-servers btn"><span class="text-muted"><a href="/servers">Мои сервера</a></span></button>
-                    <div class="dropdown-profile hidden">
-                        <img src="{{ avatar }}" alt="" class="img-login-avatar" width=80px>
-                        <span class="user-name-text">{{ user_name }}</span>
-                        <span class="btn-logout"><a href="/logout">Выйти</a></span>
-                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="drop-menu">
+                            <img src="{{ avatar }}" alt="" class="img-login-avatar avatar-hover" width=60px>
+                        </button>    
+                        <div class="dropdown-menu">
+                            <span class="dropdown-item">{{user_name}}</span>
+                            <a class="dropdown-item" href="#">Профиль</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/logout">Выйти</a>
+                        </div>
+                      </div>
                 {% endif %}
             </div>
         </header>

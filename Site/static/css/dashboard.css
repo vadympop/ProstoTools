@@ -37,7 +37,6 @@
     margin-top: 2%;
     border-radius: 5px;
     box-shadow: 0 4px 12px #cccc;
-    font-family: sans-serif;
     width: 80%;
     display: flex;
     flex-direction: column;
@@ -107,7 +106,6 @@ select {
 
 select {
     color: #444;
-    font-family: sans-serif;
     font-size: 20px;
     cursor: pointer;
 }
@@ -216,7 +214,6 @@ select::-ms-expand {
     margin-top: 2%;
     border-radius: 5px;
     box-shadow: 0 4px 12px #cccc;
-    font-family: sans-serif;
     width: 80%;
     display: flex;
     flex-direction: column;

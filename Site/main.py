@@ -225,6 +225,14 @@ def site_run(client):
 		return render_template('dashboard.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='utils')
 
 
+	@app.route('/commands')
+	def commands():
+		try:
+			return render_template('commands.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], client=client)
+		except:
+			return render_template('commands.html', url=oAuth.discord_login_uri, client=client)
+
+
 	@app.route('/logout')
 	def logout():
 		session.pop('access_token', None)
