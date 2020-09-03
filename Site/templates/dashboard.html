@@ -120,9 +120,9 @@
             <div class="group-form">
                 <div class="wrap">
                     {% for stat in guild_data[1]["server_stats"] %}
-                        <div class="stat-card">
+                        <div class="multi-select-card">
                             <button class="butt" type="button">&#9932;</button>
-                            <input disabled type="text" name='server_stats_remove' value="{{ stat }}" readonly>
+                            <input disabled type="text" name='server_stats_remove' value="{{ guild_data[1]["dict_server_stats"][stat] }}" readonly>
                         </div>
                     {% endfor %}
                 </div>
@@ -145,7 +145,7 @@
             <div class="group-form">
                 <div class="wrap">
                     {% for channel in guild_data[1]["react_channels"] %}
-                        <div class="stat-card">
+                        <div class="multi-select-card">
                             <button class="butt" type="button">&#9932;</button>
                             <input disabled type="text" name='react_channels_remove' {% for i in guild_data[2][0] %} {% if i['id'] == channel %} value="{{ i['name'] }}" {% endif %} {% endfor %} readonly>
                         </div>

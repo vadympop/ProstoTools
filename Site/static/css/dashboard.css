@@ -275,15 +275,17 @@ select::-ms-expand {
 
 .wrap{
     width: 800px;
+    display: flex;
+    justify-content: center;
 }
 
-.stat-card{
+.multi-select-card{
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 80px;
-    width: 140px;
+    width: auto;
     background-color: #fff;
     border-radius: 5px;
     border: 1px solid #cccc;
@@ -291,7 +293,7 @@ select::-ms-expand {
     transition: 0.3s;
 }
 
-.stat-card input{
+.multi-select-card input{
     border: none;
     background-color: transparent;
     width: auto;
@@ -300,7 +302,7 @@ select::-ms-expand {
     color: #444;
 }
 
-.stat-card button{
+.multi-select-card button{
     position: absolute;
     right: 0;
     top: 0;
@@ -318,12 +320,12 @@ select::-ms-expand {
     transition: 0.2s;
 }
 
-.stat-card button:focus{
+.multi-select-card button:focus{
     outline: none;
     user-select: none;
 }
 
-.stat-card button:hover{
+.multi-select-card button:hover{
     background-color: #e8e8e8;
 }
 

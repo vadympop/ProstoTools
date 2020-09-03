@@ -377,3 +377,34 @@
     font-size: 30px;
 }
 
+.command_body{
+    width: 45%;
+    height: auto;
+    border-radius: 5px;
+    background-color: #444;
+    color: #fff;
+    margin-top: 1%;
+    margin-left: 2%;
+}
+
+.command_body div{
+    padding: 15px;
+}
+
+.wrap:nth-last-child(1){
+    margin-bottom: 8%;
+}
+
+.command_name{
+    font-size: 20px;
+}
+
+.command_name i{
+    font-size: 22px;
+}
+
+.command_desc,
+.command_usage{
+    color: #909090;
+}
+

@@ -103,7 +103,14 @@ class oAuth:
 			'clans': json.loads(guild_data[15]),
 			'moder_roles': json.loads(guild_data[16]),
 			'react_channels': set(react_channels),
-			'welcome': json.loads(guild_data[18])
+			'welcome': json.loads(guild_data[18]),
+			'dict_server_stats': {
+				'all': 'Все',
+				'bots': 'Боты',
+				'roles': 'Роли',
+				'channels': 'Каналы',
+				'members': 'Участники'
+			}
 		}
 
 		return dict_guild_data
