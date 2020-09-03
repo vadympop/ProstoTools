@@ -28,7 +28,7 @@ def check_role(ctx):
 			role = get(ctx.guild.roles, id = role)
 			yield role in ctx.author.roles
 	else:
-		return roles[0] in ctx.author.roles
+		return ctx.author.guild_permission.administrator
 
 
 def clear_commands( guild ):
