@@ -1,0 +1,134 @@
+.profile-card{
+    margin-top: 2%;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px #cccc;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-profile-img{
+    border-radius: 5px;
+    margin-top: 7%;
+}
+
+.main-profile-text{
+    color: #444;
+    margin: 3% 0 6% 0;
+}
+
+.card{
+    margin-top: 2%;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px #cccc;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 5%;
+}
+
+.card-title{
+    display: block;
+    text-align: center;
+    margin: 4% 0 4% 0;
+    letter-spacing: 1px;
+    color: #444;
+}
+
+.card-field{
+    font-size: 20px;
+    width: 90%;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: transparent;
+    color: #777;
+    outline: none;
+    transition: 0.3s;
+    margin-top: 2%;
+    padding-left: 11px;
+}
+
+.card-group{
+    position: relative;
+    margin-bottom: 2%;
+    display: flex;
+    justify-content: center;
+}
+
+.card-label{
+    position: absolute;
+    top: -2px;
+    left: 6.2%;
+    font-size: 16px;
+    color: #ccc;
+    padding-top: 5px;
+}
+
+.card-group a{
+    color: #444;
+    text-decoration: none;
+}
+
+.card-buttons-group{
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+}
+
+.card-button:nth-last-child(3){
+    margin-left: 5%; 
+}
+
+.card-button:nth-last-child(2){
+    margin-left: 1%; 
+}
+
+.card-button:nth-last-child(1){
+    margin-left: 38%;
+    border-color: darkred;
+}
+
+.card-button:nth-last-child(1) a{
+    color: firebrick;
+}
+
+.card-button:nth-last-child(1):hover{
+    background-color: darkred;
+}
+
+.card-button:nth-last-child(1):hover a{
+    color: #a6a6a6;
+}
+
+.card-button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    outline: none;
+    user-select: none;
+    text-decoration: none;
+    border: solid 2px #555;
+    color: #707070;
+    font-size: 20px;
+    transition: 0.3s;
+    cursor: pointer;
+    width: 170px;
+    height: 50px;
+}
+
+.card-button a{
+    text-decoration: none;
+    color: #707070;
+}
+
+.card-button:hover{
+    background-color: #555;
+}
+
+.card-button:hover a{
+    color: #fff;
+}

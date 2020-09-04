@@ -26,17 +26,17 @@
             
             <div class="buttons-login">
                 {% if not login %}
-                    <button type="button" class="btn-header-login btn"><span class="text-muted"><a href={{ url }}>Войти</a></span></button>
+                    <button type="button" class="btn-header-login"><span class="text-muted"><a href={{ url }}>Войти</a></span></button>
                 {% endif %}
                 {% if login %}
-                    <button type="button" class="btn-header-servers btn"><span class="text-muted"><a href="/servers">Мои сервера</a></span></button>
+                    <button type="button" class="btn-header-servers"><span class="text-muted"><a href="/servers">Мои сервера</a></span></button>
                     <div class="btn-group">
                         <button type="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="drop-menu">
                             <img src="{{ avatar }}" alt="" class="img-login-avatar avatar-hover" width=60px>
                         </button>    
                         <div class="dropdown-menu">
                             <span class="dropdown-item">{{user_name}}</span>
-                            <a class="dropdown-item" href="#">Профиль</a>
+                            <a class="dropdown-item" href="/profile">Профиль</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item btn-danger" href="/logout">Выйти</a>
                         </div>
@@ -46,7 +46,7 @@
         </header>
         {% block body %}{% endblock %}
         <footer class="footer">
-            <span class="footer-text"><i class="fas fa-user-check"></i>Создатель - Vython.lui#5389</span>
+            <span class="footer-text"><i class="fas fa-user-check"></i>Создатель - 𝚅𝚢𝚝𝚑𝚘𝚗.𝚕𝚞𝚒#5389</span>
             <span class="footer-text"><i class="fas fa-shield-alt"></i>Все права зарезервированы 2020</span>
         </footer>
     </div>

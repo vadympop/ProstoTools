@@ -114,17 +114,25 @@
 
 .btn-header-login{
     background-color: rgb(39, 240, 221);
-    width: 100px;
+    width: 110px;
     height: 50px;
-    margin-right: 50%;
+    margin-right: 20%;
     transition: 0.2s;
+    border: none;
+    user-select: none;
+    outline: none;
+    border-radius: 5px;
+}
+
+.btn-header-login:focus{
+    border: none;
+    user-select: none;
+    outline: none;
 }
 
 .btn-header-login a{
     text-decoration: none;
     color: dimgray;
-    width: 100px;
-    height: 50px;
 }
 
 .btn-header-login:hover{
@@ -141,6 +149,16 @@
     height: 50px;
     transition: 0.2s;
     margin-right: 10%;
+    border: none;
+    user-select: none;
+    outline: none;
+    border-radius: 5px;
+}
+
+.btn-header-servers:focus{
+    border: none;
+    user-select: none;
+    outline: none;
 }
 
 .btn-header-servers a{
@@ -236,7 +254,7 @@
     user-select: none;
     text-decoration: none;
     border: solid 2px #555;
-    color: dimgray;
+    color: #707070;
     font-size: 20px;
     transition: 0.3s;
     cursor: pointer;
@@ -245,16 +263,16 @@
 
 .btn-main-block-servers-login a{
     text-decoration: none;
-    color: dimgray;
+    color: #707070;
 }
 
 .btn-main-block-servers-login:hover{
     background-color: #555;
-    color: ghostwhite;
+    color: #fff;
 }
 
 .btn-main-block-servers-login:hover a{
-    color: ghostwhite;
+    color: #fff;
 }
 
 .login{
@@ -391,7 +409,7 @@
     padding: 15px;
 }
 
-.wrap:nth-last-child(1){
+.c-wrap:nth-last-child(1){
     margin-bottom: 8%;
 }
 

@@ -233,6 +233,27 @@ def site_run(client):
 			return render_template('commands.html', url=oAuth.discord_login_uri, client=client)
 
 
+	@app.route('/profile')
+	def profile():
+		access_token = session['access_token']
+		user_datas = oAuth.get_user_data(access_token)
+
+		sql = ("""SELECT money FROM users WHERE user_id = %s AND user_id = %s""")
+		val = (user_datas[0]['id'], user_datas[0]['id'])
+
+		cursor.execute(sql, val)
+		list_money = cursor.fetchall()
+		money = 0
+		all_money = ' '.join(str(i[0]) for i in list_money).split(' ')
+		for num in all_money:
+			money += int(num)
+
+		try:
+			return render_template('profile.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], user_data=[user_datas[0]['id'], len(user_datas[1]), money])
+		except:
+			return render_template('profile.html', url=oAuth.discord_login_uri)
+
+
 	@app.route('/logout')
 	def logout():
 		session.pop('access_token', None)
