@@ -255,7 +255,7 @@ def site_run(client):
 
 
 	@app.route('/stats')
-	def commands():
+	def stats():
 		try:
 			return render_template('stats.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'])
 		except:
