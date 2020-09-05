@@ -2,6 +2,7 @@ import mysql.connector
 import os
 import time
 import json
+import time
 import discord
 
 
@@ -145,10 +146,10 @@ class DB:
 		data = self.cursor.fetchone()
 
 		if not data:
-			self.cursor.execute("""INSERT INTO bot_stats (used_commands) VALUES(1)""")
+			self.cursor.execute(f"""INSERT INTO bot_stats (used_commands, timestamp) VALUES(1, {time.time()})""")
 			self.conn.commit()
 		else:
-			self.cursor.execute("""UPDATE bot_stats SET used_commands = used_commands + 1""")
+			self.cursor.execute(f"""UPDATE bot_stats SET used_commands = used_commands + 1, timestamp = {time.time()}""")
 			self.conn.commit()
 
 
