@@ -52,7 +52,7 @@ class Utils(commands.Cog, name = 'Utils'):
 	@commands.check(check_role)
 	async def antirade( self, ctx, time: int, mode: int ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -115,7 +115,7 @@ class Utils(commands.Cog, name = 'Utils'):
 	@commands.check(check_role)
 	async def bannedusers( self, ctx ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -142,7 +142,7 @@ class Utils(commands.Cog, name = 'Utils'):
 	@commands.check(check_owner)
 	async def voicechannel( self, ctx, state: str ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -198,7 +198,7 @@ class Utils(commands.Cog, name = 'Utils'):
 	@commands.check(check_owner)
 	async def serverstats( self, ctx, stats_type, stats_count ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -259,7 +259,7 @@ class Utils(commands.Cog, name = 'Utils'):
 	@commands.has_permissions(administrator = True)
 	async def mass_role(self, ctx, type_act: str, for_role: discord.Role, role: discord.Role):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -300,7 +300,7 @@ class Utils(commands.Cog, name = 'Utils'):
 	@commands.check(check_role)
 	async def list_moderators(self, ctx):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 

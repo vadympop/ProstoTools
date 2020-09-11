@@ -51,7 +51,7 @@ def site_run(client):
 		user_hash_avatar = user_datas[0]['avatar']
 		user_id = user_datas[0]['id']
 		if user_hash_avatar:
-			user_avatar = f'https://cdn.discordapp.com/avatars/{user_id}/{user_hash_avatar}.png'
+			user_avatar = f'https://cdn.discordapp.com/avatars/{user_id}/{user_hash_avatar}.gif'
 		else:
 			user_avatar = 'https://cdn.discordapp.com/attachments/717783820308316272/743448353672790136/1.png'
 

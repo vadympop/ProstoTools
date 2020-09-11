@@ -57,7 +57,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def clear( self, ctx, member: typing.Optional[discord.Member], amount: int ):
 		client = self.client
 		amount_1 = amount + 1
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		if not member:
 			number = 0
 
@@ -100,7 +100,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.check(check_role)	
 	async def temprole( self, ctx, member: discord.Member, role: discord.Role, role_time: int = 0, role_typetime: str = None ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -162,7 +162,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.check(check_role)	
 	async def slowmode( self, ctx, delay: int, channel: typing.Optional[ int ] ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -233,7 +233,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.check(check_role)	
 	async def kick( self, ctx, member: discord.Member, *, reason = None ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -269,7 +269,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.check(check_role)	
 	async def softban(self, ctx, member: discord.Member, *, reason = None):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -329,7 +329,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.check(check_role)	
 	async def unsoftban(self, ctx, member: discord.Member):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -368,7 +368,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.has_permissions( ban_members = True )
 	async def ban( self, ctx, member: discord.Member, ban_time: typing.Optional[int] = 0, ban_typetime: typing.Optional[str] = None, *, reason: typing.Optional[str] = None ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -454,7 +454,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.has_permissions( ban_members = True )
 	async def unban( self, ctx, *, member: discord.User):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -494,7 +494,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.check(check_role)	
 	async def vmute( self, ctx, member: discord.Member, vmute_time: int = 0 ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -553,7 +553,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def unvmute( self, ctx, member: discord.Member):
 		client = self.client
 		guild = ctx.guild
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -587,7 +587,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.check(check_role)	
 	async def mute( self, ctx, member: discord.Member, mute_time: int = 0, mute_typetime: str = None, *, reason = None ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -725,7 +725,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.check(check_role)	
 	async def unmute( self, ctx, member: discord.Member ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -763,7 +763,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.check(check_role)	
 	async def clearwarn( self, ctx, member: discord.Member ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -797,7 +797,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.check(check_role)	
 	async def warn( self, ctx, member: discord.Member, *, reason = None ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -941,7 +941,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.check(check_role)	
 	async def rem_warn(self, ctx, member: discord.Member, warn_id: int):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -981,7 +981,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.command(description = '**Показывает список предупреждений**', usage = 'warns |@Участник|')
 	async def warns(self, ctx, member: discord.Member = None):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 

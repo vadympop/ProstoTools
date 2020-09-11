@@ -36,7 +36,7 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.cooldown(2, 60, commands.BucketType.member)
 	async def send( self, ctx, member: discord.Member, *, message ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -83,7 +83,7 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.command(name = 'feedback', description = '**Отправляет описания бага в боте разработчикам или идею к боту(Cooldown - 2ч)**', usage = 'feedback [bug/idea] [Описания бага или идея к боту]')
 	@commands.cooldown(1, 7200, commands.BucketType.member)
 	async def devs( self, ctx, typef, *, msg ):
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		client = self.client
 
 		purge = clear_commands(ctx.guild)
@@ -127,7 +127,7 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.command(name = 'user-info', description = '**Показывает информацию указаного учасника**', usage = 'user-info [@Участник]')
 	async def userinfo( self, ctx, member: discord.Member = None ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -157,7 +157,7 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.command(name = 'user-avatar', description = '**Показывает аватар указаного учасника**', usage = 'user-avatar [@Участник]')
 	async def avatar( self, ctx, member: typing.Optional[ discord.Member ] = None ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -182,7 +182,7 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.command(description = '**Показывает информацию о боте**', usage = 'info')
 	async def info( self, ctx ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -207,7 +207,7 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.command(name = 'server-info', description = '**Показывает информацию о сервере**', usage = 'server-info')
 	async def serverinfo( self, ctx ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -335,7 +335,7 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.cooldown(1, 7200, commands.BucketType.member)
 	async def idea( self, ctx, *, arg ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -367,7 +367,7 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.command(description = '**Отправляет ссылку на приглашения бота на сервер**', usage = 'invite')
 	async def invite( self, ctx ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -383,7 +383,7 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.cooldown(1, 120, commands.BucketType.member)
 	async def msgforw( self, ctx, channel: int, *, msg ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -413,7 +413,7 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.cooldown(3, 30, commands.BucketType.member)
 	async def say( self, ctx, *, arg ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -428,7 +428,7 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.command(name = 'random-number', description = '**Пишет рандомное число в указаном диапазоне**', usage = 'random-number [Первое число (От)] [Второе число (До)]')
 	async def rnum( self, ctx, rnum1: int, rnum2: int ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 

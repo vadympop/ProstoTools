@@ -39,7 +39,7 @@ class Works(commands.Cog, name = 'Works'):
 	@commands.cooldown(2, 7200, commands.BucketType.member)
 	async def work( self, ctx ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 

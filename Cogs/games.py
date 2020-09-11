@@ -35,7 +35,7 @@ class Games(commands.Cog, name = 'Games'):
 	@commands.command(name = 'create-qrcode', description = '**Закодирует указаный текст в qr-код**', usage = 'create-qrcode [Ваш текст]')
 	async def cr_qr( self, ctx, *, code_text: str ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -54,7 +54,7 @@ class Games(commands.Cog, name = 'Games'):
 	@commands.command(name = 'dcode-qrcode', description = '**Разкодирует qr-код**', usage = 'dcode-qrcode [Ссылка на изображения]')
 	async def scan_url( self, ctx, url):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -80,7 +80,7 @@ class Games(commands.Cog, name = 'Games'):
 	@commands.cooldown(1, 43200, commands.BucketType.member)
 	async def flags( self, ctx ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -172,7 +172,7 @@ class Games(commands.Cog, name = 'Games'):
 	@commands.command(description = '**Википедия, расказывает о вашем запросе**', usage = 'wiki [Ваш запрос]')
 	async def wiki( self, ctx, *, text ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -201,7 +201,7 @@ class Games(commands.Cog, name = 'Games'):
 	@commands.command( name = '8ball', description = '**Магический шар предсказаний**', usage = '8ball [Ваш вопрос]')
 	async def magic_ball( self, ctx, *, msg ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -245,7 +245,7 @@ class Games(commands.Cog, name = 'Games'):
 	@commands.command(description = '**Рандомная картинка собаки**', usage = 'dog')
 	async def dog(self, ctx):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		response = requests.get('https://some-random-api.ml/img/dog')
 		json_data = json.loads(response.text)
 		url = json_data['link']
@@ -262,7 +262,7 @@ class Games(commands.Cog, name = 'Games'):
 	@commands.command(description = '**Рандомная картинка кошки**', usage = 'cat')
 	async def cat(self, ctx):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		response = requests.get('https://some-random-api.ml/img/cat')
 		json_data = json.loads(response.text)
 		url = json_data['link']
@@ -279,7 +279,7 @@ class Games(commands.Cog, name = 'Games'):
 	@commands.command(description = '**Рандомная картинка лисы**', usage = 'fox')
 	async def fox(self, ctx):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		response = requests.get('https://some-random-api.ml/img/fox')
 		json_data = json.loads(response.text)
 		url = json_data['link']
@@ -296,7 +296,7 @@ class Games(commands.Cog, name = 'Games'):
 	@commands.command(description = '**Рандомная картинка птички**', usage = 'bird')
 	async def bird(self, ctx):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		response = requests.get('https://some-random-api.ml/img/birb')
 		json_data = json.loads(response.text)
 		url = json_data['link']
@@ -313,7 +313,7 @@ class Games(commands.Cog, name = 'Games'):
 	@commands.command(description = '**Рандомная картинка коалы**', usage = 'koala')
 	async def koala(self, ctx):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		response = requests.get('https://some-random-api.ml/img/koala')
 		json_data = json.loads(response.text)
 		url = json_data['link']
@@ -330,7 +330,7 @@ class Games(commands.Cog, name = 'Games'):
 	@commands.command(description = '**Рандомный мем**', usage = 'meme')
 	async def meme(self, ctx):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		url = 'https://pda.anekdot.ru/random/mem/'
 		headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0'}
 		html = requests.get(url, headers = headers).text

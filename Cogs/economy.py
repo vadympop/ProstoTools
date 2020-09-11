@@ -62,7 +62,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.command(description = '**Показывает лидеров по разных валютах**', usage = 'top')
 	async def top(self, ctx):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -244,7 +244,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.cooldown(1, 3600, commands.BucketType.member)
 	async def repp( self, ctx, member: discord.Member, num: int ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -287,7 +287,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.cooldown(1, 3600, commands.BucketType.member)
 	async def repm( self, ctx, member: discord.Member, num: int ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -330,7 +330,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.cooldown(1, 86400, commands.BucketType.member)
 	async def daily( self, ctx ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -356,7 +356,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.cooldown(1, 240, commands.BucketType.member)
 	async def textchannel( self, ctx, *, name ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -416,7 +416,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.command(name = 'shop-list', description = '**Показывает список покупаемых предметов**', usage = 'shop-list')
 	async def shoplist( self, ctx ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -448,7 +448,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.command(description = '**Купляет указанный товар**', usage = 'buy [Имя товара]')
 	async def buy( self, ctx, item: typing.Optional[str], num: typing.Optional[int] = None ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -982,7 +982,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.cooldown(1, 1800, commands.BucketType.member)
 	async def sendmoney( self, ctx, member: discord.Member, num: int ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -1097,7 +1097,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.command(name = 'my-transactions', description = '**Показывает всё ваши транзакции на текущем сервере**', usage = 'my-transactions')
 	async def trans(self, ctx):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -1129,7 +1129,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.command(description = '**Открывает указаный лут бокс**', usage = 'open [Лут бокс]')
 	async def open(self, ctx, box: str = None):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -1442,7 +1442,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.has_permissions( administrator = True )
 	async def remove_role(self, ctx, member: discord.Member, role: discord.Role):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -1487,7 +1487,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	async def add_cash( self, ctx, member: discord.Member, typem: str, num: int ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -1542,7 +1542,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	async def remove_cash( self, ctx, member: discord.Member, typem: str, num: int ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -1595,7 +1595,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.cooldown(1, 86400, commands.BucketType.member)
 	async def rob( self, ctx, member: discord.Member ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -1696,7 +1696,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.cooldown(1, 43200, commands.BucketType.member)
 	async def crime( self, ctx ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -1771,7 +1771,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.command(description = '**Показывает ваш инвертарь**', usage = 'invertory')
 	async def invertory( self, ctx ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -1855,7 +1855,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.command(name = 'set-profile-color', description = '**Ставит новый цвет для вашего профиля**', usage = 'set-profile-color [Цвет]')
 	async def profile_color(self, ctx, color: str = None):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -1910,7 +1910,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	@commands.command(description = '**Показывает профиль указаного пользователя, без упоминания ваш профиль**', usage = 'profile |@Участник|')
 	async def profile( self, ctx, member: typing.Optional[discord.Member] = None ):
 		client = self.client
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 

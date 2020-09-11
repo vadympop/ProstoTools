@@ -142,15 +142,15 @@ class DB:
 
 		return dict_data
 
-	def add_amout_command(self, entity: str = 'All commands'):
-		if entity != 'All commands':
+	def add_amout_command(self, entity: str = 'all commands'):
+		if entity != 'all commands':
 			try:
 				self.cursor.execute(f"""SELECT * FROM bot_stats WHERE entity = {entity}""")
 			except:
-				self.cursor.execute(f"""SELECT * FROM bot_stats WHERE entity = 'All commands'""")
+				self.cursor.execute(f"""SELECT * FROM bot_stats WHERE entity = 'all commands'""")
 			data = self.cursor.fetchall()
-		elif entity == 'All commands':
-			self.cursor.execute(f"""SELECT * FROM bot_stats WHERE entity = 'All commands'""")
+		elif entity == 'all commands':
+			self.cursor.execute(f"""SELECT * FROM bot_stats WHERE entity = 'all commands'""")
 			data = self.cursor.fetchall()
 
 		self.cursor.execute(f"""SELECT id FROM bot_stats""")
@@ -177,9 +177,9 @@ class DB:
 		self.cursor.execute(sql, val)
 		self.conn.commit()
 
-		if entity != 'All commands':
+		if entity != 'all commands':
 			sql = ("""INSERT INTO bot_stats(id, used_commands, timestamp, entity) VALUES(%s, %s, %s, %s)""")
-			val = (new_id+1, new_used_commands, datetime.datetime.now(), 'All commands')
+			val = (new_id+1, new_used_commands, datetime.datetime.now(), 'all commands')
 
 			self.cursor.execute(sql, val)
 			self.conn.commit()

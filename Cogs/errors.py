@@ -31,7 +31,7 @@ class Errors(commands.Cog, name = 'Errors'):
 
 	@commands.Cog.listener()
 	async def on_command_error( self, ctx, error ):
-		DB().add_amout_command()
+		DB().add_amout_command(entity=ctx.command.name)
 		client = self.client
 		now_date = str(datetime.datetime.today())[:-16]
 		filename = f'./Data/Logs/log-{now_date}.txt'
