@@ -54,8 +54,8 @@ class DB:
 	def sel_user(self, target, check = True):
 		sql_1 = ("""SELECT * FROM users WHERE user_id = %s AND guild_id = %s""")
 		val_1 = (target.id, target.guild.id)
-		sql_2 = ("""INSERT INTO users (user_id, guild_id, prison, profile, items, pets, warns, clans, messages, transantions) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""")
-		val_2 = (target.id, target.guild.id, 'False', 'lime', json.dumps([]), json.dumps([]), json.dumps([]), json.dumps([]), json.dumps([0, 0, [None, None]]), json.dumps([]))
+		sql_2 = ("""INSERT INTO users (user_id, guild_id, prison, profile, items, pets, warns, clans, messages, transantions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""")
+		val_2 = (target.id, target.guild.id, 'False', 'lime', json.dumps([]), json.dumps([]), json.dumps([]), json.dumps([]), json.dumps([0, 0, [None, None]]), json.dumps([]), ' ')
 		
 		self.cursor.execute(sql_1, val_1)
 		data = self.cursor.fetchone()

@@ -136,6 +136,14 @@ class Different(commands.Cog, name = 'Different'):
 
 		data = DB().sel_user(target = member)
 		all_message = data['messages'][1]
+
+		def get_bio():
+			if data['bio'] == ' ':
+				return ''
+			else:
+				bio = data['bio']
+				return f'\n\n**Краткая информация о пользователе:**\n{bio}\n\n'
+
 		statuses = {
 			'dnd': '<:dnd:730391353929760870> - Не беспокоить',
 			'online': '<:online:730393440046809108> - В сети',
@@ -149,7 +157,7 @@ class Different(commands.Cog, name = 'Different'):
 		emb.set_thumbnail( url = member.avatar_url )
 		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
 
-		emb.add_field( name = 'Основная информация', value = f'**Имя пользователя:** {member}\n**Статус:** {statuses[member.status.name]}\n**Id пользователя:** {member.id}\n**Акаунт созданн:** {str(member.created_at)[:-10]}\n**Присоиденился:** {str(member.joined_at)[:-10]}\n**Сообщений:** {all_message}', inline = False )
+		emb.add_field( name = 'Основная информация', value = f'{get_bio()}**Имя пользователя:** {member}\n**Статус:** {statuses[member.status.name]}\n**Id пользователя:** {member.id}\n**Акаунт созданн:** {str(member.created_at)[:-10]}\n**Присоиденился:** {str(member.joined_at)[:-10]}\n**Сообщений:** {all_message}', inline = False )
 		
 		await ctx.send( embed = emb )  
 
@@ -433,13 +441,27 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.channel.purge( limit = purge )
 
 		random_num = randint( rnum1, rnum2 )
-
 		emb = discord.Embed( title = f'Рандомное число от {rnum1} до {rnum2}', description = f'**Бот зарандомил число {random_num}**', colour = discord.Color.green() )
 		
 		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb )
+
+	
+	@commands.command(description = '**Устанавливает краткое описания о вас**', usage = 'bio [Текст]')
+	async def bio( self, ctx, *, text: str ):
+		DB().add_amout_command(entity=ctx.command.name)
+		purge = clear_commands(ctx.guild)
+		await ctx.channel.purge( limit = purge )
+
+		sql = ("""UPDATE users SET bio = %s WHERE user_id = %s AND guild_id = %s""")
+		val = (text, ctx.author.id, ctx.guild.id)
+
+		self.cursor.execute(sql, val)
+		self.conn.commit()
+
+		await ctx.message.add_reaction('✅')
 
 
 def setup( client ):

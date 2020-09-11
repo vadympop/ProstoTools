@@ -41,3 +41,10 @@ member is a required argument that is missing.
 Ошибка:
 member is a required argument that is missing.
 =============================================================
+
+=============================================================
+Время: 2020-09-11 20:24:00.629971
+
+Ошибка:
+text is a required argument that is missing.
+=============================================================
