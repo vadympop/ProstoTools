@@ -55,7 +55,6 @@ class Events(commands.Cog, name = 'Events'):
 
 	@commands.Cog.listener()
 	async def on_guild_join( self, guild ):
-
 		emb = discord.Embed( title = 'Спасибо за приглашения нашего бота! Мы тебе всегда ради', description = f'**Стандартний префикс - *, команда помощи - *help, \nкоманда настроёк - *settings. Наш сервер поддержки: \n {Help_server}**', colour = discord.Color.green() )
 		
 		emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
@@ -80,9 +79,9 @@ class Events(commands.Cog, name = 'Events'):
 
 		await channel.send(embed = emb_info)
 
+
 	@commands.Cog.listener()
 	async def on_guild_remove( self, guild ):
-
 		sql_1 = ("""DELETE FROM guilds WHERE guild_id = %s AND guild_id = %s""")
 		val_1 = (guild.id, guild.id)
 
@@ -107,16 +106,15 @@ class Events(commands.Cog, name = 'Events'):
 
 	@commands.Cog.listener()
 	async def on_raw_reaction_add( self, payload ):
-
 		reaction = payload.emoji
 		author = payload.member
 		channel = self.client.get_channel(payload.channel_id)
 		message = await channel.fetch_message(payload.message_id)
 		member = message.author
 		guild = message.guild
-		data = DB().sel_guild(guild = guild)['auto_mod']['react_coomands']
+		data = DB().sel_guild(guild = guild)
 
-		if data:
+		if data['auto_mod']['react_coomands']:
 			if not author.bot:
 				if author.guild_permissions.administrator:
 					if reaction.name == '❌':
@@ -223,6 +221,10 @@ class Events(commands.Cog, name = 'Events'):
 			
 			guild_data = DB().sel_guild(guild = message.guild)
 			data = DB().sel_user(target = message.author)
+
+			if message.channel.id in guild_data['react_channels']:
+				await message.add_reaction('👍')
+				await message.add_reaction('👎')
 
 			all_message = guild_data['all_message']
 			guild_moder_settings = guild_data['auto_mod']

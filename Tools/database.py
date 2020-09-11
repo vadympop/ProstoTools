@@ -137,7 +137,9 @@ class DB:
 			'ignored_channels': json.loads(data[13]),
 			'auto_mod': json.loads(data[14]),
 			'clans': json.loads(data[15]),
-			'moder_roles': json.loads(data[16])
+			'moder_roles': json.loads(data[16]),
+			'react_channels': json.loads(data[17]),
+			'welcome': json.loads(data[18])
 		}
 
 		return dict_data
@@ -157,19 +159,14 @@ class DB:
 		global_data = self.cursor.fetchall()
 
 		stat_ids = ' '.join(str(stat[0]) for stat in global_data).split(' ')
-		try:
-			new_id = int(max(stat_ids))+1
-		except:
-			new_id = 0
+		stat_ids.reverse()
+		new_id = int(stat_ids[0])+1
 
 		used_commands = ' '.join(str(stat[1]) for stat in data).split(' ')
 		try:
 			new_used_commands = int(max(used_commands))+1
 		except:
 			new_used_commands = 1
-
-		print(new_id)
-		print(new_used_commands)
 
 		sql = ("""INSERT INTO bot_stats(id, used_commands, timestamp, entity) VALUES(%s, %s, %s, %s)""")
 		val = (new_id, new_used_commands, datetime.datetime.now(), entity)
