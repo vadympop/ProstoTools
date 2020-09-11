@@ -106,7 +106,7 @@ class Help(commands.Cog, name = 'Help'):
 	@commands.command()
 	async def help(self, ctx, cog_name = None):
 		purge = clear_commands(ctx.guild)
-		DB().add_amout_command()
+		DB().add_amout_command(entity='Help')
 		await ctx.channel.purge( limit = purge )
 		exceptions = ['Help', 'Loops', 'Events', 'Owner', 'Errors']
 		groups = ['settings', 'works']

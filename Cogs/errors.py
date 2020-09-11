@@ -68,7 +68,7 @@ class Errors(commands.Cog, name = 'Errors'):
 
 		elif isinstance( error, commands.errors.MissingRequiredArgument ):
 			await ctx.message.add_reaction('❌')
-			emb = discord.Embed( title = 'Ошибка!', description = f'**Вы не указали аргумент. Укажати аргумент - {error.param.name} к указаной команде!**', colour = discord.Color.green() )
+			emb = discord.Embed( title = 'Ошибка!', description = f'**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указаной команде!**', colour = discord.Color.green() )
 			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )

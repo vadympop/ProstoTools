@@ -1,6 +1,6 @@
 import mysql.connector
 import os
-import time
+import datetime
 import json
 import time
 import discord
@@ -86,12 +86,13 @@ class DB:
 				'reputation': int(data[7]),
 				'prison': prison,
 				'profile': str(data[9]),
-				'items': json.loads(data[10]),
-				'pets': json.loads(data[11]),
-				'warns': json.loads(data[12]),
-				'clans': json.loads(data[13]),
-				'messages': json.loads(data[14]),
-				'transantions': json.loads(data[15])
+				'bio': str(data[10]),
+				'items': json.loads(data[11]),
+				'pets': json.loads(data[12]),
+				'warns': json.loads(data[13]),
+				'clans': json.loads(data[14]),
+				'messages': json.loads(data[15]),
+				'transantions': json.loads(data[16])
 			}
 
 			return dict_data
@@ -141,15 +142,45 @@ class DB:
 
 		return dict_data
 
-	def add_amout_command(self):
-		self.cursor.execute("""SELECT * FROM bot_stats""")
-		data = self.cursor.fetchone()
+	def add_amout_command(self, entity: str = 'All commands'):
+		if entity != 'All commands':
+			try:
+				self.cursor.execute(f"""SELECT * FROM bot_stats WHERE entity = {entity}""")
+			except:
+				self.cursor.execute(f"""SELECT * FROM bot_stats WHERE entity = 'All commands'""")
+			data = self.cursor.fetchall()
+		elif entity == 'All commands':
+			self.cursor.execute(f"""SELECT * FROM bot_stats WHERE entity = 'All commands'""")
+			data = self.cursor.fetchall()
 
-		if not data:
-			self.cursor.execute(f"""INSERT INTO bot_stats (used_commands, timestamp) VALUES(1, {time.time()})""")
-			self.conn.commit()
-		else:
-			self.cursor.execute(f"""UPDATE bot_stats SET used_commands = used_commands + 1, timestamp = {time.time()}""")
-			self.conn.commit()
+		self.cursor.execute(f"""SELECT id FROM bot_stats""")
+		global_data = self.cursor.fetchall()
 
+		stat_ids = ' '.join(str(stat[0]) for stat in global_data).split(' ')
+		try:
+			new_id = int(max(stat_ids))+1
+		except:
+			new_id = 0
+
+		used_commands = ' '.join(str(stat[1]) for stat in data).split(' ')
+		try:
+			new_used_commands = int(max(used_commands))+1
+		except:
+			new_used_commands = 1
+
+		print(new_id)
+		print(new_used_commands)
+
+		sql = ("""INSERT INTO bot_stats(id, used_commands, timestamp, entity) VALUES(%s, %s, %s, %s)""")
+		val = (new_id, new_used_commands, datetime.datetime.now(), entity)
+
+		self.cursor.execute(sql, val)
+		self.conn.commit()
+
+		if entity != 'All commands':
+			sql = ("""INSERT INTO bot_stats(id, used_commands, timestamp, entity) VALUES(%s, %s, %s, %s)""")
+			val = (new_id+1, new_used_commands, datetime.datetime.now(), 'All commands')
+
+			self.cursor.execute(sql, val)
+			self.conn.commit()
 
