@@ -22,8 +22,10 @@ def site_run(client):
 
 	@app.route('/')
 	def index():
-		cursor.execute("""SELECT used_commands FROM bot_stats""")
-		amout_used_commands = cursor.fetchone()
+		cursor.execute("""SELECT used_commands FROM bot_stats WHERE entity = 'all commands'""")
+		amout_used_commands = cursor.fetchall()
+		amout_used_commands.reverse()
+		amout_used_commands = amout_used_commands[0]
 		try:
 			return render_template('index.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], bot_stats=[len(client.guilds), len(client.users), amout_used_commands])
 		except:
