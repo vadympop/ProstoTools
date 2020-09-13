@@ -101,7 +101,7 @@ class DB:
 	def sel_guild(self, guild):
 		sql_1 = ("""SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s""")
 		val_1 = (guild.id, guild.id)
-		sql_2 = ("""INSERT INTO guilds (guild_id, donate, prefix, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, react_channels, welcome, auto_roles) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""")
+		sql_2 = ("""INSERT INTO guilds (guild_id, donate, prefix, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, react_channels, welcome, auto_roles) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""")
 		val_2 = (guild.id, "False", "*", json.dumps([]), json.dumps([]), json.dumps({"anti_flud": False, "auto_anti_rade_mode": False, "react_coomands": True}), json.dumps([]), json.dumps({}), json.dumps({}), json.dumps([]), json.dumps([]), json.dumps({}), json.dumps({}))
 		
 		self.cursor.execute(sql_1, val_1)
@@ -145,7 +145,7 @@ class DB:
 
 		return dict_data
 
-	def add_amout_command(self, entity: str = 'all commands'):
+	def add_amout_command(self, entity: str = 'all commands', add_counter = None):
 		try:
 			self.cursor.execute(f"""SELECT * FROM bot_stats WHERE entity = '{entity}'""")
 			data = self.cursor.fetchall()
@@ -166,27 +166,30 @@ class DB:
 		except:
 			new_id = 0
 
-		print(data)
-		used_commands = ' '.join(str(stat[1]) for stat in data).split(' ')
+		counter = ' '.join(str(stat[1]) for stat in data).split(' ')
 		try:
-			new_used_commands = int(max(used_commands))+1
+			new_count = int(max(counter))+1
 		except:
-			new_used_commands = 1
+			new_count = 1
 
-		main_used_commands = ' '.join(str(stat[1]) for stat in main_data).split(' ')
+		main_counter = ' '.join(str(stat[1]) for stat in main_data).split(' ')
 		try:
-			new_main_used_commands = int(max(main_used_commands))+1
+			new_main_count = int(max(main_counter))+1
 		except:
-			new_main_used_commands = 1
+			new_main_count = 1
 
-		sql = ("""INSERT INTO bot_stats(id, used_commands, timestamp, entity) VALUES(%s, %s, %s, %s)""")
-		val = (new_id, new_main_used_commands, datetime.datetime.now(), 'all commands')
+		if add_counter is not None:
+			new_count = add_counter
+		
+		if add_counter is None:
+			sql = ("""INSERT INTO bot_stats(id, count, timestamp, entity) VALUES(%s, %s, %s, %s)""")
+			val = (new_id, new_main_count, datetime.datetime.now(), 'all commands')
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+			self.cursor.execute(sql, val)
+			self.conn.commit()
 
-		sql = ("""INSERT INTO bot_stats(id, used_commands, timestamp, entity) VALUES(%s, %s, %s, %s)""")
-		val = (new_id+1, new_used_commands, datetime.datetime.now(), entity)
+		sql = ("""INSERT INTO bot_stats(id, count, timestamp, entity) VALUES(%s, %s, %s, %s)""")
+		val = (new_id+1, new_count, datetime.datetime.now(), entity)
 
 		self.cursor.execute(sql, val)
 		self.conn.commit()

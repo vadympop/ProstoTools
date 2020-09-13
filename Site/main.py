@@ -22,7 +22,7 @@ def site_run(client):
 
 	@app.route('/')
 	def index():
-		cursor.execute("""SELECT used_commands FROM bot_stats WHERE entity = 'all commands'""")
+		cursor.execute("""SELECT count FROM bot_stats WHERE entity = 'all commands'""")
 		amout_used_commands = cursor.fetchall()
 		amout_used_commands.reverse()
 		amout_used_commands = amout_used_commands[0]
@@ -103,6 +103,9 @@ def site_run(client):
 
 	@app.route('/dashboard/<int:guild_id>', methods=['POST', 'GET'])
 	def dashboard(guild_id):
+		if not session['user_state_login']:
+			return redirect(oAuth.discord_login_uri)
+
 		datas_guild = oAuth.get_guild_channel_roles(guild_id)
 		guilds = session['user_guilds']
 		guild_data = oAuth.get_db_guild_data(guild_id)
@@ -185,6 +188,9 @@ def site_run(client):
 
 	@app.route('/dashboard/<int:guild_id>/moderation')
 	def dashboard_moderation(guild_id):
+		if not session['user_state_login']:
+			return redirect(oAuth.discord_login_uri)
+
 		guild_data = oAuth.get_db_guild_data(guild_id)
 		datas_guild = oAuth.get_guild_channel_roles(guild_id)
 		guilds = session['user_guilds']
@@ -194,6 +200,9 @@ def site_run(client):
 
 	@app.route('/dashboard/<int:guild_id>/economy')
 	def dashboard_economy(guild_id):
+		if not session['user_state_login']:
+			return redirect(oAuth.discord_login_uri)
+
 		guild_data = oAuth.get_db_guild_data(guild_id)
 		datas_guild = oAuth.get_guild_channel_roles(guild_id)
 		guilds = session['user_guilds']
@@ -203,6 +212,9 @@ def site_run(client):
 
 	@app.route('/dashboard/<int:guild_id>/levels')
 	def dashboard_levels(guild_id):
+		if not session['user_state_login']:
+			return redirect(oAuth.discord_login_uri)
+
 		guild_data = oAuth.get_db_guild_data(guild_id)
 		datas_guild = oAuth.get_guild_channel_roles(guild_id)
 		guilds = session['user_guilds']
@@ -212,6 +224,9 @@ def site_run(client):
 
 	@app.route('/dashboard/<int:guild_id>/welcome')
 	def dashboard_welcome(guild_id):
+		if not session['user_state_login']:
+			return redirect(oAuth.discord_login_uri)
+
 		guild_data = oAuth.get_db_guild_data(guild_id)
 		datas_guild = oAuth.get_guild_channel_roles(guild_id)
 		guilds = session['user_guilds']
@@ -220,6 +235,9 @@ def site_run(client):
 
 	@app.route('/dashboard/<int:guild_id>/utils')
 	def dashboard_utils(guild_id):
+		if not session['user_state_login']:
+			return redirect(oAuth.discord_login_uri)
+
 		guild_data = oAuth.get_db_guild_data(guild_id)
 		datas_guild = oAuth.get_guild_channel_roles(guild_id)
 		guilds = session['user_guilds']
@@ -237,6 +255,9 @@ def site_run(client):
 
 	@app.route('/profile')
 	def profile():
+		if not session['user_state_login']:
+			return redirect(oAuth.discord_login_uri)
+
 		access_token = session['access_token']
 		user_datas = oAuth.get_user_data(access_token)
 

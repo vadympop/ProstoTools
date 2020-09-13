@@ -28,22 +28,8 @@ class Events(commands.Cog, name = 'Events'):
 
 	def __init__(self, client):
 		self.client = client
-		self.reputLoop.start()
 		self.conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
 		self.cursor = self.conn.cursor(buffered = True)
-
-
-	@tasks.loop( seconds = 86400 )
-	async def reputLoop(self):
-
-		self.cursor.execute("""SELECT * FROM users""")
-		data = self.cursor.fetchall()
-
-		for profile in data:
-			if profile != []:
-				all_message = profile[14][1]
-				self.cursor.execute("""UPDATE users SET messages = %s WHERE user_id = %s AND guild_id = %s""", (json.dumps([0, all_message, [None, None]])), profile[0], profile[1])
-				self.conn.commit()
 
 
 	@commands.Cog.listener()
@@ -63,6 +49,7 @@ class Events(commands.Cog, name = 'Events'):
 		await guild.text_channels[0].send( embed = emb )
 
 		DB().sel_guild(guild = guild)
+		DB().add_amout_command(entity='guilds', add_counter=len(self.client.guilds))
 
 		for member in guild.members:
 			if member.bot:
@@ -82,6 +69,8 @@ class Events(commands.Cog, name = 'Events'):
 
 	@commands.Cog.listener()
 	async def on_guild_remove( self, guild ):
+		DB().add_amout_command(entity='guilds', add_counter=len(self.client.guilds))
+
 		sql_1 = ("""DELETE FROM guilds WHERE guild_id = %s AND guild_id = %s""")
 		val_1 = (guild.id, guild.id)
 
@@ -163,6 +152,7 @@ class Events(commands.Cog, name = 'Events'):
 
 	@commands.Cog.listener()
 	async def on_member_join( self, member ):
+		DB().add_amout_command(entity='members', add_counter=len(self.client.users))
 
 		if member.bot:
 			return
@@ -189,6 +179,8 @@ class Events(commands.Cog, name = 'Events'):
 
 	@commands.Cog.listener()
 	async def on_member_remove( self, member ):
+		DB().add_amout_command(entity='members', add_counter=len(self.client.users))
+
 		try:
 			data = DB().sel_guild(guild = member.guild)['server_stats']
 			stats_channel_id = int(data['members'])
