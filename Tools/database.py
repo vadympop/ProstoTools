@@ -167,14 +167,16 @@ class DB:
 			new_id = 0
 
 		counter = ' '.join(str(stat[1]) for stat in data).split(' ')
+		counter.reverse()
 		try:
-			new_count = int(max(counter))+1
+			new_count = int(counter[0])+1
 		except:
 			new_count = 1
 
 		main_counter = ' '.join(str(stat[1]) for stat in main_data).split(' ')
+		main_counter.reverse()
 		try:
-			new_main_count = int(max(main_counter))+1
+			new_main_count = int(main_counter[0])+1
 		except:
 			new_main_count = 1
 
