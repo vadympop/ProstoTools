@@ -196,36 +196,26 @@ class Utils(commands.Cog, name = 'Utils'):
 
 	@commands.command(name = 'server-stats', hidden = True, description = '**Создает статистику сервера**', usage = 'server-stats [Счетчик]')
 	@commands.check(check_owner)
-	async def serverstats( self, ctx, stats_type, stats_count ):
+	async def serverstats( self, ctx, stats_count ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		members_count = len(' '.join(str(member.id) for member in ctx.guild.members if not member.bot and member.id != self.client.user.id).split(' '))
-		bots_count =	len(' '.join(str(bot.id) for bot in ctx.guild.members if bot.bot).split(' '))
+		bots_count = len(' '.join(str(bot.id) for bot in ctx.guild.members if bot.bot).split(' '))
 		channels_count = len(' '.join(str(channel.id) for channel in ctx.guild.channels).split(' '))
 		roles_count = len(' '.join(str(role.id) for role in ctx.guild.roles).split(' '))
 		counters = {
-			'all': ['Пользоветелей', ctx.guild.member_count],
+			'all': ['Пользователей', ctx.guild.member_count],
 			'bots': ['Ботов', bots_count],
 			'roles': ['Ролей', roles_count],
 			'channels': ['Каналов', channels_count],
 			'members': ['Участников', members_count]
 		}
 
-		if stats_count not in counters.keys():
+		if stats_count.lower() not in counters.keys():
 			emb = discord.Embed(title='Ошибка!', description='**Вы не правильно указали счетчик. Укажите из этих: bots, all, members, roles, channels**', color=discord.Color.green())
-
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
-			await ctx.send( embed = emb )
-			await ctx.message.add_reaction('❌')
-			return
-
-		if stats_type not in types.keys():
-			emb = discord.Embed(title='Ошибка!', description='**Вы не правильно указали тип статистики. Укажите из этих: голосовая, текстовая, сообщения**', color=discord.Color.green())
 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )

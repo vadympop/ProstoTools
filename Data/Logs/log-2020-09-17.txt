@@ -1,0 +1,38 @@
+
+
+=============================================================
+Время: 2020-09-17 12:14:00.029112
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50035): Invalid Form Body
+In name: Must be between 1 and 100 in length.
+=============================================================
+
+=============================================================
+Время: 2020-09-17 12:42:52.644113
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 596, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 779, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 916, in get_code
+  File "<frozen importlib._bootstrap_external>", line 846, in source_to_code
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "e:\PyProg\ProstoTools\Cogs\events.py", line 174
+    await channel.edit( name = f'[{counter}] {stats_channel_name}' )
+    ^
+SyntaxError: 'await' outside async function
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 61, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 653, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 599, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.events' raised an error: SyntaxError: 'await' outside async function (events.py, line 174)
+
+=============================================================

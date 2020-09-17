@@ -154,25 +154,39 @@ class Events(commands.Cog, name = 'Events'):
 	async def on_member_join( self, member ):
 		DB().add_amout_command(entity='members', add_counter=len(self.client.users))
 
-		if member.bot:
-			return
-		else:
+		if not member.bot:
 			DB().sel_user(target = member)
 
 		try:
 			data = DB().sel_guild(guild = member.guild)['server_stats']
-			stats_channel_id = int(data['members'])
-			member_count = len(' '.join(str(member.id) for member in member.guild.members if not member.bot and member.id != self.client.user.id).split(' '))
-			channel = self.client.get_channel( stats_channel_id )
+			async def edit_channel(channel_id: int, counter):
+				channel = self.client.get_channel( channel_id )
 
-			if member_count >= 100:
-				stats_channel_name = channel.name[6:]
-			elif member_count >= 10:
-				stats_channel_name = channel.name[5:]
-			elif member_count < 10:
-				stats_channel_name = channel.name[4:]
+				if counter >= 100:
+					stats_channel_name = channel.name[6:]
+				elif counter >= 10:
+					stats_channel_name = channel.name[5:]
+				elif counter < 10:
+					stats_channel_name = channel.name[4:]
 
-			await channel.edit( name = f'[{member_count}] {stats_channel_name}' )
+				await channel.edit( name = f'[{counter}] {stats_channel_name}' )
+
+			for key in data.keys():
+				if key == 'members':
+					stats_channel_id = int(data['members'])
+					count = len(' '.join(str(member.id) for member in member.guild.members if not member.bot and member.id != self.client.user.id).split(' '))
+					await edit_channel(stats_channel_id, count)
+
+				if key == 'bots':
+					stats_channel_id = int(data['bots'])
+					count = len(' '.join(str(bot.id) for bot in member.guild.members if bot.bot).split(' '))
+					await edit_channel(stats_channel_id, count)
+				
+				if key == 'all':
+					stats_channel_id = int(data['all'])
+					count = member.guild.member_count
+					await edit_channel(stats_channel_id, count)
+
 		except:
 			pass
 
@@ -183,24 +197,124 @@ class Events(commands.Cog, name = 'Events'):
 
 		try:
 			data = DB().sel_guild(guild = member.guild)['server_stats']
-			stats_channel_id = int(data['members'])
-			member_count = len(' '.join(str(member.id) for member in member.guild.members if not member.bot and member.id != self.client.user.id).split(' '))
-			channel = self.client.get_channel( stats_channel_id )
+			async def edit_channel(channel_id: int, counter):
+				channel = self.client.get_channel( channel_id )
 
-			if member_count >= 100:
-				stats_channel_name = channel.name[6:]
-			elif member_count >= 10:
-				stats_channel_name = channel.name[5:]
-			elif member_count < 10:
-				stats_channel_name = channel.name[4:]
+				if counter >= 100:
+					stats_channel_name = channel.name[6:]
+				elif counter >= 10:
+					stats_channel_name = channel.name[5:]
+				elif counter < 10:
+					stats_channel_name = channel.name[4:]
 
-			await channel.edit( name = f'[{member_count}] {stats_channel_name}' )
+				await channel.edit( name = f'[{counter}] {stats_channel_name}' )
+
+			for key in data.keys():
+				if key == 'members':
+					stats_channel_id = int(data['members'])
+					count = len(' '.join(str(member.id) for member in member.guild.members if not member.bot and member.id != self.client.user.id).split(' '))
+					await edit_channel(stats_channel_id, count)
+
+				if key == 'bots':
+					stats_channel_id = int(data['bots'])
+					count = len(' '.join(str(bot.id) for bot in member.guild.members if bot.bot).split(' '))
+					await edit_channel(stats_channel_id, count)
+				
+				if key == 'all':
+					stats_channel_id = int(data['all'])
+					count = member.guild.member_count
+					await edit_channel(stats_channel_id, count)
+
 		except:
 			pass
 
 
 	@commands.Cog.listener()
-	async def on_message( self, message ):
+	async def on_guild_channel_delete(self, channel):
+		try:
+			data = DB().sel_guild(guild = channel.guild)['server_stats']
+			if 'channels' in data.keys():
+				channel_id = int(data['channels'])
+				channel = self.client.get_channel( channel_id )
+				counter = len(' '.join(str(channel.id) for channel in channel.guild.channels).split(' '))
+
+				if counter >= 100:
+					stats_channel_name = channel.name[6:]
+				elif counter >= 10:
+					stats_channel_name = channel.name[5:]
+				elif counter < 10:
+					stats_channel_name = channel.name[4:]
+
+				await channel.edit( name = f'[{counter}] {stats_channel_name}' )
+		except:
+			pass
+
+
+	@commands.Cog.listener()
+	async def on_guild_channel_create(self, channel):
+		try:
+			data = DB().sel_guild(guild = channel.guild)['server_stats']
+			if 'channels' in data.keys():
+				channel_id = int(data['channels'])
+				channel = self.client.get_channel( channel_id )
+				counter = len(' '.join(str(channel.id) for channel in channel.guild.channels).split(' '))
+
+				if counter >= 100:
+					stats_channel_name = channel.name[6:]
+				elif counter >= 10:
+					stats_channel_name = channel.name[5:]
+				elif counter < 10:
+					stats_channel_name = channel.name[4:]
+
+				await channel.edit( name = f'[{counter}] {stats_channel_name}' )
+		except Exception as e:
+			raise e
+
+
+	@commands.Cog.listener()
+	async def on_guild_role_create(self, role):
+		try:
+			data = DB().sel_guild(guild = role.guild)['server_stats']
+			if 'roles' in data.keys():
+				channel_id = int(data['roles'])
+				channel = self.client.get_channel( channel_id )
+				counter = len(' '.join(str(role.id) for role in role.guild.roles).split(' '))
+
+				if counter >= 100:
+					stats_channel_name = channel.name[6:]
+				elif counter >= 10:
+					stats_channel_name = channel.name[5:]
+				elif counter < 10:
+					stats_channel_name = channel.name[4:]
+
+				await channel.edit( name = f'[{counter}] {stats_channel_name}' )
+		except:
+			pass
+
+
+	@commands.Cog.listener()
+	async def on_guild_role_delete(self, role):
+		try:
+			data = DB().sel_guild(guild = role.guild)['server_stats']
+			if 'roles' in data.keys():
+				channel_id = int(data['roles'])
+				channel = self.client.get_channel( channel_id )
+				counter = len(' '.join(str(role.id) for role in role.guild.roles).split(' '))
+
+				if counter >= 100:
+					stats_channel_name = channel.name[6:]
+				elif counter >= 10:
+					stats_channel_name = channel.name[5:]
+				elif counter < 10:
+					stats_channel_name = channel.name[4:]
+
+				await channel.edit( name = f'[{counter}] {stats_channel_name}' )
+		except:
+			pass
+
+
+	@commands.Cog.listener()
+	async def on_message(self, message):
 
 		if message.author.bot:
 			return
