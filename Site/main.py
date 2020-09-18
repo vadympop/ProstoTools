@@ -110,7 +110,7 @@ def site_run(client):
 		guilds = session['user_guilds']
 		guild_data = oAuth.get_db_guild_data(guild_id)
 		new_idea_channel = 0
-
+		
 		if request.method == 'POST':
 			if len(request.form['new_prefix']) < 1:
 				return render_template('dashboard.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global', alert=['danger', 'Укажите префикс'])
@@ -133,29 +133,6 @@ def site_run(client):
 			else:
 				new_idea_channel = guild_data['idea_channel']
 
-			if 'server_stats_remove' in request.form:
-				for item in request.form.getlist("server_stats_remove"):
-					server_stats = guild_data['server_stats']
-					try:
-						server_stats.pop(item)
-					except:
-						pass
-			else:
-				server_stats = guild_data['server_stats']
-
-			if 'server_stats' in request.form:
-				stats_dict = {
-					'\xa0Все': 'all',
-					'\xa0Только боты': 'bots',
-					'\xa0Только люди': 'members',
-					'\xa0Каналы': 'channels',
-					'\xa0Роли': 'roles'
-				}
-				server_stats = guild_data['server_stats']
-				server_stats.update({stats_dict[request.form['server_stats']]: 0})
-			else:
-				server_stats = guild_data['server_stats']
-
 			if 'react_channels_remove' in request.form:
 				for item in request.form.getlist("react_channels_remove"):
 					react_channels = guild_data['react_channels']
@@ -176,8 +153,8 @@ def site_run(client):
 			else:
 				react_channels = guild_data['react_channels']
 
-			sql = ("""UPDATE guilds SET prefix = %s, `purge` = %s, idea_channel = %s, server_stats = %s, react_channels = %s WHERE guild_id = %s""")
-			val = (str(new_prefix), int(new_purge), int(new_idea_channel), json.dumps(server_stats), json.dumps(list(react_channels)), int(guild_id))
+			sql = ("""UPDATE guilds SET prefix = %s, `purge` = %s, idea_channel = %s, react_channels = %s WHERE guild_id = %s""")
+			val = (str(new_prefix), int(new_purge), int(new_idea_channel), json.dumps(list(react_channels)), int(guild_id))
 			
 			cursor.execute(sql, val)
 			conn.commit()

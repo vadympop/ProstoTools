@@ -105,31 +105,6 @@
 
             <div class="group-form">
                 <div class="multi-select">
-                    <span class="multi-select-label">Статистика сервера</span>
-                    <select name='server_stats'>
-                        <option selected disabled>&nbsp;Выберете тип счетчика статистики</option>
-                        <option>&nbsp;Все</option>
-                        <option>&nbsp;Только боты</option>
-                        <option>&nbsp;Только люди</option>
-                        <option>&nbsp;Каналы</option>
-                        <option>&nbsp;Роли</option>
-                    </select>
-                </div>
-                <button class='multi-select-btn' type="submit">Добавить</button>
-            </div>
-            <div class="group-form">
-                <div class="wrap">
-                    {% for stat in guild_data[1]["server_stats"] %}
-                        <div class="multi-select-card">
-                            <button class="butt" type="button">&#9932;</button>
-                            <input disabled type="text" name='server_stats_remove' value="{{ guild_data[1]["dict_server_stats"][stat] }}" readonly>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="group-form">
-                <div class="multi-select">
                     <span class="multi-select-label">Каналы для авто-реакций</span>
                     <select name='react_channel'>
                         <option selected disabled>&nbsp;Выберете канал</option>
