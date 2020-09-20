@@ -19,6 +19,10 @@
 
     <div class="card">
         <h2 class="card-title">Профиль</h2>
+        {% if user_data[3] != ' ' %}
+            <span class="card-bio-title">Немножко о вас</span>
+            <span class="card-bio">{{ user_data[3] }}</span>
+        {% endif %}
 
         <div class="card-group">
             <span class="card-field">{{ user_name }}</span>
@@ -43,6 +47,7 @@
         <div class="card-group card-buttons-group">
             <span class='card-button shadow'><a href="/leaderboard">Таблица лидеров</a></span>
             <span class='card-button shadow'><a href="/transactions">Ваши транзакции</a></span>
+            <span class="card-button shadow"><a href="/items">Ваши предметы</a></span>
             <span class='card-button shadow'><a href="/logout">Выйти</a></span>    
         </div>
 

@@ -53,7 +53,10 @@ def site_run(client):
 		user_hash_avatar = user_datas[0]['avatar']
 		user_id = user_datas[0]['id']
 		if user_hash_avatar:
-			user_avatar = f'https://cdn.discordapp.com/avatars/{user_id}/{user_hash_avatar}.gif'
+			if user_hash_avatar.startswith('a_'):
+				user_avatar = f'https://cdn.discordapp.com/avatars/{user_id}/{user_hash_avatar}.gif'
+			else:
+				user_avatar = f'https://cdn.discordapp.com/avatars/{user_id}/{user_hash_avatar}.png'
 		else:
 			user_avatar = 'https://cdn.discordapp.com/attachments/717783820308316272/743448353672790136/1.png'
 
@@ -238,18 +241,24 @@ def site_run(client):
 		access_token = session['access_token']
 		user_datas = oAuth.get_user_data(access_token)
 
-		sql = ("""SELECT money FROM users WHERE user_id = %s AND user_id = %s""")
-		val = (user_datas[0]['id'], user_datas[0]['id'])
+		sql_1 = ("""SELECT money FROM users WHERE user_id = %s AND user_id = %s""")
+		val_1 = (user_datas[0]['id'], user_datas[0]['id'])
 
-		cursor.execute(sql, val)
+		cursor.execute(sql_1, val_1)
 		list_money = cursor.fetchall()
 		money = 0
 		all_money = ' '.join(str(i[0]) for i in list_money).split(' ')
 		for num in all_money:
 			money += int(num)
 
+		sql_2 = ("""SELECT bio FROM global_users_data WHERE user_id = %s AND user_id = %s""")
+		val_2 = (user_datas[0]['id'], user_datas[0]['id'])
+
+		cursor.execute(sql_2, val_2)
+		bio = cursor.fetchone()[0]
+
 		try:
-			return render_template('profile.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], user_data=[user_datas[0]['id'], len(user_datas[1]), money])
+			return render_template('profile.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], user_data=[user_datas[0]['id'], len(user_datas[1]), money, bio])
 		except:
 			return render_template('profile.html', url=oAuth.discord_login_uri)
 

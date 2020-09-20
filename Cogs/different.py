@@ -455,8 +455,8 @@ class Different(commands.Cog, name = 'Different'):
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
-		sql = ("""UPDATE users SET bio = %s WHERE user_id = %s AND guild_id = %s""")
-		val = (text, ctx.author.id, ctx.guild.id)
+		sql = ("""UPDATE global_users_data SET bio = %s WHERE user_id = %s""")
+		val = (text, ctx.author.id)
 
 		self.cursor.execute(sql, val)
 		self.conn.commit()

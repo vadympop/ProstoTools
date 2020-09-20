@@ -33,7 +33,7 @@
 .card-title{
     display: block;
     text-align: center;
-    margin: 4% 0 4% 0;
+    margin: 4% 0 2% 0;
     letter-spacing: 1px;
     color: #444;
 }
@@ -78,8 +78,12 @@
     justify-content: start;
 }
 
-.card-button:nth-last-child(3){
+.card-button:nth-last-child(4){
     margin-left: 5%; 
+}
+
+.card-button:nth-last-child(3){
+    margin-left: 1%; 
 }
 
 .card-button:nth-last-child(2){
@@ -87,7 +91,7 @@
 }
 
 .card-button:nth-last-child(1){
-    margin-left: 38%;
+    margin-left: 21%;
     border-color: darkred;
 }
 
@@ -131,4 +135,20 @@
 
 .card-button:hover a{
     color: #fff;
+}
+
+.card-bio-title{
+    color: #707070;
+    font-size: 22px;
+    letter-spacing: 1px;
+    display: block;
+    text-align: center;
+}
+
+.card-bio{
+    color: #707070;
+    font-size: 18px;
+    display: block;
+    text-align: center;
+    margin-bottom: 1%;
 }
