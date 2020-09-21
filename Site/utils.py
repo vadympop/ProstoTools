@@ -3,39 +3,37 @@ import json
 import os
 import mysql.connector
 
-class oAuth:
-	client_id = '700767394154414142'
-	client_secret = 'DsxERoWInGaqcX1CoJQu3QfNX7pak-Yd'
-	scope = 'identify%20guilds'
-	redirect_uri = 'http://127.0.0.1:5000/servers'
-	discord_login_uri = f'https://discord.com/api/oauth2/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}'
-	discord_token_url = 'https://discord.com/api/v6/oauth2/token'
-	discord_api_url = 'https://discord.com/api/v6'
-	client_token = os.environ['BOT_TOKEN']
+class Utils:
+	CLIENT_ID = '700767394154414142'
+	CLIENT_SECRET = 'DsxERoWInGaqcX1CoJQu3QfNX7pak-Yd'
+	SCOPE = 'identify%20guilds'
+	REDIRECT_URI = 'http://127.0.0.1:5000/servers'
+	DISCORD_LOGIN_URI = f'https://discord.com/api/oauth2/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&response_type=code&scope={SCOPE}'
+	DISCORD_TOKEN_URI = 'https://discord.com/api/v6/oauth2/token'
+	DISCORD_API_URI = 'https://discord.com/api/v6'
+	CLIENT_TOKEN = os.environ['BOT_TOKEN']
 
-	@staticmethod
-	def get_access_token(code):
+	def get_access_token(self, code):
 		payload = {
-			'client_id': oAuth.client_id,
-			'client_secret': oAuth.client_secret,
+			'client_id': self.CLIENT_ID,
+			'client_secret': self.CLIENT_SECRET,
 			'grant_type': 'authorization_code',
 			'code': code,
-			'redirect_uri': oAuth.redirect_uri,
-			'scope': oAuth.scope
+			'redirect_uri': self.REDIRECT_URI,
+			'scope': self.SCOPE
 		}
 		headers = {
 			'Content-Type': 'application/x-www-form-urlencoded'
 		}
 
-		access_token = requests.post(url = oAuth.discord_token_url, data = payload, headers = headers)
+		access_token = requests.post(url=self.DISCORD_TOKEN_URI, data=payload, headers=headers)
 		json = access_token.json()
 
 		return json.get('access_token')
 
 	
-	@staticmethod
-	def get_user_data(access_token):
-		url = oAuth.discord_api_url+'/users/@me'
+	def get_user_data(self, access_token):
+		url = self.DISCORD_API_URI+'/users/@me'
 
 		headers = {
 			'Authorization': f'Bearer {access_token}'
@@ -48,17 +46,16 @@ class oAuth:
 		return [user_json, user_guilds]
 
 	
-	@staticmethod
-	def get_guild_channel_roles(guild_id):
+	def get_guild_channel_roles(self, guild_id):
 		headers = {
-			'Authorization': f'Bot {oAuth.client_token}'
+			'Authorization': f'Bot {self.CLIENT_TOKEN}'
 		}
 
-		guild_channels_obj = requests.get(url=oAuth.discord_api_url+f'/guilds/{guild_id}/channels', headers=headers)
+		guild_channels_obj = requests.get(url=self.DISCORD_API_URI+f'/guilds/{guild_id}/channels', headers=headers)
 		guild_channels = guild_channels_obj.json()
 		guild_channels = sorted(guild_channels, key=lambda channel: channel['position'])
 
-		guild_roles_obj = requests.get(url=oAuth.discord_api_url+f'/guilds/{guild_id}/roles', headers=headers)
+		guild_roles_obj = requests.get(url=self.DISCORD_API_URI+f'/guilds/{guild_id}/roles', headers=headers)
 		guild_roles = guild_roles_obj.json()
 		guild_roles = sorted(guild_roles, key=lambda role: role['position'])
 		guild_roles.reverse()
@@ -66,8 +63,7 @@ class oAuth:
 		return [guild_channels, guild_roles]
 
 
-	@staticmethod
-	def get_db_guild_data(guild_id):
+	def get_db_guild_data(self, guild_id):
 		conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
 		cursor = conn.cursor(buffered = True)
 

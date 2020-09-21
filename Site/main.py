@@ -1,25 +1,20 @@
-from flask import Flask, render_template, redirect, request, url_for, make_response, session
-from flask_socketio import SocketIO
-from Site.oauth import oAuth
 import datetime
 import json
 import mysql.connector
 import requests
 
-app = Flask(__name__)
-app.secret_key = 'jjpEHeewQQRBaVSrKZZ4R32Y-$hhP9$*&k?ZN766@5_&TJDwMgNajELZ%Vu+'
-conn = mysql.connector.connect(user = 'root', password = '9fr8-PkM;M4+', host = 'localhost', database = 'data')
-cursor = conn.cursor(buffered = True)
+from Site.config import Config
+from Site import app, cursor, conn, utils
+from flask import render_template, redirect, request, url_for, session
+
+
+@app.before_request
+def make_session_permanent():
+	session.permanent = True
+	app.permanent_session_lifetime = datetime.timedelta(days=365)
 
 
 def site_run(client):
-
-	@app.before_request
-	def make_session_permanent():
-		session.permanent = True
-		app.permanent_session_lifetime = datetime.timedelta(days=365)
-
-
 	@app.route('/')
 	def index():
 		cursor.execute("""SELECT count FROM bot_stats WHERE entity = 'all commands'""")
@@ -27,15 +22,15 @@ def site_run(client):
 		amout_used_commands.reverse()
 		amout_used_commands = amout_used_commands[0]
 		try:
-			return render_template('index.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], bot_stats=[len(client.guilds), len(client.users), amout_used_commands])
+			return render_template('index.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], bot_stats=[len(client.guilds), len(client.users), amout_used_commands])
 		except:
-			return render_template('index.html', url=oAuth.discord_login_uri, bot_stats=[len(client.guilds), len(client.users), amout_used_commands])
+			return render_template('index.html', url=utils.DISCORD_LOGIN_URI, bot_stats=[len(client.guilds), len(client.users), amout_used_commands])
 
 
 	@app.route('/servers')
 	def servers():
 		code = request.args.get('code')
-		access_token = oAuth.get_access_token(code)
+		access_token = utils.get_access_token(code)
 
 		if code:
 			session['access_token'] = access_token
@@ -43,7 +38,7 @@ def site_run(client):
 			return redirect('/servers')
 
 		access_token = session['access_token']
-		user_datas = oAuth.get_user_data(access_token)
+		user_datas = utils.get_user_data(access_token)
 
 		if len(user_datas[0]['username']) > 16:
 			user_name = user_datas[0]['username'][:14]+'...#'+user_datas[0]['discriminator']
@@ -101,24 +96,24 @@ def site_run(client):
 		else:
 			session['user_guilds'] = session_guild_datas
 
-		return render_template('servers.html', url=oAuth.discord_login_uri, datas=datas, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'])
+		return render_template('servers.html', url=utils.DISCORD_LOGIN_URI, datas=datas, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'])
 
 
 	@app.route('/dashboard/<int:guild_id>', methods=['POST', 'GET'])
 	def dashboard(guild_id):
 		if not session['user_state_login']:
-			return redirect(oAuth.discord_login_uri)
+			return redirect(utils.discord_login_uri)
 
-		datas_guild = oAuth.get_guild_channel_roles(guild_id)
+		datas_guild = utils.get_guild_channel_roles(guild_id)
 		guilds = session['user_guilds']
-		guild_data = oAuth.get_db_guild_data(guild_id)
+		guild_data = utils.get_db_guild_data(guild_id)
 		new_idea_channel = 0
 		
 		if request.method == 'POST':
 			if len(request.form['new_prefix']) < 1:
-				return render_template('dashboard.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global', alert=['danger', 'Укажите префикс'])
+				return render_template('dashboard.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global', alert=['danger', 'Укажите префикс'])
 			elif len(request.form['new_prefix']) > 3:
-				return render_template('dashboard.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global', alert=['danger', 'Префикс должен быть меньше 4 символов'])
+				return render_template('dashboard.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global', alert=['danger', 'Префикс должен быть меньше 4 символов'])
 			else:
 				new_prefix = request.form['new_prefix']
 
@@ -162,84 +157,85 @@ def site_run(client):
 			cursor.execute(sql, val)
 			conn.commit()
 			
-		guild_data = oAuth.get_db_guild_data(guild_id)
-		return render_template('dashboard.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global')
+		guild_data = utils.get_db_guild_data(guild_id)
+		return render_template('dashboard.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global')
 
 
 	@app.route('/dashboard/<int:guild_id>/moderation')
 	def dashboard_moderation(guild_id):
 		if not session['user_state_login']:
-			return redirect(oAuth.discord_login_uri)
+			return redirect(utils.DISCORD_LOGIN_URI)
 
-		guild_data = oAuth.get_db_guild_data(guild_id)
-		datas_guild = oAuth.get_guild_channel_roles(guild_id)
+		guild_data = utils.get_db_guild_data(guild_id)
+		datas_guild = utils.get_guild_channel_roles(guild_id)
 		guilds = session['user_guilds']
 
-		return render_template('dashboard.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='moderation')
+		return render_template('dashboard.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='moderation')
 
 
 	@app.route('/dashboard/<int:guild_id>/economy')
 	def dashboard_economy(guild_id):
 		if not session['user_state_login']:
-			return redirect(oAuth.discord_login_uri)
+			return redirect(utils.DISCORD_LOGIN_URI)
 
-		guild_data = oAuth.get_db_guild_data(guild_id)
-		datas_guild = oAuth.get_guild_channel_roles(guild_id)
+		guild_data = utils.get_db_guild_data(guild_id)
+		datas_guild = utils.get_guild_channel_roles(guild_id)
 		guilds = session['user_guilds']
 
-		return render_template('dashboard.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='economy')
+		return render_template('dashboard.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='economy')
 
 
 	@app.route('/dashboard/<int:guild_id>/levels')
 	def dashboard_levels(guild_id):
 		if not session['user_state_login']:
-			return redirect(oAuth.discord_login_uri)
+			return redirect(utils.DISCORD_LOGIN_URI)
 
-		guild_data = oAuth.get_db_guild_data(guild_id)
-		datas_guild = oAuth.get_guild_channel_roles(guild_id)
+		guild_data = utils.get_db_guild_data(guild_id)
+		datas_guild = utils.get_guild_channel_roles(guild_id)
 		guilds = session['user_guilds']
 
-		return render_template('dashboard.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='levels')
+		return render_template('dashboard.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='levels')
 
 
 	@app.route('/dashboard/<int:guild_id>/welcome')
 	def dashboard_welcome(guild_id):
 		if not session['user_state_login']:
-			return redirect(oAuth.discord_login_uri)
+			return redirect(utils.DISCORD_LOGIN_URI)
 
-		guild_data = oAuth.get_db_guild_data(guild_id)
-		datas_guild = oAuth.get_guild_channel_roles(guild_id)
+		guild_data = utils.get_db_guild_data(guild_id)
+		datas_guild = utils.get_guild_channel_roles(guild_id)
 		guilds = session['user_guilds']
 
-		return render_template('dashboard.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='welcome')
+		return render_template('dashboard.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='welcome')
+
 
 	@app.route('/dashboard/<int:guild_id>/utils')
 	def dashboard_utils(guild_id):
 		if not session['user_state_login']:
-			return redirect(oAuth.discord_login_uri)
+			return redirect(utils.DISCORD_LOGIN_URI)
 
-		guild_data = oAuth.get_db_guild_data(guild_id)
-		datas_guild = oAuth.get_guild_channel_roles(guild_id)
+		guild_data = utils.get_db_guild_data(guild_id)
+		datas_guild = utils.get_guild_channel_roles(guild_id)
 		guilds = session['user_guilds']
 
-		return render_template('dashboard.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='utils')
+		return render_template('dashboard.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='utils')
 
 
 	@app.route('/commands')
 	def commands():
 		try:
-			return render_template('commands.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], client=client)
+			return render_template('commands.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], client=client)
 		except:
-			return render_template('commands.html', url=oAuth.discord_login_uri, client=client)
+			return render_template('commands.html', url=utils.DISCORD_LOGIN_URI, client=client)
 
 
 	@app.route('/profile')
 	def profile():
 		if not session['user_state_login']:
-			return redirect(oAuth.discord_login_uri)
+			return redirect(utils.DISCORD_LOGIN_URI)
 
 		access_token = session['access_token']
-		user_datas = oAuth.get_user_data(access_token)
+		user_datas = utils.get_user_data(access_token)
 
 		sql_1 = ("""SELECT money FROM users WHERE user_id = %s AND user_id = %s""")
 		val_1 = (user_datas[0]['id'], user_datas[0]['id'])
@@ -258,17 +254,17 @@ def site_run(client):
 		bio = cursor.fetchone()[0]
 
 		try:
-			return render_template('profile.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], user_data=[user_datas[0]['id'], len(user_datas[1]), money, bio])
+			return render_template('profile.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], user_data=[user_datas[0]['id'], len(user_datas[1]), money, bio])
 		except:
-			return render_template('profile.html', url=oAuth.discord_login_uri)
+			return render_template('profile.html', url=utils.DISCORD_LOGIN_URI)
 
 
 	@app.route('/stats')
 	def stats():
 		try:
-			return render_template('stats.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'])
+			return render_template('stats.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'])
 		except:
-			return render_template('stats.html', url=oAuth.discord_login_uri)
+			return render_template('stats.html', url=utils.DISCORD_LOGIN_URI)
 
 
 	@app.route('/logout')
@@ -281,20 +277,20 @@ def site_run(client):
 
 		return redirect('/')
 
-	
+
 	@app.errorhandler(404)
 	def not_found_error(error):
 		try:
-			return render_template('error_404.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name']), 404
+			return render_template('error_404.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name']), 404
 		except:
-			return render_template('error_404.html', url=oAuth.discord_login_uri), 404
+			return render_template('error_404.html', url=utils.DISCORD_LOGIN_URI), 404
+
 
 	@app.errorhandler(500)
 	def internal_error(error):
 		try:
-			return render_template('error_500.html', url=oAuth.discord_login_uri, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], error=error), 500
+			return render_template('error_500.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], error=error), 500
 		except:
-			return render_template('error_500.html', url=oAuth.discord_login_uri, error=error), 500
+			return render_template('error_500.html', url=utils.DISCORD_LOGIN_URI, error=error), 500
 
 	app.run()
-
