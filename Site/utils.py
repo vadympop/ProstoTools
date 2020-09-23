@@ -1,9 +1,15 @@
+# Imports
 import requests
 import json
 import os
 import mysql.connector
 
+from Site import conn, cursor
+
+
+# Create new class Utils
 class Utils:
+	# Const variables
 	CLIENT_ID = '700767394154414142'
 	CLIENT_SECRET = 'DsxERoWInGaqcX1CoJQu3QfNX7pak-Yd'
 	SCOPE = 'identify%20guilds'
@@ -14,6 +20,11 @@ class Utils:
 	CLIENT_TOKEN = os.environ['BOT_TOKEN']
 
 	def get_access_token(self, code):
+		"""Return the access token of user
+		Requires code
+
+		"""
+
 		payload = {
 			'client_id': self.CLIENT_ID,
 			'client_secret': self.CLIENT_SECRET,
@@ -26,13 +37,18 @@ class Utils:
 			'Content-Type': 'application/x-www-form-urlencoded'
 		}
 
-		access_token = requests.post(url=self.DISCORD_TOKEN_URI, data=payload, headers=headers)
+		access_token = requests.post(url=self.DISCORD_TOKEN_URI, data=payload, headers=headers) # Get a data from discord API
 		json = access_token.json()
 
 		return json.get('access_token')
 
 	
 	def get_user_data(self, access_token):
+		"""Return an user data and user guilds
+		Requires user access token 
+
+		"""
+
 		url = self.DISCORD_API_URI+'/users/@me'
 
 		headers = {
@@ -40,46 +56,57 @@ class Utils:
 		}
 		user_data = requests.get(url = url, headers = headers)
 		user_json = user_data.json()
-		user_data_guilds = requests.get(url = url+'/guilds', headers = headers)
+		user_data_guilds = requests.get(url = url+'/guilds', headers = headers) # Get a data from discord API
 		user_guilds = user_data_guilds.json()
 
 		return [user_json, user_guilds]
 
 	
 	def get_guild_channel_roles(self, guild_id):
+		"""Return a guild channels and roles
+		Requires guild id
+
+		"""
+
 		headers = {
 			'Authorization': f'Bot {self.CLIENT_TOKEN}'
 		}
 
-		guild_channels_obj = requests.get(url=self.DISCORD_API_URI+f'/guilds/{guild_id}/channels', headers=headers)
+		guild_channels_obj = requests.get(url=self.DISCORD_API_URI+f'/guilds/{guild_id}/channels', headers=headers) # Get a data from discord API
 		guild_channels = guild_channels_obj.json()
-		guild_channels = sorted(guild_channels, key=lambda channel: channel['position'])
+		guild_channels = sorted(guild_channels, key=lambda channel: channel['position']) # Sort a guild channels of position 
 
-		guild_roles_obj = requests.get(url=self.DISCORD_API_URI+f'/guilds/{guild_id}/roles', headers=headers)
+		guild_roles_obj = requests.get(url=self.DISCORD_API_URI+f'/guilds/{guild_id}/roles', headers=headers) # Get a data from discord API
 		guild_roles = guild_roles_obj.json()
-		guild_roles = sorted(guild_roles, key=lambda role: role['position'])
+		guild_roles = sorted(guild_roles, key=lambda role: role['position']) # Sort a guild roles of position 
 		guild_roles.reverse()
 
 		return [guild_channels, guild_roles]
 
 
 	def get_db_guild_data(self, guild_id):
-		conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
-		cursor = conn.cursor(buffered = True)
+		"""Return a guild settings from database
+		Requires a guild id
+
+		"""
 
 		cursor.execute("""SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s""", (guild_id, guild_id))
 		guild_data = cursor.fetchone()
 
 		donate = guild_data[8]
 		react_channels = []
+
+		# Re-work string "bool" format in bool
 		if donate == 'True':
 			donate = True
 		elif donate == 'False':
 			donate = False
 
+		# Int channels ids re-work in string format
 		for channel in json.loads(guild_data[17]):
 			react_channels.append(str(channel))
 
+		# Create a dict with settings guild from database
 		dict_guild_data = {
 			'guild_id': int(guild_data[0]),
 			'purge': int(guild_data[1]),
