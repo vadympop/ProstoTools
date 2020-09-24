@@ -5,9 +5,11 @@ import mysql.connector
 import requests
 
 from Site.config import Config
+from Site.utils import Utils
 from Site import app, cursor, conn, utils
 from flask import render_template, redirect, request, url_for, session
 
+utils = Utils()
 
 @app.before_request
 def make_session_permanent():
@@ -304,10 +306,12 @@ def site_run(client):
 
 	@app.route('/stats')
 	def stats():
+		channels = len([str(channel.id) for guild in client.guilds for channel in guild.channels ])
+
 		try:
-			return render_template('stats.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'])
+			return render_template('stats.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], bot_stats=[channels, len(client.guilds), len(client.users)])
 		except:
-			return render_template('stats.html', url=utils.DISCORD_LOGIN_URI)
+			return render_template('stats.html', url=utils.DISCORD_LOGIN_URI, bot_stats=[channels, len(client.guilds), len(client.users)])
 
 
 	@app.route('/logout')
@@ -341,7 +345,7 @@ def site_run(client):
 	def internal_error(error):
 		"""Catch the 500 code error
 		And return html page
-		
+
 		"""
 		
 		try:

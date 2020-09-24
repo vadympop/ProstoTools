@@ -65,11 +65,16 @@
 }
 
 .navigation{
-    padding-top: 1%;
+    display: flex;
+    justify-content: center;
 }
 
 .navigation ul{
+    display: flex;
+    align-items: center;
     list-style: none;
+    height: 75px;
+    margin-bottom: 0px;
 }
 
 .navigation > ul{
@@ -79,13 +84,15 @@
 
 .navigation > ul li a{
     display: block;
-    padding: 15px;
+    padding: 10px;
     font-size: 26px;
     color: #fff;
     text-decoration: none;
 }
 
 .navigation > ul li{
+    display: flex;
+    align-items: center;
     position: relative;
     transition: 0.1s;
 }
@@ -425,3 +432,44 @@
 .command_usage{
     color: #909090;
 }
+
+.global-stats{
+    width: 70%;
+    height: auto;
+    background-color: #444;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    border-radius: 5px;
+    margin-bottom: 3%;
+}
+
+.global-stat{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.global-stat i{
+    font-size: 40px;
+    color: #a6a6a6;
+}
+
+.stat-guilds{
+    margin-left: 4%;
+    margin-right: 4%;
+}
+
+.global-count{
+    font-size: 28px;
+    color: #a6a6a6;
+}
+
+.global-stat-text{
+    font-size: 22px;
+    color: #222;
+}
+
+
