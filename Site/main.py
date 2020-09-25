@@ -77,7 +77,7 @@ def site_run(client):
 
 		datas = []
 		session_guild_datas = {}
-		guilds = ' '.join(str(guild.id) for guild in client.guilds).split() # Get the user guilds
+		guilds = [str(guild.id) for guild in client.guilds] # Get the id client guilds in format string
 
 		try:
 
@@ -288,7 +288,7 @@ def site_run(client):
 		money = 0
 
 		# Get all money from all user guilds
-		all_money = ' '.join(str(i[0]) for i in list_money).split(' ')
+		all_money = [str(i[0]) for i in list_money]
 		for num in all_money:
 			money += int(num)
 
@@ -312,6 +312,40 @@ def site_run(client):
 			return render_template('stats.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], bot_stats=[channels, len(client.guilds), len(client.users)])
 		except:
 			return render_template('stats.html', url=utils.DISCORD_LOGIN_URI, bot_stats=[channels, len(client.guilds), len(client.users)])
+
+
+	@app.route('/transactions')
+	def transactions():
+		
+		# Check if user is logging 
+		if not session['user_state_login']:
+			return redirect(utils.DISCORD_LOGIN_URI)
+
+		access_token = session['access_token'] # Get the user access token form session
+		user_datas = utils.get_user_data(access_token)
+
+		sql = ("""SELECT transantions FROM users WHERE user_id = %s AND user_id = %s""")
+		val = (user_datas[0]['id'], user_datas[0]['id'])
+
+		cursor.execute(sql, val) # Database query
+		data = cursor.fetchall()
+		transactions = [t for transactions in data for transaction in transactions for t in json.loads(transaction)]
+		for t in transactions:
+			if isinstance(t['to'], int):
+				t.update({'to': client.get_user(int(t['to']))})
+
+			if isinstance(t['from'], int):
+				t.update({'from': client.get_user(int(t['from']))})
+			
+			guild_icon = client.get_guild(int(t['guild_id'])).icon_url
+			if str(guild_icon) == '':
+				guild_icon = 'https://cdn.discordapp.com/attachments/717783820308316272/743448353672790136/1.png'
+			t.update({'guild_icon': guild_icon})
+
+		try:
+			return render_template('transactions.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], transactions=transactions)
+		except:
+			return render_template('transactions.html', url=utils.DISCORD_LOGIN_URI, transactions=transactions)
 
 
 	@app.route('/logout')

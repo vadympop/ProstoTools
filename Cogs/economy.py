@@ -507,7 +507,8 @@ class Economy(commands.Cog, name = 'Economy'):
 					'from': ctx.author.id,
 					'cash': func_cost,
 					'time': str(datetime.datetime.today()),
-					'id': id_trans
+					'id': id_trans,
+					'guild_id': ctx.guild.id
 				}
 				cur_transantions.append(info_transantion)
 
@@ -559,7 +560,8 @@ class Economy(commands.Cog, name = 'Economy'):
 					'from': ctx.author.id,
 					'cash': cost,
 					'time': str(datetime.datetime.today()),
-					'id': id_trans
+					'id': id_trans,
+					'guild_id': ctx.guild.id
 				}
 				cur_transantions.append(info_transantion)
 
@@ -1019,14 +1021,16 @@ class Economy(commands.Cog, name = 'Economy'):
 				'from': ctx.author.id,
 				'cash': num,
 				'time': str(datetime.datetime.today()),
-				'id': id_1
+				'id': id_1,
+				'guild_id': ctx.guild.id
 			}
 			info_transantion_2 = {
 				'to': member.id,
 				'from': ctx.author.id,
 				'cash': num,
 				'time': str(datetime.datetime.today()),
-				'id': id_2
+				'id': id_2,
+				'guild_id': ctx.guild.id
 			}
 
 			cur_transantions1.append(info_transantion_1)
@@ -1043,14 +1047,14 @@ class Economy(commands.Cog, name = 'Economy'):
 			self.cursor.execute(sql_2, val_2)
 			self.conn.commit()
 
-			emb = discord.Embed( description = f"**Вы успешно совершили транзакцию {member.mention} на суму {num}$**", colour = discord.Color.green() )
+			emb = discord.Embed( description = f"**Вы успешно совершили транзакцию `{member.mention}` на суму `{num}$`**", colour = discord.Color.green() )
 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
-			emb = discord.Embed( description = f"**Вам {ctx.author.mention} перевел деньги на суму {num}$**", colour = discord.Color.green() )
+			emb = discord.Embed( description = f"**Вам {ctx.author.mention} перевел деньги на суму `{num}$`, сервер `{ctx.guild.name}`**", colour = discord.Color.green() )
 
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )

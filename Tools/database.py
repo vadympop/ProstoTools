@@ -174,21 +174,21 @@ class DB:
 		self.cursor.execute(f"""SELECT id FROM bot_stats""")
 		global_data = self.cursor.fetchall()
 
-		stat_ids = ' '.join(str(stat[0]) for stat in global_data).split(' ')
+		stat_ids = [str(stat[0]) for stat in global_data]
 		stat_ids.reverse()
 		try:
 			new_id = int(stat_ids[0])+1
 		except:
 			new_id = 0
 
-		counter = ' '.join(str(stat[1]) for stat in data).split(' ')
+		counter = [str(stat[1]) for stat in data]
 		counter.reverse()
 		try:
 			new_count = int(counter[0])+1
 		except:
 			new_count = 1
 
-		main_counter = ' '.join(str(stat[1]) for stat in main_data).split(' ')
+		main_counter = [str(stat[1]) for stat in main_data]
 		main_counter.reverse()
 		try:
 			new_main_count = int(main_counter[0])+1
