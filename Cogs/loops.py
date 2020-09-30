@@ -50,15 +50,15 @@ class Loops(commands.Cog, name = 'Loops'):
 			DB().add_amout_command(entity='ping', add_counter=int(ping))
 
 	
-	@tasks.loop( seconds = 86400 )
+	@tasks.loop(seconds=86400)
 	async def reputLoop(self):
-		self.cursor.execute("""SELECT * FROM users""")
+		self.cursor.execute("""SELECT user_id, messages FROM users""")
 		data = self.cursor.fetchall()
 
 		for profile in data:
 			if profile != []:
-				all_message = profile[14][1]
-				self.cursor.execute(("""UPDATE users SET messages = %s WHERE user_id = %s AND guild_id = %s"""), (json.dumps([0, all_message, [None, None]]), profile[0], profile[1]))
+				all_message = profile[1][1]
+				self.cursor.execute(("""UPDATE users SET messages = %s WHERE user_id = %s"""), (json.dumps([0, int(all_message), [None, None]]), int(profile[0])))
 				self.conn.commit()
 
 
