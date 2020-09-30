@@ -42,10 +42,7 @@ class DB:
 			self.cursor.execute(sql, val)
 			data = self.cursor.fetchone()
 		else:
-			sql = ("""SELECT * FROM punishments WHERE time < %s AND time < %s""")
-			val = (float(time.time()))
-
-			self.cursor.execute(sql, val)
+			self.cursor.execute(f"""SELECT * FROM punishments WHERE time < {float(time.time())}""")
 			data = self.cursor.fetchall()
 
 		return data

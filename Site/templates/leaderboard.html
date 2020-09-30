@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block url_css_1 %}
+{{ url_for('static', filename='css/main.css') }}
+{% endblock %}
+
+{% block title %}
+ProstoTools
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="wrap d-flex justify-content-center">
+        <span class="leaderboard-title">Топ-100 пользователей нашего бота</span>
+        {% for user in users_data %}
+            <div class="leader">
+                <span>{{ user[list(user.keys())[0]]['avatar'] }}</span>
+                <img src="{{ user[list(user.keys())[0]]['avatar'] }}" alt="" class="leader-avatar">
+                <div class="leader-fields">
+                    <span>{{ user }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

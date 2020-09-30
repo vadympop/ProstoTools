@@ -348,6 +348,33 @@ def site_run(client):
 			return render_template('transactions.html', url=utils.DISCORD_LOGIN_URI, transactions=transactions)
 
 
+	@app.route('/leaderboard')
+	def leaderboard():
+		cursor.execute("""SELECT money, reputation, exp, level, coins, user_id FROM users ORDER BY exp DESC LIMIT 100""") # Database query
+		data = cursor.fetchall()
+		users = []
+
+		for user in data:
+			if client.get_user(int(user[5])) is not None:
+				users.append({user[5]: {
+										'exp': user[2], 
+										'reputation': user[1], 
+										'money': user[0], 
+										'lvl': user[3], 
+										'coins': user[4]},
+										'avatar': client.get_user(int(user[5])).avatar_url
+									})
+
+		# def sort_func(e):
+		# 	return e[list(e.keys())[0]]['exp']
+
+		# users.sort(key=sort_func, reverse=True)
+		try:
+			return render_template('leaderboard.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], users_data=users, list=list)
+		except:
+			return render_template('leaderboard.html', url=utils.DISCORD_LOGIN_URI, users_data=users, list=list)
+
+
 	@app.route('/logout')
 	def logout():
 		"""Logout function"""

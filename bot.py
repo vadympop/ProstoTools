@@ -27,8 +27,10 @@ def get_prefix( client, message ):
 	data = DB().sel_guild(guild = message.guild)
 	return str(data['prefix'])
 
-
-client = commands.Bot( command_prefix = get_prefix, case_insensitive = True )
+intents = discord.Intents.default()
+intents.members = True
+intents.guilds = True
+client = commands.Bot( command_prefix = get_prefix, case_insensitive = True, intents=intents )
 client.remove_command( 'help' )
 load_error = ''
 now_date = str(datetime.datetime.today())[:-16]

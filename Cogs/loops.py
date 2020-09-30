@@ -5,6 +5,7 @@ import json
 import random
 import asyncio
 import time
+import mysql.connector
 from configs import configs
 from Tools.database import DB
 from discord.ext import commands, tasks
@@ -16,7 +17,9 @@ class Loops(commands.Cog, name = 'Loops'):
 
 	def __init__(self, client):
 		self.client = client
-		self.mute_loop.start()
+		self.conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
+		self.cursor = self.conn.cursor(buffered = True)
+		# self.mute_loop.start()
 		self.reputLoop.start()
 		self.ping_stat_loop.start()
 
@@ -40,11 +43,11 @@ class Loops(commands.Cog, name = 'Loops'):
 						await member.remove_roles(mute_role)
 
 
-	@tasks.loop(seconds=5)
+	@tasks.loop(minutes=30)
 	async def ping_stat_loop(self):
-		ping = round(self.client.latency * 1000)
-		print(ping)
-		DB().add_amout_command(entity='ping', add_counter=int(ping))
+		if self.client.is_ready():
+			ping = round(self.client.latency * 1000)
+			DB().add_amout_command(entity='ping', add_counter=int(ping))
 
 	
 	@tasks.loop( seconds = 86400 )
@@ -55,7 +58,7 @@ class Loops(commands.Cog, name = 'Loops'):
 		for profile in data:
 			if profile != []:
 				all_message = profile[14][1]
-				self.cursor.execute("""UPDATE users SET messages = %s WHERE user_id = %s AND guild_id = %s""", (json.dumps([0, all_message, [None, None]])), profile[0], profile[1])
+				self.cursor.execute(("""UPDATE users SET messages = %s WHERE user_id = %s AND guild_id = %s"""), (json.dumps([0, all_message, [None, None]]), profile[0], profile[1]))
 				self.conn.commit()
 
 
