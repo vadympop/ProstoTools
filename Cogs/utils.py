@@ -111,7 +111,7 @@ class Utils(commands.Cog, name = 'Utils'):
 				await k.edit( slowmode_delay = 0 )
 
 
-	@commands.command(brief = 'True', name = 'ban-list', description = '**Показывает заблокированных пользователей**', usage = 'ban-list')
+	@commands.command(aliases=['banlist'], brief = 'True', name = 'ban-list', description = '**Показывает заблокированных пользователей**', usage = 'ban-list')
 	@commands.check(check_role)
 	async def bannedusers( self, ctx ):
 		client = self.client
@@ -138,7 +138,7 @@ class Utils(commands.Cog, name = 'Utils'):
 			await ctx.send( embed = emb )
 
 
-	@commands.command(name = 'voice-rooms', hidden = True, description = '**Создает голосовой канал для создания приватных голосовых комнат**', usage = 'voice-rooms [Вкл/Выкл]')
+	@commands.command(aliases=['voicerooms'], name = 'voice-rooms', hidden = True, description = '**Создает голосовой канал для создания приватных голосовых комнат**', usage = 'voice-rooms [Вкл/Выкл]')
 	@commands.check(check_owner)
 	async def voicechannel( self, ctx, state: str ):
 		client = self.client
@@ -194,7 +194,7 @@ class Utils(commands.Cog, name = 'Utils'):
 			return
 
 
-	@commands.command(name = 'server-stats', hidden = True, description = '**Создает статистику сервера**', usage = 'server-stats [Счетчик]')
+	@commands.command(aliases=['serverstats'], name = 'server-stats', hidden = True, description = '**Создает статистику сервера**', usage = 'server-stats [Счетчик]')
 	@commands.check(check_owner)
 	async def serverstats( self, ctx, stats_count ):
 		client = self.client
@@ -244,7 +244,7 @@ class Utils(commands.Cog, name = 'Utils'):
 		self.conn.commit()
 
 
-	@commands.command(name = 'mass-role', hidden = True, description = '**Удаляет или добавляет роль участникам с указаной ролью**', usage = 'mass-role [Действие(add/del/remove)] [@Роль] [@Изменяемая роль]')
+	@commands.command(aliases=['massrole'], name = 'mass-role', hidden = True, description = '**Удаляет или добавляет роль участникам с указаной ролью**', usage = 'mass-role [Действие(add/del/remove)] [@Роль] [@Изменяемая роль]')
 	@commands.cooldown(1, 1800, commands.BucketType.member)
 	@commands.has_permissions(administrator = True)
 	async def mass_role(self, ctx, type_act: str, for_role: discord.Role, role: discord.Role):

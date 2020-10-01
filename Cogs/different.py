@@ -32,7 +32,7 @@ class Different(commands.Cog, name = 'Different'):
 		self.cursor = self.conn.cursor(buffered = True)
 
 
-	@commands.command(name = 'user-send', description = '**Отправляет сообщения указаному участнику(Cooldown - 1 мин после двох попыток)**', usage = 'user-send [@Участник] [Сообщения]')
+	@commands.command(aliases=['usersend'], name = 'user-send', description = '**Отправляет сообщения указаному участнику(Cooldown - 1 мин после двох попыток)**', usage = 'user-send [@Участник] [Сообщения]')
 	@commands.cooldown(2, 60, commands.BucketType.member)
 	async def send( self, ctx, member: discord.Member, *, message ):
 		client = self.client
@@ -80,7 +80,7 @@ class Different(commands.Cog, name = 'Different'):
 			return
 
 
-	@commands.command(name = 'feedback', description = '**Отправляет описания бага в боте разработчикам или идею к боту(Cooldown - 2ч)**', usage = 'feedback [bug/idea] [Описания бага или идея к боту]')
+	@commands.command(aliases=['devs'], name = 'feedback', description = '**Отправляет описания бага в боте разработчикам или идею к боту(Cooldown - 2ч)**', usage = 'feedback [bug/idea] [Описания бага или идея к боту]')
 	@commands.cooldown(1, 7200, commands.BucketType.member)
 	async def devs( self, ctx, typef, *, msg ):
 		DB().add_amout_command(entity=ctx.command.name)
@@ -124,7 +124,7 @@ class Different(commands.Cog, name = 'Different'):
 			return
 
 
-	@commands.command(name = 'user-info', description = '**Показывает информацию указаного учасника**', usage = 'user-info [@Участник]')
+	@commands.command(aliases=['userinfo', 'user'], name = 'user-info', description = '**Показывает информацию указаного учасника**', usage = 'user-info [@Участник]')
 	async def userinfo( self, ctx, member: discord.Member = None ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
@@ -162,7 +162,7 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.send( embed = emb )  
 
 
-	@commands.command(name = 'user-avatar', description = '**Показывает аватар указаного учасника**', usage = 'user-avatar [@Участник]')
+	@commands.command(aliases=['useravatar', 'avatar'], name = 'user-avatar', description = '**Показывает аватар указаного учасника**', usage = 'user-avatar [@Участник]')
 	async def avatar( self, ctx, member: typing.Optional[ discord.Member ] = None ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
@@ -212,7 +212,7 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.send( embed = emb )
 
 
-	@commands.command(name = 'server-info', description = '**Показывает информацию о сервере**', usage = 'server-info')
+	@commands.command(aliases=['server', 'serverinfo', 'guild', 'guildinfo', 'guild-info'], name = 'server-info', description = '**Показывает информацию о сервере**', usage = 'server-info')
 	async def serverinfo( self, ctx ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
@@ -339,7 +339,7 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.send( embed = emb )
 
 
-	@commands.command(name = 'guild-idea', description = '**Отправляет вашу идею (Cooldown - 30мин)**', usage = 'guild-idea [Ваша идея]')
+	@commands.command(aliases=['idea', 'guildidea'], name = 'guild-idea', description = '**Отправляет вашу идею (Cooldown - 30мин)**', usage = 'guild-idea [Ваша идея]')
 	@commands.cooldown(1, 7200, commands.BucketType.member)
 	async def idea( self, ctx, *, arg ):
 		client = self.client
@@ -387,7 +387,7 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.send( embed = emb )
 
 
-	@commands.command(name = 'message-forward', description = '**Перенаправляет ваше сообщения в указаный канал(Cooldown - 2 мин)**', usage = 'message-forward [Id Канала] [Сообщения]')
+	@commands.command(aliases=['msg-f', 'msg-forward', 'msgf'], name = 'message-forward', description = '**Перенаправляет ваше сообщения в указаный канал(Cooldown - 2 мин)**', usage = 'message-forward [Id Канала] [Сообщения]')
 	@commands.cooldown(1, 120, commands.BucketType.member)
 	async def msgforw( self, ctx, channel: int, *, msg ):
 		client = self.client
@@ -433,7 +433,7 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.send( embed = emb )
 
 
-	@commands.command(name = 'random-number', description = '**Пишет рандомное число в указаном диапазоне**', usage = 'random-number [Первое число (От)] [Второе число (До)]')
+	@commands.command(aliases=['rnum', 'randomnumber'], name = 'random-number', description = '**Пишет рандомное число в указаном диапазоне**', usage = 'random-number [Первое число (От)] [Второе число (До)]')
 	async def rnum( self, ctx, rnum1: int, rnum2: int ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)

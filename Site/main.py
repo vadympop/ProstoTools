@@ -352,27 +352,26 @@ def site_run(client):
 	def leaderboard():
 		cursor.execute("""SELECT money, reputation, exp, level, coins, user_id FROM users ORDER BY exp DESC LIMIT 100""") # Database query
 		data = cursor.fetchall()
-		users = []
+		users = {}
 
 		for user in data:
 			if client.get_user(int(user[5])) is not None:
-				users.append({user[5]: {
-										'exp': user[2], 
-										'reputation': user[1], 
-										'money': user[0], 
-										'lvl': user[3], 
-										'coins': user[4]},
-										'avatar': client.get_user(int(user[5])).avatar_url
+				users.update({user[5]: {
+											'exp': user[2], 
+											'reputation': user[1], 
+											'money': user[0], 
+											'lvl': user[3], 
+											'coins': user[4],
+											'avatar': client.get_user(int(user[5])).avatar_url,
+											'user': client.get_user(int(user[5])).name+client.get_user(int(user[5])).discriminator
+										}
 									})
 
-		# def sort_func(e):
-		# 	return e[list(e.keys())[0]]['exp']
-
-		# users.sort(key=sort_func, reverse=True)
+		users_list = sorted(users, key=lambda user: users[user]['exp'], reverse=True)
 		try:
-			return render_template('leaderboard.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], users_data=users, list=list)
+			return render_template('leaderboard.html', url=utils.DISCORD_LOGIN_URI, avatar=session['user_avatar'], login=session['user_state_login'], user_name=session['user_name'], users_data=users, users_list=users_list)
 		except:
-			return render_template('leaderboard.html', url=utils.DISCORD_LOGIN_URI, users_data=users, list=list)
+			return render_template('leaderboard.html', url=utils.DISCORD_LOGIN_URI, users_data=users, users_list=users_list)
 
 
 	@app.route('/logout')

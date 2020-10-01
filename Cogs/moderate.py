@@ -96,7 +96,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 					break
 
 
-	@commands.command(brief = 'True', name = 'temp-role', description = '**Дает указаную роль учаснику на время**', usage = 'temp-role [@Участник] [Id роли] [Длительность]')
+	@commands.command(aliases=['temprole'], brief = 'True', name = 'temp-role', description = '**Дает указаную роль учаснику на время**', usage = 'temp-role [@Участник] [Id роли] [Длительность]')
 	@commands.check(check_role)	
 	async def temprole( self, ctx, member: discord.Member, role: discord.Role, role_time: int = 0, role_typetime: str = None ):
 		client = self.client
@@ -158,7 +158,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await member.remove_roles( role )
 
 
-	@commands.command(brief = 'True', name = 'slow-mode', description = '**Ставить медленний режим указаному каналу(Если канал не указан медленный режим ставиться всем каналам, 0 - выключает медленный режим, длительность не указывать меньше нуля)**', usage = 'slow-mode [Время] |Id канала|')
+	@commands.command(aliases=['slowmode'], brief = 'True', name = 'slow-mode', description = '**Ставить медленний режим указаному каналу(Если канал не указан медленный режим ставиться всем каналам, 0 - выключает медленный режим, длительность не указывать меньше нуля)**', usage = 'slow-mode [Время] |Id канала|')
 	@commands.check(check_role)	
 	async def slowmode( self, ctx, delay: int, channel: typing.Optional[ int ] ):
 		client = self.client
@@ -265,7 +265,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		await member.send( embed = emb )
 
 
-	@commands.command(brief = 'True', name = 'soft-ban', description = '**Апаратно банит указаного участника - участник имеет доступ к серверу, но к каналам доступа нет**', usage = 'soft-ban [@Участник] |Причина|')
+	@commands.command(aliases=['softban'], brief = 'True', name = 'soft-ban', description = '**Апаратно банит указаного участника - участник имеет доступ к серверу, но к каналам доступа нет**', usage = 'soft-ban [@Участник] |Причина|')
 	@commands.check(check_role)	
 	async def softban(self, ctx, member: discord.Member, *, reason = None):
 		client = self.client
@@ -325,7 +325,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		await member.add_roles( role )
 
 
-	@commands.command(brief = 'True', name = 'unsoft-ban', description = '**Снимает апаратный с указаного участника**', usage = 'unsoft-ban [@Участник]')
+	@commands.command(aliases=['unsoftban'], brief = 'True', name = 'unsoft-ban', description = '**Снимает апаратный с указаного участника**', usage = 'unsoft-ban [@Участник]')
 	@commands.check(check_role)	
 	async def unsoftban(self, ctx, member: discord.Member):
 		client = self.client
@@ -450,7 +450,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				await ctx.guild.unban( member )
 
 
-	@commands.command(hidden = True, name = 'un-ban', description = '**Снимает бан из указаного учасника**', usage = 'un-ban [@Участник]')
+	@commands.command(aliases=['unban'], hidden = True, name = 'un-ban', description = '**Снимает бан из указаного учасника**', usage = 'un-ban [@Участник]')
 	@commands.has_permissions( ban_members = True )
 	async def unban( self, ctx, *, member: discord.User):
 		client = self.client
@@ -548,7 +548,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await ctx.send( embed = emb )
 
 
-	@commands.command(brief = 'True', name = 'un-vmute', description = '**Снимает мьют с указаного участника в голосовых каналах**', usage = 'un-vmute [@Участник]')
+	@commands.command(aliases=['unvmute'], brief = 'True', name = 'un-vmute', description = '**Снимает мьют с указаного участника в голосовых каналах**', usage = 'un-vmute [@Участник]')
 	@commands.check(check_role)	
 	async def unvmute( self, ctx, member: discord.Member):
 		client = self.client
@@ -721,7 +721,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			DB().set_punishment(type_punishment='mute', time=times, member=member)
 
 
-	@commands.command(brief = 'True', name = 'un-mute', description = '**Размютит указаного учасника**', usage = 'un-mute [@Участник]')
+	@commands.command(aliases=['unmute'], brief = 'True', name = 'un-mute', description = '**Размютит указаного учасника**', usage = 'un-mute [@Участник]')
 	@commands.check(check_role)	
 	async def unmute( self, ctx, member: discord.Member ):
 		client = self.client
@@ -759,7 +759,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				return
 
 
-	@commands.command(brief = 'True', name = 'clear-warns', description = '**Очищает предупреждения в указаного пользователя**', usage = 'clear-warns [@Участник]')
+	@commands.command(aliases=['clearwarns'], brief = 'True', name = 'clear-warns', description = '**Очищает предупреждения в указаного пользователя**', usage = 'clear-warns [@Участник]')
 	@commands.check(check_role)	
 	async def clearwarn( self, ctx, member: discord.Member ):
 		client = self.client
@@ -937,7 +937,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		self.conn.commit()
 
 
-	@commands.command(brief = 'True', name = 'remove-warn', aliases = ['rem-warn'], description = '**Снимает указаное предупреждения в участика**', usage = 'remove-warn [@Участник] [Id предупреждения]')
+	@commands.command(aliases=['remwarn', 'rem-warn'], brief = 'True', name = 'remove-warn', aliases = ['rem-warn'], description = '**Снимает указаное предупреждения в участика**', usage = 'remove-warn [@Участник] [Id предупреждения]')
 	@commands.check(check_role)	
 	async def rem_warn(self, ctx, member: discord.Member, warn_id: int):
 		client = self.client

@@ -4,6 +4,12 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+a:focus{
+    border: none;
+    user-select: none;
+    outline: none;
+}
+
 .page{
     overflow: hidden;
     display: flex;

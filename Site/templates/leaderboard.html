@@ -11,12 +11,11 @@ ProstoTools
 <div class="container">
     <div class="wrap d-flex justify-content-center">
         <span class="leaderboard-title">Топ-100 пользователей нашего бота</span>
-        {% for user in users_data %}
+        {% for user in users_list %}
             <div class="leader">
-                <span>{{ user[list(user.keys())[0]]['avatar'] }}</span>
-                <img src="{{ user[list(user.keys())[0]]['avatar'] }}" alt="" class="leader-avatar">
+                <img src="{{ users_data[user]['avatar'] }}" alt="" class="leader-avatar" width=128px>
                 <div class="leader-fields">
-                    <span>{{ user }}</span>
+                    <span>{{ users_data[user] }}</span>
                 </div>
             </div>
         {% endfor %}
