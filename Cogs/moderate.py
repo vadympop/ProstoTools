@@ -937,7 +937,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		self.conn.commit()
 
 
-	@commands.command(aliases=['remwarn', 'rem-warn'], brief = 'True', name = 'remove-warn', aliases = ['rem-warn'], description = '**Снимает указаное предупреждения в участика**', usage = 'remove-warn [@Участник] [Id предупреждения]')
+	@commands.command(aliases=['remwarn', 'rem-warn'], brief = 'True', name = 'remove-warn', description = '**Снимает указаное предупреждения в участика**', usage = 'remove-warn [@Участник] [Id предупреждения]')
 	@commands.check(check_role)	
 	async def rem_warn(self, ctx, member: discord.Member, warn_id: int):
 		client = self.client

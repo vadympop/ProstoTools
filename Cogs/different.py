@@ -298,17 +298,11 @@ class Different(commands.Cog, name = 'Different'):
 			12: 'Декабря'
 		}
 
-		for member in ctx.guild.members:
-			if member.status.name == 'dnd':
-				dnd += 1
-			elif member.status.name == 'idle':
-				sleep += 1
-			elif member.status.name == 'online':
-				online += 1
-			elif member.status.name == 'offline':
-				offline += 1
-			elif member.bot:
-				bots += 1
+		dnd = len([str(member.id) for member in ctx.guild.members if member.status.name == 'dnd'])
+		sleep = len([str(member.id) for member in ctx.guild.members if member.status.name == 'idle'])
+		online = len([str(member.id) for member in ctx.guild.members if member.status.name == 'online'])
+		offline = len([str(member.id) for member in ctx.guild.members if member.status.name == 'offline'])
+		bots = len([str(member.id) for member in ctx.guild.members if member.bot])
 
 		emb = discord.Embed( title = 'Информация о вашем сервере', colour = discord.Color.green() )
 

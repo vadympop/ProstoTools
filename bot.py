@@ -27,9 +27,7 @@ def get_prefix( client, message ):
 	data = DB().sel_guild(guild = message.guild)
 	return str(data['prefix'])
 
-intents = discord.Intents.default()
-intents.members = True
-intents.guilds = True
+intents = discord.Intents.all()
 client = commands.Bot( command_prefix = get_prefix, case_insensitive = True, intents=intents )
 client.remove_command( 'help' )
 load_error = ''
