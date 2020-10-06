@@ -415,8 +415,8 @@ class Events(commands.Cog, name = 'Events'):
 		data = DB().sel_guild(guild = member.guild)['voice_channel']
 		if data != {}:
 			main_channel = data['channel_id']
-			category_id = data['category_id']
-			category = self.client.get_channel(int(category_id))
+			main_channel_obj = self.client.get_channel(int(main_channel))
+			category = main_channel_obj.category
 
 		try:
 			if after.channel.id == main_channel:

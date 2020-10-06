@@ -149,10 +149,10 @@ class Utils(commands.Cog, name = 'Utils'):
 		channel_category = await ctx.guild.create_category( 'Голосовые комнаты' )
 		await asyncio.sleep(1)
 
-		on_answers = ['on', 'вкл', 'включить']
-		off_answers = ['off', 'выкл', 'выключить']
+		on_answers = ['on', 'вкл', 'включить', 'true']
+		off_answers = ['off', 'выкл', 'выключить', 'false']
 
-		if state in on_answers:
+		if state.lower() in on_answers:
 			data = DB().sel_guild(guild = ctx.guild)['voice_channel']
 
 			if 'channel_id' not in data:
