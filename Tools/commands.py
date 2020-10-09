@@ -20,12 +20,10 @@ class Commands:
 		self.client = client
 		self.conn = mysql.connector.connect(user = 'root', password = '9fr8-PkM;M4+', host = 'localhost', database = 'data')
 		self.cursor = self.conn.cursor(buffered = True)
-
-	global Footer, Mute_role, Vmute_role
-	Mute_role = configs['MUTE_ROLE']
-	Vmute_role = configs['VMUTE_ROLE']
-	SOFTban_role = configs['SOFTBAN_ROLE']
-	Footer = configs['FOOTER_TEXT']
+		self.MUTE_ROLE = configs['MUTE_ROLE']
+		self.VMUTE_ROLE = configs['VMUTE_ROLE']
+		self.SOFTBAN_ROLE = configs['SOFTBAN_ROLE']
+		self.FOOTER = configs['FOOTER_TEXT']
 
 	async def main_mute( self, ctx, member: discord.Member, author: discord.User = None, mute_time: int = 0, mute_typetime: str = None, check_role = True, reason = None, message = True ):
 		client = self.client
@@ -45,7 +43,7 @@ class Commands:
 		else:
 			mute_minutes = mute_time * 60
 
-		now_time = time.time()
+		times = time.time()
 		times += mute_minutes
 		
 		if not reason and mute_typetime not in types:
@@ -54,17 +52,15 @@ class Commands:
 		if member in ctx.guild.members:
 			data = DB().sel_user(target = member)
 
-		role = get( ctx.guild.roles, name = Mute_role )
+		role = get( ctx.guild.roles, name = self.MUTE_ROLE )
 		if not role:
-			role = await ctx.guild.create_role( name = Mute_role )
+			role = await ctx.guild.create_role( name = self.MUTE_ROLE )
 
 		if check_role:
 			if role in member.roles:
 				emb = discord.Embed( title = 'Ошибка!', description = f'**Указаный пользователь уже замьючен!**' , colour = discord.Color.green() )
-
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 				return			
 			
 		await member.add_roles( role )
@@ -92,10 +88,8 @@ class Commands:
 			prison = True
 			cur_items = []
 			emb_member = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком.**' , colour = discord.Color.green() )
-
 			emb_member.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb_member.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
+			emb_member.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await member.send( embed = emb_member )
 
 		sql = ("""UPDATE users SET money = %s, coins = %s, reputation = %s, items = %s, prison = %s WHERE user_id = %s AND guild_id = %s""")
@@ -108,32 +102,25 @@ class Commands:
 			if message:
 				if reason:
 					emb = discord.Embed( description = f'**{member.mention} Был перманентно замьючен по причине {reason}**' , colour = discord.Color.green() )
-					
 					emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-					emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-				
+					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 				elif not reason:
 					emb = discord.Embed( description = f'**{member.mention} Был перманентно замьючен**' , colour = discord.Color.green() )
-					
 					emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-					emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-			
+					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 		elif mute_minutes != 0:
 			if message:
 				if reason:
 					emb = discord.Embed( description = f'**{member.mention} Был замьючен по причине {reason} на {mute_time}{mute_typetime}**' , colour = discord.Color.green() )
-					
 					emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-					emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-				
+					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 				elif not reason:
 					emb = discord.Embed( description = f'**{member.mention} Был замьючен на {mute_time}{mute_typetime}**' , colour = discord.Color.green() )
-					
 					emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-					emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 					
 		if mute_minutes > 0:
-			DB().set_punishment(type_punishment='mute', time=times, member=member)
+			DB().set_punishment(type_punishment='mute', time=times, member=member, role_id=role.id)
 
 		if message:
 			return emb
@@ -198,7 +185,7 @@ class Commands:
 			emb_member = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Текущий баланс - {cur_money}**' , colour = discord.Color.green() )
 			
 			emb_member.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb_member.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb_member.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			
 			await member.send( embed = emb_member )
 
@@ -210,18 +197,18 @@ class Commands:
 			emb_ctx = discord.Embed( description = f'**{member.mention} Достиг максимального значения предупреждения и был замючен на 2 часа.**' , colour = discord.Color.green() )
 			
 			emb_ctx.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb_ctx.set_footer( text = Footer, icon_url = client.user.avatar_url )			
+			emb_ctx.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )			
 		else:
 			emb_member = discord.Embed( description = f'**Вы были предупреждены {author.mention} по причине {reason}. Предупрежденний `{len(cur_warns)}`**' , colour = discord.Color.green() )			
 			
 			emb_member.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb_member.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb_member.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			
 			await member.send(embed = emb_member)
 
 			emb_ctx = discord.Embed( description = f'**Пользователь {member.mention} получил предупреждения по причине {reason}. Количество предупрежденний - `{len(cur_warns)}`**' , colour = discord.Color.green() )
 			emb_ctx.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb_ctx.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb_ctx.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		sql = ("""UPDATE users SET money = %s, coins = %s, reputation = %s, warns = %s, prison = %s WHERE user_id = %s AND guild_id = %s""")
 		val = (cur_money, cur_coins, cur_reputation, json.dumps(cur_warns), str(cur_state_pr))

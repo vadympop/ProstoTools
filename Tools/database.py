@@ -13,28 +13,25 @@ class DB:
 		self.cursor = self.conn.cursor(buffered = True)
 
 
-	def set_punishment(self, type_punishment: str, time: float, member: discord.Member):
-
+	def set_punishment(self, type_punishment: str, time: float, member: discord.Member, role_id: int = 0):
 		self.cursor.execute("""SELECT * FROM punishments WHERE member_id = %s AND guild_id = %s""", (member.id, member.guild.id))
 		data = self.cursor.fetchone()
 
 		if not data:
-			sql = ("""INSERT INTO punishments VALUES (%s, %s, %s, %s)""")
-			val = (member.id, member.guild.id, time, type_punishment)
+			sql = ("""INSERT INTO punishments VALUES (%s, %s, %s, %s, %s)""")
+			val = (member.id, member.guild.id, time, type_punishment, role_id)
 			
 			self.cursor.execute(sql, val)
 			self.conn.commit()
 		else:
 			sql = ("""UPDATE punishments SET time = %s WHERE member_id = %s AND guild_id = %s""")
 			val = (time, member.id, member.guild.id)
-			print(val)
 
 			self.cursor.execute(sql, val)
 			self.conn.commit()
 
 
 	def get_punishment(self, member: discord.Member = None):
-
 		if member:
 			sql = ("""SELECT * FROM punishments WHERE member = %s AND member = %s""")
 			val = (member.id)
@@ -46,6 +43,11 @@ class DB:
 			data = self.cursor.fetchall()
 
 		return data
+
+	
+	def del_punishment(self, member: discord.Member, guild_id: int, type_punishment: str):
+		self.cursor.execute(("""DELETE FROM punishments WHERE member_id = %s AND guild_id = %s AND type = %s"""), (member.id, guild_id, type_punishment))
+		self.conn.commit()
 
 
 	def sel_user(self, target, check = True):
@@ -96,12 +98,12 @@ class DB:
 				'reputation': int(data[7]),
 				'prison': prison,
 				'profile': str(data[9]),
-				'items': json.loads(data[10]),
-				'pets': json.loads(data[11]),
-				'warns': json.loads(data[12]),
-				'clans': json.loads(data[13]),
-				'messages': json.loads(data[14]),
-				'transantions': json.loads(data[15]),
+				'items': json.loads(data[11]),
+				'pets': json.loads(data[12]),
+				'warns': json.loads(data[13]),
+				'clans': json.loads(data[14]),
+				'messages': json.loads(data[15]),
+				'transantions': json.loads(data[16]),
 				'bio': bio[0]
 			}
 
