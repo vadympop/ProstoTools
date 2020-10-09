@@ -275,42 +275,31 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await ctx.send(embed = emb)
 			return
 
 		if not reason:
 			emb = discord.Embed( description = f'**{ctx.author.mention} Апаратно забанил `{member}`**' , colour = discord.Color.green() )
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 
 			emb = discord.Embed( description = f'**Вы были апаратно забанены на сервере `{ctx.guild.name}`**', colour = discord.Color.green() )
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await member.send( embed = emb )
 		elif reason:
 			emb = discord.Embed( description = f'**{ctx.author.mention} Апаратно забанил `{member}` по причине {reason}**' , colour = discord.Color.green() )
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 
 			emb = discord.Embed( description = f'**Вы были апаратно забанены на сервере `{ctx.guild.name}` по причине {reason}**', colour = discord.Color.green() )
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await member.send( embed = emb )
-
 
 		overwrite = discord.PermissionOverwrite( connect = False, view_channel = False, send_messages = False )
 		role = get( ctx.guild.roles, name = SOFTban_role )
@@ -335,25 +324,19 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await ctx.send(embed = emb)
 			return
 
 		emb = discord.Embed( description = f'**{ctx.author.mention} Разбанил `{member}`**' , colour = discord.Color.green() )
-		
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-		
 		await ctx.send( embed = emb )
 
 		emb = discord.Embed( description = f'**Вы были разбанены на сервере `{ctx.guild.name}`**', colour = discord.Color.green() )
-
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 		await member.send( embed = emb )
 	
 		role = get( ctx.guild.roles, name = SOFTban_role )
@@ -366,7 +349,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 	@commands.command(hidden = True, description = '**Банит учасника по указаной причине (Перманентно или на время)**', usage = 'ban [@Участник] |Длительность| |Тип времени| |Причина|')
 	@commands.has_permissions( ban_members = True )
-	async def ban( self, ctx, member: discord.Member, ban_time: typing.Optional[int] = 0, ban_typetime: typing.Optional[str] = None, *, reason: typing.Optional[str] = None ):
+	async def ban( self, ctx, member: discord.Member, type_time: str = None, *, reason: str = None ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
@@ -374,10 +357,8 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await ctx.send(embed = emb)
 			return
 
@@ -385,14 +366,18 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			DB().sel_user(target = member)
 		else:
 			emb = discord.Embed( title = 'Ошибка!', description = f"**На сервере не существует такого пользователя!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			return
 
 		types = ['мин', 'м', 'm', 'min', 'час', 'ч', 'h', 'hour', 'дней', 'д', 'd', 'day', 'недель', 'н', 'week', 'w', 'месяц', 'м', 'mounth', 'm']
+		if type_time:
+			ban_typetime = type_time[-1:]
+			ban_time = int(type_time[:-1])
+		else:
+			ban_typetime = None
+			ban_time = 0
 
 		if ban_typetime == 'мин' or ban_typetime == 'м' or ban_typetime == 'm' or ban_typetime == "min":
 			ban_minutes = ban_time * 60
@@ -404,6 +389,9 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			ban_minutes = ban_time * 120 * 12 * 7			
 		elif ban_typetime == 'месяц' or ban_typetime == "м" or ban_typetime == 'mounth' or ban_typetime == "m":
 			ban_minutes = ban_time * 120 * 12 * 30
+		
+		times = time.time()
+		times += ban_minutes
 
 		if not reason and ban_typetime not in types:
 			reason = ban_typetime
@@ -411,43 +399,33 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		await member.ban( reason = reason )
 		if not reason:
 			emb = discord.Embed( description = f'**{ctx.author.mention} Забанил `{member}`**' , colour = discord.Color.green() )
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 
 			emb = discord.Embed( description = f'**Вы были забанены на сервере `{ctx.guild.name}`**', colour = discord.Color.green() )
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await member.send( embed = emb )
 		elif reason:
 			emb = discord.Embed( description = f'**{ctx.author.mention} Забанил `{member}` по причине {reason}**' , colour = discord.Color.green() )
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 
 			emb = discord.Embed( description = f'**Вы были забанены на сервере `{ctx.guild.name}` по причине {reason}**', colour = discord.Color.green() )
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await member.send( embed = emb )
 
 			if ban_time > 0:
-
 				sql = ("""UPDATE users SET clans = %s, items = %s, money = %s, coins = %s, reputation = %s WHERE user_id = %s AND guild_id = %s""")
 				val = (json.dumps([]), json.dumps([]), 0, 0, -100)
 
 				self.cursor.execute(sql, val)
 				self.conn.commit()
 
-				await asyncio.sleep( ban_minutes )
-				await ctx.guild.unban( member )
+				DB().set_punishment(type_punishment='ban', time=times, member=member)
 
 
 	@commands.command(aliases=['unban'], hidden = True, name = 'un-ban', description = '**Снимает бан из указаного учасника**', usage = 'un-ban [@Участник]')
@@ -460,20 +438,18 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await ctx.send(embed = emb)
 			return
 
 		banned_users = await ctx.guild.bans()
-
 		for ban_entry in banned_users:
 			user = ban_entry.user
 
 			if (user.name, user.discriminator, user.id) == (member.name, member.discriminator, member.id):
 				await ctx.guild.unban(user)
+				DB().del_punishment(member=member, guild_id=ctx.guild.id, type_punishment='ban')
 
 				emb = discord.Embed( description = f'**{ctx.author.mention} Разбанил `{member}`**' , colour = discord.Color.green() )
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
@@ -501,14 +477,13 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await ctx.send(embed = emb)
 			return
 
-		guild = ctx.guild
 		vmute_minutes = vmute_time * 60
 		overwrite = discord.PermissionOverwrite( connect = False )
 		role = get( ctx.guild.roles, name = Vmute_role )
 
 		if not role:
-			role = await guild.create_role( name = Vmute_role )
-		for channel in guild.voice_channels:
+			role = await ctx.guild.create_role( name = Vmute_role )
+		for channel in ctx.guild.voice_channels:
 			await channel.set_permissions( role, overwrite = overwrite )
 
 		await member.add_roles( role )
@@ -523,7 +498,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await member.remove_roles( role )
 
 			overwrite = discord.PermissionOverwrite( connect = None )
-			for channel in guild.voice_channels:
+			for channel in ctx.guild.voice_channels:
 				await channel.set_permissions( role, overwrite = overwrite )
 
 		elif vmute_minutes <= 0:
@@ -537,7 +512,6 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	@commands.check(check_role)	
 	async def unvmute( self, ctx, member: discord.Member):
 		client = self.client
-		guild = ctx.guild
 		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -549,12 +523,12 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await ctx.send(embed = emb)
 			return
 
-		for vmute_role in guild.roles:
+		for vmute_role in ctx.guild.roles:
 			if vmute_role.name == Vmute_role:
 				await member.remove_roles( vmute_role )
 				overwrite = discord.PermissionOverwrite( connect = None )
 
-				for channel in guild.voice_channels:
+				for channel in ctx.guild.voice_channels:
 					await channel.set_permissions( vmute_role, overwrite = overwrite )
 
 				emb = discord.Embed( description = f'**{ctx.author.mention} Размутил `{member}` в голосовых каналах**' , colour = discord.Color.green() )
@@ -579,9 +553,13 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await ctx.send(embed = emb)
 			return
 
-		guild = ctx.guild
-		mute_typetime = type_time[-1:]
-		mute_time = int(type_time[:-1])
+		if type_time:
+			mute_typetime = type_time[-1:]
+			mute_time = int(type_time[:-1])
+		else:
+			mute_typetime = None
+			mute_time = 0
+
 		overwrite = discord.PermissionOverwrite( send_messages = False )
 		types = ['мин', 'м', 'm', 'min', 'час', 'ч', 'h', 'hour', 'дней', 'д', 'd', 'day', 'недель', 'н', 'week', 'w', 'месяц', 'м', 'mounth', 'm']
 
@@ -595,8 +573,6 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			mute_minutes = mute_time * 120 * 12 * 7			
 		elif mute_typetime == 'месяц' or mute_typetime == "м" or mute_typetime == 'mounth' or mute_typetime == "m":
 			mute_minutes = mute_time * 120 * 12 * 30
-		else:
-			mute_minutes = mute_time * 60
 
 		times = time.time()
 		times += mute_minutes
@@ -616,7 +592,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		role = get( ctx.guild.roles, name = Mute_role )
 		if not role:
-			role = await guild.create_role( name = Mute_role )
+			role = await ctx.guild.create_role( name = Mute_role )
 
 		if role in member.roles:
 			emb = discord.Embed( title = 'Ошибка!', description = f'**Указаный пользователь уже замьючен!**' , colour = discord.Color.green() )
@@ -703,10 +679,9 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await ctx.send(embed = emb)
 			return
 
-		guild = ctx.guild
-		for role in guild.roles:
+		for role in ctx.guild.roles:
 			if role.name == Mute_role:
-				DB().del_punishment(member=member, guild_id=guild.id, type_punishment='mute')
+				DB().del_punishment(member=member, guild_id=ctx.guild.id, type_punishment='mute')
 				await member.remove_roles(role)
 
 				emb = discord.Embed( description = f'**{ctx.author.mention} Размутил `{member}`**' , colour = discord.Color.green() )
