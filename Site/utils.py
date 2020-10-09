@@ -130,3 +130,8 @@ class Utils:
 		}
 
 		return dict_guild_data
+
+	def render_template(self, **variables):
+		return {
+			key: variable for key, variable in variables.items()
+		}

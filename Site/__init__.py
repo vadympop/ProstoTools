@@ -1,10 +1,37 @@
 # Imports
 import mysql.connector
-from flask import Flask
+import asyncio_redis
 
-# Create a flask app
-app = Flask(__name__)
-app.config.from_object('Site.config.Config')
+from flask import Flask
+from sanic import Sanic
+from sanic_session import Session, RedisSessionInterface
+from sanic_jinja2 import SanicJinja2
+
+
+# Create a redis interface
+class Redis:
+	"""
+	A simple wrapper class that allows you to share a connection
+	pool across your application.
+
+	"""
+	pool = None
+
+	async def get_redis_pool(self):
+		if not self.pool:
+			self.pool = await asyncio_redis.Pool.create(
+				host='localhost', port=6379, poolsize=10
+			)
+
+		return self.pool
+
+
+# Initialize objects
+app = Sanic(__name__)
+app.update_config('ProstoTools.Site.config.Config')
+redis = Redis()
+session = Session(app, interface=RedisSessionInterface(redis.get_redis_pool))
+jinja = SanicJinja2(app, pkg_path='static/templates')
 
 
 # Work with DB

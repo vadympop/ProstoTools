@@ -5,8 +5,6 @@ import json
 import colorama
 import traceback
 import datetime
-from Site.main import site_run
-from threading import Thread
 from colorama import *
 from discord.ext import commands
 from configs import configs
@@ -23,7 +21,6 @@ def txt_load( filename ):
 
 
 def get_prefix( client, message ):
-
 	data = DB().sel_guild(guild = message.guild)
 	return str(data['prefix'])
 
@@ -68,13 +65,5 @@ for filename in os.listdir('./Cogs'):
 		else:
 			print( Fore.GREEN + f'[PT-SYSTEM-COG]:::{filename[:-3].upper()} - Loaded')
 
-
 print(Fore.RESET)
-
-thread_bot = Thread(target=client.run, args=[configs["TOKEN"]])
-thread_site = Thread(target=site_run, args=[client])
-
-thread_bot.start()
-thread_site.start()
-thread_bot.join()
-thread_site.join()
+client.run(configs['TOKEN'])
