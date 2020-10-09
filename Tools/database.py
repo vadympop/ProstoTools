@@ -54,29 +54,29 @@ class DB:
 		sql_2 = ("""INSERT INTO users (user_id, guild_id, prison, profile, items, pets, warns, clans, messages, transantions) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""")
 		val_2 = (target.id, target.guild.id, 'False', 'lime', json.dumps([]), json.dumps([]), json.dumps([]), json.dumps([]), json.dumps([0, 0, [None, None]]), json.dumps([]))
 		
-		sql_3 = ("""SELECT * FROM global_users_data WHERE user_id = %s AND user_id = %s""")
+		sql_3 = ("""SELECT * FROM users WHERE user_id = %s AND user_id = %s""")
 		val_3 = (target.id, target.id)
-		sql_4 = ("""INSERT INTO global_users_data (user_id, bio, items, transactions) VALUES(%s, %s, %s, %s)""")
-		val_4 = (target.id, ' ', json.dumps([]), json.dumps([]))
+		sql_4 = ("""INSERT INTO users (bio) VALUES(%s)""")
+		val_4 = ('')
 
 		self.cursor.execute(sql_1, val_1)
 		data = self.cursor.fetchone()
 		self.cursor.execute(sql_3, val_3)
-		global_data = self.cursor.fetchone()
+		bio = self.cursor.fetchone()
 
 		if check:
 			if not data:
 				self.cursor.execute(sql_2, val_2)
 				self.conn.commit()
 
-			if not global_data:
+			if not bio:
 				self.cursor.execute(sql_4, val_4)
 				self.conn.commit()
 
 		self.cursor.execute(sql_1, val_1)
 		data = self.cursor.fetchone()
 		self.cursor.execute(sql_3, val_3)
-		global_data = self.cursor.fetchone()
+		bio = self.cursor.fetchone()
 
 		if data:
 			prison = data[8]
@@ -102,9 +102,7 @@ class DB:
 				'clans': json.loads(data[13]),
 				'messages': json.loads(data[14]),
 				'transantions': json.loads(data[15]),
-				'bio': global_data[1],
-				'global_items': json.loads(global_data[2]),
-				'global_transactions': json.loads(global_data[3])
+				'bio': bio[0]
 			}
 
 			return dict_data
