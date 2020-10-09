@@ -20,8 +20,9 @@ class Loops(commands.Cog, name = 'Loops'):
 		self.conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
 		self.cursor = self.conn.cursor(buffered = True)
 		self.mute_loop.start()
-		self.reputLoop.start()
+		self.update_messages_loop.start()
 		self.ping_stat_loop.start()
+		self.FOOTER = configs['FOOTER_TEXT']
 
 
 	@tasks.loop(seconds=5)
@@ -37,6 +38,29 @@ class Loops(commands.Cog, name = 'Loops'):
 						mute_role = get(guild.roles, id=int(mute[4]))
 						await member.remove_roles(mute_role)
 
+						emb = discord.Embed(description=f'**Вы были размьючены на сервере `{guild.name}`**', colour=discord.Color.green())
+						emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await member.send(embed=emb)
+
+	
+	@tasks.loop(seconds=5)
+	async def ban_loop(self):
+		for ban in DB().get_punishment():
+			ban_time = ban[2]
+			guild = self.client.get_guild(int(ban[1]))
+			if guild:
+				member = guild.get_member(int(ban[0]))
+				if member:
+					if float(ban_time) <= float(time.time()):
+						DB().del_punishment(member=member, guild_id=guild.id, type_punishment='ban')
+						await guild.unban(member)
+
+						emb = discord.Embed(description=f'**Вы были разбанены на сервере `{guild.name}`**', colour=discord.Color.green())
+						emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await member.send(embed=emb)
+
 
 	@tasks.loop(minutes=30)
 	async def ping_stat_loop(self):
@@ -46,7 +70,7 @@ class Loops(commands.Cog, name = 'Loops'):
 
 	
 	@tasks.loop(seconds=86400)
-	async def reputLoop(self):
+	async def update_messages_loop(self):
 		self.cursor.execute("""SELECT user_id, messages FROM users""")
 		data = self.cursor.fetchall()
 

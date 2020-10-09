@@ -476,17 +476,13 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				await ctx.guild.unban(user)
 
 				emb = discord.Embed( description = f'**{ctx.author.mention} Разбанил `{member}`**' , colour = discord.Color.green() )
-				
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-				
 				await ctx.send( embed = emb )
 
 				emb = discord.Embed( description = f'**Вы были разбанены на сервере `{ctx.guild.name}`**', colour = discord.Color.green() )
-
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 				await member.send( embed = emb )
 				
 
@@ -500,22 +496,18 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await ctx.send(embed = emb)
 			return
 
 		guild = ctx.guild
 		vmute_minutes = vmute_time * 60
 		overwrite = discord.PermissionOverwrite( connect = False )
-
 		role = get( ctx.guild.roles, name = Vmute_role )
 
 		if not role:
 			role = await guild.create_role( name = Vmute_role )
-
 		for channel in guild.voice_channels:
 			await channel.set_permissions( role, overwrite = overwrite )
 
@@ -524,27 +516,20 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		if vmute_minutes > 0:
 			emb = discord.Embed( description = f'**{ctx.author.mention} Замутил `{member}` в голосовых каналах на {vmute_time}мин**' , colour = discord.Color.green() )
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-			
 			await ctx.send( embed = emb )
-
 			await asyncio.sleep(vmute_minutes)
 			await member.remove_roles( role )
 
 			overwrite = discord.PermissionOverwrite( connect = None )
-
 			for channel in guild.voice_channels:
 				await channel.set_permissions( role, overwrite = overwrite )
 
 		elif vmute_minutes <= 0:
-
 			emb = discord.Embed( description = f'**{ctx.author.mention} Перманентно замутил `{member}` в голосовых каналах**' , colour = discord.Color.green() )
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-			
 			await ctx.send( embed = emb )
 
 
@@ -559,26 +544,22 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await ctx.send(embed = emb)
 			return
 
 		for vmute_role in guild.roles:
 			if vmute_role.name == Vmute_role:
 				await member.remove_roles( vmute_role )
-
 				overwrite = discord.PermissionOverwrite( connect = None )
+
 				for channel in guild.voice_channels:
 					await channel.set_permissions( vmute_role, overwrite = overwrite )
 
 				emb = discord.Embed( description = f'**{ctx.author.mention} Размутил `{member}` в голосовых каналах**' , colour = discord.Color.green() )
-				
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-		
 				await ctx.send( embed = emb )
 				return
 
@@ -725,9 +706,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		guild = ctx.guild
 		for role in guild.roles:
 			if role.name == Mute_role:
-				await member.remove_roles( role )
+				DB().del_punishment(member=member, guild_id=guild.id, type_punishment='mute')
+				await member.remove_roles(role)
 
-				emb = discord.Embed( description = f'**{ctx.message.author.mention} Размутил `{member}`**' , colour = discord.Color.green() )
+				emb = discord.Embed( description = f'**{ctx.author.mention} Размутил `{member}`**' , colour = discord.Color.green() )
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )			
 				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
 				await ctx.send( embed = emb )
