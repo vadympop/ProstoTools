@@ -1,0 +1,8 @@
+
+
+=============================================================
+Время: 2020-10-10 10:58:53.421023
+
+Ошибка:
+Command raised an exception: UnboundLocalError: local variable 'mute_minutes' referenced before assignment
+=============================================================

@@ -573,6 +573,8 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			mute_minutes = mute_time * 120 * 12 * 7			
 		elif mute_typetime == 'месяц' or mute_typetime == "м" or mute_typetime == 'mounth' or mute_typetime == "m":
 			mute_minutes = mute_time * 120 * 12 * 30
+		else:
+			mute_minutes = mute_time
 
 		times = time.time()
 		times += mute_minutes
@@ -874,18 +876,14 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		if not state:
 			emb = discord.Embed(title = 'Ошибка!', description = '**Предупреждения с таким айди не существует! Укажите правильный айди предупреждения**', colour = discord.Color.green())
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await ctx.send(embed = emb)
 			return
 		elif state:
 			emb = discord.Embed(description = f'**Предупреждения успешно было снято с участника `{member}`**', colour = discord.Color.green())
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await ctx.send(embed = emb)
 
 		sql = ("""UPDATE users SET warns = %s WHERE user_id = %s AND guild_id = %s""")
@@ -923,7 +921,6 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		emb.set_author( name = member.name, icon_url = member.avatar_url )
 		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 		await ctx.send(embed = emb)
 
 def setup( client ):
