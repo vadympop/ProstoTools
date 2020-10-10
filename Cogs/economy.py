@@ -247,19 +247,22 @@ class Economy(commands.Cog, name = 'Economy'):
 
 		if member == ctx.author:
 			emb = discord.Embed( title = 'Ошибка!', description = '**Вы не можете изменять свою репутацию!**', colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			self.repp.reset_cooldown(ctx)
 			return
 		elif num < 1 or num > 5:
 			emb = discord.Embed( title = 'Ошибка!', description = '**Вы указали число добавляемой репутацию в неправильном диапазоне!**', colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			await ctx.send( embed = emb )
+			self.repp.reset_cooldown(ctx)
+			return	
+		elif member.bot:
+			emb = discord.Embed( title = 'Ошибка!', description = '**Вы не можете менять репутацию бота**', colour = discord.Color.green() )
+			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 			self.repp.reset_cooldown(ctx)
 			return	
@@ -273,10 +276,8 @@ class Economy(commands.Cog, name = 'Economy'):
 		self.conn.commit()
 
 		emb = discord.Embed( description = '**Вы успешно добавили репутация к указаному пользователю!**', colour = discord.Color.green() )
-
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 		await ctx.send( embed = emb )
 
 
@@ -290,21 +291,24 @@ class Economy(commands.Cog, name = 'Economy'):
 
 		if member == ctx.author:
 			emb = discord.Embed( title = 'Ошибка!', description = '**Вы не можете изменять свою репутацию!**', colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			self.repm.reset_cooldown(ctx)
 			return
 		elif num < 1 or num > 3:
 			emb = discord.Embed( title = 'Ошибка!', description = '**Вы указали число убаляемой репутацию в неправильном диапазоне!**', colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			self.repm.reset_cooldown(ctx)
+			return
+		elif member.bot:
+			emb = discord.Embed( title = 'Ошибка!', description = '**Вы не можете менять репутацию бота**', colour = discord.Color.green() )
+			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			await ctx.send( embed = emb )
+			self.repp.reset_cooldown(ctx)
 			return	
 
 		DB().sel_user(target = member)
@@ -316,10 +320,8 @@ class Economy(commands.Cog, name = 'Economy'):
 		self.conn.commit()
 
 		emb = discord.Embed( description = '**Вы успешно убавили репутация к указаному пользователю!**', colour = discord.Color.green() )
-
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 		await ctx.send( embed = emb )
 
 
@@ -342,10 +344,8 @@ class Economy(commands.Cog, name = 'Economy'):
 		self.conn.commit()
 
 		emb = discord.Embed( description = f'**Вы получили ежедневну награду! В размере - {rand_num}$**', colour = discord.Color.green() )
-
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 		await ctx.send( embed = emb )
 
 

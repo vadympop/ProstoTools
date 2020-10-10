@@ -135,7 +135,7 @@ class Different(commands.Cog, name = 'Different'):
 		all_message = data['messages'][1]
 
 		def get_bio():
-			if data['bio'] == ' ':
+			if data['bio'] == '':
 				return ''
 			else:
 				bio = data['bio']
@@ -166,7 +166,7 @@ class Different(commands.Cog, name = 'Different'):
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
-		if member == None:
+		if not member:
 			emb = discord.Embed( title = f'Аватар {ctx.author.name}', colour = discord.Color.green() )
 
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
@@ -445,6 +445,10 @@ class Different(commands.Cog, name = 'Different'):
 		DB().add_amout_command(entity=ctx.command.name)
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
+
+		if len(text) > 1000:
+			await ctx.message.add_reaction('❌')
+			return
 
 		sql = ("""UPDATE users SET bio = %s WHERE user_id = %s""")
 		val = (text, ctx.author.id)

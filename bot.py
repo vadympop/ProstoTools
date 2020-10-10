@@ -11,6 +11,12 @@ from configs import configs
 from Tools.database import DB
 init()
 
+class Client(commands.AutoShardedBot):
+	def __init__(self, command_prefix, case_insensitive, intents):
+		super.__init__(command_prefix=command_prefix, case_insensitive=case_insensitive, intents=intents)
+	
+
+
 def txt_dump( filename, filecontent ):
 	with open( filename, 'w', encoding = 'utf-8' ) as f:
 		f.writelines( filecontent )
