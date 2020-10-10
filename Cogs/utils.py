@@ -29,7 +29,6 @@ def check_role(ctx):
 	roles.reverse()
 	data.append(roles[0].id)
 
-	print(data)
 	if data != []:
 		for role in data:
 			role = get(ctx.guild.roles, id = role)
@@ -37,16 +36,15 @@ def check_role(ctx):
 	else:
 		return roles[0] in ctx.author.roles
 	
-global Footer
-Footer = configs['FOOTER_TEXT']
-
+	
 class Utils(commands.Cog, name = 'Utils'):
 
 	def __init__(self, client):
 		self.client = client
 		self.conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
 		self.cursor = self.conn.cursor(buffered = True)
-
+		self.FOOTER = configs['FOOTER_TEXT']
+		
 
 	@commands.command(brief = 'True', description = '**Устанавливает анти-рейд режим. Есть не сколько режымов, 1 - Слабый 5сек задержка в текстовых каналах и средний уровень модерации, 2 - Сильний 10сек задержка в текстовых каналах и високий уровень модерации, 3 - Найвисшый 15сек задержка в текстовых каналах и найвисшый уровень модерации**', usage = 'anti-rade [Время действия] [Уровень защиты]')
 	@commands.check(check_role)
@@ -62,7 +60,7 @@ class Utils(commands.Cog, name = 'Utils'):
 			emb = discord.Embed( title = f'**Уставлен анти-рейд режим 1-го уровня на {time}мин**', colour = discord.Color.green() )
 			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
@@ -79,7 +77,7 @@ class Utils(commands.Cog, name = 'Utils'):
 			emb = discord.Embed( title = f'**Уставлен анти-рейд режим 2-го уровня на {time}мин**', colour = discord.Color.green() )
 			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
@@ -96,7 +94,7 @@ class Utils(commands.Cog, name = 'Utils'):
 			emb = discord.Embed( title = f'**Уставлен анти-рейд режим 3-го уровня на {time}мин**', colour = discord.Color.green() )
 			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
@@ -125,7 +123,7 @@ class Utils(commands.Cog, name = 'Utils'):
 			emb = discord.Embed( title = 'На этом сервере нету заблокированых участников', colour = discord.Color.green() )
 			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			
 			await ctx.send( embed = emb )
 		else:
@@ -133,7 +131,7 @@ class Utils(commands.Cog, name = 'Utils'):
 			for user in banned_users:
 				emb.add_field( name = f'Участник: {user.user}', value = f'**Причина бана: {user.reason}**' )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			
 			await ctx.send( embed = emb )
 
@@ -169,7 +167,7 @@ class Utils(commands.Cog, name = 'Utils'):
 				emb = discord.Embed(desciption='**На этом сервере приватные голосовые комнаты уже есть**', color=discord.Color.green())
 
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 				await ctx.message.add_reaction('❌')
@@ -187,7 +185,7 @@ class Utils(commands.Cog, name = 'Utils'):
 			emb = discord.Embed(title='Ошибка!', desciption='**Вы не правильно указали действие! Укажите on - что бы включить, off - что бы выключить**', color=discord.Color.green())
 
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
@@ -218,7 +216,7 @@ class Utils(commands.Cog, name = 'Utils'):
 			emb = discord.Embed(title='Ошибка!', description='**Вы не правильно указали счетчик. Укажите из этих: bots, all, members, roles, channels**', color=discord.Color.green())
 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
@@ -262,7 +260,7 @@ class Utils(commands.Cog, name = 'Utils'):
 			emb = discord.Embed(title = 'Операция добавления роли проведенна успешно', description = f'У пользователей с ролью `{for_role.name}` была добавленна роль - `{role.name}`', colour = discord.Color.green())
 			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 		elif type_act == 'remove' or type_act == 'del':
@@ -274,14 +272,14 @@ class Utils(commands.Cog, name = 'Utils'):
 			emb = discord.Embed(title = 'Операция снятия роли проведенна успешно', description = f'У пользователей с ролью `{for_role.name}` была снята роль - `{role.name}`', colour = discord.Color.green())
 			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 		else:
 			emb = discord.Embed(title = 'Ошибка!', description = f'Вы указали не правильное действие! Укажите add - для добавления, del или remove - для удаления', colour = discord.Color.green())
 			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
@@ -303,7 +301,7 @@ class Utils(commands.Cog, name = 'Utils'):
 		emb = discord.Embed(title = 'Роли модераторов', description = roles, colour = discord.Color.green())
 		
 		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb )
 

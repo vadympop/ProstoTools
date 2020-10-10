@@ -17,14 +17,9 @@ from configs import configs
 
 
 def clear_commands( guild ):
-
 	data = DB().sel_guild(guild = guild)
 	purge = data['purge']
 	return purge
-
-
-global Footer
-Footer = configs['FOOTER_TEXT']
 
 
 class Works(commands.Cog, name = 'Works'):
@@ -33,6 +28,7 @@ class Works(commands.Cog, name = 'Works'):
 		self.client = client
 		self.conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
 		self.cursor = self.conn.cursor(buffered = True)
+		self.FOOTER = configs['FOOTER_TEXT']
 
 
 	@commands.group()
@@ -48,7 +44,7 @@ class Works(commands.Cog, name = 'Works'):
 			emb = discord.Embed( title = 'Список работ', description = '**Грузчик - *work loader**\nДля работы нужно иметь более 3-го уровня и перчатки, кулдавн 3 часа после двух попыток, зарабатывает от 80$ до 100$\n\n**Охотник за кладом - *work treasure-hunter**\nДля работы нужен металоискатель(любого уровня), кулдавн 5 часов, может ничего не найти(0$, металоискатель 2-го уровня повышает шанс найти клад на 30%), если найдёт от 1$ до 500$\n\n**Барман - *work barman**\nДля работы нужно иметь более 4-го уровня, кулдавн 3 часа, зарабатывает от 150 до 200\n\n**Уборщик - *work cleaner**\nДля повышения эфективности работы нужно иметь веник или швабру, кулдавн 2 часа после 3 попыток\n\n**Мойщик окон - *work window-washer**\nДля работы нужно иметь более 5-го уровня, кулдавн 5 часов, от 250$ до 300$, может упасть и потерять 300$', colour = discord.Color.green() )
 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
@@ -76,14 +72,14 @@ class Works(commands.Cog, name = 'Works'):
 					emb = discord.Embed( description = f'**За работу вы получили: {rand_num}$. Продолжайте стараться!**', colour = discord.Color.green() )
 
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-					emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 					await ctx.send( embed = emb )
 				else:
 					emb = discord.Embed( description = '**У вас нет необходимых предметов!**', colour = discord.Color.green() )
 
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-					emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 					await ctx.send( embed = emb )
 					return
@@ -91,7 +87,7 @@ class Works(commands.Cog, name = 'Works'):
 				emb = discord.Embed( description = '**У вас не достаточний уровень для этой работы!**', colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 				return
@@ -100,7 +96,7 @@ class Works(commands.Cog, name = 'Works'):
 			emb = discord.Embed( description = '**Вы сейчас в тюрме. На эту работу нельзя выходить во время заключения!**', colour = discord.Color.green() )
 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 			return
@@ -145,7 +141,7 @@ class Works(commands.Cog, name = 'Works'):
 						emb = discord.Embed( description = msg_content, colour = discord.Color.green() )
 
 						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-						emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 						await ctx.send( embed = emb )
 					elif "metal_1" in cur_items:
@@ -154,7 +150,7 @@ class Works(commands.Cog, name = 'Works'):
 						emb = discord.Embed( description = msg_content, colour = discord.Color.green() )
 
 						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-						emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 						await ctx.send( embed = emb )
 					elif "metal_2" in cur_items:
@@ -163,14 +159,14 @@ class Works(commands.Cog, name = 'Works'):
 						emb = discord.Embed( description = msg_content, colour = discord.Color.green() )
 
 						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-						emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 						await ctx.send( embed = emb )
 					else:
 						emb = discord.Embed( description = '**У вас нет не обходимых предметов, метало искателей! Купите метало искатель!**', colour = discord.Color.green() )
 
 						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-						emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 						await ctx.send( embed = emb )
 						return
@@ -178,7 +174,7 @@ class Works(commands.Cog, name = 'Works'):
 					emb = discord.Embed( description = '**У вас нет не обходимых предметов, метало искателей! Купите метало искатель!**', colour = discord.Color.green() )
 
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-					emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 					await ctx.send( embed = emb )
 					return
@@ -186,7 +182,7 @@ class Works(commands.Cog, name = 'Works'):
 				emb = discord.Embed( description = '**У вас не достаточний уровень для этой работы!**', colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 				return
@@ -194,7 +190,7 @@ class Works(commands.Cog, name = 'Works'):
 			emb = discord.Embed( description = '**Вы сейчас в тюрме. На эту работу нельзя выходить во время заключения!**', colour = discord.Color.green() )
 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 			return
@@ -222,14 +218,14 @@ class Works(commands.Cog, name = 'Works'):
 				emb = discord.Embed( description = f'**За сегодняшнюю работу в баре: {rand_num}$. Не употребляйте много алкоголя :3**', colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 			else:
 				emb = discord.Embed( description = '**У вас не достаточний уровень для этой работы!**', colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 				return
@@ -237,7 +233,7 @@ class Works(commands.Cog, name = 'Works'):
 			emb = discord.Embed( description = '**Вы сейчас в тюрме. На эту работу нельзя выходить во время заключения!**', colour = discord.Color.green() )
 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 			return
@@ -270,7 +266,7 @@ class Works(commands.Cog, name = 'Works'):
 				emb = discord.Embed( description = msg, colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 			elif "mop" in cur_items:
@@ -278,7 +274,7 @@ class Works(commands.Cog, name = 'Works'):
 				emb = discord.Embed( description = msg, colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 
@@ -287,7 +283,7 @@ class Works(commands.Cog, name = 'Works'):
 				emb = discord.Embed( description = msg, colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 			else:
@@ -295,7 +291,7 @@ class Works(commands.Cog, name = 'Works'):
 				emb = discord.Embed( description = msg, colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 		elif cur_items == []:
@@ -303,7 +299,7 @@ class Works(commands.Cog, name = 'Works'):
 			emb = discord.Embed( description = msg, colour = discord.Color.green() )
 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
@@ -312,7 +308,7 @@ class Works(commands.Cog, name = 'Works'):
 			emb = discord.Embed( description = '**Вы успешно погасили борг и выйшли с тюрмы!**', colour = discord.Color.green() )
 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
@@ -341,7 +337,7 @@ class Works(commands.Cog, name = 'Works'):
 					emb = discord.Embed( description = f'**За мойку окон на высоком здании в получили {rand_num_2}$**', colour = discord.Color.green() )
 
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-					emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 					await ctx.send( embed = emb )
 
@@ -350,7 +346,7 @@ class Works(commands.Cog, name = 'Works'):
 					emb = discord.Embed( description = f'**Вы упали и потеряли 300$**', colour = discord.Color.green() )
 
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-					emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 					await ctx.send( embed = emb )
 
@@ -364,7 +360,7 @@ class Works(commands.Cog, name = 'Works'):
 				emb = discord.Embed( description = '**У вас не достаточний уровень для этой работы!**', colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 				return
@@ -372,7 +368,7 @@ class Works(commands.Cog, name = 'Works'):
 			emb = discord.Embed( description = '**Вы сейчас в тюрме. На эту работу нельзя выходить во время заключения!**', colour = discord.Color.green() )
 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 

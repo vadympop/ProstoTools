@@ -14,15 +14,11 @@ from configs import configs
 from Tools.database import DB
 
 
-def clear_commands( guild ):
-
+def clear_commands(guild):
 	data = DB().sel_guild(guild = guild)
 	purge = data['purge']
 	return purge
 
-
-global Footer
-Footer = configs['FOOTER_TEXT']
 
 class Different(commands.Cog, name = 'Different'):
 
@@ -30,6 +26,7 @@ class Different(commands.Cog, name = 'Different'):
 		self.client = client
 		self.conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
 		self.cursor = self.conn.cursor(buffered = True)
+		self.FOOTER = configs['FOOTER_TEXT']
 
 
 	@commands.command(aliases=['usersend'], name = 'user-send', description = '**Отправляет сообщения указаному участнику(Cooldown - 1 мин после двох попыток)**', usage = 'user-send [@Участник] [Сообщения]')
@@ -57,14 +54,14 @@ class Different(commands.Cog, name = 'Different'):
 				emb = discord.Embed( title = f'Новое сообщения от {ctx.author.name}', description = f'**{message}**', colour = discord.Color.green() )
 
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await member.send( embed = emb )
 			else:
 				emb = discord.Embed( title = 'Ошибка!', description = f'**У вас нет необходимых предметов или не достаточно коинов!**', colour = discord.Color.green() )
 
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 				self.send.reset_cooldown(ctx)
@@ -73,7 +70,7 @@ class Different(commands.Cog, name = 'Different'):
 			emb = discord.Embed( title = 'Ошибка!', description = f'**У вас нет необходимых предметов!**', colour = discord.Color.green() )
 
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 			self.send.reset_cooldown(ctx)
@@ -97,7 +94,7 @@ class Different(commands.Cog, name = 'Different'):
 			emb = discord.Embed( title = f'Описания бага от пользователя - {ctx.author.name}, с сервера - {ctx.guild.name}', description = f'**Описания бага:\n{msg}**', colour = discord.Color.green() )
 			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await prch.send( embed = emb )
 			await mrkl.send( embed = emb )
@@ -107,7 +104,7 @@ class Different(commands.Cog, name = 'Different'):
 			emb = discord.Embed( title = f'Новая идея от пользователя - {ctx.author.name}, с сервера - {ctx.guild.name}', description = f'**Идея:\n{msg}**', colour = discord.Color.green() )
 			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await prch.send( embed = emb )
 			await mrkl.send( embed = emb )
@@ -117,7 +114,7 @@ class Different(commands.Cog, name = 'Different'):
 			emb = discord.Embed( title = 'Ошибка!', description = f'**Вы не правильно указали флаг!**', colour = discord.Color.green() )
 			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 			self.devs.reset_cooldown(ctx)
@@ -155,7 +152,7 @@ class Different(commands.Cog, name = 'Different'):
 		
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_thumbnail( url = member.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		emb.add_field( name = 'Основная информация', value = f'{get_bio()}**Имя пользователя:** {member}\n**Статус:** {statuses[member.status.name]}\n**Id пользователя:** {member.id}\n**Акаунт созданн:** {str(member.created_at)[:-10]}\n**Присоиденился:** {str(member.joined_at)[:-10]}\n**Сообщений:** {all_message}', inline = False )
 		
@@ -174,7 +171,7 @@ class Different(commands.Cog, name = 'Different'):
 
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_image( url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 		else:
@@ -182,7 +179,7 @@ class Different(commands.Cog, name = 'Different'):
 
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_image( url = member.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
@@ -207,7 +204,7 @@ class Different(commands.Cog, name = 'Different'):
 		emb.add_field( name = 'Сервер поддержки', value = 'https://discord.gg/CXB32Mq' )
 
 		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb )
 
@@ -328,7 +325,7 @@ class Different(commands.Cog, name = 'Different'):
 		 )
 
 		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb )
 
@@ -348,7 +345,7 @@ class Different(commands.Cog, name = 'Different'):
 			emb = discord.Embed( title = 'Ошибка!', description = '**Не указан канал идей. Обратитесь к администации сервера**', colour = discord.Color.green() )
 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 			self.idea.reset_cooldown(ctx)
@@ -361,7 +358,7 @@ class Different(commands.Cog, name = 'Different'):
 		
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_thumbnail( url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 		
 			await idea_channel.send( embed = emb)
 
@@ -376,7 +373,7 @@ class Different(commands.Cog, name = 'Different'):
 		emb = discord.Embed( title = 'Пригласи бота на свой сервер =).**Жмякай!**', url = 'https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot', colour = discord.Color.green() )
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_thumbnail( url = client.user.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb )
 
@@ -396,7 +393,7 @@ class Different(commands.Cog, name = 'Different'):
 		
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_thumbnail( url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 		
 			await msgforw_channel.send( embed = emb)
 
@@ -404,7 +401,7 @@ class Different(commands.Cog, name = 'Different'):
 			emb = discord.Embed( title = 'Ошибка!', description = f'**Отказанно в доступе! Вы не имеете прав в указном канале**', colour = discord.Color.green() )
 		
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 		
 			await ctx.send( embed = emb)
 			self.msgforw.reset_cooldown(ctx)
@@ -422,7 +419,7 @@ class Different(commands.Cog, name = 'Different'):
 		emb = discord.Embed( title = arg, colour = discord.Color.green() )
 
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb )
 
@@ -438,7 +435,7 @@ class Different(commands.Cog, name = 'Different'):
 		emb = discord.Embed( title = f'Рандомное число от {rnum1} до {rnum2}', description = f'**Бот зарандомил число {random_num}**', colour = discord.Color.green() )
 		
 		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb )
 

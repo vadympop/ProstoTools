@@ -19,42 +19,35 @@ from Tools.database import DB
 init()
 
 
-global Footer
-Footer = configs['FOOTER_TEXT']
-Mute_role = configs['MUTE_ROLE']
-Help_server = configs['HELP_SERVER']
-
 class Events(commands.Cog, name = 'Events'):
 
 	def __init__(self, client):
 		self.client = client
 		self.conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
 		self.cursor = self.conn.cursor(buffered = True)
-
+		self.FOOTER = configs['FOOTER_TEXT']
+		self.MUTE_ROLE = configs['MUTE_ROLE']
+		self.HELP_SERVER = configs['HELP_SERVER']
+		
 
 	@commands.Cog.listener()
 	async def on_ready( self ):
-
 		print( Fore.MAGENTA + f'[PT-SYSTEM-LOGGING]:::{self.client.user.name} is connected to discord server' + Fore.RESET )
 		await self.client.change_presence( status = discord.Status.online, activity = discord.Game( ' *help | *invite ' ))
 
 
 	@commands.Cog.listener()
 	async def on_guild_join( self, guild ):
-		emb = discord.Embed( title = 'Спасибо за приглашения нашего бота! Мы тебе всегда ради', description = f'**Стандартний префикс - *, команда помощи - *help, \nкоманда настроёк - *settings. Наш сервер поддержки: \n {Help_server}**', colour = discord.Color.green() )
-		
+		emb = discord.Embed( title = 'Спасибо за приглашения нашего бота! Мы тебе всегда ради', description = f'**Стандартний префикс - *, команда помощи - *help, \nкоманда настроёк - *settings. Наш сервер поддержки: \n {self.HELP_SERVER}**', colour = discord.Color.green() )
 		emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 		emb.set_footer( text = 'ProstoChelovek and Mr.Kola Copyright', icon_url = self.client.user.avatar_url )
-
 		await guild.text_channels[0].send( embed = emb )
 
 		DB().sel_guild(guild = guild)
 		DB().add_amout_command(entity='guilds', add_counter=len(self.client.guilds))
 
 		for member in guild.members:
-			if member.bot:
-				continue
-			else:
+			if not member.bot:
 				DB().sel_user(target = member)
 
 		guild_owner_bot = get(self.client.guilds, id = 717776571406090310)
@@ -63,7 +56,6 @@ class Events(commands.Cog, name = 'Events'):
 
 		emb_info = discord.Embed(title = f'Бот добавлен на новый сервер, всего серверов - {len(self.client.guilds)}', description = f'Названия сервера - `{guild.name}`\nАйди сервера - `{guild.id}`\nИнвайт - {invite}\nВладелец - `{guild.owner}`\nКол-во участников - `{guild.member_count}`')
 		emb_info.set_thumbnail(url = guild.icon_url)
-
 		await channel.send(embed = emb_info)
 
 
@@ -115,14 +107,14 @@ class Events(commands.Cog, name = 'Events'):
 						emb = discord.Embed( description = f'**{author.mention} Забанил {member.mention}**' , colour = discord.Color.green() )
 						
 						emb.set_author( name = author.name, icon_url = author.avatar_url )
-						emb.set_footer( text = Footer, icon_url = self.client.user.avatar_url )
+						emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 
 						await message.channel.send( embed = emb )
 
 						emb = discord.Embed( description = f'**Вы были забанены на сервере {message.guild.name}**', colour = discord.Color.green() )
 
 						emb.set_author( name = author.name, icon_url = author.avatar_url )
-						emb.set_footer( text = Footer, icon_url = self.client.user.avatar_url )
+						emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 
 						await member.send( embed = emb )
 
@@ -137,7 +129,7 @@ class Events(commands.Cog, name = 'Events'):
 						emb = discord.Embed( description = f'**{author.mention} Кикнул {member.mention}**' , colour = discord.Color.green() )
 						
 						emb.set_author( name = author.name, icon_url = author.avatar_url )
-						emb.set_footer( text = Footer, icon_url = self.client.user.avatar_url )
+						emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 							
 						await message.channel.send( embed = emb )
 
@@ -145,7 +137,7 @@ class Events(commands.Cog, name = 'Events'):
 						emb = discord.Embed( description = f'**Администратор {author.mention} кикнул вас из сервера** ***{guild.name}***' , colour = discord.Color.green() )
 						
 						emb.set_author( name = author.name, icon_url = author.avatar_url )
-						emb.set_footer( text = Footer, icon_url = self.client.user.avatar_url )
+						emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 						
 						await member.send( embed = emb )
 
@@ -321,7 +313,7 @@ class Events(commands.Cog, name = 'Events'):
 		elif not message.guild:
 			return
 		else:
-			role = get( message.guild.roles, name = Mute_role )
+			role = get( message.guild.roles, name = self.MUTE_ROLE )
 			if role in message.author.roles:
 				await message.delete()
 			
@@ -373,7 +365,7 @@ class Events(commands.Cog, name = 'Events'):
 				emb_lvl = discord.Embed(title = 'Сообщения о повышении уровня', description = f'Участник {message.author.mention} повысил свой уровень! Текущий уровень - `{lvl_member}`', timestamp = datetime.datetime.utcnow(), colour = discord.Color.green())
 
 				emb_lvl.set_author(name = message.author.name, icon_url = message.author.avatar_url)
-				emb_lvl.set_footer(text = Footer, icon_url = self.client.user.avatar_url)
+				emb_lvl.set_footer(text = self.FOOTER, icon_url = self.client.user.avatar_url)
 
 				await message.channel.send(embed = emb_lvl)
 

@@ -20,25 +20,21 @@ from configs import configs
 from Tools.database import DB
 
 def clear_commands( guild ):
-
 	data = DB().sel_guild(guild = guild)
 	purge = data['purge']
 	return purge
 
 
 def get_prefix( client, message ):
-
 	data = DB().sel_guild(guild = message.guild)
 	return str(data['prefix'])
 
 	
-global Footer
-Footer = configs['FOOTER_TEXT']
-
 class Help(commands.Cog, name = 'Help'):
 
 	def __init__(self, client):
 		self.client = client
+		self.FOOTER = configs['FOOTER_TEXT']
 
 
 	@commands.command()
@@ -98,7 +94,7 @@ class Help(commands.Cog, name = 'Help'):
 		emb.add_field( name = f'{Prefix}cleaner', value = '**Работа уборщиком. Получает от 40$ до 50$, уровень пользователя не важен, кулдавн 2 часа после 3 попыток**', inline = False )
 		emb.add_field( name = f'{Prefix}window-washer', value = '**Работа мойщиком окон. Получает от 250$ до 300$, можна работать с 5 уровня, может упасть и потерять 300$, кулдавн 5 часов**', inline = False )
 
-		emb.set_footer( text = Footer, icon_url = self.client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 
 		await ctx.send( embed = emb )
 
@@ -216,7 +212,7 @@ class Help(commands.Cog, name = 'Help'):
 			emb = discord.Embed(title = 'Ошибка!', description = 'Такой категории нет, введите названия правильно. Список доступных категорий: different, economy, moderate, games, settings, utils, works', colour = discord.Color.green())
 			
 			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 
 			await ctx.send(embed = emb)
 			return
@@ -227,7 +223,7 @@ class Help(commands.Cog, name = 'Help'):
 			emb_2.add_field(name = f'{Prefix}{c.usage}', value = f'{c.description[2:-2]}.', inline = False)
 
 		emb_2.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
-		emb_2.set_footer( text = Footer, icon_url = self.client.user.avatar_url )
+		emb_2.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 
 		await ctx.send(embed = emb_2)	
 

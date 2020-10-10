@@ -37,19 +37,16 @@ def clear_commands( guild ):
 	return purge
 
 
-global Footer, Mute_role, Vmute_role
-Mute_role = configs['MUTE_ROLE']
-Vmute_role = configs['VMUTE_ROLE']
-SOFTban_role = configs['SOFTBAN_ROLE']
-Footer = configs['FOOTER_TEXT']
-
-
 class Moderate(commands.Cog, name = 'Moderate'):
 
 	def __init__(self, client):
 		self.client = client
 		self.conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
 		self.cursor = self.conn.cursor(buffered = True)
+		self.MUTE_ROLE = configs['MUTE_ROLE']
+		self.VMUTE_ROLE = configs['VMUTE_ROLE']
+		self.SOFTBAN_ROLE = configs['SOFTBAN_ROLE']
+		self.FOOTER = configs['FOOTER_TEXT']
 
 
 	@commands.command(brief = 'True', description = '**Удаляет указаное число сообщений**', usage = 'clear |@Участник| [Число удаляемых сообщений]')
@@ -69,7 +66,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 					emb = discord.Embed( description = f'** :white_check_mark: Удаленно {number - 1} сообщений**', colour = discord.Color.green() )
 					
 					emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-					emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 					
 					await ctx.send( embed = emb )
 					break
@@ -90,7 +87,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 					emb = discord.Embed( description = f'** :white_check_mark: Удаленно {number} сообщений от пользователя {member.mention}**', colour = discord.Color.green() )
 			
 					emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-					emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 					
 					await ctx.send( embed = emb )
 					break
@@ -108,7 +105,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
 			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send(embed = emb)
 			return
@@ -117,7 +114,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете выдать роль которая выше вашей роли!', colour = discord.Color.green()) 
 			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send(embed = emb)
 			return
@@ -128,7 +125,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed( title = 'Ошибка!', description = f'**Укажите на какое время вы выдаете роль!**', colour = discord.Color.green() )
 			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send(embed = emb)
 			return
@@ -149,7 +146,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		await member.add_roles( role )
 
 		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb )
 
@@ -176,7 +173,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb = discord.Embed( description = f'**Для всех каналов этого сервера был поставлен медленний режим на {delay}сек**', colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 
@@ -184,7 +181,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb = discord.Embed( description = f'**Для всех каналов этого сервера был снят медленний режим**', colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 
@@ -192,7 +189,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb = discord.Embed( description = f'**Вы не правильно указали время, укажыте длительность медленого режима больше ноля**', colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 
@@ -206,7 +203,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb = discord.Embed( description = f'**Для канала {slowmode_channel.name} был поставлен медленний режим на {delay}сек**', colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 
@@ -215,7 +212,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb = discord.Embed( description = f'**Для канала {slowmode_channel.name} был снят медленний**', colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 
@@ -224,7 +221,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb = discord.Embed( description = f'**Вы не правильно указали время, укажыте длительность медленого режима больше ноля**', colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 
@@ -241,7 +238,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
 			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send(embed = emb)
 			return
@@ -254,13 +251,13 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		emb = discord.Embed( description = f'**{ctx.author.mention} Кикнул `{member}` по причине {reason}**' , colour = discord.Color.green() )
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			
 		await ctx.send( embed = emb )
 
 		emb = discord.Embed( description = f'**Модератор {ctx.author.mention} кикнул вас из сервера `{guild.name}` по причине {reason}**' , colour = discord.Color.green() )
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			
 		await member.send( embed = emb )
 
@@ -276,36 +273,36 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send(embed = emb)
 			return
 
 		if not reason:
 			emb = discord.Embed( description = f'**{ctx.author.mention} Апаратно забанил `{member}`**' , colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 			emb = discord.Embed( description = f'**Вы были апаратно забанены на сервере `{ctx.guild.name}`**', colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await member.send( embed = emb )
 		elif reason:
 			emb = discord.Embed( description = f'**{ctx.author.mention} Апаратно забанил `{member}` по причине {reason}**' , colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 			emb = discord.Embed( description = f'**Вы были апаратно забанены на сервере `{ctx.guild.name}` по причине {reason}**', colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await member.send( embed = emb )
 
 		overwrite = discord.PermissionOverwrite( connect = False, view_channel = False, send_messages = False )
-		role = get( ctx.guild.roles, name = SOFTban_role )
+		role = get( ctx.guild.roles, name = self.SOFTBAN_ROLE )
 
 		if not role:
-			role = await ctx.guild.create_role( name = SOFTban_role )
+			role = await ctx.guild.create_role( name = self.SOFTBAN_ROLE )
 
 		await member.edit( voice_channel = None )
 		for channel in ctx.guild.channels:
@@ -325,23 +322,23 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send(embed = emb)
 			return
 
 		emb = discord.Embed( description = f'**{ctx.author.mention} Разбанил `{member}`**' , colour = discord.Color.green() )
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 		await ctx.send( embed = emb )
 
 		emb = discord.Embed( description = f'**Вы были разбанены на сервере `{ctx.guild.name}`**', colour = discord.Color.green() )
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 		await member.send( embed = emb )
 	
-		role = get( ctx.guild.roles, name = SOFTban_role )
+		role = get( ctx.guild.roles, name = self.SOFTBAN_ROLE )
 		if not role:
-			role = await ctx.guild.create_role( name = SOFTban_role )
+			role = await ctx.guild.create_role( name = self.SOFTBAN_ROLE )
 
 		if role in member.roles:
 			await member.remove_roles( role )
@@ -358,7 +355,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send(embed = emb)
 			return
 
@@ -367,7 +364,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		else:
 			emb = discord.Embed( title = 'Ошибка!', description = f"**На сервере не существует такого пользователя!**", colour = discord.Color.green() )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 			return
 
@@ -400,22 +397,22 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if not reason:
 			emb = discord.Embed( description = f'**{ctx.author.mention} Забанил `{member}`**' , colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 			emb = discord.Embed( description = f'**Вы были забанены на сервере `{ctx.guild.name}`**', colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await member.send( embed = emb )
 		elif reason:
 			emb = discord.Embed( description = f'**{ctx.author.mention} Забанил `{member}` по причине {reason}**' , colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 			emb = discord.Embed( description = f'**Вы были забанены на сервере `{ctx.guild.name}` по причине {reason}**', colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await member.send( embed = emb )
 
 			if ban_time > 0:
@@ -439,7 +436,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send(embed = emb)
 			return
 
@@ -453,12 +450,12 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 				emb = discord.Embed( description = f'**{ctx.author.mention} Разбанил `{member}`**' , colour = discord.Color.green() )
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 				await ctx.send( embed = emb )
 
 				emb = discord.Embed( description = f'**Вы были разбанены на сервере `{ctx.guild.name}`**', colour = discord.Color.green() )
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 				await member.send( embed = emb )
 				
 
@@ -473,16 +470,16 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send(embed = emb)
 			return
 
 		vmute_minutes = vmute_time * 60
 		overwrite = discord.PermissionOverwrite( connect = False )
-		role = get( ctx.guild.roles, name = Vmute_role )
+		role = get( ctx.guild.roles, name = self.VMUTE_ROLE )
 
 		if not role:
-			role = await ctx.guild.create_role( name = Vmute_role )
+			role = await ctx.guild.create_role( name = self.VMUTE_ROLE )
 		for channel in ctx.guild.voice_channels:
 			await channel.set_permissions( role, overwrite = overwrite )
 
@@ -492,7 +489,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if vmute_minutes > 0:
 			emb = discord.Embed( description = f'**{ctx.author.mention} Замутил `{member}` в голосовых каналах на {vmute_time}мин**' , colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 			await asyncio.sleep(vmute_minutes)
 			await member.remove_roles( role )
@@ -504,7 +501,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		elif vmute_minutes <= 0:
 			emb = discord.Embed( description = f'**{ctx.author.mention} Перманентно замутил `{member}` в голосовых каналах**' , colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 
@@ -519,12 +516,12 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send(embed = emb)
 			return
 
 		for vmute_role in ctx.guild.roles:
-			if vmute_role.name == Vmute_role:
+			if vmute_role.name == self.VMUTE_ROLE:
 				await member.remove_roles( vmute_role )
 				overwrite = discord.PermissionOverwrite( connect = None )
 
@@ -533,7 +530,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 				emb = discord.Embed( description = f'**{ctx.author.mention} Размутил `{member}` в голосовых каналах**' , colour = discord.Color.green() )
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 				await ctx.send( embed = emb )
 				return
 
@@ -549,7 +546,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send(embed = emb)
 			return
 
@@ -587,19 +584,19 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		else:
 			emb = discord.Embed( title = 'Ошибка!', description = f"**На сервере не существует такого пользователя!**", colour = discord.Color.green() )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
 			return
 
-		role = get( ctx.guild.roles, name = Mute_role )
+		role = get( ctx.guild.roles, name = self.MUTE_ROLE )
 		if not role:
-			role = await ctx.guild.create_role( name = Mute_role )
+			role = await ctx.guild.create_role( name = self.MUTE_ROLE )
 
 		if role in member.roles:
 			emb = discord.Embed( title = 'Ошибка!', description = f'**Указаный пользователь уже замьючен!**' , colour = discord.Color.green() )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await member.send( embed = emb )
 			await ctx.message.add_reaction('❌')
 			return			
@@ -630,7 +627,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			cur_items = []
 			emb = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Текущий баланс - `{cur_money}`**' , colour = discord.Color.green() )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await member.send( embed = emb )
 
 		sql = ("""UPDATE users SET money = %s, coins = %s, reputation = %s, items = %s, prison = %s WHERE user_id = %s AND guild_id = %s""")
@@ -643,23 +640,23 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			if reason != None:
 				emb = discord.Embed( description = f'**{ctx.author.mention} Перманентно замутил `{member}` по причине {reason}**' , colour = discord.Color.green() )
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 				await ctx.send( embed = emb )
 			elif reason == None:
 				emb = discord.Embed( description = f'**{ctx.author.mention} Перманентно замутил `{member}`**' , colour = discord.Color.green() )
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 				await ctx.send( embed = emb )
 		elif mute_minutes != 0:
 			if reason != None:
 				emb = discord.Embed( description = f'**{ctx.author.mention} Замутил `{member}` по причине {reason} на {mute_time}{mute_typetime}**' , colour = discord.Color.green() )
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 				await ctx.send( embed = emb )
 			elif reason == None:
 				emb = discord.Embed( description = f'**{ctx.author.mention} Замутил `{member}` на {mute_time}{mute_typetime}**' , colour = discord.Color.green() )
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 				await ctx.send( embed = emb )
 		
 		if mute_minutes > 0:
@@ -677,23 +674,23 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send(embed = emb)
 			return
 
 		for role in ctx.guild.roles:
-			if role.name == Mute_role:
+			if role.name == self.MUTE_ROLE:
 				DB().del_punishment(member=member, guild_id=ctx.guild.id, type_punishment='mute')
 				await member.remove_roles(role)
 
 				emb = discord.Embed( description = f'**{ctx.author.mention} Размутил `{member}`**' , colour = discord.Color.green() )
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )			
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 				await ctx.send( embed = emb )
 
 				emb = discord.Embed( description = f'**Вы были размьючены на сервере `{ctx.guild.name}`**', colour = discord.Color.green() )
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-				emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 				await member.send( embed = emb )	
 
 
@@ -710,7 +707,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		else:
 			emb = discord.Embed( title = 'Ошибка!', description = f"**На сервере не существует такого пользователя!**", colour = discord.Color.green() )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
 			return
@@ -723,7 +720,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		emb = discord.Embed( description = f'**У пользователя `{member}` были сняты предупреждения**', colour = discord.Color.green() )
 		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 		await ctx.send( embed = emb )
 
 
@@ -738,7 +735,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send(embed = emb)
 			return
 
@@ -748,7 +745,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if member == ctx.author:
 			emb = discord.Embed( title = 'Ей! Ты точно подумал прежде чем предупреждать себя?', colour = discord.Color.green() )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 			return
 
@@ -757,7 +754,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		else:
 			emb = discord.Embed( title = 'Ошибка!', description = f"**На сервере не существует такого пользователя!**", colour = discord.Color.green() )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
 			return
@@ -803,7 +800,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			cur_state_pr = True
 			emb = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Текущий баланс - {cur_money}**' , colour = discord.Color.green() )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await member.send( embed = emb )
 
 		if cur_reputation < -100:
@@ -821,10 +818,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				cur_coins = 0
 
 			overwrite = discord.PermissionOverwrite( send_messages = False )
-			role = get( ctx.guild.roles, name = Mute_role )
+			role = get( ctx.guild.roles, name = self.MUTE_ROLE )
 
 			if not role:
-				role = await ctx.guild.create_role( name = Mute_role )
+				role = await ctx.guild.create_role( name = self.MUTE_ROLE )
 
 			await member.add_roles( role )
 			for channel in ctx.guild.text_channels:
@@ -832,7 +829,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 			emb = discord.Embed( description = f'**`{member}` Достиг максимального значения предупреждения и был замючен на 2 часа.**' , colour = discord.Color.green() )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 			await asyncio.sleep(120 * 60)
@@ -841,12 +838,12 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		else:
 			emb = discord.Embed( description = f'**Вы были предупреждены {ctx.author.mention} по причине {reason}. Количество предупрежденний - `{len(cur_warns)}`, id - `{num}`**' , colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await member.send( embed = emb )
 
 			emb = discord.Embed( description = f'**Пользователь `{member}` получил предупреждения по причине {reason}. Количество предупрежденний - `{len(cur_warns)}`, id - `{num}`**' , colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 		sql = ("""UPDATE users SET money = %s, coins = %s, reputation = %s, warns = %s, prison = %s WHERE user_id = %s AND guild_id = %s""")
@@ -877,13 +874,13 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if not state:
 			emb = discord.Embed(title = 'Ошибка!', description = '**Предупреждения с таким айди не существует! Укажите правильный айди предупреждения**', colour = discord.Color.green())
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send(embed = emb)
 			return
 		elif state:
 			emb = discord.Embed(description = f'**Предупреждения успешно было снято с участника `{member}`**', colour = discord.Color.green())
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send(embed = emb)
 
 		sql = ("""UPDATE users SET warns = %s WHERE user_id = %s AND guild_id = %s""")
@@ -920,7 +917,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb.add_field( value = f'**Причина:** {reason}', name = f'Id - {id_warn}, время - {time_warn}, автор - {author_warn}', inline = False )
 
 		emb.set_author( name = member.name, icon_url = member.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 		await ctx.send(embed = emb)
 
 def setup( client ):

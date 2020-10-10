@@ -17,19 +17,16 @@ from bs4 import BeautifulSoup as bs
 from Tools.database import DB
 
 def clear_commands( guild ):
-
 	data = DB().sel_guild(guild = guild)
 	purge = data['purge']
 	return purge
 
 
-global Footer, Prefix
-Footer = configs['FOOTER_TEXT']
-
 class Games(commands.Cog, name = 'Games'):
 
 	def __init__(self, client):
 		self.client = client
+		self.FOOTER = configs['FOOTER_TEXT']
 
 
 	@commands.command(name = 'create-qrcode', description = '**Закодирует указаный текст в qr-код**', usage = 'create-qrcode [Ваш текст]')
@@ -46,7 +43,7 @@ class Games(commands.Cog, name = 'Games'):
 		emb = discord.Embed( title = 'Функция создания qr-кодов', description = f'**Кодируемый текст:\n{code_text}**', colour = discord.Color.green() )
 		
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb, content = '**Ваш qr-код**', file = discord.File('./Data/Img/myqr.jpg') )
 
@@ -71,7 +68,7 @@ class Games(commands.Cog, name = 'Games'):
 			emb = discord.Embed( title = f"Результат разкодировки", description = bd, colour = discord.Color.green() )
 
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
@@ -94,7 +91,7 @@ class Games(commands.Cog, name = 'Games'):
 		emb = discord.Embed( title = f"Правила игры", description = '**1. Нельзя читерить!\n2. Ответ должен быть в течении 4мин, если никто не успел ответить ивент заканчиваеться\n\nЖдем игроков(2мин)...**', colour = discord.Color.green() )
 
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		embed = await ctx.send( embed = emb )
 		await embed.add_reaction('✅')
@@ -107,7 +104,7 @@ class Games(commands.Cog, name = 'Games'):
 			emb = discord.Embed( description = '**Жаль, но ивент отменяеться, так как никто не пришёл...**', colour = discord.Color.green() )
 
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			embed = await ctx.send( embed = emb )
 		else:
@@ -125,7 +122,7 @@ class Games(commands.Cog, name = 'Games'):
 
 						emb.set_image(url = otvet['url'])
 						emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-						emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 						await ctx.send(embed = emb)
 
@@ -139,7 +136,7 @@ class Games(commands.Cog, name = 'Games'):
 							emb = discord.Embed( description = '**Никто не успел ответить... Ивент закончен прежде временно**', colour = discord.Color.green() )
 
 							emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-							emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+							emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 							await ctx.send(embed = emb)
 							break
@@ -151,7 +148,7 @@ class Games(commands.Cog, name = 'Games'):
 							emb.add_field( name = "Правильный ответ:", value = f"{otvet['answer']}" )
 
 							emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-							emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+							emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 							await ctx.send(embed = emb)
 
@@ -162,7 +159,7 @@ class Games(commands.Cog, name = 'Games'):
 								emb = discord.Embed( title = "Конец игры!", description = f"Ивент был проведён {ctx.author.mention}, и мы всем желаем удачи! Спасибо за участие!", colour = discord.Color.green() )
 								
 								emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-								emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+								emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 								await ctx.send( embed = emb )
 				else:
@@ -185,7 +182,7 @@ class Games(commands.Cog, name = 'Games'):
 			emb = discord.Embed( title = new_page.title, description = summ, color = discord.Color.green() )
 			
 			emb.set_author( name = 'Больше информации тут! Кликай!', url = new_page.url, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 		except:
@@ -193,7 +190,7 @@ class Games(commands.Cog, name = 'Games'):
 			emb = discord.Embed( description = '**О вашем запросе ничего не нашлось**', color = discord.Color.green() )
 			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
@@ -217,7 +214,7 @@ class Games(commands.Cog, name = 'Games'):
 			emb = discord.Embed( title = 'Мой ответ на ваш вопрос', description = f'**{choice_1}**', color = discord.Color.green() )
 			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
@@ -227,7 +224,7 @@ class Games(commands.Cog, name = 'Games'):
 			emb = discord.Embed( title = 'Мой ответ на ваш вопрос', description = f'**{choice_2}**', color = discord.Color.green() )
 			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
@@ -237,7 +234,7 @@ class Games(commands.Cog, name = 'Games'):
 			emb = discord.Embed( title = 'Мой ответ на ваш вопрос', description = f'**{choice_3}**', color = discord.Color.green() )
 			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 			await ctx.send( embed = emb )
 
@@ -254,7 +251,7 @@ class Games(commands.Cog, name = 'Games'):
 		emb.set_image( url = url)
 
 		emb.set_author( name = 'Собачка', icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb)
 
@@ -271,7 +268,7 @@ class Games(commands.Cog, name = 'Games'):
 		emb.set_image( url = url)
 
 		emb.set_author( name = 'Кошечка :3', icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb)
 	
@@ -288,7 +285,7 @@ class Games(commands.Cog, name = 'Games'):
 		emb.set_image( url = url)
 
 		emb.set_author( name = 'Лиса', icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb)
 
@@ -305,7 +302,7 @@ class Games(commands.Cog, name = 'Games'):
 		emb.set_image( url = url)
 
 		emb.set_author( name = 'Птичка', icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb)
 
@@ -322,7 +319,7 @@ class Games(commands.Cog, name = 'Games'):
 		emb.set_image( url = url)
 
 		emb.set_author( name = 'Коала', icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb)
 
@@ -349,7 +346,7 @@ class Games(commands.Cog, name = 'Games'):
 		emb.set_image( url = random.choice(images))
 
 		emb.set_author( name = 'Мем года', icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		await ctx.send( embed = emb)
 
