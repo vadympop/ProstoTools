@@ -40,32 +40,27 @@ class Different(commands.Cog, name = 'Different'):
 
 		if cur_items != []:
 			if "sim" in cur_items and "tel" in cur_items and coins_member > 50:
-
 				self.cursor.execute(sql, val)
 				self.conn.commit()
 
 				emb = discord.Embed( title = f'Новое сообщения от {ctx.author.name}', description = f'**{message}**', colour = discord.Color.green() )
-
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 				await member.send( embed = emb )
 			else:
 				emb = discord.Embed( title = 'Ошибка!', description = f'**У вас нет необходимых предметов или не достаточно коинов!**', colour = discord.Color.green() )
-
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 				await ctx.send( embed = emb )
+				await ctx.message.add_reaction('❌')
 				self.send.reset_cooldown(ctx)
 				return
 		else:
 			emb = discord.Embed( title = 'Ошибка!', description = f'**У вас нет необходимых предметов!**', colour = discord.Color.green() )
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.send.reset_cooldown(ctx)
 			return
 
@@ -83,33 +78,23 @@ class Different(commands.Cog, name = 'Different'):
 		mrkl = get( client.users, id = 404224656598499348 )
 
 		if typef == 'bug' or typef == 'баг':
-
 			emb = discord.Embed( title = f'Описания бага от пользователя - {ctx.author.name}, с сервера - {ctx.guild.name}', description = f'**Описания бага:\n{msg}**', colour = discord.Color.green() )
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await prch.send( embed = emb )
 			await mrkl.send( embed = emb )
-
 		elif typef == 'idea' or typef == 'идея':
-
 			emb = discord.Embed( title = f'Новая идея от пользователя - {ctx.author.name}, с сервера - {ctx.guild.name}', description = f'**Идея:\n{msg}**', colour = discord.Color.green() )
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await prch.send( embed = emb )
 			await mrkl.send( embed = emb )
-
 		else:
-
 			emb = discord.Embed( title = 'Ошибка!', description = f'**Вы не правильно указали флаг!**', colour = discord.Color.green() )
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.devs.reset_cooldown(ctx)
 			return
 
@@ -120,6 +105,14 @@ class Different(commands.Cog, name = 'Different'):
 		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
+
+		if member.bot:			
+			emb = discord.Embed( title = 'Ошибка!', description = f"**Вы не можете просмотреть информацию о боте!**", colour = discord.Color.green() )
+			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
+			return
 
 		if not member:
 			member = ctx.author
@@ -142,13 +135,10 @@ class Different(commands.Cog, name = 'Different'):
 		}
 
 		emb = discord.Embed( title = f'Информация о пользователе - {member}', colour = discord.Color.green() )
-		
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_thumbnail( url = member.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 		emb.add_field( name = 'Основная информация', value = f'{get_bio()}**Имя пользователя:** {member}\n**Статус:** {statuses[member.status.name]}\n**Id пользователя:** {member.id}\n**Акаунт созданн:** {str(member.created_at)[:-10]}\n**Присоиденился:** {str(member.joined_at)[:-10]}\n**Сообщений:** {all_message}', inline = False )
-		
 		await ctx.send( embed = emb )  
 
 
@@ -161,19 +151,15 @@ class Different(commands.Cog, name = 'Different'):
 
 		if not member:
 			emb = discord.Embed( title = f'Аватар {ctx.author.name}', colour = discord.Color.green() )
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_image( url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 		else:
 			emb = discord.Embed( title = f'Аватар {member.name}', colour = discord.Color.green() )
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_image( url = member.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 
 
@@ -334,25 +320,20 @@ class Different(commands.Cog, name = 'Different'):
 		data = DB().sel_guild(guild = ctx.guild)
 		idea_channel_id = data['idea_channel']
 
-		if idea_channel_id == None:
+		if not idea_channel_id:
 			emb = discord.Embed( title = 'Ошибка!', description = '**Не указан канал идей. Обратитесь к администации сервера**', colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			self.idea.reset_cooldown(ctx)
+			await ctx.message.add_reaction('❌')
 			return
-
-		elif idea_channel_id != None:
+		elif idea_channel_id:
 			idea_channel = client.get_channel(int(idea_channel_id))
-
 			emb = discord.Embed( title = 'Новая идея!', description = f'**От {ctx.author.mention} прийшла идея: {arg}**', colour = discord.Color.green() )
-		
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_thumbnail( url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-		
 			await idea_channel.send( embed = emb)
 
 
@@ -367,7 +348,6 @@ class Different(commands.Cog, name = 'Different'):
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_thumbnail( url = client.user.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 		await ctx.send( embed = emb )
 
 
@@ -381,40 +361,30 @@ class Different(commands.Cog, name = 'Different'):
 
 		msgforw_channel = client.get_channel(channel)
 		if ctx.author.permissions_in(msgforw_channel).send_messages:
-
 			emb = discord.Embed( title = 'Новое сообщения!', description = f'{ctx.author.mention} Перенаправил сообщения в этот канал. ***Само сообщения: {msg}***', colour = discord.Color.green() )
-		
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_thumbnail( url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-		
 			await msgforw_channel.send( embed = emb)
-
 		else:
 			emb = discord.Embed( title = 'Ошибка!', description = f'**Отказанно в доступе! Вы не имеете прав в указном канале**', colour = discord.Color.green() )
-		
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-		
 			await ctx.send( embed = emb)
+			await ctx.message.add_reaction('❌')
 			self.msgforw.reset_cooldown(ctx)
 			return
 
 
 	@commands.command(description = '**Отправляет ваше сообщения от именни бота(Cooldown - 30 сек после трёх попыток)**', usage = 'say [Сообщения]')
 	@commands.cooldown(3, 30, commands.BucketType.member)
-	async def say( self, ctx, *, arg ):
+	async def say( self, ctx, *, text ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
-		emb = discord.Embed( title = arg, colour = discord.Color.green() )
-
-		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
-		await ctx.send( embed = emb )
+		await ctx.send(text)
 
 
 	@commands.command(aliases=['rnum', 'randomnumber'], name = 'random-number', description = '**Пишет рандомное число в указаном диапазоне**', usage = 'random-number [Первое число (От)] [Второе число (До)]')
@@ -426,10 +396,8 @@ class Different(commands.Cog, name = 'Different'):
 
 		random_num = randint( rnum1, rnum2 )
 		emb = discord.Embed( title = f'Рандомное число от {rnum1} до {rnum2}', description = f'**Бот зарандомил число {random_num}**', colour = discord.Color.green() )
-		
 		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 		await ctx.send( embed = emb )
 
 	

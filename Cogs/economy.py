@@ -961,15 +961,22 @@ class Economy(commands.Cog, name = 'Economy'):
 
 		data1 = DB().sel_user(target = ctx.author)
 
+		if member.bot:
+			emb = discord.Embed( title = 'Ошибка!', description = f"**Вы не можете передавать деньги боту!**", colour = discord.Color.green() )
+			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
+			return
+
 		if member in ctx.guild.members:
 			data2 = DB().sel_user(target = member)
 		else:
 			emb = discord.Embed( title = 'Ошибка!', description = f"**На сервере не существует такого пользователя!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			return
 
 		cur_state_pr1 = data1['prison']
@@ -1019,52 +1026,36 @@ class Economy(commands.Cog, name = 'Economy'):
 			self.conn.commit()
 
 			emb = discord.Embed( description = f"**Вы успешно совершили транзакцию `{member.mention}` на суму `{num}$`**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 
 			emb = discord.Embed( description = f"**Вам {ctx.author.mention} перевел деньги на суму `{num}$`, сервер `{ctx.guild.name}`**", colour = discord.Color.green() )
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await member.send( embed = emb )
-
 		elif cur_state_pr1 == True:
-			await ctx.message.add_reaction('❌')
-
 			emb = discord.Embed( title = 'Ошибка!', description = "**У вас заблокирование транзакции, так как вы в тюрме!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.sendmoney.reset_cooldown(ctx)
 			return
-
 		elif cur_state_pr2 == True:
-			await ctx.message.add_reaction('❌')
-
 			emb = discord.Embed( title = 'Ошибка!', description = "**В указаного пользователя заблокирование транзакции, так как он в тюрме!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.sendmoney.reset_cooldown(ctx)
 			return
-
 		elif cur_money1 < num:
-			await ctx.message.add_reaction('❌')
-
 			emb = discord.Embed( title = 'Ошибка!', description = "**У вас недостаточно средств для транзакции!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.sendmoney.reset_cooldown(ctx)
 			return
 
@@ -1405,11 +1396,10 @@ class Economy(commands.Cog, name = 'Economy'):
 
 		elif not state:
 			emb = discord.Embed(title = f'Ошибка!', description = f'**В вашем инвертаре нет такого лут-бокса!**', colour = discord.Color.green())
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 
 
 	@commands.command(aliases=['removerole'], hidden = True, name = 'remove-role', description = '**Удаляет указаную роль из профиля пользователя(Объязательно используйте эту команду для снятия роли, а не простое удаление роли через сам дискорд!, Cooldown - 3 часа)', usage = 'remove-role [@Участник] [@Роль]')
@@ -1421,16 +1411,22 @@ class Economy(commands.Cog, name = 'Economy'):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
+		if member.bot:			
+			emb = discord.Embed( title = 'Ошибка!', description = f"**Вы не можете снимать роль боту!**", colour = discord.Color.green() )
+			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
+			return
+
 		if member in ctx.guild.members:
 			data = DB().sel_user(target = member)
 		else:
-			await ctx.message.add_reaction('❌')
 			emb = discord.Embed( title = 'Ошибка!', description = f"**На сервере не существует такого пользователя!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.remove_role.reset_cooldown(ctx)
 			return
 
@@ -1450,10 +1446,8 @@ class Economy(commands.Cog, name = 'Economy'):
 			self.conn.commit()
 
 			emb = discord.Embed( title = 'Успех!', description = f"**Снятия роли прошло успешно, роль - {role.mention} была удаленна из эго профиля!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 
 
@@ -1466,16 +1460,22 @@ class Economy(commands.Cog, name = 'Economy'):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
+		if member.bot:			
+			emb = discord.Embed( title = 'Ошибка!', description = f"**Вы не можете добавлять деньги боту!**", colour = discord.Color.green() )
+			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
+			return
+
 		if member in ctx.guild.members:
 			data = DB().sel_user(target = member)
 		else:
-			await ctx.message.add_reaction('❌')
 			emb = discord.Embed( title = 'Ошибка!', description = f"**На сервере не существует такого пользователя!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.add_cash.reset_cooldown(ctx)
 			return
 
@@ -1487,22 +1487,17 @@ class Economy(commands.Cog, name = 'Economy'):
 		elif typem == 'coins':
 			coins_member += num 
 		else:
-			await ctx.message.add_reaction('❌')
-
 			emb = discord.Embed( title = 'Ошибка!', description = f"**Укажите правильную единицу!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.add_cash.reset_cooldown(ctx)
 			return
 
 		emb = discord.Embed( description = f"**Вы успешно добавили значений в профиль {member.name}**", colour = discord.Color.green() )
-
 		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 		await ctx.send( embed = emb )
 
 		sql = ("""UPDATE users SET money = %s, coins = %s WHERE user_id = %s AND guild_id = %s""")
@@ -1521,14 +1516,20 @@ class Economy(commands.Cog, name = 'Economy'):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
+		if member.bot:			
+			emb = discord.Embed( title = 'Ошибка!', description = f"**Вы не можете снимать деньги боту!**", colour = discord.Color.green() )
+			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
+			return
+
 		if member in ctx.guild.members:
 			data = DB().sel_user(target = member)
 		else:
 			emb = discord.Embed( title = 'Ошибка!', description = f"**На сервере не существует такого пользователя!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
 			self.remove_cash.reset_cooldown(ctx)
@@ -1543,20 +1544,16 @@ class Economy(commands.Cog, name = 'Economy'):
 			coins_member -= num 
 		else:
 			emb = discord.Embed( title = 'Ошибка!', description = f"**Укажите правильную единицу!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
 			self.remove_cash.reset_cooldown(ctx)
 			return
 
 		emb = discord.Embed( description = f"**Вы успешно добавили значений в профиль {member.name}**", colour = discord.Color.green() )
-
 		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 		await ctx.send( embed = emb )
 
 		sql = ("""UPDATE users SET money = %s, coins = %s WHERE user_id = %s AND guild_id = %s""")
@@ -1577,16 +1574,21 @@ class Economy(commands.Cog, name = 'Economy'):
 		data1 = DB().sel_user(target = ctx.author)
 		cur_state_pr = data1['prison']
 
-		if cur_state_pr == False:
+		if member.bot:			
+			emb = discord.Embed( title = 'Ошибка!', description = f"**Вы не можете красть деньги у бота!**", colour = discord.Color.green() )
+			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
+			return
 
+		if cur_state_pr == False:
 			if member in ctx.guild.members:
 				data2 = DB().sel_user(target = member)
 			else:
 				emb = discord.Embed( title = 'Ошибка!', description = f"**На сервере не существует такого пользователя!**", colour = discord.Color.green() )
-
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 				await ctx.send( embed = emb )
 				await ctx.message.add_reaction('❌')
 				self.rob.reset_cooldown(ctx)
@@ -1620,29 +1622,21 @@ class Economy(commands.Cog, name = 'Economy'):
 				state = rob_func( -10000, ctx.author )
 				if state[0] == True:
 					emb = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Ваш текущий баланс: {state[1]}**' , colour = discord.Color.green() )
-				
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 					await ctx.author.send(embed = emb)
 					return
 				else:
 					emb = discord.Embed( description = f"**Вас задержала полиция. Вы откупились потеряв 10000$**", colour = discord.Color.green() )
-
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 					await ctx.send( embed = emb )
-
 			elif rand_num > 40 and rand_num <= 80:
 				emb = discord.Embed( description = f"**Вы не смогли ограбить указаного пользователя**", colour = discord.Color.green() )
-
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 				await ctx.send( embed = emb )
 			elif rand_num > 80:
-
 				rand_num_1 = randint(1,2)
 				cr_money = crimed_member_money // 4 * rand_num_1
 
@@ -1650,17 +1644,13 @@ class Economy(commands.Cog, name = 'Economy'):
 				rob_func( int(cr_money * -1), member )
 
 				emb = discord.Embed( description = f"**Вы смогли ограбить пользователя на суму {cr_money}**", colour = discord.Color.green() )
-
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 				await ctx.send( embed = emb )
 		elif cur_state_pr == True:
 			emb = discord.Embed( description = f"**Вы не забыли? Вы сейчас в тюрме!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
 			self.rob.reset_cooldown(ctx)
@@ -1701,42 +1691,31 @@ class Economy(commands.Cog, name = 'Economy'):
 				state = crime_func( -5000, ctx.author )
 				if state[0] == True:
 					emb = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Ваш текущий баланс: {state[1]}**' , colour = discord.Color.green() )
-				
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 					await ctx.author.send(embed = emb)
 					return
 				else:
 					emb = discord.Embed( description = f"**Вас задержала полиция. Вы откупились потеряв 10000$**", colour = discord.Color.green() )
-
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 					await ctx.send( embed = emb )
 			elif rand_num > 40 and rand_num <= 80:
 				emb = discord.Embed( description = f"**Вы не смогли совершить идею заработка денег**", colour = discord.Color.green() )
-
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 				await ctx.send( embed = emb )
 			elif rand_num > 80:
 				rand_money = randint(20, 1000)	
 				crime_func( rand_money, ctx.author )
-
 				emb = discord.Embed( description = f"**Вы смогли заработать на незаконной работе - {rand_money}$**", colour = discord.Color.green() )
-
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 				await ctx.send( embed = emb )
 		elif cur_state_pr == True:
 			emb = discord.Embed( description = f"**Вы не забыли? Вы сейчас в тюрме!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
 			self.crime.reset_cooldown(ctx)
@@ -1820,10 +1799,8 @@ class Economy(commands.Cog, name = 'Economy'):
 			return [items_content, roles_content, box_content, pets_content]
 
 		emb = discord.Embed( title = 'Ваш инвертарь', description = f'{func_inv()[0]}{func_inv()[1]}{func_inv()[2]}{func_inv()[3]}**Текстовые каналы:** {number}', colour = discord.Color.green() )
-
 		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 		await ctx.send( embed = emb )
 
 
@@ -1852,18 +1829,14 @@ class Economy(commands.Cog, name = 'Economy'):
 
 		if not color:
 			emb = discord.Embed( description = f"**Выберите цвет профиля среди этих: зелёный, лаймовый, оранжевый, фиолетовый, розовый, красный. Стандартный цвет - лаймовый.**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			return
 		elif color.lower() not in colors:
 			emb = discord.Embed( title = 'Ошибка!', description = f"**Такого цвета нет! Выберите среди этих: зелёный, лаймовый, оранжевый, фиолетовый, розовый, красный. Стандартный цвет - лаймовый.**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			return
 
@@ -1875,10 +1848,8 @@ class Economy(commands.Cog, name = 'Economy'):
 		self.conn.commit()
 
 		emb = discord.Embed( description = f"**Вы успешно поменяли цвет своего профиля на {color}**", colour = discord.Color.green() )
-
 		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 		await ctx.send( embed = emb )
 
 
@@ -1908,7 +1879,6 @@ class Economy(commands.Cog, name = 'Economy'):
 		}
 
 		if not member:
-
 			user_data = DB().sel_user(target = ctx.author)
 
 			user = str(ctx.author.name)
@@ -1961,19 +1931,24 @@ class Economy(commands.Cog, name = 'Economy'):
 
 			img.save(self.SAVE)
 			await ctx.send( file = discord.File( fp = self.SAVE ) )
-
 		elif member:
 			if ctx.author.guild_permissions.administrator:
+				if member.bot:			
+					emb = discord.Embed( title = 'Ошибка!', description = f"**Вы не можете просмотреть профиль бота!**", colour = discord.Color.green() )
+					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+					await ctx.send( embed = emb )
+					await ctx.message.add_reaction('❌')
+					return
 
 				if member in ctx.guild.members:
 					user_data = DB().sel_user(target = member)
 				else:
 					emb = discord.Embed( title = 'Ошибка!', description = f"**На сервере не существует такого пользователя!**", colour = discord.Color.green() )
-
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 					await ctx.send( embed = emb )
+					await ctx.message.add_reaction('❌')
 					return
 
 				user = str(member.name)
@@ -2027,14 +2002,11 @@ class Economy(commands.Cog, name = 'Economy'):
 
 				img.save(self.SAVE)
 				await ctx.send( file = discord.File( fp = self.SAVE ) )
-
 			else:
 				await ctx.message.add_reaction('❌')
 				emb = discord.Embed( title = 'Ошибка!', description = '**У вас не достаточно прав! Для этой команды нужны права администратора**', colour = discord.Color.green() )
-				
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-				
 				await ctx.send( embed = emb )
 
 

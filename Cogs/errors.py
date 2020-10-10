@@ -90,7 +90,7 @@ class Errors(commands.Cog, name = 'Errors'):
 			await ctx.send( embed = emb )
 		elif isinstance(error, commands.errors.BotMissingPermissions):
 			owner = get( ctx.guild.members, id = ctx.guild.owner_id)
-			emb_err = discord.Embed( title = 'Ошибка!', description = f'**У бота не достаточно прав на модерацию! Пожалуйста для корректной работы бота поместите роль бота више всех остальных!**' , colour = discord.Color.green() )
+			emb_err = discord.Embed( title = 'Ошибка!', description = f"У бота отсутствуют права: {' '.join(error.missing_perms)}\nВыдайте их ему для полного функционирования бота" , colour = discord.Color.green() )
 			emb_err.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb_err.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await owner.send(embed = emb_err)
@@ -99,6 +99,11 @@ class Errors(commands.Cog, name = 'Errors'):
 		else:
 			raise error
 
+
+	@commands.Cog.listener()
+	async def on_error(self, ctx, error):
+		if isinstance(error, discord.errors.Forbidden):
+			pass
 
 def setup(client):
 	client.add_cog(Errors(client))
