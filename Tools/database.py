@@ -59,7 +59,7 @@ class DB:
 		sql_3 = ("""SELECT * FROM users WHERE user_id = %s AND user_id = %s""")
 		val_3 = (target.id, target.id)
 		sql_4 = ("""INSERT INTO users (bio) VALUES(%s)""")
-		val_4 = ('')
+		val_4 = (' ')
 
 		self.cursor.execute(sql_1, val_1)
 		data = self.cursor.fetchone()
