@@ -107,7 +107,7 @@ class Help(commands.Cog, name = 'Help'):
 			'Utils': 5,
 			'Works': 7
 		}
-		Prefix = self.client.get_prefix(self.client, ctx)
+		Prefix = self.client.get_guild_prefix(ctx)
 
 		def add_command_loop(command, commands, count, group_name):
 			try:

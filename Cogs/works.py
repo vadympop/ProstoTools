@@ -34,11 +34,9 @@ class Works(commands.Cog, name = 'Works'):
 
 		if ctx.invoked_subcommand is None:
 			self.work.reset_cooldown(ctx)
-			emb = discord.Embed( title = 'Список работ', description = '**Грузчик - *work loader**\nДля работы нужно иметь более 3-го уровня и перчатки, кулдавн 3 часа после двух попыток, зарабатывает от 80$ до 100$\n\n**Охотник за кладом - *work treasure-hunter**\nДля работы нужен металоискатель(любого уровня), кулдавн 5 часов, может ничего не найти(0$, металоискатель 2-го уровня повышает шанс найти клад на 30%), если найдёт от 1$ до 500$\n\n**Барман - *work barman**\nДля работы нужно иметь более 4-го уровня, кулдавн 3 часа, зарабатывает от 150 до 200\n\n**Уборщик - *work cleaner**\nДля повышения эфективности работы нужно иметь веник или швабру, кулдавн 2 часа после 3 попыток\n\n**Мойщик окон - *work window-washer**\nДля работы нужно иметь более 5-го уровня, кулдавн 5 часов, от 250$ до 300$, может упасть и потерять 300$', colour = discord.Color.green() )
-
+			emb = discord.Embed( title = 'Список работ', description = f'**Грузчик - {self.client.get_guild_prefix(ctx)}work loader**\nДля работы нужно иметь более 3-го уровня и перчатки, кулдавн 3 часа после двух попыток, зарабатывает от 80$ до 100$\n\n**Охотник за кладом - {self.client.get_guild_prefix(ctx)}work treasure-hunter**\nДля работы нужен металоискатель(любого уровня), кулдавн 5 часов, может ничего не найти(0$, металоискатель 2-го уровня повышает шанс найти клад на 30%), если найдёт от 1$ до 500$\n\n**Барман - {self.client.get_guild_prefix(ctx)}work barman**\nДля работы нужно иметь более 4-го уровня, кулдавн 3 часа, зарабатывает от 150 до 200\n\n**Уборщик - {self.client.get_guild_prefix(ctx)}work cleaner**\nДля повышения эфективности работы нужно иметь веник или швабру, кулдавн 2 часа после 3 попыток\n\n**Мойщик окон - {self.client.get_guild_prefix(ctx)}work window-washer**\nДля работы нужно иметь более 5-го уровня, кулдавн 5 часов, от 250$ до 300$, может упасть и потерять 300$', colour = discord.Color.green() )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 
 

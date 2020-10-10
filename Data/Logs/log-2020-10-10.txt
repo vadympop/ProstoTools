@@ -506,3 +506,17 @@ Traceback (most recent call last):
 discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.moderate' raised an error: NameError: name 'self' is not defined
 
 =============================================================
+
+=============================================================
+Время: 2020-10-10 20:24:33.854628
+
+Ошибка:
+Command raised an exception: TypeError: get_prefix() takes 2 positional arguments but 3 were given
+=============================================================
+
+=============================================================
+Время: 2020-10-10 20:40:07.954392
+
+Ошибка:
+member is a required argument that is missing.
+=============================================================

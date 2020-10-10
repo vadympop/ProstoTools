@@ -32,15 +32,18 @@ class Client(commands.AutoShardedBot):
 		with open( filename, 'r', encoding='utf-8' ) as f:
 			return f.read()
 
+	def get_guild_prefix(self, ctx):
+		data = DB().sel_guild(guild=ctx.guild)
+		return str(data['prefix'])
+	
 
 def get_prefix(client, message):
 	data = DB().sel_guild(guild = message.guild)
 	return str(data['prefix'])
 
-
 intents = discord.Intents.all()
 client = Client(command_prefix=get_prefix, case_insensitive=True, intents=intents)
-client.remove_command( 'help' )
+client.remove_command('help')
 load_error = ''
 now_date = str(datetime.datetime.today())[:-16]
 log_file = f'./Data/Logs/log-{now_date}.txt'
@@ -54,16 +57,16 @@ except:
 
 @client.command()
 @commands.is_owner()
-async def load( ctx, extension ):
+async def load(ctx, extension):
 	client.load_extension(f'Cogs.{extension}')
-	print( Fore.GREEN + f'[PT-SYSTEM-COG]:::{extension.upper()} - Loaded')
+	print(Fore.GREEN+f'[PT-SYSTEM-COG]:::{extension.upper()} - Loaded')
 
 
 @client.command()
 @commands.is_owner()
-async def unload( ctx, extension ):
+async def unload(ctx, extension):
 	client.unload_extension(f'Cogs.{extension}')
-	print( Fore.GREEN + f'[PT-SYSTEM-COG]:::{extension.upper()} - Unloaded')
+	print(Fore.GREEN+f'[PT-SYSTEM-COG]:::{extension.upper()} - Unloaded')
 
 
 for filename in os.listdir('./Cogs'):
@@ -71,12 +74,12 @@ for filename in os.listdir('./Cogs'):
 		try:
 			client.load_extension(f'Cogs.{filename[:-3]}')
 		except Exception as e:
-			print( Fore.RED + f'[PT-SYSTEM-ERROR]:::An error occurred in the cog {filename[:-3].upper()}' )
-			load_error = load_error + f'\n\n=============================================================\nВремя: {str(datetime.datetime.today())}\n\nОшибка:\n{str(traceback.format_exc())}\n============================================================='
-			load_error = log + load_error
+			print( Fore.RED+f'[PT-SYSTEM-ERROR]:::An error occurred in the cog {filename[:-3].upper()}' )
+			load_error = load_error+f'\n\n=============================================================\nВремя: {str(datetime.datetime.today())}\n\nОшибка:\n{str(traceback.format_exc())}\n============================================================='
+			load_error = log+load_error
 			client.txt_dump(log_file, load_error)
 		else:
-			print( Fore.GREEN + f'[PT-SYSTEM-COG]:::{filename[:-3].upper()} - Loaded')
+			print( Fore.GREEN+f'[PT-SYSTEM-COG]:::{filename[:-3].upper()} - Loaded')
 
 print(Fore.RESET)
 client.run(configs['TOKEN'])
