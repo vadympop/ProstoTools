@@ -415,14 +415,14 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await member.send( embed = emb )
 
-			if ban_time > 0:
-				sql = ("""UPDATE users SET clans = %s, items = %s, money = %s, coins = %s, reputation = %s WHERE user_id = %s AND guild_id = %s""")
-				val = (json.dumps([]), json.dumps([]), 0, 0, -100)
+		if ban_time > 0:
+			sql = ("""UPDATE users SET clans = %s, items = %s, money = %s, coins = %s, reputation = %s WHERE user_id = %s AND guild_id = %s""")
+			val = (json.dumps([]), json.dumps([]), 0, 0, -100, member.id, ctx.guild.id)
 
-				self.cursor.execute(sql, val)
-				self.conn.commit()
+			self.cursor.execute(sql, val)
+			self.conn.commit()
 
-				DB().set_punishment(type_punishment='ban', time=times, member=member)
+			DB().set_punishment(type_punishment='ban', time=times, member=member)
 
 
 	@commands.command(aliases=['unban'], hidden = True, name = 'un-ban', description = '**Снимает бан из указаного учасника**', usage = 'un-ban [@Участник]')
@@ -444,7 +444,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		for ban_entry in banned_users:
 			user = ban_entry.user
 
-			if (user.name, user.discriminator, user.id) == (member.name, member.discriminator, member.id):
+			if user.id == member.id:
 				await ctx.guild.unban(user)
 				DB().del_punishment(member=member, guild_id=ctx.guild.id, type_punishment='ban')
 

@@ -32,3 +32,59 @@ Traceback (most recent call last):
 discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.utils' raised an error: NameError: name 'self' is not defined
 
 =============================================================
+
+=============================================================
+Время: 2020-10-10 13:21:23.307969
+
+Ошибка:
+Command raised an exception: DatabaseError: 1364 (HY000): Field 'bio' doesn't have a default value
+=============================================================
+
+=============================================================
+Время: 2020-10-10 13:26:19.416291
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-10 13:39:47.457618
+
+Ошибка:
+User "<@!578454112887242772>" not found.
+=============================================================
+
+=============================================================
+Время: 2020-10-10 13:40:24.288601
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-10 13:53:47.301664
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-10 13:57:58.236886
+
+Ошибка:
+Command raised an exception: ProgrammingError: Not enough parameters for the SQL statement
+=============================================================
+
+=============================================================
+Время: 2020-10-10 14:02:43.902554
+
+Ошибка:
+Command raised an exception: ProgrammingError: Not enough parameters for the SQL statement
+=============================================================
+
+=============================================================
+Время: 2020-10-10 14:03:30.555833
+
+Ошибка:
+Command raised an exception: ProgrammingError: Not enough parameters for the SQL statement
+=============================================================

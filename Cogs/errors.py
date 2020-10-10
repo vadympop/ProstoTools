@@ -53,62 +53,43 @@ class Errors(commands.Cog, name = 'Errors'):
 		if isinstance( error, commands.errors.CommandOnCooldown ):
 			await ctx.message.add_reaction('❌')
 			retry_after = error.retry_after
-
 			if retry_after < 60:
 				emb = discord.Embed( title = 'Ошибка!', description = f'**Кулдавн в команде еще не прошёл! Подождите {int(retry_after)} секунд**', colour = discord.Color.green() )
 			elif retry_after > 60 and retry_after < 1800:
 				emb = discord.Embed( title = 'Ошибка!', description = f'**Кулдавн в команде еще не прошёл! Подождите {int(retry_after / 60)} минут**', colour = discord.Color.green() )
 			elif retry_after > 1800:
 				emb = discord.Embed( title = 'Ошибка!', description = f'**Кулдавн в команде еще не прошёл! Подождите {int(retry_after / 60 / 24)} часа**', colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-			
 			await ctx.send( embed = emb )
-
 		elif isinstance( error, commands.errors.MissingRequiredArgument ):
 			await ctx.message.add_reaction('❌')
 			emb = discord.Embed( title = 'Ошибка!', description = f'**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указаной команде!**', colour = discord.Color.green() )
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-			
 			await ctx.send( embed = emb )
-
 		elif isinstance( error, commands.errors.CommandNotFound ):
 			pass
-
 		elif isinstance( error, commands.errors.NotOwner ):
-
 			emb = discord.Embed( title = 'Ошибка!', description = '**Вы неявляетесь создателем бота! Эта команда только для создателей!**', colour = discord.Color.green() )
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-			
 			await ctx.send( embed = emb )
 		elif isinstance( error, commands.errors.MissingPermissions ):
-
 			emb = discord.Embed( title = 'Ошибка!', description = '**У вас не достаточно прав! Для этой команды нужны права администратора**', colour = discord.Color.green() )
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-			
 			await ctx.send( embed = emb )
 		elif isinstance( error, commands.errors.BadArgument ):
-			emb = discord.Embed( title = 'Ошибка!', description = '**Указан не правильный аргумент! Возможно вы указали не тот ID**', colour = discord.Color.green() )
-			
+			emb = discord.Embed( title = 'Ошибка!', description = '**Указан не правильный аргумент!**', colour = discord.Color.green() )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
-			
 			await ctx.send( embed = emb )
 		elif isinstance(error, commands.errors.BotMissingPermissions):
 			owner = get( ctx.guild.members, id = ctx.guild.owner_id)
-
 			emb_err = discord.Embed( title = 'Ошибка!', description = f'**У бота не достаточно прав на модерацию! Пожалуйста для корректной работы бота поместите роль бота више всех остальных!**' , colour = discord.Color.green() )
-
 			emb_err.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb_err.set_footer( text = Footer, icon_url = client.user.avatar_url )
-
 			await owner.send(embed = emb_err)
 		elif isinstance(error, commands.errors.CheckFailure):
 			pass
