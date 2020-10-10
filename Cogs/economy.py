@@ -18,32 +18,6 @@ from PIL import Image, ImageFont, ImageDraw, ImageFilter, ImageEnhance
 from random import randint
 from configs import configs
 
-
-def clear_commands( guild ):
-	data = DB().sel_guild(guild = guild)
-	purge = data['purge']
-	return purge
-
-
-def get_prefix( client, message ):
-	data = DB().sel_guild(guild = message.guild)
-	return str(data['prefix'])
-
-
-def check_role(ctx):
-	data = DB().sel_guild(guild = ctx.guild)['moder_roles']
-	roles = ctx.guild.roles
-	roles.reverse()
-	data.append(roles[0].id)
-
-	if data != []:
-		for role in data:
-			role = get(ctx.guild.roles, id = role)
-			yield role in ctx.author.roles
-	else:
-		return roles[0] in ctx.author.roles
-
-
 class Economy(commands.Cog, name = 'Economy'):
 
 	def __init__(self, client):
@@ -60,7 +34,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def top(self, ctx):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		list_rep = []
@@ -237,12 +211,12 @@ class Economy(commands.Cog, name = 'Economy'):
 		await page.start()
 
 
-	@commands.command(name = '+rep', aliases = ['+reputation'], description = '**Добавления репутации(от 1 до 5) указаному пользователю(Cooldown 1 час)**', usage = '+rep [@Участник] [Число репутации]')
+	@commands.command(name = '+rep', aliases = ['+reputation', 'repp'], description = '**Добавления репутации(от 1 до 5) указаному пользователю(Cooldown 1 час)**', usage = '+rep [@Участник] [Число репутации]')
 	@commands.cooldown(1, 3600, commands.BucketType.member)
 	async def repp( self, ctx, member: discord.Member, num: int ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member == ctx.author:
@@ -281,12 +255,12 @@ class Economy(commands.Cog, name = 'Economy'):
 		await ctx.send( embed = emb )
 
 
-	@commands.command(name = '-rep', aliases = ['-reputation'], description = '**Отнимает репутацию(от 1 до 3) указаному пользователю(Cooldown 1 час)**', usage = '-rep [@Участник] [Число репутации]')
+	@commands.command(name = '-rep', aliases = ['-reputation', 'repm'], description = '**Отнимает репутацию(от 1 до 3) указаному пользователю(Cooldown 1 час)**', usage = '-rep [@Участник] [Число репутации]')
 	@commands.cooldown(1, 3600, commands.BucketType.member)
 	async def repm( self, ctx, member: discord.Member, num: int ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member == ctx.author:
@@ -308,7 +282,7 @@ class Economy(commands.Cog, name = 'Economy'):
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
-			self.repp.reset_cooldown(ctx)
+			self.repm.reset_cooldown(ctx)
 			return	
 
 		DB().sel_user(target = member)
@@ -330,7 +304,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def daily( self, ctx ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		nums = [100, 250, 1000, 500, 50]
@@ -354,7 +328,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def textchannel( self, ctx, *, name ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		data = DB().sel_user(target = ctx.author)
@@ -414,7 +388,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def shoplist( self, ctx ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		data = DB().sel_guild(guild = ctx.guild)
@@ -446,7 +420,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def buy( self, ctx, item: typing.Optional[str], num: typing.Optional[int] = None ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		member = ctx.author
@@ -463,7 +437,7 @@ class Economy(commands.Cog, name = 'Economy'):
 				pass
 
 			if not item:
-				emb = discord.Embed( title = 'Как купить товары?', description = f'Метало искатель 1-го уровня - metal_1 или металоискатель_1\nМетало искатель 2-го уровня - metal_2 или металоискатель_2\nТелефон - tel или телефон\nСим-карта - sim или сим-карта\nТекстовый канал - текстовый-канал или text-channel\nМетла - метла или broom\nШвабра - швабра или mop\nПерчатки - перчатки или gloves\nДля покупки роли нужно вести её названия\n\n**Все цены можно узнать с помощю команды {get_prefix(client, ctx)}shoplist**', colour = discord.Color.green() )
+				emb = discord.Embed( title = 'Как купить товары?', description = f'Метало искатель 1-го уровня - metal_1 или металоискатель_1\nМетало искатель 2-го уровня - metal_2 или металоискатель_2\nТелефон - tel или телефон\nСим-карта - sim или сим-карта\nТекстовый канал - текстовый-канал или text-channel\nМетла - метла или broom\nШвабра - швабра или mop\nПерчатки - перчатки или gloves\nДля покупки роли нужно вести её названия\n\n**Все цены можно узнать с помощю команды {self.client.get_prefix(client, ctx)}shoplist**', colour = discord.Color.green() )
 				
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
@@ -982,7 +956,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def sendmoney( self, ctx, member: discord.Member, num: int ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		data1 = DB().sel_user(target = ctx.author)
@@ -1099,7 +1073,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def trans(self, ctx):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		data = DB().sel_user(target = ctx.author)
@@ -1131,7 +1105,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def open(self, ctx, box: str = None):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		box = box[:-2].lower() + f'-{box[-1:].upper()}'
@@ -1444,7 +1418,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def remove_role(self, ctx, member: discord.Member, role: discord.Role):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member in ctx.guild.members:
@@ -1489,7 +1463,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def add_cash( self, ctx, member: discord.Member, typem: str, num: int ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member in ctx.guild.members:
@@ -1544,7 +1518,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def remove_cash( self, ctx, member: discord.Member, typem: str, num: int ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member in ctx.guild.members:
@@ -1597,7 +1571,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def rob( self, ctx, member: discord.Member ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		data1 = DB().sel_user(target = ctx.author)
@@ -1698,7 +1672,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def crime( self, ctx ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		data = DB().sel_user(target = ctx.author)
@@ -1773,7 +1747,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def invertory( self, ctx ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		data = DB().sel_user(target = ctx.author)
@@ -1857,7 +1831,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def profile_color(self, ctx, color: str = None):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		colors = ['green', 'lime', 'orange', 'purple', 'pink', 'red', 'зелёный', "лаймовый", "оранжевый", "фиолетовый", "розовый", "красный"]
@@ -1912,7 +1886,7 @@ class Economy(commands.Cog, name = 'Economy'):
 	async def profile( self, ctx, member: typing.Optional[discord.Member] = None ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		def crop(im, s):

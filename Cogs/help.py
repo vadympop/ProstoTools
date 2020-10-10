@@ -18,17 +18,6 @@ from random import randint
 from itertools import cycle
 from configs import configs
 from Tools.database import DB
-
-def clear_commands( guild ):
-	data = DB().sel_guild(guild = guild)
-	purge = data['purge']
-	return purge
-
-
-def get_prefix( client, message ):
-	data = DB().sel_guild(guild = message.guild)
-	return str(data['prefix'])
-
 	
 class Help(commands.Cog, name = 'Help'):
 
@@ -40,7 +29,7 @@ class Help(commands.Cog, name = 'Help'):
 	@commands.command()
 	async def ehelp( self, ctx ):
 
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		Prefix = get_prefix(self.client, ctx)
 		await ctx.channel.purge( limit = purge )
 
@@ -81,7 +70,7 @@ class Help(commands.Cog, name = 'Help'):
 	@commands.command()
 	async def works( self, ctx ):
 
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		Prefix = get_prefix(self.client, ctx)
 		await ctx.channel.purge( limit = purge )
 
@@ -101,7 +90,7 @@ class Help(commands.Cog, name = 'Help'):
 
 	@commands.command()
 	async def help(self, ctx, cog_name = None):
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		DB().add_amout_command(entity=ctx.command.name)
 		await ctx.channel.purge( limit = purge )
 		exceptions = ['Help', 'Loops', 'Events', 'Owner', 'Errors']
@@ -118,7 +107,7 @@ class Help(commands.Cog, name = 'Help'):
 			'Utils': 5,
 			'Works': 7
 		}
-		Prefix = get_prefix(self.client, ctx)
+		Prefix = self.client.get_prefix(self.client, ctx)
 
 		def add_command_loop(command, commands, count, group_name):
 			try:

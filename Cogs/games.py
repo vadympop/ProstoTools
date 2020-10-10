@@ -16,12 +16,6 @@ from configs import configs
 from bs4 import BeautifulSoup as bs
 from Tools.database import DB
 
-def clear_commands( guild ):
-	data = DB().sel_guild(guild = guild)
-	purge = data['purge']
-	return purge
-
-
 class Games(commands.Cog, name = 'Games'):
 
 	def __init__(self, client):
@@ -33,7 +27,7 @@ class Games(commands.Cog, name = 'Games'):
 	async def cr_qr( self, ctx, *, code_text: str ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		img = qrcode.make(code_text)
@@ -52,7 +46,7 @@ class Games(commands.Cog, name = 'Games'):
 	async def scan_url( self, ctx, url):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		ddd = requests.get(url)
@@ -78,7 +72,7 @@ class Games(commands.Cog, name = 'Games'):
 	async def flags( self, ctx ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		filename = './Data/TempFiles/flags.json'
@@ -170,7 +164,7 @@ class Games(commands.Cog, name = 'Games'):
 	async def wiki( self, ctx, *, text ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		try:
@@ -199,7 +193,7 @@ class Games(commands.Cog, name = 'Games'):
 	async def magic_ball( self, ctx, *, msg ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		rand_num = randint(1, 3)

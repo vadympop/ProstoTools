@@ -12,26 +12,18 @@ from random import randint
 from configs import configs
 from Tools.database import DB
 
-def clear_commands( guild ):
-
-	data = DB().sel_guild(guild = guild)
-	purge = data['purge']
-	return purge
-
-
 def check_owner(ctx):
 	return ctx.author == ctx.guild.owner
 
-
 def check_role(ctx):
-	data = DB().sel_guild(guild = ctx.guild)['moder_roles']
+	data = DB().sel_guild(guild=ctx.guild)['moder_roles']
 	roles = ctx.guild.roles
 	roles.reverse()
 	data.append(roles[0].id)
 
 	if data != []:
 		for role in data:
-			role = get(ctx.guild.roles, id = role)
+			role = get(ctx.guild.roles, id=role)
 			yield role in ctx.author.roles
 	else:
 		return roles[0] in ctx.author.roles
@@ -51,7 +43,7 @@ class Utils(commands.Cog, name = 'Utils'):
 	async def antirade( self, ctx, time: int, mode: int ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		first_verfLevel = ctx.guild.verification_level
@@ -114,7 +106,7 @@ class Utils(commands.Cog, name = 'Utils'):
 	async def bannedusers( self, ctx ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		banned_users = await ctx.guild.bans()
@@ -141,7 +133,7 @@ class Utils(commands.Cog, name = 'Utils'):
 	async def voicechannel( self, ctx, state: str ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		channel_category = await ctx.guild.create_category( 'Голосовые комнаты' )
@@ -197,7 +189,7 @@ class Utils(commands.Cog, name = 'Utils'):
 	async def serverstats( self, ctx, stats_count ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		members_count = len(' '.join(str(member.id) for member in ctx.guild.members if not member.bot and member.id != self.client.user.id).split(' '))
@@ -248,7 +240,7 @@ class Utils(commands.Cog, name = 'Utils'):
 	async def mass_role(self, ctx, type_act: str, for_role: discord.Role, role: discord.Role):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if type_act == 'add':
@@ -289,7 +281,7 @@ class Utils(commands.Cog, name = 'Utils'):
 	async def list_moderators(self, ctx):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		data = DB().sel_guild(guild = ctx.guild)['moder_roles']

@@ -15,13 +15,6 @@ from discord.ext.commands import Bot
 from random import randint
 from configs import configs
 
-
-def clear_commands( guild ):
-	data = DB().sel_guild(guild = guild)
-	purge = data['purge']
-	return purge
-
-
 class Works(commands.Cog, name = 'Works'):
 
 	def __init__(self, client):
@@ -36,7 +29,7 @@ class Works(commands.Cog, name = 'Works'):
 	async def work( self, ctx ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if ctx.invoked_subcommand is None:

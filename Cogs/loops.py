@@ -71,8 +71,11 @@ class Loops(commands.Cog, name = 'Loops'):
 	@tasks.loop(minutes=30)
 	async def ping_stat_loop(self):
 		if self.client.is_ready():
-			ping = round(self.client.latency * 1000)
-			DB().add_amout_command(entity='ping', add_counter=int(ping))
+			try:
+				ping = round(self.client.latency * 1000)
+				DB().add_amout_command(entity='ping', add_counter=int(ping))
+			except:
+				pass
 
 	
 	@tasks.loop(seconds=86400)

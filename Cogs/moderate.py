@@ -16,26 +16,18 @@ from discord.voice_client import VoiceClient
 from discord.ext.commands import Bot
 from configs import configs
 
-
 def check_role(ctx):
-	data = DB().sel_guild(guild = ctx.guild)['moder_roles']
+	data = DB().sel_guild(guild=ctx.guild)['moder_roles']
 	roles = ctx.guild.roles
 	roles.reverse()
 	data.append(roles[0].id)
 
 	if data != []:
 		for role in data:
-			role = get(ctx.guild.roles, id = role)
+			role = get(ctx.guild.roles, id=role)
 			yield role in ctx.author.roles
 	else:
 		return ctx.author.guild_permission.administrator
-
-
-def clear_commands( guild ):
-	data = DB().sel_guild(guild = guild)
-	purge = data['purge']
-	return purge
-
 
 class Moderate(commands.Cog, name = 'Moderate'):
 
@@ -57,38 +49,28 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		DB().add_amout_command(entity=ctx.command.name)
 		if not member:
 			number = 0
-
 			async for msg in ctx.channel.history():
 				await msg.delete()
 				number += 1
-
 				if number >= amount_1:
 					emb = discord.Embed( description = f'** :white_check_mark: Удаленно {number - 1} сообщений**', colour = discord.Color.green() )
-					
 					emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-					
 					await ctx.send( embed = emb )
 					break
 
-
 		elif member != None and member in ctx.guild.members:
 			number = 0
-
 			def check( message ):
 				return message.author == member
 
 			async for msg in ctx.channel.history().filter(check):
 				await msg.delete()
 				number += 1
-
 				if number >= amount_1:
-
 					emb = discord.Embed( description = f'** :white_check_mark: Удаленно {number} сообщений от пользователя {member.mention}**', colour = discord.Color.green() )
-			
 					emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-					
 					await ctx.send( embed = emb )
 					break
 
@@ -98,24 +80,20 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def temprole( self, ctx, member: discord.Member, role: discord.Role, role_time: int = 0, role_typetime: str = None ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send(embed = emb)
 			return
 
 		if ctx.author.top_role <= role and ctx.author != ctx.guild.id:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете выдать роль которая выше вашей роли!', colour = discord.Color.green()) 
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send(embed = emb)
 			return
 
@@ -123,10 +101,8 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed( description = f'**`{member}` Была виданно новая роль {role.name} на {role_time}мин**', colour = discord.Color.green() )
 		elif role_time <= 0:
 			emb = discord.Embed( title = 'Ошибка!', description = f'**Укажите на какое время вы выдаете роль!**', colour = discord.Color.green() )
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send(embed = emb)
 			return
 
@@ -144,10 +120,8 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			role_minutes = role_time * 60			
 
 		await member.add_roles( role )
-
 		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 		await ctx.send( embed = emb )
 
 		if role_minutes > 0:
@@ -160,69 +134,47 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def slowmode( self, ctx, delay: int, channel: typing.Optional[ int ] ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if not channel:
-
 			guild_text_channels = ctx.guild.text_channels
 			for channel in guild_text_channels:
 				await channel.edit( slowmode_delay = delay )
 
 			if delay > 0:
 				emb = discord.Embed( description = f'**Для всех каналов этого сервера был поставлен медленний режим на {delay}сек**', colour = discord.Color.green() )
-
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 				await ctx.send( embed = emb )
-
 			elif delay == 0:
 				emb = discord.Embed( description = f'**Для всех каналов этого сервера был снят медленний режим**', colour = discord.Color.green() )
-
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 				await ctx.send( embed = emb )
-
 			elif delay < 0:
 				emb = discord.Embed( description = f'**Вы не правильно указали время, укажыте длительность медленого режима больше ноля**', colour = discord.Color.green() )
-
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 				await ctx.send( embed = emb )
-
 
 		elif channel:
 			slowmode_channel = client.get_channel(channel)
 			await slowmode_channel.edit( slowmode_delay = delay )
-
 			if delay > 0:
-
 				emb = discord.Embed( description = f'**Для канала {slowmode_channel.name} был поставлен медленний режим на {delay}сек**', colour = discord.Color.green() )
-
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 				await ctx.send( embed = emb )
-
 			elif delay == 0:
-
 				emb = discord.Embed( description = f'**Для канала {slowmode_channel.name} был снят медленний**', colour = discord.Color.green() )
-
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 				await ctx.send( embed = emb )
-
 			elif delay < 0:
-
 				emb = discord.Embed( description = f'**Вы не правильно указали время, укажыте длительность медленого режима больше ноля**', colour = discord.Color.green() )
-
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 				await ctx.send( embed = emb )
 
 
@@ -231,34 +183,28 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def kick( self, ctx, member: discord.Member, *, reason = None ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member == ctx.author:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Вы не можете применить эту команду к себе!', colour = discord.Color.green()) 
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send(embed = emb)
 			return
 
-		guild = ctx.guild
 		if not reason:
 			reason = 'Нарушения правил сервера'
-
-		await member.kick( reason = reason )
+		await member.kick(reason=reason)
 
 		emb = discord.Embed( description = f'**{ctx.author.mention} Кикнул `{member}` по причине {reason}**' , colour = discord.Color.green() )
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-			
 		await ctx.send( embed = emb )
 
-		emb = discord.Embed( description = f'**Модератор {ctx.author.mention} кикнул вас из сервера `{guild.name}` по причине {reason}**' , colour = discord.Color.green() )
+		emb = discord.Embed( description = f'**Модератор {ctx.author.mention} кикнул вас из сервера `{ctx.guild.name}` по причине {reason}**' , colour = discord.Color.green() )
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-			
 		await member.send( embed = emb )
 
 
@@ -267,7 +213,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def softban(self, ctx, member: discord.Member, *, reason = None):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member == ctx.author:
@@ -316,7 +262,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def unsoftban(self, ctx, member: discord.Member):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member == ctx.author:
@@ -349,7 +295,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def ban( self, ctx, member: discord.Member, type_time: str = None, *, reason: str = None ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member == ctx.author:
@@ -430,7 +376,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def unban( self, ctx, *, member: discord.User):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member == ctx.author:
@@ -464,7 +410,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def vmute( self, ctx, member: discord.Member, vmute_time: int = 0 ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member == ctx.author:
@@ -510,7 +456,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def unvmute( self, ctx, member: discord.Member):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member == ctx.author:
@@ -540,7 +486,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def mute( self, ctx, member: discord.Member, type_time: str = None, *, reason = None ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member == ctx.author:
@@ -668,7 +614,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def unmute( self, ctx, member: discord.Member ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member == ctx.author:
@@ -699,7 +645,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def clearwarn( self, ctx, member: discord.Member ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member in ctx.guild.members:
@@ -729,7 +675,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def warn( self, ctx, member: discord.Member, *, reason = None ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if member == ctx.author:
@@ -858,7 +804,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def rem_warn(self, ctx, member: discord.Member, warn_id: int):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		data = DB().sel_user(target = member)
@@ -894,7 +840,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 	async def warns(self, ctx, member: discord.Member = None):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if not member:

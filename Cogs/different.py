@@ -13,13 +13,6 @@ from random import randint
 from configs import configs
 from Tools.database import DB
 
-
-def clear_commands(guild):
-	data = DB().sel_guild(guild = guild)
-	purge = data['purge']
-	return purge
-
-
 class Different(commands.Cog, name = 'Different'):
 
 	def __init__(self, client):
@@ -35,7 +28,7 @@ class Different(commands.Cog, name = 'Different'):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
 
-		purge = clear_commands(ctx.guild)
+		purge = self.client.self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		data = DB().sel_user(target = ctx.author)
@@ -83,7 +76,7 @@ class Different(commands.Cog, name = 'Different'):
 		DB().add_amout_command(entity=ctx.command.name)
 		client = self.client
 
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		prch = get( client.users, id = 660110922865704980 )
@@ -125,7 +118,7 @@ class Different(commands.Cog, name = 'Different'):
 	async def userinfo( self, ctx, member: discord.Member = None ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if not member:
@@ -163,7 +156,7 @@ class Different(commands.Cog, name = 'Different'):
 	async def avatar( self, ctx, member: typing.Optional[ discord.Member ] = None ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if not member:
@@ -188,7 +181,7 @@ class Different(commands.Cog, name = 'Different'):
 	async def info( self, ctx ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		emb = discord.Embed( title = 'Информация о боте', colour = discord.Color.green() )
@@ -213,7 +206,7 @@ class Different(commands.Cog, name = 'Different'):
 	async def serverinfo( self, ctx ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		data = DB().sel_guild(guild = ctx.guild)
@@ -335,7 +328,7 @@ class Different(commands.Cog, name = 'Different'):
 	async def idea( self, ctx, *, arg ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		data = DB().sel_guild(guild = ctx.guild)
@@ -367,7 +360,7 @@ class Different(commands.Cog, name = 'Different'):
 	async def invite( self, ctx ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		emb = discord.Embed( title = 'Пригласи бота на свой сервер =).**Жмякай!**', url = 'https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot', colour = discord.Color.green() )
@@ -383,7 +376,7 @@ class Different(commands.Cog, name = 'Different'):
 	async def msgforw( self, ctx, channel: int, *, msg ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		msgforw_channel = client.get_channel(channel)
@@ -413,7 +406,7 @@ class Different(commands.Cog, name = 'Different'):
 	async def say( self, ctx, *, arg ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		emb = discord.Embed( title = arg, colour = discord.Color.green() )
@@ -428,7 +421,7 @@ class Different(commands.Cog, name = 'Different'):
 	async def rnum( self, ctx, rnum1: int, rnum2: int ):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		random_num = randint( rnum1, rnum2 )
@@ -443,7 +436,7 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.command(description = '**Устанавливает краткое описания о вас**', usage = 'bio [Текст]')
 	async def bio( self, ctx, *, text: str ):
 		DB().add_amout_command(entity=ctx.command.name)
-		purge = clear_commands(ctx.guild)
+		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if len(text) > 1000:
