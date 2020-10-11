@@ -242,3 +242,17 @@ Command raised an exception: SyntaxError: import * only allowed at module level 
 Ошибка:
 Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
 =============================================================
+
+=============================================================
+Время: 2020-10-11 18:40:11.582958
+
+Ошибка:
+Command raised an exception: AttributeError: 'NoneType' object has no attribute 'bot'
+=============================================================
+
+=============================================================
+Время: 2020-10-11 18:40:24.330970
+
+Ошибка:
+Command raised an exception: AttributeError: 'NoneType' object has no attribute 'bot'
+=============================================================

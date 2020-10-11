@@ -50,16 +50,17 @@ class Economy(commands.Cog, name = 'Economy'):
 		num = 1
 		for user in data:
 			member = get(ctx.guild.members, id=user[0])
-			if not member.bot:
-				if num == 1:
-					emb.add_field(name=f'**[{num}]** <:gold_star:732490991302606868> Участник - {member.name}, Опыта - {user[1]}', value=f'Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: **{user[3]}**', inline=False)
-				elif num == 2:
-					emb.add_field(name=f'**[{num}]** <:silver_star:732490991378104390> Участник - {member.name}, Опыта - {user[1]}', value=f'Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: **{user[3]}**', inline=False)
-				elif num == 3:
-					emb.add_field(name=f'**[{num}]** <:bronce_star:732490990924988418> Участник - {member.name}, Опыта - {user[1]}', value=f'Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: **{user[3]}**', inline=False)
-				else:
-					emb.add_field(name=f'[{num}] Участник - {member.name}, Опыта - {user[1]}', value=f'Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: **{user[3]}**', inline = False)
-				num += 1
+			if member:
+				if not member.bot:
+					if num == 1:
+						emb.add_field(name=f'**[{num}]** <:gold_star:732490991302606868> Участник - {member.name}, Опыта - {user[1]}', value=f'Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: **{user[3]}**', inline=False)
+					elif num == 2:
+						emb.add_field(name=f'**[{num}]** <:silver_star:732490991378104390> Участник - {member.name}, Опыта - {user[1]}', value=f'Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: **{user[3]}**', inline=False)
+					elif num == 3:
+						emb.add_field(name=f'**[{num}]** <:bronce_star:732490990924988418> Участник - {member.name}, Опыта - {user[1]}', value=f'Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: **{user[3]}**', inline=False)
+					else:
+						emb.add_field(name=f'[{num}] Участник - {member.name}, Опыта - {user[1]}', value=f'Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: **{user[3]}**', inline = False)
+					num += 1
 
 		await ctx.send(embed=emb)
 
