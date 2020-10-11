@@ -140,7 +140,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			DB().set_punishment(type_punishment='temprole', time=times, member=member, role_id=int(role.id))
 
 
-	@commands.command(aliases=['slowmode'], brief='True', name='slow-mode', description='**Ставить медленний режим указаному каналу(Если канал не указан медленный режим ставиться всем каналам, 0 - выключает медленный режим, длительность не указывать меньше нуля)**', usage='slow-mode [Время] |Канал|')
+	@commands.command(aliases=['slowmode'], brief='True', name='slow-mode', description='**Ставить медленный режим указаному каналу(Если канал не указан медленный режим ставиться всем каналам, 0 - выключает медленный режим, длительность не указывать меньше нуля)**', usage='slow-mode [Время] |Канал|')
 	@commands.check(check_role)	
 	async def slowmode(self, ctx, delay: int, channel: discord.TextChannel):
 		client = self.client
@@ -164,7 +164,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 				await ctx.send(embed=emb)
 			elif delay < 0:
-				emb = discord.Embed(description=f'**Вы не правильно указали время, укажыте длительность медленого режима больше ноля**', colour=discord.Color.green())
+				emb = discord.Embed(description=f'**Вы не правильно указали время, укажите длительность медленого режима больше ноля**', colour=discord.Color.green())
 				emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 				await ctx.send(embed=emb)
@@ -223,7 +223,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 	@commands.command(aliases=['softban'], brief='True', name='soft-ban', description='**Апаратно банит указаного участника - участник имеет доступ к серверу, но к каналам доступа нет**', usage='soft-ban [@Участник] |Причина|')
 	@commands.check(check_role)	
-	async def softban(self, ctx, member: discord.Member, *, reason = None):
+	async def softban(self, ctx, member: discord.Member, type_time: str = None, *, reason = None):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
@@ -236,6 +236,27 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction('❌')
 			return
+
+		if type_time:
+			softban_typetime = type_time[-1:]
+			softban_time = int(type_time[:-1])
+		else:
+			softban_typetime = None
+			softban_time = 0
+
+		if softban_typetime == 'мин' or softban_typetime == 'м' or softban_typetime == 'm' or softban_typetime == "min":
+			softban_minutes = softban_time * 60
+		elif softban_typetime == 'час'  or softban_typetime == 'ч' or softban_typetime == 'h' or softban_typetime == "hour":
+			softban_minutes = softban_time * 120
+		elif softban_typetime == 'дней' or softban_typetime == 'д' or softban_typetime == 'd' or softban_typetime == "day":
+			softban_minutes = softban_time * 120 * 12
+		elif softban_typetime == 'недель' or softban_typetime == "н" or softban_typetime == 'week' or softban_typetime == "w":
+			softban_minutes = softban_time * 120 * 12 * 7			
+		else:
+			softban_minutes = softban_time
+		
+		times = time.time()
+		times += softban_minutes
 
 		if not reason:
 			emb = discord.Embed(description=f'**{ctx.author.mention} Апаратно забанил `{member}`**', colour=discord.Color.green())
@@ -269,6 +290,9 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await channel.set_permissions(role, overwrite=overwrite)
 
 		await member.add_roles(role)
+
+		if softban_time > 0:
+			DB().set_punishment(type_punishment='temprole', time=times, member=member, role=role.id)
 
 
 	@commands.command(aliases=['unsoftban'], brief='True', name='unsoft-ban', description='**Снимает апаратный с указаного участника**', usage='unsoft-ban [@Участник]')

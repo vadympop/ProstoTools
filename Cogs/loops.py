@@ -32,21 +32,22 @@ class Loops(commands.Cog, name = 'Loops'):
 		for mute in DB().get_punishment():
 			mute_time = mute[2]
 			guild = self.client.get_guild(int(mute[1]))
-			if guild:
-				member = guild.get_member(int(mute[0]))
-				if member:
-					if float(mute_time) <= float(time.time()):
-						DB().del_punishment(member=member, guild_id=guild.id, type_punishment='mute')
-						mute_role = get(guild.roles, id=int(mute[4]))
-						await member.remove_roles(mute_role)
+			if mute[3] == 'mute':
+				if guild:
+					member = guild.get_member(int(mute[0]))
+					if member:
+						if float(mute_time) <= float(time.time()):
+							DB().del_punishment(member=member, guild_id=guild.id, type_punishment='mute')
+							mute_role = get(guild.roles, id=int(mute[4]))
+							await member.remove_roles(mute_role)
 
-						emb = discord.Embed(description=f'**Вы были размьючены на сервере `{guild.name}`**', colour=discord.Color.green())
-						emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-						try:
-							await member.send(embed=emb)
-						except:
-							pass
+							emb = discord.Embed(description=f'**Вы были размьючены на сервере `{guild.name}`**', colour=discord.Color.green())
+							emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+							emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+							try:
+								await member.send(embed=emb)
+							except:
+								pass
 
 	
 	@tasks.loop(seconds=5)
@@ -54,22 +55,23 @@ class Loops(commands.Cog, name = 'Loops'):
 		for ban in DB().get_punishment():
 			ban_time = ban[2]
 			guild = self.client.get_guild(int(ban[1]))
-			if guild:
-				bans = await guild.bans()
-				for ban_entry in bans:
-					user = ban_entry.user
-					if user.id == ban[0]:
-						if float(ban_time) <= float(time.time()):
-							DB().del_punishment(member=user, guild_id=guild.id, type_punishment='ban')
-							await guild.unban(user)
+			if ban[3] == 'ban':
+				if guild:
+					bans = await guild.bans()
+					for ban_entry in bans:
+						user = ban_entry.user
+						if user.id == ban[0]:
+							if float(ban_time) <= float(time.time()):
+								DB().del_punishment(member=user, guild_id=guild.id, type_punishment='ban')
+								await guild.unban(user)
 
-							emb = discord.Embed(description=f'**Вы были разбанены на сервере `{guild.name}`**', colour=discord.Color.green())
-							emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-							emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-							try:
-								await user.send(embed=emb)
-							except:
-								pass
+								emb = discord.Embed(description=f'**Вы были разбанены на сервере `{guild.name}`**', colour=discord.Color.green())
+								emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+								emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+								try:
+									await user.send(embed=emb)
+								except:
+									pass
 
 
 	@tasks.loop(seconds=5)
@@ -77,15 +79,16 @@ class Loops(commands.Cog, name = 'Loops'):
 		for temprole in DB().get_punishment():
 			temprole_time = temprole[2]
 			guild = self.client.get_guild(int(temprole[1]))
-			if guild:
-				member = guild.get_member(int(temprole[0]))
-				if member:
-					if float(temprole_time) <= float(time.time()):
-						DB().del_punishment(member=member, guild_id=guild.id, type_punishment='temprole')
-						temprole_role = get(guild.roles, id=int(temprole[4]))
-						await member.remove_roles(temprole_role)
+			if temprole[3] == 'temprole':
+				if guild:
+					member = guild.get_member(int(temprole[0]))
+					if member:
+						if float(temprole_time) <= float(time.time()):
+							DB().del_punishment(member=member, guild_id=guild.id, type_punishment='temprole')
+							temprole_role = get(guild.roles, id=int(temprole[4]))
+							await member.remove_roles(temprole_role)
 
-
+	
 	@tasks.loop(minutes=30)
 	async def ping_stat_loop(self):
 		if self.client.is_ready():

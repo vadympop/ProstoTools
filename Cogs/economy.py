@@ -37,178 +37,31 @@ class Economy(commands.Cog, name = 'Economy'):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
-		list_rep = []
-		list_exp = []
-		list_lvl = []
-		list_money = []
-		list_coins = []
-		list_messages = []
-		loads = []
+		sql = ("""SELECT user_id, exp, level, money, reputation FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 15""")
+		val = (ctx.guild.id, ctx.guild.id)
 
-		for member in ctx.guild.members:
-			if member.bot:
-				continue
-			else:
-				data = DB().sel_user(target = member, check = False)
-				if data:
-					loads.append(data)
+		self.cursor.execute(sql, val)
+		data = self.cursor.fetchall()
 
-		for info in loads:
-			list_rep.append([info['user_id'], info['reputation']])
-			list_exp.append([info['user_id'], info['exp']])
-			list_lvl.append([info['user_id'], info['lvl']])
-			list_money.append([info['user_id'], info['money']])
-			list_coins.append([info['user_id'], info['coins']])
-			list_messages.append([info['user_id'], info['messages'][1]])
-
-		list_rep = sorted(list_rep, key = lambda rep: rep[1])
-		list_exp = sorted(list_exp, key = lambda exp: exp[1])
-		list_lvl = sorted(list_lvl, key = lambda lvl: lvl[1])
-		list_money = sorted(list_money, key = lambda money: money[1])
-		list_coins = sorted(list_coins, key = lambda coins: coins[1])
-		list_messages = sorted(list_messages, key = lambda messages: messages[1])
-
-		list_rep.reverse()
-		list_exp.reverse()
-		list_lvl.reverse()
-		list_money.reverse()
-		list_coins.reverse()
-		list_messages.reverse()
-
-		emb_rep = discord.Embed( title = 'Топ участников сервера по репутации', colour = discord.Color.green() )
-		emb_rep.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb_rep.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
-		emb_exp = discord.Embed( title = 'Топ участников сервера по опыту', colour = discord.Color.green() )
-		emb_exp.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb_exp.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
-		emb_lvl = discord.Embed( title = 'Топ участников сервера по уровню', colour = discord.Color.green() )
-		emb_lvl.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb_lvl.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
-		emb_money = discord.Embed( title = 'Топ участников сервера по деньгам', colour = discord.Color.green() )
-		emb_money.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb_money.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
-		emb_coins = discord.Embed( title = 'Топ участников сервера по коинам', colour = discord.Color.green() )
-		emb_coins.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb_coins.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
-		emb_msg = discord.Embed( title = 'Топ участников сервера по написаным сообщениям', colour = discord.Color.green() )
-		emb_msg.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb_msg.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
-		emb = discord.Embed( title = 'Команда "топы"', description = 'Для навигации по топам используйте реакции ниже', colour = discord.Color.green() )
+		emb = discord.Embed( title = 'Лидеры сервера', colour = discord.Color.green() )
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 		num = 1
-		for top in list_rep:
-			member = get(ctx.guild.members, id = top[0])
-			
-			if num == 1:
-				emb_rep.add_field( name = f'**[{num}]** <:gold_star:732490991302606868> Участник - {member.name}', value = f'Всего репутации: **{top[1]}**', inline = False )
-			elif num == 2:
-				emb_rep.add_field( name = f'**[{num}]** <:silver_star:732490991378104390> Участник - {member.name}', value = f'Всего репутации: **{top[1]}**', inline = False )
-			elif num == 3:
-				emb_rep.add_field( name = f'**[{num}]** <:bronce_star:732490990924988418> Участник - {member.name}', value = f'Всего репутации: **{top[1]}**', inline = False )
-			else:
-				emb_rep.add_field( name = f'[{num}] Участник - {member.name}', value = f'Всего репутации: **{top[1]}**', inline = False )
+		for user in data:
+			member = get(ctx.guild.members, id=user[0])
+			if not member.bot:
+				if num == 1:
+					emb.add_field(name=f'**[{num}]** <:gold_star:732490991302606868> Участник - {member.name}, Опыта - {user[1]}', value=f'Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: {user[3]}', inline=False)
+				elif num == 2:
+					emb.add_field(name=f'**[{num}]** <:silver_star:732490991378104390> Участник - {member.name}, Опыта - {user[1]}', value=f'Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: {user[3]}', inline=False)
+				elif num == 3:
+					emb.add_field(name=f'**[{num}]** <:bronce_star:732490990924988418> Участник - {member.name}, Опыта - {user[1]}', value=f'Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: {user[3]}', inline=False)
+				else:
+					emb.add_field(name=f'[{num}] Участник - {member.name}, Опыта - {user[1]}', value=f'Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: {user[3]}', inline = False)
+				num += 1
 
-			num += 1
-			if num == 11:
-				break
-
-		num = 1
-		for top in list_exp:
-			member = get(ctx.guild.members, id = top[0])
-			
-			if num == 1:
-				emb_exp.add_field( name = f'**[{num}]** <:gold_star:732490991302606868> Участник - {member.name}', value = f'Всего опыта: **{top[1]}**', inline = False )
-			elif num == 2:
-				emb_exp.add_field( name = f'**[{num}]** <:silver_star:732490991378104390> Участник - {member.name}', value = f'Всего опыта: **{top[1]}**', inline = False )
-			elif num == 3:
-				emb_exp.add_field( name = f'**[{num}]** <:bronce_star:732490990924988418> Участник - {member.name}', value = f'Всего опыта: **{top[1]}**', inline = False )
-			else:
-				emb_exp.add_field( name = f'[{num}] Участник - {member.name}', value = f'Всего опыта: **{top[1]}**', inline = False )
-
-			num += 1
-			if num == 11:
-				break
-
-		num = 1
-		for top in list_lvl:
-			member = get(ctx.guild.members, id = top[0])
-			
-			if num == 1:
-				emb_lvl.add_field( name = f'**[{num}]** <:gold_star:732490991302606868> Участник - {member.name}', value = f'Уровень: **{top[1]}**', inline = False )
-			elif num == 2:
-				emb_lvl.add_field( name = f'**[{num}]** <:silver_star:732490991378104390> Участник - {member.name}', value = f'Уровень: **{top[1]}**', inline = False )
-			elif num == 3:
-				emb_lvl.add_field( name = f'**[{num}]** <:bronce_star:732490990924988418> Участник - {member.name}', value = f'Уровень: **{top[1]}**', inline = False )
-			else:
-				emb_lvl.add_field( name = f'[{num}] Участник - {member.name}', value = f'Уровень: **{top[1]}**', inline = False )
-
-			num += 1
-			if num == 11:
-				break
-
-		num = 1
-		for top in list_money:
-			member = get(ctx.guild.members, id = top[0])
-			
-			if num == 1:
-				emb_money.add_field( name = f'**[{num}]** <:gold_star:732490991302606868> Участник - {member.name}', value = f'Всего денег: **{top[1]}**', inline = False )
-			elif num == 2:
-				emb_money.add_field( name = f'**[{num}]** <:silver_star:732490991378104390> Участник - {member.name}', value = f'Всего денег: **{top[1]}**', inline = False )
-			elif num == 3:
-				emb_money.add_field( name = f'**[{num}]** <:bronce_star:732490990924988418> Участник - {member.name}', value = f'Всего денег: **{top[1]}**', inline = False )
-			else:
-				emb_money.add_field( name = f'[{num}] Участник - {member.name}', value = f'Всего денег: **{top[1]}**', inline = False )
-
-			num += 1
-			if num == 11:
-				break
-
-		num = 1
-		for top in list_coins:
-			member = get(ctx.guild.members, id = top[0])
-
-			if num == 1:
-				emb_coins.add_field( name = f'**[{num}]** <:gold_star:732490991302606868> Участник - {member.name}', value = f'Коинов: **{top[1]}**', inline = False )
-			elif num == 2:
-				emb_coins.add_field( name = f'**[{num}]** <:silver_star:732490991378104390> Участник - {member.name}', value = f'Коинов: **{top[1]}**', inline = False )
-			elif num == 3:
-				emb_coins.add_field( name = f'**[{num}]** <:bronce_star:732490990924988418> Участник - {member.name}', value = f'Коинов: **{top[1]}**', inline = False )
-			else:
-				emb_coins.add_field( name = f'[{num}] Участник - {member.name}', value = f'Коинов: **{top[1]}**', inline = False )
-			
-			num += 1
-			if num == 11:
-				break
-		
-		num = 1
-		for top in list_messages:
-			member = get(ctx.guild.members, id = top[0])
-
-			if num == 1:
-				emb_msg.add_field( name = f'**[{num}]** <:gold_star:732490991302606868> Участник - {member.name}', value = f'Всего сообщений: **{top[1]}**', inline = False )
-			elif num == 2:
-				emb_msg.add_field( name = f'**[{num}]** <:silver_star:732490991378104390> Участник - {member.name}', value = f'Всего сообщений: **{top[1]}**', inline = False )
-			elif num == 3:
-				emb_msg.add_field( name = f'**[{num}]** <:bronce_star:732490990924988418> Участник - {member.name}', value = f'Всего сообщений: **{top[1]}**', inline = False )
-			else:
-				emb_msg.add_field( name = f'[{num}] Участник - {member.name}', value = f'Всего сообщений: **{top[1]}**', inline = False )
-			
-			num += 1
-			if num == 11:
-				break
-
-		msg = await ctx.send(embed = emb)
-		embeds = [emb, emb_rep, emb_exp, emb_lvl, emb_money, emb_coins, emb_msg]
-		page = Paginator(client, msg, only = ctx.author, embeds = embeds, timeout = 120, use_exit = True)
-		await page.start()
+		await ctx.send(embed=emb)
 
 
 	@commands.command(name = '+rep', aliases = ['+reputation', 'repp'], description = '**Добавления репутации(от 1 до 5) указаному пользователю(Cooldown 1 час)**', usage = '+rep [@Участник] [Число репутации]')
@@ -224,6 +77,7 @@ class Economy(commands.Cog, name = 'Economy'):
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.repp.reset_cooldown(ctx)
 			return
 		elif num < 1 or num > 5:
@@ -231,6 +85,7 @@ class Economy(commands.Cog, name = 'Economy'):
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.repp.reset_cooldown(ctx)
 			return	
 		elif member.bot:
@@ -238,6 +93,7 @@ class Economy(commands.Cog, name = 'Economy'):
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.repp.reset_cooldown(ctx)
 			return	
 
@@ -268,6 +124,7 @@ class Economy(commands.Cog, name = 'Economy'):
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.repm.reset_cooldown(ctx)
 			return
 		elif num < 1 or num > 3:
@@ -275,6 +132,7 @@ class Economy(commands.Cog, name = 'Economy'):
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.repm.reset_cooldown(ctx)
 			return
 		elif member.bot:
@@ -282,6 +140,7 @@ class Economy(commands.Cog, name = 'Economy'):
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.repm.reset_cooldown(ctx)
 			return	
 
@@ -342,11 +201,10 @@ class Economy(commands.Cog, name = 'Economy'):
 
 		if category_id == 0:
 			emb = discord.Embed( title = 'Ошибка!', description = '**Не указана категория создания приватных текстовых каналов. Обратитесь к администации сервера**', colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
 			self.textchannel.reset_cooldown(ctx)
 			return
 		elif category_id:
@@ -355,25 +213,19 @@ class Economy(commands.Cog, name = 'Economy'):
 					ctx.guild.default_role: discord.PermissionOverwrite( read_messages = False, send_messages = False ),
 					ctx.author: discord.PermissionOverwrite( read_messages = True, send_messages = True, manage_permissions = True, manage_channels = True  ),
 				}
-
 				category = discord.utils.get( ctx.guild.categories, id = category_id )
 				text_channel = await ctx.guild.create_text_channel( name, category = category, overwrites = overwrites )
 
 				emb = discord.Embed( title = f'{ctx.author.name} Создал текстовый канал #{text_channel}', colour = discord.Color.green() )
-				
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-				
 				await ctx.send( embed = emb )
-
 			elif num_textchannels <= 0:
-
 				emb = discord.Embed( title = f'**У вас не достаточно каналов!**', colour = discord.Color.green() )
-				
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-			
 				await ctx.send( embed = emb )
+				await ctx.message.add_reaction('❌')
 				self.textchannel.reset_cooldown(ctx)
 				return
 
@@ -401,18 +253,13 @@ class Economy(commands.Cog, name = 'Economy'):
 				content += f'{role.mention} - {shop_role[1]}\n'
 
 			emb = discord.Embed( title = 'Список товаров', description = f'**Роли:**\n{content}\n**Товары:**\nМеталоискатель 1-го уровня - 500$\nМеталоискатель 2-го уровня 1000$\nСим-карта - 100$\nТелефон - 1100$\nМетла - 500 коинов\nШвабра - 2000 коинов\nТекстовый канал - 100$\nПерчатки - 600$\n\n**Лут боксы:**\nЛут бокс Common - 800$\nЛут бокс Rare - 1800$\nЛут бокс Epic - 4600$\nЛут бокс Legendary - 9800$\nЛут бокс Imposible - 19600$', colour = discord.Color.green() )
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-			
 			await ctx.send( embed = emb )
-
 		elif shoplist == []:
 			emb = discord.Embed( title = 'Список товаров', description = f'**Товары:**\nМеталоискатель 1-го уровня - 500$\nМеталоискатель 2-го уровня 1000$\nСим-карта - 100$\nТелефон - 1100$\nМетла - 500 коинов\nШвабра - 2000 коинов\nТекстовый канал - 100$\nПерчатки - 600$\n\n**Лут боксы:**\nЛут бокс Common - 800$\nЛут бокс Rare - 1800$\nЛут бокс Epic - 4600$\nЛут бокс Legendary - 9800$\nЛут бокс Imposible - 19600$', colour = discord.Color.green() )
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-			
 			await ctx.send( embed = emb )
 
 
@@ -430,7 +277,6 @@ class Economy(commands.Cog, name = 'Economy'):
 		member_items = data['items']
 
 		if cur_state_prison == False:
-
 			try:
 				role = get( ctx.guild.roles, name = item )
 			except:
@@ -438,20 +284,16 @@ class Economy(commands.Cog, name = 'Economy'):
 
 			if not item:
 				emb = discord.Embed( title = 'Как купить товары?', description = f'Метало искатель 1-го уровня - metal_1 или металоискатель_1\nМетало искатель 2-го уровня - metal_2 или металоискатель_2\nТелефон - tel или телефон\nСим-карта - sim или сим-карта\nТекстовый канал - текстовый-канал или text-channel\nМетла - метла или broom\nШвабра - швабра или mop\nПерчатки - перчатки или gloves\nДля покупки роли нужно вести её названия\n\n**Все цены можно узнать с помощю команды {self.client.get_prefix(client, ctx)}shoplist**', colour = discord.Color.green() )
-				
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-				
 				await ctx.send( embed = emb )
 				return
 
 			costs = [500, 1000, 100, 1100, 100, 600, 800, 1800, 4600, 9800, 19600]
-
 			info = DB().sel_guild(guild = ctx.guild)
 			roles = info['shop_list']
 
 			def buy_func( func_item, func_cost ):
-
 				cur_money = data['money'] - func_cost
 				cur_items = data['items']
 				cur_transantions = data['transantions']
@@ -490,7 +332,6 @@ class Economy(commands.Cog, name = 'Economy'):
 				self.conn.commit()
 
 			def buy_coins_func( func_item, func_cost ):
-
 				coins_member = data['coins'] - func_cost
 				cur_items = data['items']
 
@@ -506,9 +347,7 @@ class Economy(commands.Cog, name = 'Economy'):
 				self.conn.commit()
 
 			def buy_text_channel( func_cost, num ):
-
 				cost = func_cost * num
-
 				cur_transantions = data['transantions']
 				cur_money = data['money'] - cost
 				num_textchannels = data['text_channels'] + num
@@ -543,14 +382,12 @@ class Economy(commands.Cog, name = 'Economy'):
 				self.conn.commit()
 
 			def buy_item( item, cost, stacked = False ):
-
 				emb_cool = None
 				emb_prison = None
 				emb_fail = None
 
 				if item not in member_items:
-
-					if stacked == True:
+					if stacked:
 						cur_items = data['items']
 						prison = data['prison']
 						stack = False
@@ -560,21 +397,18 @@ class Economy(commands.Cog, name = 'Economy'):
 								if i[0] == item[0]:
 									stack = True
 
-						if stack == False:
+						if not stack:
 							state = buy_func( item, cost )
 
-							if state == True:
+							if state:
 								emb_prison = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком.**' , colour = discord.Color.green() )
-					
 								emb_prison.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 								emb_prison.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 		
 							emb_cool = discord.Embed( description = f'**Вы успешно приобрели - {item[0]}**', colour = discord.Color.green() )
-					
 							emb_cool.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 							emb_cool.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-						
-						elif stack == True:
+						elif stack:
 							cur_money = data['money'] - cost
 
 							for i in cur_items:
@@ -585,14 +419,11 @@ class Economy(commands.Cog, name = 'Economy'):
 							if cur_money <= -5000:
 								prison = True
 								cur_items = []
-
 								emb_prison = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком.**' , colour = discord.Color.green() )
-					
 								emb_prison.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 								emb_prison.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )			
 								
 							emb_cool = discord.Embed( description = f'**Вы успешно приобрели - {item[0]}**', colour = discord.Color.green() )
-					
 							emb_cool.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 							emb_cool.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
@@ -602,29 +433,22 @@ class Economy(commands.Cog, name = 'Economy'):
 							self.cursor.execute(sql, val)
 							self.conn.commit()
 
-					
-					elif stacked == False:
+					elif not stacked:
 						state = buy_func( item, cost )
-
-						if state == True:
+						if state:
 							emb_prison = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком.**' , colour = discord.Color.green() )
-				
 							emb_prison.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 							emb_prison.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 				
 						emb_cool = discord.Embed( description = f'**Вы успешно приобрели - {item}**', colour = discord.Color.green() )
-				
 						emb_cool.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 						emb_cool.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-			
 				else:
-					if stacked == False:
+					if not stacked:
 						emb_fail = discord.Embed( description = '**Вы уже имеете этот товар!**', colour = discord.Color.green() )
-				
 						emb_fail.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 						emb_fail.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
-					elif stacked == True:
+					elif stacked:
 						cur_items = data['items']
 						prison = data['prison']
 						stack = False
@@ -634,22 +458,17 @@ class Economy(commands.Cog, name = 'Economy'):
 								if i[0] == item[0]:
 									stack = True
 
-						if stack == False:
+						if not stack:
 							state = buy_func( item, cost )
-
-							if state == True:
-
+							if state:
 								emb_prison = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком.**' , colour = discord.Color.green() )
-					
 								emb_prison.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 								emb_prison.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
 							emb_cool = discord.Embed( description = f'**Вы успешно приобрели - {item[0]}**', colour = discord.Color.green() )
-					
 							emb_cool.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 							emb_cool.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-						
-						elif stack == True:
+						elif stack:
 							cur_money = data['money'] - cost
 
 							for i in cur_items:
@@ -660,14 +479,11 @@ class Economy(commands.Cog, name = 'Economy'):
 							if cur_money <= -5000:
 								cur_items = []
 								prison = True
-
 								emb_prison = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком.**' , colour = discord.Color.green() )
-					
 								emb_prison.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 								emb_prison.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 								
 							emb_cool = discord.Embed( description = f'**Вы успешно приобрели - {item[0]}**', colour = discord.Color.green() )
-					
 							emb_cool.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 							emb_cool.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
@@ -682,7 +498,6 @@ class Economy(commands.Cog, name = 'Economy'):
 
 			if item == 'металоискатель1' or item == 'metal_1' or item == 'металоискатель_1':
 				embeds = buy_item('metal_1', costs[0])
-
 				if embeds[0]:
 					await ctx.send( embed = embeds[0] )
 				elif embeds[1]:
@@ -691,10 +506,8 @@ class Economy(commands.Cog, name = 'Economy'):
 					await ctx.message.add_reaction('❌')
 					await ctx.send( embed = embeds[2] )
 
-
 			elif item == 'металоискатель2' or item == 'metal_2' or item == 'металоискатель_2':
 				embeds = buy_item('metal_2', costs[1])
-
 				if embeds[0]:
 					await ctx.send( embed = embeds[0] )
 				elif embeds[1]:
@@ -705,7 +518,6 @@ class Economy(commands.Cog, name = 'Economy'):
 
 			elif item == 'телефон' or item == 'тел' or item == 'telephone' or item == 'tel':
 				embeds = buy_item('tel', costs[3])
-
 				if embeds[0]:
 					await ctx.send( embed = embeds[0] )
 				elif embeds[1]:
@@ -716,7 +528,6 @@ class Economy(commands.Cog, name = 'Economy'):
 
 			elif item == 'sim' or item == 'sim_card' or item == 'sim-card' or item == 'симка' or item == 'сим_карта':
 				embeds = buy_item('sim', costs[2])
-
 				if embeds[0]:
 					await ctx.send( embed = embeds[0] )
 				elif embeds[1]:
@@ -742,116 +553,84 @@ class Economy(commands.Cog, name = 'Economy'):
 						state = buy_func( role.id, role_cost )
 						await member.add_roles(role)
 
-						if state == True:
+						if state:
 							emb = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком.**' , colour = discord.Color.green() )
-				
 							emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 							emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-				
 							await member.send( embed = emb )
 							return
 
 						emb = discord.Embed( description = f'**Вы успешно приобрели новую роль - <@&{role.id}>**', colour = discord.Color.green() )
-				
 						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-				
 						await ctx.send( embed = emb )
 					else:
 						emb = discord.Embed( title = 'Ошибка!', description = '**Вы уже имеете эту роль!**', colour = discord.Color.green() )
-				
 						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-				
 						await ctx.send( embed = emb )
 						await ctx.message.add_reaction('❌')
 						return
 				else:
 					emb = discord.Embed( title = 'Ошибка!', description = f'**Укажите роль правильно, такой роли нету в списке продаваемых ролей!**', colour = discord.Color.green() )
-					
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-				
 					await ctx.send( embed = emb )
 					await ctx.message.add_reaction('❌')
 					return
 
 			elif item == 'метла' or item == 'broom' or item == 'metla':
-
 				if data['coins'] >= 500:
 					if member_items != None and isinstance(member_items, int) == False:
 						if 'broom' not in member_items:
 							buy_coins_func( "broom", 500 )
 							emb = discord.Embed( description = f'**Вы успешно приобрели - {item}**', colour = discord.Color.green() )
-					
 							emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 							emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-					
 							await ctx.send( embed = emb )
 						else:
 							emb = discord.Embed( description = '**Вы уже имеете этот товар!**', colour = discord.Color.green() )
-					
 							emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 							emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-					
 							await ctx.send( embed = emb )
 							return
 					else:
 						buy_coins_func( "broom", 500 )
 						emb = discord.Embed( description = f'**Вы успешно приобрели - {item}**', colour = discord.Color.green() )
-					
 						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-				
 						await ctx.send( embed = emb )
-
 				else:
 					emb = discord.Embed( title = 'Ошибка!', description = f'**У вас недостаточно коинов!**', colour = discord.Color.green() )
-					
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-			
 					await ctx.send( embed = emb )
 					await ctx.message.add_reaction('❌')
 					return
-
 			elif item == 'швабра' or item == 'mop':
-
 				if data['coins'] >= 500:
 					if 'mop' not in member_items:
-
 						buy_coins_func( "mop", 2000 )
-
 						emb = discord.Embed( description = f'**Вы успешно приобрели - {item}**', colour = discord.Color.green() )
-				
 						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-				
 						await ctx.send( embed = emb )
-
 					else:
-
 						emb = discord.Embed( description = '**Вы уже имеете этот товар!**', colour = discord.Color.green() )
-				
 						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-				
 						await ctx.send( embed = emb )
 						return
 				else:
 					await ctx.message.add_reaction('❌')
-
 					emb = discord.Embed( title = 'Ошибка!', description = f'**У вас недостаточно коинов!**', colour = discord.Color.green() )
-					
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-			
 					await ctx.send( embed = emb )
 					return
 
 			elif item == 'перчатки' or item == 'gloves':
 				embeds = buy_item('gloves', costs[5])
-
 				if embeds[0]:
 					await ctx.send( embed = embeds[0] )
 				elif embeds[1]:
@@ -861,7 +640,6 @@ class Economy(commands.Cog, name = 'Economy'):
 
 			elif item == 'бокс-обычный' or item == 'box-c' or item == 'box-C' or item == 'box-common' or item == 'box-Common':
 				embeds = buy_item(['box-C', 1], costs[6], True)
-
 				if embeds[0]:
 					await ctx.send( embed = embeds[0] )
 				elif embeds[1]:
@@ -871,7 +649,6 @@ class Economy(commands.Cog, name = 'Economy'):
 
 			elif item == 'бокс-редкий' or item == 'box-r' or item == 'box-R' or item == 'box-rare' or item == 'box-Rare':
 				embeds = buy_item(['box-R', 1], costs[7], True)
-
 				if embeds[0]:
 					await ctx.send( embed = embeds[0] )
 				elif embeds[1]:
@@ -881,7 +658,6 @@ class Economy(commands.Cog, name = 'Economy'):
 
 			elif item == 'бокс-эпик' or item == 'box-e' or item == 'box-E' or item == 'box-epic' or item == 'box-Epic':
 				embeds = buy_item(['box-E', 1], costs[8], True)
-
 				if embeds[0]:
 					await ctx.send( embed = embeds[0] )
 				elif embeds[1]:
@@ -891,7 +667,6 @@ class Economy(commands.Cog, name = 'Economy'):
 
 			elif item == 'бокс-легенда' or item == 'box-l' or item == 'box-L' or item == 'box-legendary' or item == 'box-Legendary':
 				embeds = buy_item(['box-L', 1], costs[9], True)
-
 				if embeds[0]:
 					await ctx.send( embed = embeds[0] )
 				elif embeds[1]:
@@ -901,7 +676,6 @@ class Economy(commands.Cog, name = 'Economy'):
 
 			elif item == 'бокс-невероятный' or item == 'box-i' or item == 'box-I' or item == 'box-imposible' or item == 'box-Imposible':
 				embeds = buy_item(['box-I', 1], costs[10], True)
-
 				if embeds[0]:
 					await ctx.send( embed = embeds[0] )
 				elif embeds[1]:
@@ -914,39 +688,28 @@ class Economy(commands.Cog, name = 'Economy'):
 					state = buy_text_channel( costs[4], num )
 					if state == True:
 						emb = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком.**' , colour = discord.Color.green() )
-			
 						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-			
 						await member.send( embed = emb )
 						return
 
 					emb = discord.Embed( description = f'**Вы успешно приобрели текстовые каналы - {num}шт**', colour = discord.Color.green() )
-
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 					await ctx.send( embed = emb )
-
 				elif not num:
 					await ctx.message.add_reaction('❌')
-
 					emb = discord.Embed( title = 'Ошибка!', description = f'**Вы не указали число покупаемых каналов!**', colour = discord.Color.green() )
-
 					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 					await ctx.send( embed = emb )
 					return
 
-		elif cur_state_prison == True:
+		elif cur_state_prison:
 			await ctx.message.add_reaction('❌')
-
 			emb = discord.Embed( title = 'Ошибка!', description = "**У вас заблокирование транзакции, так как вы в тюрме!**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			return
 
@@ -1111,18 +874,14 @@ class Economy(commands.Cog, name = 'Economy'):
 
 		if not box:
 			emb = discord.Embed( title = 'Укажите пожалуйста бокс!', description = f"**Обычный бокс - box-C\nРедкий бокс - box-R\nЭпический бокс - box-E\nЛегендарный бокс - box-L\nНевероятный бокс - box-I**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			return
 		elif box not in boxes:			
 			emb = discord.Embed( title = 'Укажите пожалуйста бокс правильно!', description = f"**Обычный бокс - box-C\nРедкий бокс - box-R\nЭпический бокс - box-E\nЛегендарный бокс - box-L\nНевероятный бокс - box-I**", colour = discord.Color.green() )
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			return
 
@@ -1380,12 +1139,9 @@ class Economy(commands.Cog, name = 'Economy'):
 				else:
 					pets.append(pet[0])
 
-
 			emb = discord.Embed(title = f'Бокс - {dict_boxes[box][0]}', description = f'**{msg_content}**', colour = discord.Color.green())
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 
 			sql = ("""UPDATE users SET items = %s, pets = %s, money = %s WHERE user_id = %s AND guild_id = %s""")
@@ -1393,7 +1149,6 @@ class Economy(commands.Cog, name = 'Economy'):
 
 			self.cursor.execute(sql, val)
 			self.conn.commit()
-
 		elif not state:
 			emb = discord.Embed(title = f'Ошибка!', description = f'**В вашем инвертаре нет такого лут-бокса!**', colour = discord.Color.green())
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )

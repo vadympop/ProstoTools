@@ -153,3 +153,85 @@ Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Canno
 Ошибка:
 member is a required argument that is missing.
 =============================================================
+
+=============================================================
+Время: 2020-10-11 15:16:32.992645
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s ORDER BY exp DESC LIMIT 15' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-10-11 15:17:20.578396
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s ORDER BY exp DESC LIMIT 15' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-10-11 15:19:08.832604
+
+Ошибка:
+Command raised an exception: OperationalError: 2055: Lost connection to MySQL server at 'localhost:3306', system error: 10053 An established connection was aborted by the software in your host machine
+=============================================================
+
+=============================================================
+Время: 2020-10-11 15:19:32.472391
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s ORDER BY exp DESC LIMIT 15' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-10-11 15:21:34.360531
+
+Ошибка:
+Command "tor" is not found
+=============================================================
+
+=============================================================
+Время: 2020-10-11 15:21:37.857181
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s ORDER BY exp DESC LIMIT 15' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-10-11 15:27:20.016372
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s ORDER BY exp DESC LIMIT 15' at line 1
+=============================================================
+
+=============================================================
+Время: 2020-10-11 15:34:58.751568
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 619, in _load_from_module_spec
+    setup(self)
+  File "e:\PyProg\ProstoTools\Cogs\owner.py", line 136, in setup
+    client.add_cog(Owner(client))
+  File "e:\PyProg\ProstoTools\Cogs\owner.py", line 40, in __init__
+    self.self.client = client
+AttributeError: 'Owner' object has no attribute 'self'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 624, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.owner' raised an error: AttributeError: 'Owner' object has no attribute 'self'
+
+=============================================================
+
+=============================================================
+Время: 2020-10-11 15:36:28.233313
+
+Ошибка:
+Command raised an exception: SyntaxError: import * only allowed at module level (<ast>, line 1)
+=============================================================
