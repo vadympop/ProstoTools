@@ -96,14 +96,10 @@ class Errors(commands.Cog, name = 'Errors'):
 			await owner.send(embed = emb_err)
 		elif isinstance(error, commands.errors.CheckFailure):
 			pass
+		elif isinstance(error, commands.errors.CommandInvokeError):
+			pass
 		else:
 			raise error
-
-
-	@commands.Cog.listener()
-	async def on_error(self, ctx, error):
-		if isinstance(error, discord.errors.Forbidden):
-			pass
 
 def setup(client):
 	client.add_cog(Errors(client))
