@@ -235,3 +235,10 @@ discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.owner' raised an er
 Ошибка:
 Command raised an exception: SyntaxError: import * only allowed at module level (<ast>, line 1)
 =============================================================
+
+=============================================================
+Время: 2020-10-11 16:59:35.987593
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================

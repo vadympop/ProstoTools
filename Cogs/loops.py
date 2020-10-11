@@ -22,6 +22,7 @@ class Loops(commands.Cog, name = 'Loops'):
 		self.mute_loop.start()
 		self.ban_loop.start()
 		self.temprole_loop.start()
+		self.vmute_loop.start()
 		self.update_messages_loop.start()
 		self.ping_stat_loop.start()
 		self.FOOTER = configs['FOOTER_TEXT']
@@ -87,6 +88,33 @@ class Loops(commands.Cog, name = 'Loops'):
 							DB().del_punishment(member=member, guild_id=guild.id, type_punishment='temprole')
 							temprole_role = get(guild.roles, id=int(temprole[4]))
 							await member.remove_roles(temprole_role)
+
+	
+	@tasks.loop(seconds=5)
+	async def vmute_loop(self):
+		for vmute in DB().get_punishment():
+			vmute_time = vmute[2]
+			guild = self.client.get_guild(int(vmute[1]))
+			if vmute[3] == 'vmute':
+				if guild:
+					member = guild.get_member(int(vmute[0]))
+					if member:
+						if float(vmute_time) <= float(time.time()):
+							DB().del_punishment(member=member, guild_id=guild.id, type_punishment='vmute')
+							vmute_role = get(guild.roles, id=int(vmute[4]))
+							await member.remove_roles(vmute_role)
+
+							overwrite = discord.PermissionOverwrite(connect=None)
+							for channel in guild.voice_channels:
+								await channel.set_permissions(vmute_role, overwrite=overwrite)
+
+							emb = discord.Embed(description=f'**Вы были размьючены в голосовых каналах на сервере `{guild.name}`**', colour=discord.Color.green())
+							emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+							emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+							try:
+								await member.send(embed=emb)
+							except:
+								pass
 
 	
 	@tasks.loop(minutes=30)

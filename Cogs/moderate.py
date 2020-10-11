@@ -444,7 +444,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 	@commands.command(brief='True', description='**Мьютит указаного участника в голосовых каналах**', usage='vmute [@Участник] [Длительность (В минутах)] [Причина]')
 	@commands.check(check_role)	
-	async def vmute(self, ctx, member: discord.Member, vmute_time: int = 0, reason: str = None):
+	async def vmute(self, ctx, member: discord.Member, type_time: str = None, reason: str = None):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
@@ -457,6 +457,30 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction('❌')
 			return
+
+		if not reason:
+			reason = 'Причина не указанна'
+
+		if type_time:
+			vmute_typetime = type_time[-1:]
+			vmute_time = int(type_time[:-1])
+		else:
+			vmute_typetime = None
+			vmute_time = 0
+
+		if vmute_typetime == 'мин' or vmute_typetime == 'м' or vmute_typetime == 'm' or vmute_typetime == "min":
+			vmute_minutes = vmute_time * 60
+		elif vmute_typetime == 'час'  or vmute_typetime == 'ч' or vmute_typetime == 'h' or vmute_typetime == "hour":
+			vmute_minutes = vmute_time * 120
+		elif vmute_typetime == 'дней' or vmute_typetime == 'д' or vmute_typetime == 'd' or vmute_typetime == "day":
+			vmute_minutes = vmute_time * 120 * 12
+		elif vmute_typetime == 'недель' or vmute_typetime == "н" or vmute_typetime == 'week' or vmute_typetime == "w":
+			vmute_minutes = vmute_time * 120 * 12 * 7			
+		else:
+			vmute_minutes = vmute_time
+
+		times = time.time()
+		times += vmute_minutes
 
 		vmute_minutes = vmute_time * 60
 		overwrite = discord.PermissionOverwrite(connect=False)
@@ -471,19 +495,14 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		await member.edit(voice_channel=None)
 
 		if vmute_minutes > 0:
-			emb = discord.Embed(description=f'**{ctx.author.mention} Замутил `{member}` в голосовых каналах на {vmute_time}мин**', colour=discord.Color.green())
+			emb = discord.Embed(description=f'**{ctx.author.mention} Замьютил `{member}` в голосовых каналах на {vmute_time}{vmute_typetime} по причине {reason}**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await asyncio.sleep(vmute_minutes)
-			await member.remove_roles(role)
-
-			overwrite = discord.PermissionOverwrite(connect=None)
-			for channel in ctx.guild.voice_channels:
-				await channel.set_permissions(role, overwrite=overwrite)
+			DB().set_punishment(type_punishment='vmute', time=times, member=member, role_id=int(role.id))
 
 		elif vmute_minutes <= 0:
-			emb = discord.Embed(description=f'**{ctx.author.mention} Перманентно замутил `{member}` в голосовых каналах**', colour=discord.Color.green())
+			emb = discord.Embed(description=f'**{ctx.author.mention} Перманентно замьютил `{member}` в голосовых каналах по причине {reason}**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
@@ -507,13 +526,14 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		for vmute_role in ctx.guild.roles:
 			if vmute_role.name == self.VMUTE_ROLE:
+				DB().del_punishment(member=member, guild_id=ctx.guild.id, type_punishment='vmute')
 				await member.remove_roles(vmute_role)
 				overwrite = discord.PermissionOverwrite(connect=None)
 
 				for channel in ctx.guild.voice_channels:
 					await channel.set_permissions(vmute_role, overwrite=overwrite)
 
-				emb = discord.Embed(description=f'**{ctx.author.mention} Размутил `{member}` в голосовых каналах**', colour=discord.Color.green())
+				emb = discord.Embed(description=f'**{ctx.author.mention} Размьютил `{member}` в голосовых каналах**', colour=discord.Color.green())
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 				await ctx.send(embed=emb)
