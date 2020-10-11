@@ -42,7 +42,10 @@ class Loops(commands.Cog, name = 'Loops'):
 						emb = discord.Embed(description=f'**Вы были размьючены на сервере `{guild.name}`**', colour=discord.Color.green())
 						emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
 						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-						await member.send(embed=emb)
+						try:
+							await member.send(embed=emb)
+						except:
+							pass
 
 	
 	@tasks.loop(seconds=5)

@@ -13,3 +13,136 @@ Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Canno
 Ошибка:
 Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
 =============================================================
+
+=============================================================
+Время: 2020-10-11 11:59:45.964619
+
+Ошибка:
+Command raised an exception: ValueError: invalid literal for int() with base 10: 'f'
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:00:03.680104
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:00:39.846400
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:00:54.740573
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:01:28.282410
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:01:41.982777
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:03:53.953620
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:04:08.609321
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:07:47.662108
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:08:29.979257
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:08:49.680576
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:10:26.039078
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:10:37.768228
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:11:30.717134
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:11:37.700600
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:12:16.018342
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:12:24.578454
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:15:29.571626
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================
+
+=============================================================
+Время: 2020-10-11 12:19:20.487477
+
+Ошибка:
+Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
+=============================================================

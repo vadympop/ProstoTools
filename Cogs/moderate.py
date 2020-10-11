@@ -113,15 +113,13 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if role_typetime == 'мин' or role_typetime == 'м' or role_typetime == 'm' or role_typetime == "min":
 			role_minutes = role_time * 60
 		elif role_typetime == 'час'  or role_typetime == 'ч' or role_typetime == 'h' or role_typetime == "hour":
-			role_minutes = role_time * 60
+			role_minutes = role_time * 120
 		elif role_typetime == 'дней' or role_typetime == 'д' or role_typetime == 'd' or role_typetime == "day":
 			role_minutes = role_time * 120 * 12
 		elif role_typetime == 'недель' or role_typetime == "н" or role_typetime == 'week' or role_typetime == "w":
 			role_minutes = role_time * 120 * 12 * 7			
-		elif role_typetime == 'месяц' or role_typetime == "м" or role_typetime == 'mounth' or role_typetime == "m":
-			role_minutes = role_time * 120 * 12 * 30
 		else:
-			role_minutes = role_time * 60			
+			role_minutes = role_time		
 
 		await member.add_roles(role)
 		emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
@@ -333,13 +331,13 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if ban_typetime == 'мин' or ban_typetime == 'м' or ban_typetime == 'm' or ban_typetime == "min":
 			ban_minutes = ban_time * 60
 		elif ban_typetime == 'час'  or ban_typetime == 'ч' or ban_typetime == 'h' or ban_typetime == "hour":
-			ban_minutes = ban_time * 60
+			ban_minutes = ban_time * 120
 		elif ban_typetime == 'дней' or ban_typetime == 'д' or ban_typetime == 'd' or ban_typetime == "day":
 			ban_minutes = ban_time * 120 * 12
 		elif ban_typetime == 'недель' or ban_typetime == "н" or ban_typetime == 'week' or ban_typetime == "w":
 			ban_minutes = ban_time * 120 * 12 * 7			
-		elif ban_typetime == 'месяц' or ban_typetime == "м" or ban_typetime == 'mounth' or ban_typetime == "m":
-			ban_minutes = ban_time * 120 * 12 * 30
+		else:
+			ban_minutes = ban_time
 		
 		times = time.time()
 		times += ban_minutes
@@ -520,13 +518,11 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if mute_typetime == 'мин' or mute_typetime == 'м' or mute_typetime == 'm' or mute_typetime == "min":
 			mute_minutes = mute_time * 60
 		elif mute_typetime == 'час'  or mute_typetime == 'ч' or mute_typetime == 'h' or mute_typetime == "hour":
-			mute_minutes = mute_time * 60
+			mute_minutes = mute_time * 120
 		elif mute_typetime == 'дней' or mute_typetime == 'д' or mute_typetime == 'd' or mute_typetime == "day":
 			mute_minutes = mute_time * 120 * 12
 		elif mute_typetime == 'недель' or mute_typetime == "н" or mute_typetime == 'week' or mute_typetime == "w":
 			mute_minutes = mute_time * 120 * 12 * 7			
-		elif mute_typetime == 'месяц' or mute_typetime == "м" or mute_typetime == 'mounth' or mute_typetime == "m":
-			mute_minutes = mute_time * 120 * 12 * 30
 		else:
 			mute_minutes = mute_time
 
@@ -612,7 +608,8 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 				await member.send(embed=emb)
-		elif mute_minutes != 0:
+		elif mute_minutes > 0:
+			DB().set_punishment(type_punishment='mute', time=times, member=member, role_id=int(role.id))
 			if reason:
 				emb = discord.Embed(description=f'**{ctx.author.mention} Замутил `{member}` по причине {reason} на {mute_time}{mute_typetime}**', colour=discord.Color.green())
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -633,9 +630,6 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 				await member.send(embed=emb)
-
-		if mute_minutes > 0:
-			DB().set_punishment(type_punishment='mute', time=times, member=member, role_id=int(role.id))
 
 
 	@commands.command(aliases=['unmute'], brief='True', name='un-mute', description='**Размютит указаного учасника**', usage='un-mute [@Участник]')
