@@ -78,7 +78,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 	@commands.command(aliases=['temprole'], brief='True', name='temp-role', description='**Дает указаную роль учаснику на время**', usage='temp-role [@Участник] [Id роли] [Длительность]')
 	@commands.check(check_role)	
-	async def temprole(self, ctx, member: discord.Member, role: discord.Role, role_time: int = 0, role_typetime: str = None):
+	async def temprole(self, ctx, member: discord.Member, role: discord.Role, type_time: str = None):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
@@ -100,8 +100,15 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await ctx.message.add_reaction('❌')
 			return
 
+		if type_time:
+			role_typetime = type_time[-1:]
+			role_time = int(type_time[:-1])
+		else:
+			role_typetime = None
+			role_time = 0
+
 		if role_time > 0:
-			emb = discord.Embed(description=f'**`{member}` Была виданно новая роль {role.name} на {role_time}мин**', colour=discord.Color.green())
+			emb = discord.Embed(description=f'**`{member}` Была виданно новая роль {role.name} на {role_time}{role_typetime}**', colour=discord.Color.green())
 		elif role_time <= 0:
 			emb = discord.Embed(title='Ошибка!', description=f'**Укажите на какое время вы выдаете роль!**', colour=discord.Color.green())
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
@@ -119,7 +126,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		elif role_typetime == 'недель' or role_typetime == "н" or role_typetime == 'week' or role_typetime == "w":
 			role_minutes = role_time * 120 * 12 * 7			
 		else:
-			role_minutes = role_time		
+			role_minutes = role_time
+
+		times = time.time()
+		times += role_minutes
 
 		await member.add_roles(role)
 		emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
@@ -127,8 +137,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		await ctx.send(embed=emb)
 
 		if role_minutes > 0:
-			await asyncio.sleep(role_minutes)
-			await member.remove_roles(role)
+			DB().set_punishment(type_punishment='temprole', time=times, member=member, role_id=int(role.id))
 
 
 	@commands.command(aliases=['slowmode'], brief='True', name='slow-mode', description='**Ставить медленний режим указаному каналу(Если канал не указан медленный режим ставиться всем каналам, 0 - выключает медленный режим, длительность не указывать меньше нуля)**', usage='slow-mode [Время] |Канал|')

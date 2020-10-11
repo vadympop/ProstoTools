@@ -146,3 +146,10 @@ Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Canno
 Ошибка:
 Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
 =============================================================
+
+=============================================================
+Время: 2020-10-11 12:27:16.233026
+
+Ошибка:
+member is a required argument that is missing.
+=============================================================

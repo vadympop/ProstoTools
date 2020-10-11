@@ -21,6 +21,7 @@ class Loops(commands.Cog, name = 'Loops'):
 		self.cursor = self.conn.cursor(buffered = True)
 		self.mute_loop.start()
 		self.ban_loop.start()
+		self.temprole_loop.start()
 		self.update_messages_loop.start()
 		self.ping_stat_loop.start()
 		self.FOOTER = configs['FOOTER_TEXT']
@@ -69,6 +70,20 @@ class Loops(commands.Cog, name = 'Loops'):
 								await user.send(embed=emb)
 							except:
 								pass
+
+
+	@tasks.loop(seconds=5)
+	async def temprole_loop(self):
+		for temprole in DB().get_punishment():
+			temprole_time = temprole[2]
+			guild = self.client.get_guild(int(temprole[1]))
+			if guild:
+				member = guild.get_member(int(temprole[0]))
+				if member:
+					if float(temprole_time) <= float(time.time()):
+						DB().del_punishment(member=member, guild_id=guild.id, type_punishment='temprole')
+						temprole_role = get(guild.roles, id=int(temprole[4]))
+						await member.remove_roles(temprole_role)
 
 
 	@tasks.loop(minutes=30)
