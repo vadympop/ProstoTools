@@ -477,3 +477,17 @@ Traceback (most recent call last):
 discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.different' raised an error: ModuleNotFoundError: No module named 'psutil'
 
 =============================================================
+
+=============================================================
+Время: 2020-10-14 17:14:42.133211
+
+Ошибка:
+Command raised an exception: AttributeError: 'NoneType' object has no attribute 'bot'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 17:14:53.101895
+
+Ошибка:
+Command raised an exception: AttributeError: 'NoneType' object has no attribute 'bot'
+=============================================================

@@ -108,6 +108,9 @@ class Different(commands.Cog, name = 'Different'):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
+		if not member:
+			member = ctx.author
+
 		if member.bot:			
 			emb = discord.Embed( title = 'Ошибка!', description = f"**Вы не можете просмотреть информацию о боте!**", colour = discord.Color.green() )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
@@ -115,9 +118,6 @@ class Different(commands.Cog, name = 'Different'):
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
 			return
-
-		if not member:
-			member = ctx.author
 
 		data = DB().sel_user(target = member)
 		all_message = data['messages'][1]
