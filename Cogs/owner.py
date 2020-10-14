@@ -4,6 +4,9 @@ import os
 import json
 import asyncio
 import ast
+import math
+import random
+import Tools.template_engine as TemplateEngine
 from discord.ext import commands
 from colorama import *
 from discord.utils import get
@@ -11,6 +14,7 @@ from discord.voice_client import VoiceClient
 from discord.ext.commands import Bot
 from configs import configs
 from Tools.database import DB
+from jinja2 import Template
 init()
 
 def clear_commands( guild ):
@@ -39,6 +43,25 @@ class Owner(commands.Cog, name = 'Owner'):
 	def __init__(self, client):
 		self.client = client
 
+	@commands.command()
+	async def test(self, ctx, member: discord.Member = None, *, message: str = None):
+		template = Template(message, autoescape=True)
+		data = DB().sel_user(member)
+		multi = DB().sel_guild(ctx.guild)['exp_multi']
+		data.update({'multi': multi})
+		context = {
+			'member': TemplateEngine.Member(member, data),
+			'guild': TemplateEngine.Guild(member.guild),
+			'channel': TemplateEngine.Channel(ctx.message.channel),
+			'bot': TemplateEngine.User(self.client.user),
+			'message': TemplateEngine.Message(ctx.message),
+			'len': len,
+			'math': math,
+			'round': round,
+			'random': random
+		}
+		result = template.render(context)
+		await ctx.send(result.replace('&lt;', '<').replace('&gt;', '>').replace('&#39;', '"'))
 
 	@commands.command()
 	@commands.is_owner()

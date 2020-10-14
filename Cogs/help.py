@@ -99,8 +99,8 @@ class Help(commands.Cog, name = 'Help'):
 		state = False
 		group_name = ''
 		locks = {
-			'Different': 6,
-			'Economy': 6,
+			'Different': 5,
+			'Economy': 5,
 			'Games': 7,
 			'Moderate': 6,
 			'Settings': 3,

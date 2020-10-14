@@ -1,0 +1,106 @@
+
+
+=============================================================
+Время: 2020-10-13 19:30:57.853424
+
+Ошибка:
+Command raised an exception: AttributeError: 'NoneType' object has no attribute 'id'
+=============================================================
+
+=============================================================
+Время: 2020-10-13 19:35:30.516027
+
+Ошибка:
+Command raised an exception: UndefinedError: 'Cogs.owner.Member object' has no attribute 'guild'
+=============================================================
+
+=============================================================
+Время: 2020-10-13 19:49:40.802044
+
+Ошибка:
+Command raised an exception: UndefinedError: 'print' is undefined
+=============================================================
+
+=============================================================
+Время: 2020-10-13 19:51:23.610192
+
+Ошибка:
+Command raised an exception: UndefinedError: 'print' is undefined
+=============================================================
+
+=============================================================
+Время: 2020-10-13 19:53:03.262091
+
+Ошибка:
+Command raised an exception: UndefinedError: 'Cogs.owner.Member object' has no attribute 'guild'
+=============================================================
+
+=============================================================
+Время: 2020-10-13 19:55:15.806108
+
+Ошибка:
+Command raised an exception: TemplateSyntaxError: expected token 'end of print statement', got 'channel'
+=============================================================
+
+=============================================================
+Время: 2020-10-13 19:56:02.032749
+
+Ошибка:
+Command raised an exception: TemplateSyntaxError: expected token 'end of print statement', got 'channel'
+=============================================================
+
+=============================================================
+Время: 2020-10-13 19:56:57.067536
+
+Ошибка:
+Command raised an exception: TemplateSyntaxError: expected token 'end of print statement', got 'channel'
+=============================================================
+
+=============================================================
+Время: 2020-10-13 19:58:56.603745
+
+Ошибка:
+Command raised an exception: TemplateSyntaxError: expected token 'end of print statement', got 'channel'
+=============================================================
+
+=============================================================
+Время: 2020-10-13 20:36:42.288006
+
+Ошибка:
+Command raised an exception: RecursionError: maximum recursion depth exceeded while calling a Python object
+=============================================================
+
+=============================================================
+Время: 2020-10-13 20:54:59.776820
+
+Ошибка:
+Command raised an exception: RecursionError: maximum recursion depth exceeded while calling a Python object
+=============================================================
+
+=============================================================
+Время: 2020-10-13 20:56:07.575702
+
+Ошибка:
+Command raised an exception: RecursionError: maximum recursion depth exceeded while calling a Python object
+=============================================================
+
+=============================================================
+Время: 2020-10-13 20:57:35.429974
+
+Ошибка:
+Command raised an exception: RecursionError: maximum recursion depth exceeded while calling a Python object
+=============================================================
+
+=============================================================
+Время: 2020-10-13 20:59:02.092464
+
+Ошибка:
+Command raised an exception: RecursionError: maximum recursion depth exceeded while calling a Python object
+=============================================================
+
+=============================================================
+Время: 2020-10-13 21:00:16.395880
+
+Ошибка:
+Command raised an exception: RecursionError: maximum recursion depth exceeded while calling a Python object
+=============================================================

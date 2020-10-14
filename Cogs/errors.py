@@ -2,6 +2,7 @@ import discord
 import colorama
 import datetime
 import json
+import jinja2
 import sys
 from discord.ext import commands
 from discord.utils import get
@@ -94,8 +95,23 @@ class Errors(commands.Cog, name = 'Errors'):
 			emb_err.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb_err.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await owner.send(embed = emb_err)
+		elif isinstance(error, jinja2.exceptions.TemplateError):
+			emb = discord.Embed( title = 'Ошибка!', description = error, colour = discord.Color.green() )
+			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			await ctx.send( embed = emb )
 		elif isinstance(error, commands.errors.CheckFailure):
 			pass
+		elif isinstance(error, jinja2.exceptions.UndefinedError):
+			emb = discord.Embed( title = 'Ошибка!', description = error, colour = discord.Color.green() )
+			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			await ctx.send( embed = emb )
+		elif isinstance(error, commands.errors.MemberNotFound):
+			emb = discord.Embed( title = 'Ошибка!', description = '**Указаный пользователь не найден!**', colour = discord.Color.green() )
+			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			await ctx.send( embed = emb )
 		elif isinstance(error, commands.errors.CommandInvokeError):
 			pass
 		else:

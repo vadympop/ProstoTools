@@ -5,6 +5,8 @@ import os
 import typing
 import asyncio
 import mysql.connector
+import psutil as ps
+from Cybernator import Paginator
 from discord.ext import commands
 from discord.utils import get
 from discord.voice_client import VoiceClient
@@ -163,29 +165,74 @@ class Different(commands.Cog, name = 'Different'):
 			await ctx.send( embed = emb )
 
 
-	@commands.command(description = '**Показывает информацию о боте**', usage = 'info')
-	async def info( self, ctx ):
-		client = self.client
+	@commands.command(name="info-bot", aliases=["botinfo", "infobot", "bot-info"], usage="info-bot", description="Подробная информация о боте")
+	async def bot(self, ctx):
 		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
-		emb = discord.Embed( title = 'Информация о боте', colour = discord.Color.green() )
+		def bytes2human(number, typer=None):
+			if typer == "system":
+				symbols = ('KБ', 'МБ', 'ГБ', 'TБ', 'ПБ', 'ЭБ', 'ЗБ', 'ИБ')
+			else:
+				symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
 
-		emb.add_field( name = 'Название бота', value = client.user.name )
-		emb.add_field( name = 'Id бота', value = client.user.id )
-		emb.add_field( name = 'Создатели', value = '**Mr. Kola#0684\nProstoChelovek#5389**' )
-		emb.add_field( name = 'Библиотека', value = '**discord.py**' )
-		emb.add_field( name = 'Язык написания', value = '**Python**' )
-		emb.add_field( name = 'Делал аватарку', value = '**Mr. Kola**' )
-		emb.add_field( name = 'Писал код', value = '**ProstoChelovek**' )
-		emb.add_field( name = 'Предлагал идеи', value = '**Mr. Kola\n**' )
-		emb.add_field( name = 'Сервер поддержки', value = 'https://discord.gg/CXB32Mq' )
+			prefix = {}
+			for i, s in enumerate(symbols):
+				prefix[s] = 1 << (i + 1) * 10
 
-		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			for s in reversed(symbols):
+				if number >= prefix[s]:
+					value = float(number) / prefix[s]
+					return '%.1f%s' % (value, s)
 
-		await ctx.send( embed = emb )
+			return f"{number}B"
+		
+		embed1 = discord.Embed(title=f"{self.client.user.name}#{self.client.user.discriminator}", description=f"Информация о боте **{self.client.user.name}**.\nМного-функциональный бот со своей экономикой, кланами и системой модерации!", color=discord.Color.green())
+		embed1.add_field(name='Создатель бота:', value="Mr. Kola#0684, 𝚅𝚢𝚝𝚑𝚘𝚗.𝚕𝚞𝚒#2020", inline=False)
+		embed1.add_field(name=f'Проект был созданн с помощью:', value="discord.py, sanic", inline=False)
+		embed1.add_field(name=f'Участников:', value=len(self.client.users), inline=False)
+		embed1.add_field(name=f'Серверов:', value=len(self.client.guilds), inline=False)
+		embed1.add_field(name=f'Шардов:', value=self.client.shard_count, inline=False)
+		embed1.add_field(name=f'Приглашение Бота:', value="[Тык](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)", inline=False)
+		embed1.add_field(name=f'Сервер помощьи:', value="[Тык](https://discord.gg/CXB32Mq)", inline=False)
+		embed1.set_thumbnail(url=self.client.user.avatar_url)
+		embed1.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+
+		mem = ps.virtual_memory()
+		ping = self.client.latency
+
+		ping_emoji = "🟩🔳🔳🔳🔳"
+		ping_list = [
+			{"ping": 0.00000000000000000, "emoji": "🟩🔳🔳🔳🔳"},
+			{"ping": 0.10000000000000000, "emoji": "🟧🟩🔳🔳🔳"},
+			{"ping": 0.15000000000000000, "emoji": "🟥🟧🟩🔳🔳"},
+			{"ping": 0.20000000000000000, "emoji": "🟥🟥🟧🟩🔳"},
+			{"ping": 0.25000000000000000, "emoji": "🟥🟥🟥🟧🟩"},
+			{"ping": 0.30000000000000000, "emoji": "🟥🟥🟥🟥🟧"},
+			{"ping": 0.35000000000000000, "emoji": "🟥🟥🟥🟥🟥"}
+		]
+		for ping_one in ping_list:
+			if ping <= ping_one["ping"]:
+				ping_emoji = ping_one["emoji"]
+				break
+
+		embed2 = discord.Embed(title='Статистика Бота', color=discord.Color.green())
+		embed2.add_field(name='Использование CPU', value=f'В настоящее время используется: {ps.cpu_percent()}%', inline=True)
+		embed2.add_field(name='Использование RAM', value=f'Доступно: {bytes2human(mem.available, "system")}\nИспользуется: {bytes2human(mem.used, "system")} ({mem.percent}%)\nВсего: {bytes2human(mem.total, "system")}', inline=True)
+		embed2.add_field(name='Пинг Бота', value=f'Пинг: {ping * 1000:.0f}ms\n`{ping_emoji}`', inline=True)
+
+		for disk in ps.disk_partitions():
+			usage = ps.disk_usage(disk.mountpoint)
+			embed2.add_field(name="‎‎‎‎", value=f'```{disk.device}```', inline=False)
+			embed2.add_field(name='Всего на диске', value=bytes2human(usage.total, "system"), inline=True)
+			embed2.add_field(name='Свободное место на диске', value=bytes2human(usage.free, "system"), inline=True)
+			embed2.add_field(name='Используемое дисковое пространство', value=bytes2human(usage.used, "system"), inline=True)
+
+		embeds = [embed1, embed2]
+		message = await ctx.send(embed=embed1)
+		page = Paginator(self.client, message, only=ctx.author, use_more=False, embeds=embeds, language="ru", timeout=120, use_exit=True, delete_message=False)
+		await page.start()
 
 
 	@commands.command(aliases=['server', 'serverinfo', 'guild', 'guildinfo', 'guild-info'], name = 'server-info', description = '**Показывает информацию о сервере**', usage = 'server-info')

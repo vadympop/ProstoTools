@@ -205,6 +205,14 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await ctx.message.add_reaction('❌')
 			return
 
+		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
+			emb = discord.Embed(title='Ошибка!', description='Вы не можете можете кикнуть участника который имеет больше прав чем у вас!', colour=discord.Color.green()) 
+			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
 		if not reason:
 			reason = 'Причина не указана'
 
@@ -231,6 +239,14 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		if member == ctx.author:
 			emb = discord.Embed(title='Ошибка!', description='Вы не можете применить эту команду к себе!', colour=discord.Color.green()) 
+			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
+		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
+			emb = discord.Embed(title='Ошибка!', description='Вы не можете можете забанить участника который имеет больше прав чем у вас!', colour=discord.Color.green()) 
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
@@ -339,6 +355,14 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		if member == ctx.author:
 			emb = discord.Embed(title='Ошибка!', description='Вы не можете применить эту команду к себе!', colour=discord.Color.green()) 
+			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
+		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
+			emb = discord.Embed(title='Ошибка!', description='Вы не можете можете забанить участника который имеет больше прав чем у вас!', colour=discord.Color.green()) 
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
@@ -458,6 +482,14 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await ctx.message.add_reaction('❌')
 			return
 
+		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
+			emb = discord.Embed(title='Ошибка!', description='Вы не можете можете замьютить участника который имеет больше прав чем у вас!', colour=discord.Color.green()) 
+			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
 		if not reason:
 			reason = 'Причина не указанна'
 
@@ -555,6 +587,14 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		if member == ctx.author:
 			emb = discord.Embed(title='Ошибка!', description='Вы не можете применить эту команду к себе!', colour=discord.Color.green()) 
+			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
+		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
+			emb = discord.Embed(title='Ошибка!', description='Вы не можете можете замьютить участника который имеет больше прав чем у вас!', colour=discord.Color.green()) 
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
@@ -698,6 +738,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
 			return
 
 		for role in ctx.guild.roles:
@@ -723,6 +764,14 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+
+		if member == ctx.author:
+			emb = discord.Embed(title='Ошибка!', description='Вы не можете применить эту команду к себе!', colour=discord.Color.green()) 
+			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
 
 		if member in ctx.guild.members:
 			DB().sel_user(target=member)
@@ -759,6 +808,23 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
+		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
+			emb = discord.Embed(title='Ошибка!', description='Вы не можете можете дать предупреждения участнику который имеет больше прав чем у вас!', colour=discord.Color.green()) 
+			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
+		if member.bot:			
+			emb = discord.Embed(title='Ошибка!', description=f"**Вы не можете дать предупреждения боту!**", colour=discord.Color.green())
+			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
+			await ctx.send(embed=emb )
+			await ctx.message.add_reaction('❌')
 			return
 
 		if not reason:
@@ -862,6 +928,22 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+
+		if member == ctx.author:
+			emb = discord.Embed(title='Ошибка!', description='Вы не можете применить эту команду к себе!', colour=discord.Color.green()) 
+			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
+		if member.bot:			
+			emb = discord.Embed(title='Ошибка!', description=f"**Вы не можете снять предупреждения боту!**", colour=discord.Color.green())
+			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
+			await ctx.send(embed=emb )
+			await ctx.message.add_reaction('❌')
+			return
 
 		data = DB().sel_user(target=member)
 		warns = data['warns']

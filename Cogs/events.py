@@ -105,40 +105,28 @@ class Events(commands.Cog, name = 'Events'):
 							return
 
 						emb = discord.Embed( description = f'**{author.mention} Забанил {member.mention}**' , colour = discord.Color.green() )
-						
 						emb.set_author( name = author.name, icon_url = author.avatar_url )
 						emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-
 						await message.channel.send( embed = emb )
 
 						emb = discord.Embed( description = f'**Вы были забанены на сервере {message.guild.name}**', colour = discord.Color.green() )
-
 						emb.set_author( name = author.name, icon_url = author.avatar_url )
 						emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-
 						await member.send( embed = emb )
-
 					elif reaction.name == '🤐':
 						emb = await Commands(self.client).main_mute(ctx = message, member = member, reason = 'Команды по реакциям: Нарушения правил', check_role = True)
-						
 						await message.channel.send(embed = emb)
 					elif reaction.name == '💀':
-
 						await member.kick( reason = 'Нарушения правил' )
 
 						emb = discord.Embed( description = f'**{author.mention} Кикнул {member.mention}**' , colour = discord.Color.green() )
-						
 						emb.set_author( name = author.name, icon_url = author.avatar_url )
 						emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-							
 						await message.channel.send( embed = emb )
 
-
 						emb = discord.Embed( description = f'**Администратор {author.mention} кикнул вас из сервера** ***{guild.name}***' , colour = discord.Color.green() )
-						
 						emb.set_author( name = author.name, icon_url = author.avatar_url )
 						emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-						
 						await member.send( embed = emb )
 
 
@@ -178,7 +166,6 @@ class Events(commands.Cog, name = 'Events'):
 					stats_channel_id = int(data['all'])
 					count = member.guild.member_count
 					await edit_channel(stats_channel_id, count)
-
 		except:
 			pass
 
@@ -216,7 +203,6 @@ class Events(commands.Cog, name = 'Events'):
 					stats_channel_id = int(data['all'])
 					count = member.guild.member_count
 					await edit_channel(stats_channel_id, count)
-
 		except:
 			pass
 

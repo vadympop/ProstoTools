@@ -1,0 +1,479 @@
+
+
+=============================================================
+Время: 2020-10-14 10:36:00.414582
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 607, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "e:\PyProg\ProstoTools\Cogs\owner.py", line 15, in <module>
+    from Tools.template_engine import TemplateEngine
+  File "e:\PyProg\ProstoTools\Tools\template_engine.py", line 2, in <module>
+    class TemplateEngine:
+  File "e:\PyProg\ProstoTools\Tools\template_engine.py", line 3, in TemplateEngine
+    class Member(TemplateEngine.User):
+NameError: name 'TemplateEngine' is not defined
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 610, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.owner' raised an error: NameError: name 'TemplateEngine' is not defined
+
+=============================================================
+
+=============================================================
+Время: 2020-10-14 10:37:18.248564
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 607, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "e:\PyProg\ProstoTools\Cogs\owner.py", line 15, in <module>
+    from Tools.template_engine import TemplateEngine
+  File "e:\PyProg\ProstoTools\Tools\template_engine.py", line 2, in <module>
+    class TemplateEngine:
+  File "e:\PyProg\ProstoTools\Tools\template_engine.py", line 3, in TemplateEngine
+    class Member(TemplateEngine.User):
+NameError: name 'TemplateEngine' is not defined
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 610, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.owner' raised an error: NameError: name 'TemplateEngine' is not defined
+
+=============================================================
+
+=============================================================
+Время: 2020-10-14 10:38:41.273693
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 607, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "e:\PyProg\ProstoTools\Cogs\owner.py", line 15, in <module>
+    from Tools.template_engine import TemplateEngine
+  File "e:\PyProg\ProstoTools\Tools\template_engine.py", line 2, in <module>
+    class TemplateEngine:
+  File "e:\PyProg\ProstoTools\Tools\template_engine.py", line 3, in TemplateEngine
+    class Member(TemplateEngine().User):
+NameError: name 'TemplateEngine' is not defined
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 610, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.owner' raised an error: NameError: name 'TemplateEngine' is not defined
+
+=============================================================
+
+=============================================================
+Время: 2020-10-14 10:45:03.689298
+
+Ошибка:
+Command raised an exception: AttributeError: 'Member' object has no attribute 'tag'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 10:45:34.608662
+
+Ошибка:
+Command raised an exception: AttributeError: 'Member' object has no attribute 'tag'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 10:45:47.757522
+
+Ошибка:
+Command raised an exception: ExtensionNotLoaded: Extension 'Cogs.erros' has not been loaded.
+=============================================================
+
+=============================================================
+Время: 2020-10-14 10:45:55.528751
+
+Ошибка:
+Command raised an exception: AttributeError: 'Member' object has no attribute 'tag'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 10:47:10.206700
+
+Ошибка:
+Command raised an exception: AttributeError: 'Member' object has no attribute 'tag'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 10:47:46.216460
+
+Ошибка:
+Command raised an exception: RecursionError: maximum recursion depth exceeded
+=============================================================
+
+=============================================================
+Время: 2020-10-14 10:57:33.922466
+
+Ошибка:
+Command raised an exception: AttributeError: 'NoneType' object has no attribute 'channel'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 10:59:00.104827
+
+Ошибка:
+Command raised an exception: AttributeError: 'NoneType' object has no attribute 'channel'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 11:11:19.072399
+
+Ошибка:
+Command raised an exception: AttributeError: 'NoneType' object has no attribute 'deaf'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 11:12:00.407541
+
+Ошибка:
+Command raised an exception: AttributeError: 'Context' object has no attribute 'id'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 11:12:34.540318
+
+Ошибка:
+Command raised an exception: UndefinedError: 'module object' has no attribute 'round'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 11:15:58.898675
+
+Ошибка:
+Command raised an exception: AttributeError: 'VoiceChannel' object has no attribute 'topic'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 11:17:33.641139
+
+Ошибка:
+Command raised an exception: UndefinedError: 'Tools.template_engine.VoiceState object' has no attribute 'channel'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 11:27:02.320360
+
+Ошибка:
+Command raised an exception: UnicodeEncodeError: 'ascii' codec can't encode character '\u0412' in position 37: ordinal not in range(128)
+=============================================================
+
+=============================================================
+Время: 2020-10-14 11:27:16.987161
+
+Ошибка:
+Command raised an exception: UnicodeEncodeError: 'ascii' codec can't encode characters in position 0-5: ordinal not in range(128)
+=============================================================
+
+=============================================================
+Время: 2020-10-14 11:31:01.935416
+
+Ошибка:
+Expected space after closing quotation but received '*'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 11:34:05.012435
+
+Ошибка:
+Member "{{ channel.topic }}" not found.
+=============================================================
+
+=============================================================
+Время: 2020-10-14 11:46:10.136839
+
+Ошибка:
+Command raised an exception: TypeError: __init__() takes 2 positional arguments but 3 were given
+=============================================================
+
+=============================================================
+Время: 2020-10-14 11:46:37.614404
+
+Ошибка:
+Command raised an exception: KeyError: 'level'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 12:16:32.448359
+
+Ошибка:
+Command raised an exception: KeyError: 'level'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 12:17:56.981497
+
+Ошибка:
+Command raised an exception: KeyError: 'level'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 12:19:10.716602
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50006): Cannot send an empty message
+=============================================================
+
+=============================================================
+Время: 2020-10-14 13:15:26.243764
+
+Ошибка:
+Command raised an exception: TypeError: Can't compile non template nodes
+=============================================================
+
+=============================================================
+Время: 2020-10-14 13:15:41.553846
+
+Ошибка:
+Member "member" not found.
+=============================================================
+
+=============================================================
+Время: 2020-10-14 13:16:01.159681
+
+Ошибка:
+Member "{{ member.rank.level }}" not found.
+=============================================================
+
+=============================================================
+Время: 2020-10-14 13:17:45.231622
+
+Ошибка:
+Member "{{ guild._region_emojis }}" not found.
+=============================================================
+
+=============================================================
+Время: 2020-10-14 13:18:11.596338
+
+Ошибка:
+Member "{{ member.rank.level }}" not found.
+=============================================================
+
+=============================================================
+Время: 2020-10-14 13:25:24.829185
+
+Ошибка:
+Member "<@&732138731410161695>.exe" not found.
+=============================================================
+
+=============================================================
+Время: 2020-10-14 13:25:32.638315
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50006): Cannot send an empty message
+=============================================================
+
+=============================================================
+Время: 2020-10-14 13:25:37.234033
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50006): Cannot send an empty message
+=============================================================
+
+=============================================================
+Время: 2020-10-14 13:25:41.938460
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50006): Cannot send an empty message
+=============================================================
+
+=============================================================
+Время: 2020-10-14 13:26:12.998448
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50006): Cannot send an empty message
+=============================================================
+
+=============================================================
+Время: 2020-10-14 13:26:14.339881
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50006): Cannot send an empty message
+=============================================================
+
+=============================================================
+Время: 2020-10-14 14:09:09.564985
+
+Ошибка:
+Command raised an exception: UndefinedError: 'Tools.template_engine.VoiceState object' has no attribute 'channel'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 14:10:05.084580
+
+Ошибка:
+Command raised an exception: UndefinedError: 'Tools.template_engine.VoiceState object' has no attribute 'channel'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 14:11:24.088436
+
+Ошибка:
+Command raised an exception: ExtensionNotLoaded: Extension 'Cogs.erros' has not been loaded.
+=============================================================
+
+=============================================================
+Время: 2020-10-14 14:11:37.335032
+
+Ошибка:
+Command raised an exception: UndefinedError: 'Tools.template_engine.VoiceState object' has no attribute 'channel'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 14:12:13.574512
+
+Ошибка:
+Command raised an exception: UndefinedError: 'Tools.template_engine.VoiceState object' has no attribute 'channel'
+=============================================================
+
+=============================================================
+Время: 2020-10-14 14:12:50.427830
+
+Ошибка:
+Member "@eeeeeeeee" not found.
+=============================================================
+
+=============================================================
+Время: 2020-10-14 14:13:31.478439
+
+Ошибка:
+Member "@Enslaved" not found.
+=============================================================
+
+=============================================================
+Время: 2020-10-14 14:21:35.835413
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50006): Cannot send an empty message
+=============================================================
+
+=============================================================
+Время: 2020-10-14 14:35:32.849290
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50006): Cannot send an empty message
+=============================================================
+
+=============================================================
+Время: 2020-10-14 16:05:18.590263
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50006): Cannot send an empty message
+=============================================================
+
+=============================================================
+Время: 2020-10-14 16:05:29.746449
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50006): Cannot send an empty message
+=============================================================
+
+=============================================================
+Время: 2020-10-14 16:06:02.813074
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50006): Cannot send an empty message
+=============================================================
+
+=============================================================
+Время: 2020-10-14 16:07:18.213717
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50006): Cannot send an empty message
+=============================================================
+
+=============================================================
+Время: 2020-10-14 16:52:20.896099
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 607, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "e:\PyProg\ProstoTools\Cogs\different.py", line 8, in <module>
+    import psutil as ps
+ModuleNotFoundError: No module named 'psutil'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 610, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.different' raised an error: ModuleNotFoundError: No module named 'psutil'
+
+=============================================================
+
+=============================================================
+Время: 2020-10-14 16:53:20.423439
+
+Ошибка:
+Command "bot-info" is not found
+=============================================================
+
+=============================================================
+Время: 2020-10-14 16:53:57.919682
+
+Ошибка:
+Command "bot-info" is not found
+=============================================================
+
+=============================================================
+Время: 2020-10-14 16:54:32.927329
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 607, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "e:\PyProg\ProstoTools\Cogs\different.py", line 8, in <module>
+    import psutil as ps
+ModuleNotFoundError: No module named 'psutil'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 610, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.different' raised an error: ModuleNotFoundError: No module named 'psutil'
+
+=============================================================
