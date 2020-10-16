@@ -58,7 +58,23 @@ class Owner(commands.Cog, name = 'Owner'):
 			'len': len,
 			'math': math,
 			'round': round,
-			'random': random
+			'random': random,
+			'list': list,
+			'int': int,
+			'dict': dict,
+			'str': str,
+			'upper': lambda msg: msg.upper(),
+			'lower': lambda msg: msg.lower(),
+			'capitalize': lambda msg: msg.capitalize(),
+			'format': lambda msg, **args: msg.format(args),
+			'split': lambda msg, sdata: msg.split(sdata),
+			'join': lambda msg, value: msg.join(value),
+			'reverse': lambda msg: msg[::-1],
+			'keys': lambda msg: msg.keys(),
+			'items': lambda msg: msg.items(),
+			'values': lambda msg: msg.values(),
+			'replace': lambda msg, old, new: msg.replace(old, new),
+			'contains': lambda msg, word: True if word in msg.split(' ') else False,
 		}
 		result = template.render(context)
 		await ctx.send(result.replace('&lt;', '<').replace('&gt;', '>').replace('&#39;', '"'))

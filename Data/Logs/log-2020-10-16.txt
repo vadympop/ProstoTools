@@ -1,0 +1,44 @@
+
+
+=============================================================
+Время: 2020-10-16 20:49:56.492211
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 607, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 779, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 916, in get_code
+  File "<frozen importlib._bootstrap_external>", line 846, in source_to_code
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "e:\PyProg\ProstoTools\Cogs\different.py", line 144
+    emb.add_field( name = 'Основная информация', value = f'{get_bio()}**Имя пользователя:** {member}\n**Статус:** {statuses[member.status.name]}\n**Id пользователя:** {member.id}\n**Акаунт созданн:** {str(member.created_at)[:-10]}\n**Присоиденился:** {datetime.strptime(str(member.joined_at)[:-10], '%Y-%B-%d %X')}\n**Сообщений:** {all_message}', inline = False )
+                                                                                                                                                                                                                                                                                                               ^
+SyntaxError: invalid syntax
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 75, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 610, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.different' raised an error: SyntaxError: invalid syntax (different.py, line 144)
+
+=============================================================
+
+=============================================================
+Время: 2020-10-16 21:01:25.710641
+
+Ошибка:
+Command raised an exception: UnboundLocalError: local variable 'joined_at' referenced before assignment
+=============================================================
+
+=============================================================
+Время: 2020-10-16 21:05:29.121899
+
+Ошибка:
+Command "uzer" is not found
+=============================================================

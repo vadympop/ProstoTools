@@ -6,12 +6,14 @@ import typing
 import asyncio
 import mysql.connector
 import psutil as ps
+from datetime import datetime
 from Cybernator import Paginator
 from discord.ext import commands
 from discord.utils import get
 from discord.voice_client import VoiceClient
 from discord.ext.commands import Bot
 from random import randint
+from googletrans import Translator
 from configs import configs
 from Tools.database import DB
 
@@ -119,8 +121,14 @@ class Different(commands.Cog, name = 'Different'):
 			await ctx.message.add_reaction('❌')
 			return
 
+		t = Translator()
 		data = DB().sel_user(target = member)
 		all_message = data['messages'][1]
+		joined_at_en = datetime.strftime(member.joined_at, '%d %B %Y %X')
+		joined_at = t.translate(joined_at_en, dest='ru', src='en').text
+		created_at_en = datetime.strftime(member.created_at, '%d %B %Y %X')
+		created_at = t.translate(created_at_en, dest='ru', src='en').text
+
 
 		def get_bio():
 			if data['bio'] == '':
@@ -140,7 +148,7 @@ class Different(commands.Cog, name = 'Different'):
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_thumbnail( url = member.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-		emb.add_field( name = 'Основная информация', value = f'{get_bio()}**Имя пользователя:** {member}\n**Статус:** {statuses[member.status.name]}\n**Id пользователя:** {member.id}\n**Акаунт созданн:** {str(member.created_at)[:-10]}\n**Присоиденился:** {str(member.joined_at)[:-10]}\n**Сообщений:** {all_message}', inline = False )
+		emb.add_field( name = 'Основная информация', value = f'{get_bio()}**Имя пользователя:** {member}\n**Статус:** {statuses[member.status.name]}\n**Id пользователя:** {member.id}\n**Акаунт созданн:** {created_at}\n**Присоиденился:** {joined_at}\n**Сообщений:** {all_message}', inline = False )
 		await ctx.send( embed = emb )  
 
 

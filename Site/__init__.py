@@ -28,10 +28,12 @@ class Redis:
 
 # Initialize objects
 app = Sanic(__name__)
-app.update_config('ProstoTools.Site.config.Config')
+app.static('static', './static/css')
+app.update_config('config.Config')
+# app.update_config('config.Config')
 redis = Redis()
 session = Session(app, interface=RedisSessionInterface(redis.get_redis_pool))
-jinja = SanicJinja2(app, pkg_path='static/templates')
+jinja = SanicJinja2(app)
 
 
 # Work with DB

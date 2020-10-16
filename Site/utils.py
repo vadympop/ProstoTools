@@ -4,7 +4,7 @@ import json
 import os
 import mysql.connector
 
-from Site import conn, cursor
+from Site.__init__ import conn, cursor
 
 
 # Create new class Utils
@@ -130,8 +130,3 @@ class Utils:
 		}
 
 		return dict_guild_data
-
-	def render_template(self, **variables):
-		return {
-			key: variable for key, variable in variables.items()
-		}
