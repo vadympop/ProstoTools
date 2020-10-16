@@ -112,8 +112,8 @@ class Errors(commands.Cog, name = 'Errors'):
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await ctx.send( embed = emb )
-		elif isinstance(error, commands.errors.CommandInvokeError):
-			pass
+		# elif isinstance(error, commands.errors.CommandInvokeError):
+		# 	pass
 		else:
 			raise error
 

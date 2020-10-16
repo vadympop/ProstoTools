@@ -226,7 +226,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		emb = discord.Embed(description=f'**Модератор {ctx.author.mention} кикнул вас из сервера `{ctx.guild.name}` по причине {reason}**', colour=discord.Color.green())
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-		await member.send(embed=emb)
+		try:
+			await member.send(embed=emb)
+		except:
+			pass
 
 
 	@commands.command(aliases=['softban'], brief='True', name='soft-ban', description='**Апаратно банит указаного участника - участник имеет доступ к серверу, но к каналам доступа нет**', usage='soft-ban [@Участник] |Причина|')
@@ -283,7 +286,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed(description=f'**Вы были апаратно забанены на сервере `{ctx.guild.name}`**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-			await member.send(embed=emb)
+			try:
+				await member.send(embed=emb)
+			except:
+				pass
 		elif reason:
 			emb = discord.Embed(description=f'**{ctx.author.mention} Апаратно забанил `{member}` по причине {reason}**' , colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -293,7 +299,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed(description=f'**Вы были апаратно забанены на сервере `{ctx.guild.name}` по причине {reason}**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-			await member.send(embed=emb)
+			try:
+				await member.send(embed=emb)
+			except:
+				pass
 
 		overwrite = discord.PermissionOverwrite(connect=False, view_channel=False, send_messages=False)
 		role = get(ctx.guild.roles, name=self.SOFTBAN_ROLE)
@@ -335,7 +344,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		emb = discord.Embed(description=f'**Вы были разбанены на сервере `{ctx.guild.name}`**', colour=discord.Color.green())
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-		await member.send(embed=emb)
+		try:
+			await member.send(embed=emb)
+		except:
+			pass
 	
 		role = get(ctx.guild.roles, name=self.SOFTBAN_ROLE)
 		if not role:
@@ -409,7 +421,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed(description=f'**Вы были забанены на сервере `{ctx.guild.name}`**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-			await member.send(embed=emb)
+			try:
+				await member.send(embed=emb)
+			except:
+				pass
 		elif reason:
 			emb = discord.Embed(description=f'**{ctx.author.mention} Забанил `{member}` по причине {reason}**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -419,7 +434,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed(description=f'**Вы были забанены на сервере `{ctx.guild.name}` по причине {reason}**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-			await member.send(embed=emb)
+			try:
+				await member.send(embed=emb)
+			except:
+				pass
 
 		if ban_time > 0:
 			sql = ("""UPDATE users SET clans = %s, items = %s, money = %s, coins = %s, reputation = %s WHERE user_id = %s AND guild_id = %s""")
@@ -463,7 +481,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb = discord.Embed(description=f'**Вы были разбанены на сервере `{ctx.guild.name}`**', colour=discord.Color.green())
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-				await member.send(embed=emb)
+				try:
+					await member.send(embed=emb)
+				except:
+					pass
 				
 
 	@commands.command(brief='True', description='**Мьютит указаного участника в голосовых каналах**', usage='vmute [@Участник] [Длительность (В минутах)] [Причина]')
@@ -573,7 +594,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb = discord.Embed(description=f'**Вы были размьючены в голосовых каналах**', colour=discord.Color.green())
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-				await member.send(embed=emb)
+				try:
+					await member.send(embed=emb)
+				except:
+					pass
 				return
 
 
@@ -640,7 +664,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed(title='Ошибка!', description=f'**Указаный пользователь уже замьючен!**' , colour=discord.Color.green())
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-			await member.send(embed=emb)
+			try:
+				await member.send(embed=emb)
+			except:
+				pass
 			await ctx.message.add_reaction('❌')
 			return			
 		
@@ -672,7 +699,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed(description=f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Текущий баланс - `{cur_money}`**', colour=discord.Color.green())
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-			await member.send(embed=emb)
+			try:
+				await member.send(embed=emb)
+			except:
+				pass
 
 		sql = ("""UPDATE users SET money = %s, coins = %s, reputation = %s, items = %s, prison = %s WHERE user_id = %s AND guild_id = %s""")
 		val = (cur_money, cur_coins, cur_reputation, json.dumps(cur_items), str(prison), member.id, ctx.guild.id)
@@ -690,7 +720,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb = discord.Embed(description=f'**Вы были перманентно замьючены модератором `{member}` по причине {reason}**', colour=discord.Color.green())
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-				await member.send(embed=emb)
+				try:
+					await member.send(embed=emb)
+				except:
+					pass
 			elif not reason:
 				emb = discord.Embed(description=f'**{ctx.author.mention} Перманентно замутил `{member}`**', colour=discord.Color.green())
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -700,7 +733,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb = discord.Embed(description=f'**Вы были перманентно замьючены модератором `{member}`**', colour=discord.Color.green())
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-				await member.send(embed=emb)
+				try:
+					await member.send(embed=emb)
+				except:
+					pass
 		elif mute_minutes > 0:
 			DB().set_punishment(type_punishment='mute', time=times, member=member, role_id=int(role.id))
 			if reason:
@@ -712,7 +748,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb = discord.Embed(description=f'**Вы были замьючены модератором `{member}` по причине {reason} на {mute_time}{mute_typetime}**', colour=discord.Color.green())
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-				await member.send(embed=emb)
+				try:
+					await member.send(embed=emb)
+				except:
+					pass
 			elif not reason:
 				emb = discord.Embed(description=f'**{ctx.author.mention} Замутил `{member}` на {mute_time}{mute_typetime}**', colour=discord.Color.green())
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -722,7 +761,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb = discord.Embed(description=f'**Вы были замьючены модератором `{member}` на {mute_time}{mute_typetime}**', colour=discord.Color.green())
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-				await member.send(embed=emb)
+				try:
+					await member.send(embed=emb)
+				except:
+					pass
 
 
 	@commands.command(aliases=['unmute'], brief='True', name='un-mute', description='**Размютит указаного учасника**', usage='un-mute [@Участник]')
@@ -754,7 +796,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				emb = discord.Embed(description=f'**Вы были размьючены на сервере `{ctx.guild.name}`**', colour=discord.Color.green())
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-				await member.send(embed=emb)	
+				try:
+					await member.send(embed=emb)
+				except:
+					pass
 
 
 	@commands.command(aliases=['clearwarns'], brief='True', name='clear-warns', description='**Очищает предупреждения в указаного пользователя**', usage='clear-warns [@Участник]')
@@ -796,7 +841,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 
 	@commands.command(brief='True', description='**Дает придупреждения учаснику по указаной причине**', usage='warn [@Участник] |Причина|')
-	@commands.check(check_role)	
+	@commands.check(check_role)
 	async def warn(self, ctx, member: discord.Member, *, reason = None):
 		client = self.client
 		DB().add_amout_command(entity=ctx.command.name)
@@ -866,7 +911,8 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			'author': ctx.author.name,
 			'id': int(num),
 			'time': str(datetime.today()),
-			'reason': reason
+			'reason': reason,
+			'state': True
 		}
 		cur_warns.append(warn_data)
 
@@ -882,12 +928,19 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed(description=f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Текущий баланс - {cur_money}**' , colour = discord.Color.green() )
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-			await member.send(embed=emb)
+			try:
+				await member.send(embed=emb)
+			except:
+				pass
 
 		if cur_reputation < -100:
 			cur_reputation = -100
 
-		if len(cur_warns) >= max_warns:
+		if len(cur_warns) >= 20:
+			print('Del')
+			cur_warns.remove([warn for warn in cur_warns if not warn['state']][0])
+
+		if len([warn for warn in cur_warns if warn['state']]) >= max_warns:
 			cur_coins -= 1000
 			cur_warns = []
 
@@ -897,8 +950,8 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			if cur_coins < 0:
 				cur_coins = 0
 
-			await Commands(self.client).main_mute(ctx=message, member=member, reason=reason, check_role=False, mute_typetime='h', mute_time=2)
-			emb = discord.Embed(description=f'**`{member}` Достиг максимального значения предупреждения и был замючен на 2 часа.**', colour=dscord.Color.green())
+			await Commands(self.client).main_mute(ctx=ctx.message, member=member, reason=reason, check_role=False, mute_typetime='h', mute_time=2)
+			emb = discord.Embed(description=f'**`{member}` Достиг максимального значения предупреждения и был замючен на 2 часа.**', colour=discord.Color.green())
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
@@ -907,7 +960,10 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed(description=f'**Вы были предупреждены {ctx.author.mention} по причине {reason}. Количество предупрежденний - `{len(cur_warns)}`, id - `{num}`**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-			await member.send(embed=emb)
+			try:
+				await member.send(embed=emb)
+			except:
+				pass
 
 			emb = discord.Embed(description=f'**Пользователь `{member}` получил предупреждения по причине {reason}. Количество предупрежденний - `{len(cur_warns)}`, id - `{num}`**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -951,7 +1007,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 		for warn in warns:
 			if warn['id'] == warn_id:
-				warns.remove(warn)
+				warn.update({'state': False})
 				state = True
 				break
 
@@ -1005,8 +1061,12 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			time_warn = warn['time']
 			author_warn = warn['author']
 			reason = warn['reason']
+			state = warn['state']
 
-			emb.add_field(value=f'**Причина:** {reason}', name=f'Id - {id_warn}, время - {time_warn}, автор - {author_warn}', inline=False)
+			if state:
+				emb.add_field(value=f'**Причина:** {reason}', name=f'Id - {id_warn}, время - {time_warn}, автор - {author_warn}', inline=False)
+			elif not state:
+				emb.add_field(value=f'~~**Причина:** {reason}~~', name=f'Не активный - |Id - {id_warn}, время - {time_warn}, автор - {author_warn}|', inline=False)
 
 		emb.set_author(name=member.name, icon_url=member.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)

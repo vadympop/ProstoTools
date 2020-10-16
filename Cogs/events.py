@@ -293,7 +293,6 @@ class Events(commands.Cog, name = 'Events'):
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
-		print('Member update')
 		if after.status.name == 'offline':
 			print(after.name, 'Change changes status to', after.status.name)
 

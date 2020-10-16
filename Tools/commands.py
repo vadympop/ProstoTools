@@ -138,7 +138,6 @@ class Commands:
 		
 		info = DB().sel_guild(guild = ctx.guild)
 		max_warns = int(info['max_warns'])
-
 		cur_lvl = data['lvl']
 		cur_coins = data['coins']
 		cur_money = data['money']
@@ -168,9 +167,9 @@ class Commands:
 			'author': author.name,
 			'id': int(num),
 			'time': str(datetime.today()),
-			'reason': reason
+			'reason': reason,
+			'state': True
 		}
-
 		cur_warns.append(warn_data)
 
 		if cur_lvl <= 3:
@@ -183,27 +182,25 @@ class Commands:
 		if cur_money <= -5000:
 			cur_state_pr = True
 			emb_member = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Текущий баланс - {cur_money}**' , colour = discord.Color.green() )
-			
 			emb_member.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb_member.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-			
 			await member.send( embed = emb_member )
 
 		if cur_reputation < -100:
 			cur_reputation = -100
 
-		if len(cur_warns) >= max_warns:
+		if len(cur_warns) >= 20:
+			cur_warns.remove([warn for warn in cur_warns if not warn['state']][0])
+
+		if len(cur_warns) >= max_warns:			
 			self.main_mute(ctx, member=member, author=ctx.author, mute_time=2, mute_typetime='h', check_role=False, message=False)
 			emb_ctx = discord.Embed( description = f'**{member.mention} Достиг максимального значения предупреждения и был замючен на 2 часа.**' , colour = discord.Color.green() )
-			
 			emb_ctx.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb_ctx.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )			
 		else:
 			emb_member = discord.Embed( description = f'**Вы были предупреждены {author.mention} по причине {reason}. Предупрежденний `{len(cur_warns)}`**' , colour = discord.Color.green() )			
-			
 			emb_member.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb_member.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-			
 			await member.send(embed = emb_member)
 
 			emb_ctx = discord.Embed( description = f'**Пользователь {member.mention} получил предупреждения по причине {reason}. Количество предупрежденний - `{len(cur_warns)}`**' , colour = discord.Color.green() )
@@ -216,8 +213,4 @@ class Commands:
 		self.cursor.execute(sql, val)
 		self.conn.commit()
 
-		return emb_ctx
-		
-
-
-
+		return emb_ctx		

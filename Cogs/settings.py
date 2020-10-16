@@ -269,8 +269,7 @@ class Settings(commands.Cog, name = 'Settings'):
 				for shop_role in shoplist:
 					if role.id in shop_role and cost in shop_role:
 						shoplist.remove(shop_role)
-			except Exception as e:
-				raise e
+			except:
 				emb = discord.Embed( title = 'Ошибка!', description = f'**Такой роли не существует в списке продаваемых ролей!**', colour = discord.Color.green() )
 
 				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
@@ -344,6 +343,16 @@ class Settings(commands.Cog, name = 'Settings'):
 
 		purge = clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
+
+		if number >= 25:
+			emb = discord.Embed( title = 'Ошибка!', description = f'**Вы указали слишком большой лимит предупреждений!**', colour = discord.Color.green() )
+
+			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+			emb.set_footer( text = Footer, icon_url = client.user.avatar_url )
+
+			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
+			return
 
 		sql = ("""UPDATE guilds SET max_warns = %s WHERE guild_id = %s AND guild_id = %s""")
 		val = (number, ctx.guild.id, ctx.guild.id)
