@@ -138,7 +138,7 @@ class Owner(commands.Cog, name = 'Owner'):
 		body = parsed.body[0].body
 		insert_returns(body)
 		env = {
-			'self.client': ctx.bot,
+			'client': ctx.bot,
 			'discord': discord,
 			'os': os,
 			'commands': commands,

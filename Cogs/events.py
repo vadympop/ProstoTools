@@ -343,14 +343,13 @@ class Events(commands.Cog, name = 'Events'):
 			reputation = data['reputation']
 			messages = data['messages']
 			lvl_member = data['lvl']
-			last_msg = messages[2][0]
+			last_msg = messages[2]
 
 			reput_msg = 150
 			messages[0] += 1
 			messages[1] += 1
-			messages[2][0] = message.content
+			messages[2] = message.content
 
-			messages[2][1] = str(datetime.datetime.now())[:-7]
 			exp_end = math.floor(9 * (lvl_member ** 2) + 50 * lvl_member + 125 * multi)
 			if exp_end < exp:
 				lvl_member += 1

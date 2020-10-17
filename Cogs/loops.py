@@ -134,10 +134,14 @@ class Loops(commands.Cog, name = 'Loops'):
 
 		for profile in data:
 			if profile != []:
-				all_message = profile[1][1]
-				self.cursor.execute(("""UPDATE users SET messages = %s WHERE user_id = %s"""), (json.dumps([0, int(all_message), [None, None]]), int(profile[0])))
-				self.conn.commit()
+				all_message = json.loads(profile[1])[1]
+				print(all_message)
+				sql = ("""UPDATE users SET messages = %s WHERE user_id = %s""")
+				val = (json.dumps([0, all_message, None]), profile[0])
+				print(val)
 
+				self.cursor.execute(sql, val)
+				self.conn.commit()
 
 
 def setup( client ):

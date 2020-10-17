@@ -5,6 +5,7 @@ import os
 import typing
 import asyncio
 import mysql.connector
+import requests 
 import psutil as ps
 from datetime import datetime
 from Cybernator import Paginator
@@ -131,7 +132,20 @@ class Different(commands.Cog, name = 'Different'):
 
 		get_bio = lambda: '' if data['bio'] == '' else f"""\n\n**Краткая информация о пользователе:**\n{data['bio']}\n\n"""
 		activity = member.activity
-		get_activity = lambda: '' if not activity else f'\n**Пользовательский статус**: {activity.name}'
+
+		def get_activity():
+			if not activity:
+				return ''
+
+			if activity.emoji and activity.emoji.is_unicode_emoji():
+				activity_info = f'\n**Пользовательский статус:** {activity.emoji} {activity.name}'
+			else:
+				if activity.emoji in self.client.emojis:
+					activity_info = f'\n**Пользовательский статус:** {activity.emoji} {activity.name}'
+				else:
+					activity_info = f'\n**Пользовательский статус:** {activity.name}'
+
+			return activity_info
 
 		statuses = {
 			'dnd': '<:dnd:730391353929760870> - Не беспокоить',
@@ -458,10 +472,6 @@ class Different(commands.Cog, name = 'Different'):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
-		if len(text) > 1000:
-			await ctx.message.add_reaction('❌')
-			return
-
 		if not text:
 			sql = ("""UPDATE users SET bio = %s WHERE user_id = %s""")
 			val = ('', ctx.author.id)
@@ -471,6 +481,10 @@ class Different(commands.Cog, name = 'Different'):
 
 			await ctx.message.add_reaction('✅')
 
+		if len(text) > 1000:
+			await ctx.message.add_reaction('❌')
+			return
+
 		sql = ("""UPDATE users SET bio = %s WHERE user_id = %s""")
 		val = (text, ctx.author.id)
 
@@ -479,6 +493,26 @@ class Different(commands.Cog, name = 'Different'):
 
 		await ctx.message.add_reaction('✅')
 
+
+	@commands.command(name='calc', aliases=['calculator', 'c'], description='Выполняет математические операции', usage='calc [Операция]')
+	async def calc(self, ctx, *, exp = None):
+		if not exp:
+			await ctx.send('**Укажите пример!**')
+			return
+
+		link = 'http://api.mathjs.org/v4/'
+		data = {"expr": [exp]}
+
+		try:
+			re = requests.get(link, params=data)
+			responce = re.json()
+
+			emb = discord.Embed(title='Калькулятор', color=discord.Color.green())
+			emb.add_field(name='Задача:', value=exp)
+			emb.add_field(name='Решение:', value=str(responce))
+			await ctx.send(embed=emb)
+		except:
+			await ctx.send('**Это калькулятор, текст нельзя -.-**')
 
 def setup( client ):
 	client.add_cog(Different(client))
