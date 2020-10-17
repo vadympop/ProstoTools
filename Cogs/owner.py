@@ -148,7 +148,12 @@ class Owner(commands.Cog, name = 'Owner'):
 		}
 		exec(compile(parsed, filename="<ast>", mode="exec"), env)
 
-		result = (await eval(f"{fn_name}()", env))
+		try:
+			result = (await eval(f"{fn_name}()", env))
+		except Exception as e:
+			await ctx.send(repr(e))
+			return
+			
 		if result != None:
 			await ctx.send(result)
 		elif result == None:

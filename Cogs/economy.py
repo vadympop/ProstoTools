@@ -1580,6 +1580,27 @@ class Economy(commands.Cog, name = 'Economy'):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
+		if not member:
+			member = ctx.author
+
+		if member.bot:			
+			emb = discord.Embed( title = 'Ошибка!', description = f"**Вы не можете просмотреть профиль бота!**", colour = discord.Color.green() )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
+			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
+			return
+
+		if member in ctx.guild.members:
+			user_data = DB().sel_user(target = member)
+		else:
+			emb = discord.Embed( title = 'Ошибка!', description = f"**На сервере не существует такого пользователя!**", colour = discord.Color.green() )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
+			await ctx.send( embed = emb )
+			await ctx.message.add_reaction('❌')
+			return
+
 		def crop(im, s):
 			w, h = im.size
 			k = w / s[0] - h / s[1]
@@ -1598,136 +1619,57 @@ class Economy(commands.Cog, name = 'Economy'):
 			None: ['#787878', '#787878']
 		}
 
-		if not member:
-			user_data = DB().sel_user(target = ctx.author)
+		user_data = DB().sel_user(target = member)
+		user = str(member.name)
+		user_tag = str(member.discriminator)
+		user_id = int(member.id)
+		user_exp = int(user_data['exp'])
+		user_level = int(user_data['lvl'])
+		user_warns = len(user_data['warns'])
+		user_coins = int(user_data['coins'])
+		user_money = int(user_data['money'])
+		user_reputation = int(user_data['reputation'])
+		user_state_prison = user_data['prison']
+		user_profile = user_data['profile']
 
-			user = str(ctx.author.name)
-			user_tag = str(ctx.author.discriminator)
-			user_id = int(ctx.author.id)
-			user_exp = int(user_data['exp'])
-			user_level = int(user_data['lvl'])
-			user_warns = len(user_data['warns'])
-			user_coins = int(user_data['coins'])
-			user_money = int(user_data['money'])
-			user_reputation = int(user_data['reputation'])
-			user_state_prison = user_data['prison']
-			user_profile = user_data['profile']
+		if user_state_prison:
+			user_state_prison = 'Сейчас в тюрме'
+		elif not user_state_prison:
+			user_state_prison = 'На свободе'
 
-			if user_state_prison == True:
-				user_state_prison = 'Сейчас в тюрме'
-			elif user_state_prison == False:
-				user_state_prison = 'На свободе'
+		size = (600, 290)
 
-			size = (600, 290)
+		if not user_profile:  
+			img = Image.open(self.BACKGROUND)
+		elif user_profile:
+			img = Image.open(self.BACKGROUND[:-8]+f"{user_profile}.png")
 
-			if not user_profile:  
-				img = Image.open(self.BACKGROUND)
-			elif user_profile:
-				img = Image.open(self.BACKGROUND[:-8]+f"{user_profile}.png")
+		img = crop(img, size)
+		responce = Image.open(io.BytesIO(await member.avatar_url.read())).convert('RGBA').resize((100, 100), Image.ANTIALIAS)
 
-			img = crop(img, size)
-			responce = Image.open(io.BytesIO(await ctx.author.avatar_url.read())).convert('RGBA').resize((100, 100), Image.ANTIALIAS)
+		img.paste(responce, (15, 0, 115, 100))
+		idraw = ImageDraw.Draw(img)
 
-			img.paste(responce, (15, 0, 115, 100))
-			idraw = ImageDraw.Draw(img)
+		bigtext = ImageFont.truetype( self.FONT, size = 34 )
+		midletext = ImageFont.truetype( self.FONT, size = 23)
 
-			bigtext = ImageFont.truetype( self.FONT, size = 34 )
-			midletext = ImageFont.truetype( self.FONT, size = 23)
+		idraw.text((140, 20), u'Профиль {}'.format(user), font = bigtext )
+		idraw.text((140, 60), f'Репутация: {user_reputation}', font = bigtext, fill = 'black' )
 
-			idraw.text((140, 20), u'Профиль {}'.format(user), font = bigtext )
-			idraw.text((140, 60), f'Репутация: {user_reputation}', font = bigtext, fill = 'black' )
+		idraw.text((140, 105), f'Тег: {user_tag}', font = midletext, fill = colours[user_profile][0]) 
+		idraw.text((140, 130), f'Id: {user_id}', font = midletext, fill = colours[user_profile][0])
+		idraw.text((140, 155), f'Предупрежденний: {user_warns}', font = midletext, fill = colours[user_profile][0])
+		idraw.text((140, 180), f'Тюрма: {user_state_prison}', font = midletext, fill = colours[user_profile][0])
 
-			idraw.text((140, 105), f'Тег: {user_tag}', font = midletext, fill = colours[user_profile][0]) 
-			idraw.text((140, 130), f'Id: {user_id}', font = midletext, fill = colours[user_profile][0])
-			idraw.text((140, 155), f'Предупрежденний: {user_warns}', font = midletext, fill = colours[user_profile][0])
-			idraw.text((140, 180), f'Тюрма: {user_state_prison}', font = midletext, fill = colours[user_profile][0])
+		idraw.text((405, 105), f'Exp: {user_exp}', font = midletext, fill = colours[user_profile][1])
+		idraw.text((405, 130), f'Уровень: {user_level}', font = midletext, fill = colours[user_profile][1])
+		idraw.text((405, 155), f'Монет: {user_coins}', font = midletext, fill = colours[user_profile][1] )
+		idraw.text((405, 180), f'Денег: {user_money}$', font = midletext, fill = colours[user_profile][1])
 
-			idraw.text((405, 105), f'Exp: {user_exp}', font = midletext, fill = colours[user_profile][1])
-			idraw.text((405, 130), f'Уровень: {user_level}', font = midletext, fill = colours[user_profile][1])
-			idraw.text((405, 155), f'Монет: {user_coins}', font = midletext, fill = colours[user_profile][1] )
-			idraw.text((405, 180), f'Денег: {user_money}$', font = midletext, fill = colours[user_profile][1])
+		idraw.text((15, 245), self.FOOTER, font = midletext)
 
-			idraw.text((15, 245), self.FOOTER, font = midletext)
-
-			img.save(self.SAVE)
-			await ctx.send( file = discord.File( fp = self.SAVE ) )
-		elif member:
-			if ctx.author.guild_permissions.administrator:
-				if member.bot:			
-					emb = discord.Embed( title = 'Ошибка!', description = f"**Вы не можете просмотреть профиль бота!**", colour = discord.Color.green() )
-					emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
-					emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-					await ctx.send( embed = emb )
-					await ctx.message.add_reaction('❌')
-					return
-
-				if member in ctx.guild.members:
-					user_data = DB().sel_user(target = member)
-				else:
-					emb = discord.Embed( title = 'Ошибка!', description = f"**На сервере не существует такого пользователя!**", colour = discord.Color.green() )
-					emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
-					emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-					await ctx.send( embed = emb )
-					await ctx.message.add_reaction('❌')
-					return
-
-				user = str(member.name)
-				user_tag = str(member.discriminator)
-				user_id = int(member.id)
-				user_exp = int(user_data['exp'])
-				user_level = int(user_data['lvl'])
-				user_warns = len(user_data['warns'])
-				user_coins = int(user_data['coins'])
-				user_money = int(user_data['money'])
-				user_reputation = int(user_data['reputation'])
-				user_state_prison = user_data['prison']
-				user_profile = user_data['profile']
-
-				if user_state_prison == True:
-					user_state_prison = 'Сейчас в тюрме'
-				elif user_state_prison == False:
-					user_state_prison = 'На свободе'
-
-				size = (600, 290)
-
-				if not user_profile:  
-					img = Image.open(self.BACKGROUND)
-				elif user_profile:
-					img = Image.open(self.BACKGROUND[:-8]+f"{user_profile}.png")
-
-				img = crop(img, size)
-				idraw = ImageDraw.Draw(img)
-				responce = Image.open(io.BytesIO(await member.avatar_url.read())).convert('RGBA').resize((100, 100), Image.ANTIALIAS)
-
-				img.paste(responce, (15, 0, 115, 100))
-				idraw = ImageDraw.Draw(img)
-
-				bigtext = ImageFont.truetype( self.FONT, size = 34 )
-				midletext = ImageFont.truetype( self.FONT, size = 23)
-
-				idraw.text((140, 20), u'Профиль {}'.format(user), font = bigtext )
-				idraw.text((140, 60), f'Репутация: {user_reputation}', font = bigtext, fill = 'black' )
-
-				idraw.text((140, 105), f'Тег: {user_tag}', font = midletext, fill = colours[user_profile][0] ) 
-				idraw.text((140, 130), f'Id: {user_id}', font = midletext, fill = colours[user_profile][0] )
-				idraw.text((140, 155), f'Предупрежденний: {user_warns}', font = midletext, fill = colours[user_profile][0] )
-				idraw.text((140, 180), f'Тюрма: {user_state_prison}', font = midletext, fill = colours[user_profile][0] )
-
-				idraw.text((405, 105), f'Exp: {user_exp}', font = midletext, fill = colours[user_profile][1] )
-				idraw.text((405, 130), f'Уровень: {user_level}', font = midletext, fill = colours[user_profile][1] )
-				idraw.text((405, 155), f'Монет: {user_coins}', font = midletext, fill = colours[user_profile][1] )
-				idraw.text((405, 180), f'Денег: {user_money}$', font = midletext, fill = colours[user_profile][1] )
-
-				idraw.text((15, 245), self.FOOTER, font = midletext)
-
-				img.save(self.SAVE)
-				await ctx.send( file = discord.File( fp = self.SAVE ) )
-			else:
-				await ctx.message.add_reaction('❌')
-				emb = discord.Embed( title = 'Ошибка!', description = '**У вас не достаточно прав! Для этой команды нужны права администратора**', colour = discord.Color.green() )
-				emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
-				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-				await ctx.send( embed = emb )
+		img.save(self.SAVE)
+		await ctx.send( file = discord.File( fp = self.SAVE ) )
 
 
 def setup( client ):

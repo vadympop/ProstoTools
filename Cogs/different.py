@@ -176,7 +176,6 @@ class Different(commands.Cog, name = 'Different'):
 
 	@commands.command(name="info-bot", aliases=["botinfo", "infobot", "bot-info"], usage="info-bot", description="Подробная информация о боте")
 	async def bot(self, ctx):
-		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -197,10 +196,12 @@ class Different(commands.Cog, name = 'Different'):
 
 			return f"{number}B"
 		
+		self.cursor.execute("""SELECT count FROM bot_stats WHERE entity = 'all commands' ORDER BY count DESC LIMIT 1""")
+		commands_count = self.cursor.fetchone()[0]
 		embed1 = discord.Embed(title=f"{self.client.user.name}#{self.client.user.discriminator}", description=f"Информация о боте **{self.client.user.name}**.\nМного-функциональный бот со своей экономикой, кланами и системой модерации!", color=discord.Color.green())
 		embed1.add_field(name='Создатель бота:', value="Mr. Kola#0684, 𝚅𝚢𝚝𝚑𝚘𝚗.𝚕𝚞𝚒#2020", inline=False)
 		embed1.add_field(name='Проект был созданн с помощью:', value=f"discord.py, sanic\ndiscord.py: {discord.__version__}, sanic: {sanic.__version__}", inline=False)
-		embed1.add_field(name='Статистика:', value=f'Участников: {len(self.client.users)}, Серверов: {len(self.client.guilds)}, Шардов: {self.client.shard_count}', inline=False)
+		embed1.add_field(name='Статистика:', value=f'Участников: {len(self.client.users)}, Серверов: {len(self.client.guilds)}, Шардов: {self.client.shard_count}\nОбработано команд: {commands_count}', inline=False)
 		embed1.add_field(name='Помощь:', value="Приглашение Бота: [Тык](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)\nСервер помощьи: [Тык](https://discord.gg/CXB32Mq)", inline=False)
 		embed1.set_thumbnail(url=self.client.user.avatar_url)
 		embed1.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
