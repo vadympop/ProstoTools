@@ -41,8 +41,6 @@ class Utils(commands.Cog, name = 'Utils'):
 	@commands.command(brief = 'True', description = '**Устанавливает анти-рейд режим. Есть не сколько режымов, 1 - Слабый 5сек задержка в текстовых каналах и средний уровень модерации, 2 - Сильний 10сек задержка в текстовых каналах и високий уровень модерации, 3 - Найвисшый 15сек задержка в текстовых каналах и найвисшый уровень модерации**', usage = 'anti-rade [Время действия] [Уровень защиты]')
 	@commands.check(check_role)
 	async def antirade( self, ctx, time: int, mode: int ):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -50,8 +48,8 @@ class Utils(commands.Cog, name = 'Utils'):
 
 		if mode == 1:
 			emb = discord.Embed( title = f'**Уставлен анти-рейд режим 1-го уровня на {time}мин**', colour = discord.Color.green() )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 			await ctx.guild.edit( verification_level = discord.VerificationLevel.medium )
@@ -65,8 +63,8 @@ class Utils(commands.Cog, name = 'Utils'):
 				await k.edit( slowmode_delay = 0 )
 		elif mode == 2:
 			emb = discord.Embed( title = f'**Уставлен анти-рейд режим 2-го уровня на {time}мин**', colour = discord.Color.green() )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 			await ctx.guild.edit( verification_level = discord.VerificationLevel.high )
@@ -80,8 +78,8 @@ class Utils(commands.Cog, name = 'Utils'):
 				await k.edit( slowmode_delay = 0 )
 		elif mode == 3:
 			emb = discord.Embed( title = f'**Уставлен анти-рейд режим 3-го уровня на {time}мин**', colour = discord.Color.green() )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 			await ctx.guild.edit( verification_level = discord.VerificationLevel.extreme )
@@ -98,8 +96,6 @@ class Utils(commands.Cog, name = 'Utils'):
 	@commands.command(aliases=['banlist'], brief = 'True', name = 'ban-list', description = '**Показывает заблокированных пользователей**', usage = 'ban-list')
 	@commands.check(check_role)
 	async def bannedusers( self, ctx ):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -107,23 +103,21 @@ class Utils(commands.Cog, name = 'Utils'):
 
 		if banned_users == []:
 			emb = discord.Embed( title = 'На этом сервере нету заблокированых участников', colour = discord.Color.green() )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 		else:
 			emb = discord.Embed( title = 'Список заблокированных участников', colour = discord.Color.green() )
 			for user in banned_users:
 				emb.add_field( name = f'Участник: {user.user}', value = f'**Причина бана: {user.reason}**' )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 
 	@commands.command(aliases=['voicerooms'], name = 'voice-rooms', hidden = True, description = '**Создает голосовой канал для создания приватных голосовых комнат**', usage = 'voice-rooms [Вкл/Выкл]')
 	@commands.check(check_owner)
 	async def voicechannel( self, ctx, state: str ):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -150,7 +144,7 @@ class Utils(commands.Cog, name = 'Utils'):
 				emb = discord.Embed(desciption='**На этом сервере приватные голосовые комнаты уже есть**', color=discord.Color.green())
 
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 
 				await ctx.send( embed = emb )
 				await ctx.message.add_reaction('❌')
@@ -167,7 +161,7 @@ class Utils(commands.Cog, name = 'Utils'):
 		else:
 			emb = discord.Embed(title='Ошибка!', desciption='**Вы не правильно указали действие! Укажите on - что бы включить, off - что бы выключить**', color=discord.Color.green())
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
 			return
@@ -176,8 +170,6 @@ class Utils(commands.Cog, name = 'Utils'):
 	@commands.command(aliases=['serverstats'], name = 'server-stats', hidden = True, description = '**Создает статистику сервера**', usage = 'server-stats [Счетчик]')
 	@commands.check(check_owner)
 	async def serverstats( self, ctx, stats_count ):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -195,8 +187,8 @@ class Utils(commands.Cog, name = 'Utils'):
 
 		if stats_count.lower() not in counters.keys():
 			emb = discord.Embed(title='Ошибка!', description='**Вы не правильно указали счетчик. Укажите из этих: bots, all, members, roles, channels**', color=discord.Color.green())
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
 			return
@@ -225,8 +217,6 @@ class Utils(commands.Cog, name = 'Utils'):
 	@commands.cooldown(1, 1800, commands.BucketType.member)
 	@commands.has_permissions(administrator = True)
 	async def mass_role(self, ctx, type_act: str, for_role: discord.Role, role: discord.Role):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -237,10 +227,8 @@ class Utils(commands.Cog, name = 'Utils'):
 						await member.add_roles(role)
 
 			emb = discord.Embed(title = 'Операция добавления роли проведенна успешно', description = f'У пользователей с ролью `{for_role.name}` была добавленна роль - `{role.name}`', colour = discord.Color.green())
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 		elif type_act == 'remove' or type_act == 'del':
 			for member in ctx.guild.members:
@@ -249,25 +237,19 @@ class Utils(commands.Cog, name = 'Utils'):
 						await member.remove_roles(role)
 
 			emb = discord.Embed(title = 'Операция снятия роли проведенна успешно', description = f'У пользователей с ролью `{for_role.name}` была снята роль - `{role.name}`', colour = discord.Color.green())
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 		else:
 			emb = discord.Embed(title = 'Ошибка!', description = f'Вы указали не правильное действие! Укажите add - для добавления, del или remove - для удаления', colour = discord.Color.green())
-			
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 
 
 	@commands.command(brief = 'True', aliases = ['list-moders', 'moders', 'moderators'], name = 'list-moderators', description = '**Показывает список ролей модераторов**', usage = 'list-moderators')
 	@commands.check(check_role)
 	async def list_moderators(self, ctx):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -278,10 +260,8 @@ class Utils(commands.Cog, name = 'Utils'):
 			roles = 'Роли модераторов не настроены'
 
 		emb = discord.Embed(title = 'Роли модераторов', description = roles, colour = discord.Color.green())
-		
-		emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+		emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 		await ctx.send( embed = emb )
 
 def setup( client ):

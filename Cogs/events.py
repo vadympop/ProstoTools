@@ -296,10 +296,14 @@ class Events(commands.Cog, name = 'Events'):
 		if after.status.name == 'offline':
 			print(after.name, 'Change changes status to', after.status.name)
 
+	
+	@commands.Cog.listener()
+	async def on_command(self, ctx):
+		DB().add_amout_command(entity=ctx.command.name)
+
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
-
 		if message.author.bot:
 			return
 		elif not message.guild:

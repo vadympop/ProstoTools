@@ -25,8 +25,6 @@ class Games(commands.Cog, name = 'Games'):
 
 	@commands.command(name = 'create-qrcode', description = '**Закодирует указаный текст в qr-код**', usage = 'create-qrcode [Ваш текст]')
 	async def cr_qr( self, ctx, *, code_text: str ):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -35,17 +33,13 @@ class Games(commands.Cog, name = 'Games'):
 		code_text = f'*{code_text}*'
 
 		emb = discord.Embed( title = 'Функция создания qr-кодов', description = f'**Кодируемый текст:\n{code_text}**', colour = discord.Color.green() )
-		
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 		await ctx.send( embed = emb, content = '**Ваш qr-код**', file = discord.File('./Data/Img/myqr.jpg') )
 
 
 	@commands.command(name = 'dcode-qrcode', description = '**Разкодирует qr-код**', usage = 'dcode-qrcode [Ссылка на изображения]')
 	async def scan_url( self, ctx, url):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -58,20 +52,15 @@ class Games(commands.Cog, name = 'Games'):
 		bs = pyzbar.decode(img)
 		for barcode in bs:
 			bd = barcode.data.decode('utf-8')
-
 			emb = discord.Embed( title = f"Результат разкодировки", description = bd, colour = discord.Color.green() )
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 
 	@commands.command(description = '**Мини ивент, состоящий из угадываний флагов разных стран, количество раундов 7, для игры нужно как минимум два человека**', usage = 'flags')
 	@commands.cooldown(1, 43200, commands.BucketType.member)
 	async def flags( self, ctx ):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -79,82 +68,60 @@ class Games(commands.Cog, name = 'Games'):
 		members = './Data/TempFiles/event.json'
 		dump(members)
 		flags = load(filename)
-
 		count = 1
 
 		emb = discord.Embed( title = f"Правила игры", description = '**1. Нельзя читерить!\n2. Ответ должен быть в течении 4мин, если никто не успел ответить ивент заканчиваеться\n\nЖдем игроков(2мин)...**', colour = discord.Color.green() )
-
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 		embed = await ctx.send( embed = emb )
 		await embed.add_reaction('✅')
 
 		try:
-			reaction, user = await client.wait_for( 'reaction_add', check = lambda reaction, user: reaction.emoji == '✅', timeout = 240.0)
-
+			reaction, user = await self.client.wait_for( 'reaction_add', check = lambda reaction, user: reaction.emoji == '✅', timeout = 240.0)
 		except asyncio.TimeoutError:
-
 			emb = discord.Embed( description = '**Жаль, но ивент отменяеться, так как никто не пришёл...**', colour = discord.Color.green() )
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			embed = await ctx.send( embed = emb )
 		else:
-
 			while reaction.count <= 3:
-				reaction, user = await client.wait_for( 'reaction_add', check = lambda reaction, user: reaction.emoji == '✅' and reaction.count >= 3 )
+				reaction, user = await self.client.wait_for( 'reaction_add', check = lambda reaction, user: reaction.emoji == '✅' and reaction.count >= 3 )
 
 				if reaction.emoji == '✅' and reaction.count >= 3:
 					await asyncio.sleep(5)
 					while count <= 6:
-
 						otvet = random.choice(flags['Флаги'])
-
 						emb = discord.Embed( title = f"Флаг {count}", colour = discord.Color.green() )
-
 						emb.set_image(url = otvet['url'])
 						emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+						emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 						await ctx.send(embed = emb)
 
 						def check( m ):
 							return m.content == otvet['answer'] and ctx.channel == ctx.channel
 
 						try:
-							msg = await client.wait_for( 'message', check = check, timeout = 120.0 )
+							msg = await self.client.wait_for( 'message', check = check, timeout = 120.0 )
 						except asyncio.TimeoutError:
-
 							emb = discord.Embed( description = '**Никто не успел ответить... Ивент закончен прежде временно**', colour = discord.Color.green() )
-
 							emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-							emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+							emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 							await ctx.send(embed = emb)
 							break
 						else:
-
 							emb = discord.Embed( title = "Правильный ответ!", colour = discord.Color.green() )
-
 							emb.add_field( name = "Ответил:", value = f"{msg.author.mention}" )
 							emb.add_field( name = "Правильный ответ:", value = f"{otvet['answer']}" )
-
-							emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-							emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+							emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+							emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 							await ctx.send(embed = emb)
 
 							count = count + 1
 							await asyncio.sleep(1)
-
 							if count == 7:
 								emb = discord.Embed( title = "Конец игры!", description = f"Ивент был проведён {ctx.author.mention}, и мы всем желаем удачи! Спасибо за участие!", colour = discord.Color.green() )
-								
-								emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-								emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+								emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+								emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 								await ctx.send( embed = emb )
 				else:
 					print(f'Else\nReaction - {reaction}')
@@ -162,37 +129,27 @@ class Games(commands.Cog, name = 'Games'):
 
 	@commands.command(description = '**Википедия, расказывает о вашем запросе**', usage = 'wiki [Ваш запрос]')
 	async def wiki( self, ctx, *, text ):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		try:
 			wikipedia.set_lang("ru")
-
 			new_page = wikipedia.page(text)
 			summ = wikipedia.summary(text)
 
 			emb = discord.Embed( title = new_page.title, description = summ, color = discord.Color.green() )
-			
 			emb.set_author( name = 'Больше информации тут! Кликай!', url = new_page.url, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 		except:
-
 			emb = discord.Embed( description = '**О вашем запросе ничего не нашлось**', color = discord.Color.green() )
-			
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 
 	@commands.command( name = '8ball', description = '**Магический шар предсказаний**', usage = '8ball [Ваш вопрос]')
 	async def magic_ball( self, ctx, *, msg ):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -204,124 +161,91 @@ class Games(commands.Cog, name = 'Games'):
 
 		if rand_num == 1:
 			choice_1 = random.choice(phrases_1)
-
 			emb = discord.Embed( title = 'Мой ответ на ваш вопрос', description = f'**{choice_1}**', color = discord.Color.green() )
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
-
 		elif rand_num == 2:
 			choice_2 = random.choice(phrases_2)
-
 			emb = discord.Embed( title = 'Мой ответ на ваш вопрос', description = f'**{choice_2}**', color = discord.Color.green() )
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
-
 		elif rand_num == 3:
 			choice_3 = random.choice(phrases_3)
-
 			emb = discord.Embed( title = 'Мой ответ на ваш вопрос', description = f'**{choice_3}**', color = discord.Color.green() )
-			
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 
 	@commands.command(description = '**Рандомная картинка собаки**', usage = 'dog')
 	async def dog(self, ctx):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		response = requests.get('https://some-random-api.ml/img/dog')
 		json_data = json.loads(response.text)
 		url = json_data['link']
 
 		emb = discord.Embed( color = discord.Color.green())
 		emb.set_image( url = url)
-
 		emb.set_author( name = 'Собачка', icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 		await ctx.send( embed = emb)
 
 
 	@commands.command(description = '**Рандомная картинка кошки**', usage = 'cat')
 	async def cat(self, ctx):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		response = requests.get('https://some-random-api.ml/img/cat')
 		json_data = json.loads(response.text)
 		url = json_data['link']
 
 		emb = discord.Embed( color = discord.Color.green())
 		emb.set_image( url = url)
-
 		emb.set_author( name = 'Кошечка :3', icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 		await ctx.send( embed = emb)
 	
 
 	@commands.command(description = '**Рандомная картинка лисы**', usage = 'fox')
 	async def fox(self, ctx):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		response = requests.get('https://some-random-api.ml/img/fox')
 		json_data = json.loads(response.text)
 		url = json_data['link']
 
 		emb = discord.Embed( color = discord.Color.green())
 		emb.set_image( url = url)
-
 		emb.set_author( name = 'Лиса', icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 		await ctx.send( embed = emb)
 
 
 	@commands.command(description = '**Рандомная картинка птички**', usage = 'bird')
 	async def bird(self, ctx):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		response = requests.get('https://some-random-api.ml/img/birb')
 		json_data = json.loads(response.text)
 		url = json_data['link']
 
 		emb = discord.Embed( color = discord.Color.green())
 		emb.set_image( url = url)
-
 		emb.set_author( name = 'Птичка', icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 		await ctx.send( embed = emb)
 
 
 	@commands.command(description = '**Рандомная картинка коалы**', usage = 'koala')
 	async def koala(self, ctx):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		response = requests.get('https://some-random-api.ml/img/koala')
 		json_data = json.loads(response.text)
 		url = json_data['link']
 
 		emb = discord.Embed( color = discord.Color.green())
 		emb.set_image( url = url)
-
 		emb.set_author( name = 'Коала', icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 		await ctx.send( embed = emb)
 
 
 	@commands.command(description = '**Рандомный мем**', usage = 'meme')
 	async def meme(self, ctx):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		url = 'https://pda.anekdot.ru/random/mem/'
 		headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0'}
 		html = requests.get(url, headers = headers).text
@@ -338,10 +262,8 @@ class Games(commands.Cog, name = 'Games'):
 
 		emb = discord.Embed( color = discord.Color.green())
 		emb.set_image( url = random.choice(images))
-
 		emb.set_author( name = 'Мем года', icon_url = ctx.author.avatar_url )
-		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 		await ctx.send( embed = emb)
 
 

@@ -27,24 +27,20 @@ class Works(commands.Cog, name = 'Works'):
 	@commands.group()
 	@commands.cooldown(2, 7200, commands.BucketType.member)
 	async def work( self, ctx ):
-		client = self.client
-		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
 		if ctx.invoked_subcommand is None:
 			self.work.reset_cooldown(ctx)
 			emb = discord.Embed( title = 'Список работ', description = f'**Грузчик - {self.client.get_guild_prefix(ctx)}work loader**\nДля работы нужно иметь более 3-го уровня и перчатки, кулдавн 3 часа после двух попыток, зарабатывает от 80$ до 100$\n\n**Охотник за кладом - {self.client.get_guild_prefix(ctx)}work treasure-hunter**\nДля работы нужен металоискатель(любого уровня), кулдавн 5 часов, может ничего не найти(0$, металоискатель 2-го уровня повышает шанс найти клад на 30%), если найдёт от 1$ до 500$\n\n**Барман - {self.client.get_guild_prefix(ctx)}work barman**\nДля работы нужно иметь более 4-го уровня, кулдавн 3 часа, зарабатывает от 150 до 200\n\n**Уборщик - {self.client.get_guild_prefix(ctx)}work cleaner**\nДля повышения эфективности работы нужно иметь веник или швабру, кулдавн 2 часа после 3 попыток\n\n**Мойщик окон - {self.client.get_guild_prefix(ctx)}work window-washer**\nДля работы нужно иметь более 5-го уровня, кулдавн 5 часов, от 250$ до 300$, может упасть и потерять 300$', colour = discord.Color.green() )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 
 	@work.command()
 	@commands.cooldown(2, 10800, commands.BucketType.member)
 	async def loader( self, ctx ):
-		client = self.client
-
 		data = DB().sel_user(target = ctx.author)
 		lvl_member = data['lvl']
 		rand_num = randint( 80, 100 )
@@ -61,34 +57,26 @@ class Works(commands.Cog, name = 'Works'):
 					self.conn.commit()
 
 					emb = discord.Embed( description = f'**За работу вы получили: {rand_num}$. Продолжайте стараться!**', colour = discord.Color.green() )
-
-					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+					emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 					await ctx.send( embed = emb )
 				else:
 					emb = discord.Embed( description = '**У вас нет необходимых предметов!**', colour = discord.Color.green() )
-
-					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+					emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 					await ctx.send( embed = emb )
 					return
 			else:
 				emb = discord.Embed( description = '**У вас не достаточний уровень для этой работы!**', colour = discord.Color.green() )
-
-				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+				emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 				await ctx.send( embed = emb )
 				return
 
 		elif cur_state_pr:
 			emb = discord.Embed( description = '**Вы сейчас в тюрме. На эту работу нельзя выходить во время заключения!**', colour = discord.Color.green() )
-
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 			return
 
@@ -96,8 +84,6 @@ class Works(commands.Cog, name = 'Works'):
 	@work.command(aliases = ['treasure-hunter'])
 	@commands.cooldown(1, 18000, commands.BucketType.member)
 	async def treasurehunter( self, ctx ):
-		client = self.client
-
 		data = DB().sel_user(target = ctx.author)
 		lvl_member = data['lvl']
 		cur_state_pr = data['prison']
@@ -130,59 +116,44 @@ class Works(commands.Cog, name = 'Works'):
 					if "metal_1" in cur_items and "metal_2" in cur_items:
 						msg_content = func_trHunt( 20 )
 						emb = discord.Embed( description = msg_content, colour = discord.Color.green() )
-
-						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+						emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+						emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 						await ctx.send( embed = emb )
 					elif "metal_1" in cur_items:
 						msg_content = func_trHunt( 50 )
-
 						emb = discord.Embed( description = msg_content, colour = discord.Color.green() )
-
-						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+						emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+						emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 						await ctx.send( embed = emb )
 					elif "metal_2" in cur_items:
 						msg_content = func_trHunt( 20 )
-
 						emb = discord.Embed( description = msg_content, colour = discord.Color.green() )
-
-						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+						emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+						emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 						await ctx.send( embed = emb )
 					else:
 						emb = discord.Embed( description = '**У вас нет не обходимых предметов, метало искателей! Купите метало искатель!**', colour = discord.Color.green() )
-
-						emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-						emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+						emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+						emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 
 						await ctx.send( embed = emb )
 						return
 				elif cur_items == []:
 					emb = discord.Embed( description = '**У вас нет не обходимых предметов, метало искателей! Купите метало искатель!**', colour = discord.Color.green() )
-
-					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+					emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 					await ctx.send( embed = emb )
 					return
 			else:
 				emb = discord.Embed( description = '**У вас не достаточний уровень для этой работы!**', colour = discord.Color.green() )
-
-				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+				emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 				await ctx.send( embed = emb )
 				return
 		elif cur_state_pr:
 			emb = discord.Embed( description = '**Вы сейчас в тюрме. На эту работу нельзя выходить во время заключения!**', colour = discord.Color.green() )
-
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 			return
 
@@ -190,16 +161,13 @@ class Works(commands.Cog, name = 'Works'):
 	@work.command()
 	@commands.cooldown(2, 10800, commands.BucketType.member)
 	async def barman( self, ctx ):
-		client = self.client
-
 		data = DB().sel_user(target = ctx.author)
 		lvl_member = data['lvl']
 		rand_num = 150 + randint( 0, 50 )
 		cur_state_pr = data['prison']
 
-		if cur_state_pr == False:
+		if not cur_state_pr:
 			if lvl_member >= 4:
-
 				sql = ("""UPDATE users SET money = money + %s WHERE user_id = %s AND guild_id = %s""")
 				val = (rand_num, ctx.author.id, ctx.guild.id)
 
@@ -207,25 +175,19 @@ class Works(commands.Cog, name = 'Works'):
 				self.conn.commit()
 
 				emb = discord.Embed( description = f'**За сегодняшнюю работу в баре: {rand_num}$. Не употребляйте много алкоголя :3**', colour = discord.Color.green() )
-
-				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+				emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 				await ctx.send( embed = emb )
 			else:
 				emb = discord.Embed( description = '**У вас не достаточний уровень для этой работы!**', colour = discord.Color.green() )
-
-				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+				emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 				await ctx.send( embed = emb )
 				return
-		elif cur_state_pr == True:
+		elif cur_state_pr:
 			emb = discord.Embed( description = '**Вы сейчас в тюрме. На эту работу нельзя выходить во время заключения!**', colour = discord.Color.green() )
-
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 			return
 
@@ -233,8 +195,6 @@ class Works(commands.Cog, name = 'Works'):
 	@work.command()
 	@commands.cooldown(3, 7200, commands.BucketType.member)
 	async def cleaner( self, ctx ):
-		client = self.client
-
 		data = DB().sel_user(target = ctx.author)
 		cur_items = data['items']
 		cur_state_pr = data['prison']
@@ -251,56 +211,43 @@ class Works(commands.Cog, name = 'Works'):
 			msg_content = f'**За сегодняшнюю уборку вы получили: {rnum}$**'
 			return msg_content
 
-		if cur_items != None:
+		if cur_items is not None:
 			if "broom" in cur_items:
 				msg = cleaner_func( 50, 60 )
 				emb = discord.Embed( description = msg, colour = discord.Color.green() )
-
-				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+				emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 				await ctx.send( embed = emb )
 			elif "mop" in cur_items:
 				msg = cleaner_func( 60, 80 )
 				emb = discord.Embed( description = msg, colour = discord.Color.green() )
-
-				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+				emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 				await ctx.send( embed = emb )
-
 			elif "mop" in cur_items and "broom" in cur_items:
 				msg = cleaner_func( 60, 80 )
 				emb = discord.Embed( description = msg, colour = discord.Color.green() )
-
-				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+				emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 				await ctx.send( embed = emb )
 			else:
 				msg = cleaner_func( 40, 50 )
 				emb = discord.Embed( description = msg, colour = discord.Color.green() )
-
-				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+				emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 				await ctx.send( embed = emb )
 		elif cur_items == []:
 			msg = cleaner_func( 40, 50 )
 			emb = discord.Embed( description = msg, colour = discord.Color.green() )
-
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 
 		if cur_state_pr == True and data['money'] > 0:
 			emb = discord.Embed( description = '**Вы успешно погасили борг и выйшли с тюрмы!**', colour = discord.Color.green() )
-
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 			sql = ("""UPDATE users SET prison = %s WHERE user_id = %s AND guild_id = %s""")
@@ -313,32 +260,25 @@ class Works(commands.Cog, name = 'Works'):
 	@work.command(aliases = ['window-washer'])
 	@commands.cooldown(1, 18000, commands.BucketType.member)
 	async def windowasher( self, ctx ):
-		client = self.client
-
 		data = DB().sel_user(target = ctx.author)
 		lvl_member = data['lvl']
 		rand_num_1 = randint( 1, 2 )
 		cur_state_pr = data['prison']
 
-		if cur_state_pr == False:
+		if not cur_state_pr:
 			if lvl_member >= 5:
 				if rand_num_1 == 1:
 					rand_num_2 = randint( 250, 300 )
 					cur_money = data['money'] + rand_num_2
 					emb = discord.Embed( description = f'**За мойку окон на высоком здании в получили {rand_num_2}$**', colour = discord.Color.green() )
-
-					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+					emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 					await ctx.send( embed = emb )
-
 				elif rand_num_1 == 2:
 					cur_money = data['money'] - 300
 					emb = discord.Embed( description = f'**Вы упали и потеряли 300$**', colour = discord.Color.green() )
-
-					emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+					emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+					emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 					await ctx.send( embed = emb )
 
 				sql = ("""UPDATE users SET money = %s WHERE user_id = %s AND guild_id = %s""")
@@ -349,20 +289,15 @@ class Works(commands.Cog, name = 'Works'):
 
 			else:
 				emb = discord.Embed( description = '**У вас не достаточний уровень для этой работы!**', colour = discord.Color.green() )
-
-				emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-				emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+				emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 				await ctx.send( embed = emb )
 				return
-		elif cur_state_pr == True:
+		elif cur_state_pr:
 			emb = discord.Embed( description = '**Вы сейчас в тюрме. На эту работу нельзя выходить во время заключения!**', colour = discord.Color.green() )
-
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
-
 			return
 
 

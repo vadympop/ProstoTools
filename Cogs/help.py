@@ -91,7 +91,6 @@ class Help(commands.Cog, name = 'Help'):
 	@commands.command()
 	async def help(self, ctx, cog_name = None):
 		purge = self.client.clear_commands(ctx.guild)
-		DB().add_amout_command(entity=ctx.command.name)
 		await ctx.channel.purge( limit = purge )
 		exceptions = ['Help', 'Loops', 'Events', 'Owner', 'Errors']
 		groups = ['settings', 'works']
@@ -155,7 +154,6 @@ class Help(commands.Cog, name = 'Help'):
 						if not command.hidden:
 							if command.brief != 'True':
 								commands, count, group_name = add_command_loop(command, commands, count, group_name)
-
 								count += 1
 								if count >= locks[soft_cog_name]:
 									count = 0
@@ -169,7 +167,6 @@ class Help(commands.Cog, name = 'Help'):
 								
 								if state or ctx.author == ctx.guild.owner or ctx.author.guild_permissions.administrator:
 									commands, count, group_name = add_command_loop(command, commands, count, group_name)
-
 									count += 1
 									if count >= locks[soft_cog_name]:
 										count = 0
@@ -177,13 +174,11 @@ class Help(commands.Cog, name = 'Help'):
 						else:
 							if ctx.author.guild_permissions.administrator:
 								commands, count, group_name = add_command_loop(command, commands, count, group_name)
-
 								count += 1
 								if count >= locks[soft_cog_name]:
 									count = 0
 									commands += '`\n`'
 					if commands != '':
-
 						if soft_cog_name.lower() in groups:
 							value = f'` {group_name.lower()}: {commands}`'
 						else:
@@ -193,16 +188,13 @@ class Help(commands.Cog, name = 'Help'):
 
 			emb_1.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 			emb_1.set_footer( text = f'Вызвал: {ctx.author.name}', icon_url = ctx.author.avatar_url )
-
 			await ctx.send(embed = emb_1)
 			return
 
 		if cog_name.capitalize() not in self.client.cogs:
 			emb = discord.Embed(title = 'Ошибка!', description = 'Такой категории нет, введите названия правильно. Список доступных категорий: different, economy, moderate, games, settings, utils, works', colour = discord.Color.green())
-			
 			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-
 			await ctx.send(embed = emb)
 			return
 
@@ -210,10 +202,8 @@ class Help(commands.Cog, name = 'Help'):
 		cog = self.client.get_cog(cog_name.capitalize())
 		for c in cog.get_commands():
 			emb_2.add_field(name = f'{Prefix}{c.usage}', value = f'{c.description[2:-2]}.', inline = False)
-
 		emb_2.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 		emb_2.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-
 		await ctx.send(embed = emb_2)	
 
 

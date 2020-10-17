@@ -32,11 +32,6 @@ class Errors(commands.Cog, name = 'Errors'):
 
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, error):
-		try:
-			DB().add_amout_command(entity=ctx.command.name)
-		except:
-			pass
-		client = self.client
 		now_date = str(datetime.datetime.today())[:-16]
 		filename = f'./Data/Logs/log-{now_date}.txt'
 		space = ''
@@ -63,54 +58,54 @@ class Errors(commands.Cog, name = 'Errors'):
 				emb = discord.Embed( title = 'Ошибка!', description = f'**Кулдавн в команде еще не прошёл! Подождите {int(retry_after / 60)} минут**', colour = discord.Color.green() )
 			elif retry_after > 1800:
 				emb = discord.Embed( title = 'Ошибка!', description = f'**Кулдавн в команде еще не прошёл! Подождите {int(retry_after / 60 / 24)} часа**', colour = discord.Color.green() )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 		elif isinstance( error, commands.errors.MissingRequiredArgument ):
 			await ctx.message.add_reaction('❌')
 			emb = discord.Embed( title = 'Ошибка!', description = f'**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указаной команде!**', colour = discord.Color.green() )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 		elif isinstance( error, commands.errors.CommandNotFound ):
 			pass
 		elif isinstance( error, commands.errors.NotOwner ):
 			emb = discord.Embed( title = 'Ошибка!', description = '**Вы неявляетесь создателем бота! Эта команда только для создателей!**', colour = discord.Color.green() )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 		elif isinstance( error, commands.errors.MissingPermissions ):
 			emb = discord.Embed( title = 'Ошибка!', description = '**У вас не достаточно прав! Для этой команды нужны права администратора**', colour = discord.Color.green() )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 		elif isinstance( error, commands.errors.BadArgument ):
 			emb = discord.Embed( title = 'Ошибка!', description = '**Указан не правильный аргумент!**', colour = discord.Color.green() )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 		elif isinstance(error, commands.errors.BotMissingPermissions):
 			owner = get( ctx.guild.members, id = ctx.guild.owner_id)
 			emb_err = discord.Embed( title = 'Ошибка!', description = f"У бота отсутствуют права: {' '.join(error.missing_perms)}\nВыдайте их ему для полного функционирования бота" , colour = discord.Color.green() )
-			emb_err.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb_err.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb_err.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb_err.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await owner.send(embed = emb_err)
 		elif isinstance(error, jinja2.exceptions.TemplateError):
 			emb = discord.Embed( title = 'Ошибка!', description = error, colour = discord.Color.green() )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 		elif isinstance(error, commands.errors.CheckFailure):
 			pass
 		elif isinstance(error, jinja2.exceptions.UndefinedError):
 			emb = discord.Embed( title = 'Ошибка!', description = error, colour = discord.Color.green() )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 		elif isinstance(error, commands.errors.MemberNotFound):
 			emb = discord.Embed( title = 'Ошибка!', description = '**Указаный пользователь не найден!**', colour = discord.Color.green() )
-			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 		# elif isinstance(error, commands.errors.CommandInvokeError):
 		# 	pass
