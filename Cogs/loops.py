@@ -25,6 +25,7 @@ class Loops(commands.Cog, name = 'Loops'):
 		self.vmute_loop.start()
 		self.update_messages_loop.start()
 		self.ping_stat_loop.start()
+		self.server_stats.start()
 		self.FOOTER = configs['FOOTER_TEXT']
 
 
@@ -129,21 +130,51 @@ class Loops(commands.Cog, name = 'Loops'):
 	
 	@tasks.loop(seconds=86400)
 	async def update_messages_loop(self):
-		self.cursor.execute("""SELECT user_id, messages FROM users""")
+		self.cursor.execute("""SELECT user_id, guild_id, messages FROM users""")
 		data = self.cursor.fetchall()
 
 		for profile in data:
 			if profile != []:
-				all_message = json.loads(profile[1])[1]
-				print(all_message)
-				sql = ("""UPDATE users SET messages = %s WHERE user_id = %s""")
-				val = (json.dumps([0, all_message, None]), profile[0])
-				print(val)
+				all_message = json.loads(profile[2])[1]
+				sql = ("""UPDATE users SET messages = %s WHERE user_id = %s AND guild_id = %s""")
+				val = (json.dumps([0, all_message, None]), profile[0], profile[1])
 
 				self.cursor.execute(sql, val)
 				self.conn.commit()
 
+	
+	@tasks.loop(minutes=10)
+	async def server_stats(self):
+		self.cursor.execute("""SELECT guild_id, server_stats FROM guilds""")
+		data = self.cursor.fetchall()
+		data = [(stat[0], json.loads(stat[1])) for stat in data]
 
+		for stat in data:
+			if stat[1] != {}:
+				print(stat[1])
+				for stat_type, channel_id in stat[1].items():
+					guild = self.client.get_guild(stat[0])
+					if guild:
+						counters = {
+							'members': len([member.id for member in guild.members if not member.bot and member.id != self.client.user.id]),
+							'bots': len([bot.id for bot in guild.members if bot.bot]),
+							'channels': len([channel.id for channel in guild.channels]),
+							'roles': len([role.id for role in guild.roles]),
+							'all': guild.member_count
+						}
+						counter = counters[stat_type]
+						channel = guild.get_channel(channel_id)
+						channel_name_chars = list(channel.name)
+						numbers = []
+						for char in channel_name_chars:
+							if char.isdigit():
+								print(char, '- Char')
+								numbers.append(channel_name_chars.index(char))
+								channel_name_chars.pop(channel_name_chars.index(char))
+						
+						print(numbers)
+
+					
 def setup( client ):
 	client.add_cog(Loops(client))
 		

@@ -50,10 +50,8 @@ class Utils(commands.Cog, name = 'Utils'):
 
 		if mode == 1:
 			emb = discord.Embed( title = f'**Уставлен анти-рейд режим 1-го уровня на {time}мин**', colour = discord.Color.green() )
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 
 			await ctx.guild.edit( verification_level = discord.VerificationLevel.medium )
@@ -67,10 +65,8 @@ class Utils(commands.Cog, name = 'Utils'):
 				await k.edit( slowmode_delay = 0 )
 		elif mode == 2:
 			emb = discord.Embed( title = f'**Уставлен анти-рейд режим 2-го уровня на {time}мин**', colour = discord.Color.green() )
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 
 			await ctx.guild.edit( verification_level = discord.VerificationLevel.high )
@@ -84,10 +80,8 @@ class Utils(commands.Cog, name = 'Utils'):
 				await k.edit( slowmode_delay = 0 )
 		elif mode == 3:
 			emb = discord.Embed( title = f'**Уставлен анти-рейд режим 3-го уровня на {time}мин**', colour = discord.Color.green() )
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 
 			await ctx.guild.edit( verification_level = discord.VerificationLevel.extreme )
@@ -113,10 +107,8 @@ class Utils(commands.Cog, name = 'Utils'):
 
 		if banned_users == []:
 			emb = discord.Embed( title = 'На этом сервере нету заблокированых участников', colour = discord.Color.green() )
-			
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-			
 			await ctx.send( embed = emb )
 		else:
 			emb = discord.Embed( title = 'Список заблокированных участников', colour = discord.Color.green() )
@@ -124,7 +116,6 @@ class Utils(commands.Cog, name = 'Utils'):
 				emb.add_field( name = f'Участник: {user.user}', value = f'**Причина бана: {user.reason}**' )
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-			
 			await ctx.send( embed = emb )
 
 
@@ -175,10 +166,8 @@ class Utils(commands.Cog, name = 'Utils'):
 				self.conn.commit()
 		else:
 			emb = discord.Embed(title='Ошибка!', desciption='**Вы не правильно указали действие! Укажите on - что бы включить, off - что бы выключить**', color=discord.Color.green())
-
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
 			return
@@ -192,10 +181,10 @@ class Utils(commands.Cog, name = 'Utils'):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
-		members_count = len(' '.join(str(member.id) for member in ctx.guild.members if not member.bot and member.id != self.client.user.id).split(' '))
-		bots_count = len(' '.join(str(bot.id) for bot in ctx.guild.members if bot.bot).split(' '))
-		channels_count = len(' '.join(str(channel.id) for channel in ctx.guild.channels).split(' '))
-		roles_count = len(' '.join(str(role.id) for role in ctx.guild.roles).split(' '))
+		members_count = len([member.id for member in ctx.guild.members if not member.bot and member.id != self.client.user.id])
+		bots_count = len([bot.id for bot in ctx.guild.members if bot.bot])
+		channels_count = len([channel.id for channel in ctx.guild.channels])
+		roles_count = len([role.id for role in ctx.guild.roles])
 		counters = {
 			'all': ['Пользователей', ctx.guild.member_count],
 			'bots': ['Ботов', bots_count],
@@ -206,10 +195,8 @@ class Utils(commands.Cog, name = 'Utils'):
 
 		if stats_count.lower() not in counters.keys():
 			emb = discord.Embed(title='Ошибка!', description='**Вы не правильно указали счетчик. Укажите из этих: bots, all, members, roles, channels**', color=discord.Color.green())
-
 			emb.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-
 			await ctx.send( embed = emb )
 			await ctx.message.add_reaction('❌')
 			return
