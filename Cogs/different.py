@@ -129,13 +129,9 @@ class Different(commands.Cog, name = 'Different'):
 		created_at_en = datetime.strftime(member.created_at, '%d %B %Y %X')
 		created_at = t.translate(created_at_en, dest='ru', src='en').text
 
-
-		def get_bio():
-			if data['bio'] == '':
-				return ''
-			else:
-				bio = data['bio']
-				return f'\n\n**Краткая информация о пользователе:**\n{bio}\n\n'
+		get_bio = lambda: '' if data['bio'] == '' else f"""\n\n**Краткая информация о пользователе:**\n{data['bio']}\n\n"""
+		activity = member.activity
+		get_activity = lambda: '' if not activity else f'\n**Пользовательский статус**: {activity.name}'
 
 		statuses = {
 			'dnd': '<:dnd:730391353929760870> - Не беспокоить',
@@ -148,7 +144,7 @@ class Different(commands.Cog, name = 'Different'):
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_thumbnail( url = member.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
-		emb.add_field( name = 'Основная информация', value = f'{get_bio()}**Имя пользователя:** {member}\n**Статус:** {statuses[member.status.name]}\n**Id пользователя:** {member.id}\n**Акаунт созданн:** {created_at}\n**Присоиденился:** {joined_at}\n**Сообщений:** {all_message}', inline = False )
+		emb.add_field( name = 'Основная информация', value = f'{get_bio()}**Имя пользователя:** {member}\n**Статус:** {statuses[member.status.name]}{get_activity()}\n**Id пользователя:** {member.id}\n**Акаунт созданн:** {created_at}\n**Присоиденился:** {joined_at}\n**Сообщений:** {all_message}', inline = False )
 		await ctx.send( embed = emb )  
 
 
@@ -457,7 +453,7 @@ class Different(commands.Cog, name = 'Different'):
 
 	
 	@commands.command(description = '**Устанавливает краткое описания о вас**', usage = 'bio [Текст]')
-	async def bio( self, ctx, *, text: str ):
+	async def bio( self, ctx, *, text: str = None ):
 		DB().add_amout_command(entity=ctx.command.name)
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -465,6 +461,15 @@ class Different(commands.Cog, name = 'Different'):
 		if len(text) > 1000:
 			await ctx.message.add_reaction('❌')
 			return
+
+		if not text:
+			sql = ("""UPDATE users SET bio = %s WHERE user_id = %s""")
+			val = ('', ctx.author.id)
+
+			self.cursor.execute(sql, val)
+			self.conn.commit()
+
+			await ctx.message.add_reaction('✅')
 
 		sql = ("""UPDATE users SET bio = %s WHERE user_id = %s""")
 		val = (text, ctx.author.id)
