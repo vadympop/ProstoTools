@@ -155,24 +155,26 @@ class Loops(commands.Cog, name = 'Loops'):
 				for stat_type, channel_id in stat[1].items():
 					guild = self.client.get_guild(stat[0])
 					if guild:
-						counters = {
-							'members': len([member.id for member in guild.members if not member.bot and member.id != self.client.user.id]),
-							'bots': len([bot.id for bot in guild.members if bot.bot]),
-							'channels': len([channel.id for channel in guild.channels]),
-							'roles': len([role.id for role in guild.roles]),
-							'all': guild.member_count
-						}
-						counter = counters[stat_type]
-						channel = guild.get_channel(channel_id)
-						channel_name_chars = list(channel.name)
-						numbers = []
-						for char in channel_name_chars:
-							if char.isdigit():
-								print(char, '- Char')
-								numbers.append(channel_name_chars.index(char))
-								channel_name_chars.pop(channel_name_chars.index(char))
-						
-						print(numbers)
+						try:
+							counters = {
+								'members': len([member.id for member in guild.members if not member.bot and member.id != self.client.user.id]),
+								'bots': len([bot.id for bot in guild.members if bot.bot]),
+								'channels': len([channel.id for channel in guild.channels]),
+								'roles': len([role.id for role in guild.roles]),
+								'all': guild.member_count
+							}
+							counter = counters[stat_type]
+							channel = guild.get_channel(channel_id)
+							if counter >= 100:
+								stats_channel_name = channel.name[6:]
+							elif counter >= 10:
+								stats_channel_name = channel.name[5:]
+							elif counter < 10:
+								stats_channel_name = channel.name[4:]
+
+							await channel.edit( name = f'[{counter}] {stats_channel_name}' )
+						except:
+							pass
 
 					
 def setup( client ):

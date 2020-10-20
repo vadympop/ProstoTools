@@ -1626,6 +1626,28 @@ class Economy(commands.Cog, name = 'Economy'):
 			drawer.ellipse(xy=[x0+40, y0+40, x0+40, y0+40], fill='#f3f598')
 
 			return image
+
+		def get_width_progress_bar(percent):
+			if len(str(percent)) == 1:
+				width = 800
+			elif len(str(percent)) == 2:
+				width = 785
+			elif len(str(percent)) == 3:
+				width = 770
+
+			return width
+
+		def get_width_info_exp(data):
+			if len(str(data)) == 1:
+				width = 720
+			elif len(str(data)) == 2:
+				width = 690
+			elif len(str(data)) == 3:
+				width = 650
+			elif len(str(data)) == 4:
+				width = 610
+
+			return width
 			
 		colours = {
 			'green': ['#b8f9ff', '#b8f9ff'],
@@ -1655,6 +1677,7 @@ class Economy(commands.Cog, name = 'Economy'):
 		user_profile = user_data['profile']
 		level_exp = math.floor(9 * (user_level ** 2) + 50 * user_level + 125 * multi)
 		previus_level_exp = math.floor(9 * ((user_level - 1) ** 2) + 50 * (user_level - 1) + 125 * multi)
+		progress_bar_percent = round(((level_exp - user_exp) / (level_exp - previus_level_exp)) * 100)
 		user_image_status = Image.open(self.BACKGROUND[:-8]+statuses[member.status.name]+'.png')
 
 		if user_state_prison:
@@ -1686,8 +1709,9 @@ class Economy(commands.Cog, name = 'Economy'):
 		idraw.text((230, 191), f'Монет: {user_coins}', font = midletext, fill = colours[user_profile][0] )
 		idraw.text((230, 225), f'Денег: {user_money}$', font = midletext, fill = colours[user_profile][0])
 		idraw.rectangle((230, 280, 855, 335), fill='#909090')
-		draw_progress(img, round( ((level_exp - user_exp) / (level_exp - previus_level_exp)) * 100))
-		idraw.text((500, 295), f'{round(level_exp - previus_level_exp)}/{round(level_exp - user_exp)}', font=midletext, fill='#444')
+		draw_progress(img, progress_bar_percent)
+		idraw.text((get_width_info_exp(round(level_exp - previus_level_exp)), 240), f'{round(level_exp - previus_level_exp)}/{round(level_exp - user_exp)} exp', font=midletext, fill='#444')
+		idraw.text((get_width_progress_bar(100 - progress_bar_percent), 295), f'{100 - progress_bar_percent}%', font=midletext, fill='#444')
 		idraw.text((15, 355), self.FOOTER, font = midletext)
 
 		img.save(self.SAVE)
