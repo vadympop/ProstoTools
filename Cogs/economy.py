@@ -6,6 +6,7 @@ import random
 import requests
 import asyncio
 import typing
+import math
 import io
 import mysql.connector
 from Tools.database import DB
@@ -14,7 +15,7 @@ from discord.ext import commands, tasks
 from discord.utils import get
 from discord.voice_client import VoiceClient
 from discord.ext.commands import Bot
-from PIL import Image, ImageFont, ImageDraw, ImageFilter, ImageEnhance
+from PIL import Image, ImageFont, ImageDraw, ImageFilter, ImageEnhance, ImageOps
 from random import randint
 from configs import configs
 
@@ -1601,14 +1602,31 @@ class Economy(commands.Cog, name = 'Economy'):
 			await ctx.message.add_reaction('❌')
 			return
 
-		def crop(im, s):
-			w, h = im.size
-			k = w / s[0] - h / s[1]
-			if k > 0: im = im.crop(((w - h) / 2, 0, (w + h) / 2, h))
-			elif k < 0: im = im.crop((0, (h - w) / 2, w, (h + w) / 2))
+		def draw_progress(image: Image, percent: int):
+			print(percent)
+			if percent < 0:
+				return image
 
-			return im.resize(s, Image.ANTIALIAS)
+			if percent > 100:
+				percent = 100
 
+			percent = 100 - percent
+			progress_width = 525 * (percent / 100)
+			progress_height = 55
+
+			x0 = 230
+			y0 = 280
+			x1 = x0 + progress_width
+			y1 = y0 + progress_height
+			print(x0, y0, x1, y1)
+			print(percent)
+
+			drawer = ImageDraw.Draw(image)
+			drawer.rectangle(xy=[x0, y0, x1, y1], fill='#f3f598')
+			drawer.ellipse(xy=[x0+40, y0+40, x0+40, y0+40], fill='#f3f598')
+
+			return image
+			
 		colours = {
 			'green': ['#b8f9ff', '#b8f9ff'],
 			'lime': ['#787878', '#787878'],
@@ -1618,11 +1636,15 @@ class Economy(commands.Cog, name = 'Economy'):
 			'red': ['#f3f598', "#595959"],
 			None: ['#787878', '#787878']
 		}
-
+		statuses = {
+			'dnd': 'dnd',
+			'online': 'online',
+			'offline': 'offline',
+			'idle': 'sleep'
+		}
 		user_data = DB().sel_user(target = member)
+		multi = DB().sel_guild(guild=ctx.guild)['exp_multi']
 		user = str(member.name)
-		user_tag = str(member.discriminator)
-		user_id = int(member.id)
 		user_exp = int(user_data['exp'])
 		user_level = int(user_data['lvl'])
 		user_warns = len(user_data['warns'])
@@ -1631,42 +1653,42 @@ class Economy(commands.Cog, name = 'Economy'):
 		user_reputation = int(user_data['reputation'])
 		user_state_prison = user_data['prison']
 		user_profile = user_data['profile']
+		level_exp = math.floor(9 * (user_level ** 2) + 50 * user_level + 125 * multi)
+		previus_level_exp = math.floor(9 * ((user_level - 1) ** 2) + 50 * (user_level - 1) + 125 * multi)
+		user_image_status = Image.open(self.BACKGROUND[:-8]+statuses[member.status.name]+'.png')
 
 		if user_state_prison:
 			user_state_prison = 'Сейчас в тюрме'
 		elif not user_state_prison:
 			user_state_prison = 'На свободе'
 
-		size = (600, 290)
-
 		if not user_profile:  
 			img = Image.open(self.BACKGROUND)
 		elif user_profile:
 			img = Image.open(self.BACKGROUND[:-8]+f"{user_profile}.png")
 
-		img = crop(img, size)
-		responce = Image.open(io.BytesIO(await member.avatar_url.read())).convert('RGBA').resize((100, 100), Image.ANTIALIAS)
-
-		img.paste(responce, (15, 0, 115, 100))
+		user_image_status.thumbnail((40, 40), Image.ANTIALIAS)
+		responce = Image.open(io.BytesIO(await member.avatar_url.read())).convert('RGBA').resize((160, 160), Image.ANTIALIAS)
+		responce = ImageOps.expand(responce, border=10, fill='white')
+		img.paste(responce, (10, 10))
+		img.paste(user_image_status, (160, 160))
 		idraw = ImageDraw.Draw(img)
 
-		bigtext = ImageFont.truetype( self.FONT, size = 34 )
-		midletext = ImageFont.truetype( self.FONT, size = 23)
+		bigtext = ImageFont.truetype(self.FONT, size=56)
+		midletext = ImageFont.truetype(self.FONT, size=40)
 
-		idraw.text((140, 20), u'Профиль {}'.format(user), font = bigtext )
-		idraw.text((140, 60), f'Репутация: {user_reputation}', font = bigtext, fill = 'black' )
-
-		idraw.text((140, 105), f'Тег: {user_tag}', font = midletext, fill = colours[user_profile][0]) 
-		idraw.text((140, 130), f'Id: {user_id}', font = midletext, fill = colours[user_profile][0])
-		idraw.text((140, 155), f'Предупрежденний: {user_warns}', font = midletext, fill = colours[user_profile][0])
-		idraw.text((140, 180), f'Тюрма: {user_state_prison}', font = midletext, fill = colours[user_profile][0])
-
-		idraw.text((405, 105), f'Exp: {user_exp}', font = midletext, fill = colours[user_profile][1])
-		idraw.text((405, 130), f'Уровень: {user_level}', font = midletext, fill = colours[user_profile][1])
-		idraw.text((405, 155), f'Монет: {user_coins}', font = midletext, fill = colours[user_profile][1] )
-		idraw.text((405, 180), f'Денег: {user_money}$', font = midletext, fill = colours[user_profile][1])
-
-		idraw.text((15, 245), self.FOOTER, font = midletext)
+		idraw.text((230, 10), u'Профиль {}'.format(user), font = bigtext, fill='#606060' )
+		idraw.text((230, 60), f'Репутация: {user_reputation}', font = bigtext, fill='#606060' )
+		idraw.text((10, 200), f'Exp: {user_exp}', font = midletext, fill = colours[user_profile][0])
+		idraw.text((10, 230), f'Уровень: {user_level}', font = midletext, fill = colours[user_profile][0])
+		idraw.text((230, 123), f'Предупрежденний: {user_warns}', font = midletext, fill = colours[user_profile][0])
+		idraw.text((230, 157), f'Тюрма: {user_state_prison}', font = midletext, fill = colours[user_profile][0])
+		idraw.text((230, 191), f'Монет: {user_coins}', font = midletext, fill = colours[user_profile][0] )
+		idraw.text((230, 225), f'Денег: {user_money}$', font = midletext, fill = colours[user_profile][0])
+		idraw.rectangle((230, 280, 855, 335), fill='#909090')
+		draw_progress(img, round( ((level_exp - user_exp) / (level_exp - previus_level_exp)) * 100))
+		idraw.text((500, 295), f'{round(level_exp - previus_level_exp)}/{round(level_exp - user_exp)}', font=midletext, fill='#444')
+		idraw.text((15, 355), self.FOOTER, font = midletext)
 
 		img.save(self.SAVE)
 		await ctx.send( file = discord.File( fp = self.SAVE ) )

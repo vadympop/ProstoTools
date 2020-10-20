@@ -161,17 +161,13 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.channel.purge( limit = purge )
 
 		if not member:
-			emb = discord.Embed( title = f'Аватар {ctx.author.name}', colour = discord.Color.green() )
-			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_image( url = ctx.author.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-			await ctx.send( embed = emb )
-		else:
-			emb = discord.Embed( title = f'Аватар {member.name}', colour = discord.Color.green() )
-			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_image( url = member.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-			await ctx.send( embed = emb )
+			member = ctx.author
+
+		emb = discord.Embed( title = f'Аватар {member.name}', colour = discord.Color.green() )
+		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
+		emb.set_image( url = member.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
+		await ctx.send( embed = emb )
 
 
 	@commands.command(name="info-bot", aliases=["botinfo", "infobot", "bot-info"], usage="info-bot", description="Подробная информация о боте")

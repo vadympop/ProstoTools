@@ -160,23 +160,16 @@ class Games(commands.Cog, name = 'Games'):
 		phrases_3 = ["Спроси позже", "Я не уверен в этом", "Я занят!", "Спроси ещё разок", "Не знаю..."]
 
 		if rand_num == 1:
-			choice_1 = random.choice(phrases_1)
-			emb = discord.Embed( title = 'Мой ответ на ваш вопрос', description = f'**{choice_1}**', color = discord.Color.green() )
-			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-			await ctx.send( embed = emb )
+			choice = random.choice(phrases_1)
 		elif rand_num == 2:
-			choice_2 = random.choice(phrases_2)
-			emb = discord.Embed( title = 'Мой ответ на ваш вопрос', description = f'**{choice_2}**', color = discord.Color.green() )
-			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-			await ctx.send( embed = emb )
+			choice = random.choice(phrases_2)
 		elif rand_num == 3:
-			choice_3 = random.choice(phrases_3)
-			emb = discord.Embed( title = 'Мой ответ на ваш вопрос', description = f'**{choice_3}**', color = discord.Color.green() )
-			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-			await ctx.send( embed = emb )
+			choice = random.choice(phrases_3)
+
+		emb = discord.Embed( title = 'Мой ответ на ваш вопрос', description = f'**{choice}**', color = discord.Color.green() )
+		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
+		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
+		await ctx.send( embed = emb )
 
 
 	@commands.command(description = '**Рандомная картинка собаки**', usage = 'dog')
