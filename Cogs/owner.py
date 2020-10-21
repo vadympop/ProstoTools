@@ -55,6 +55,7 @@ class Owner(commands.Cog, name = 'Owner'):
 			'channel': TemplateEngine.Channel(ctx.message.channel),
 			'bot': TemplateEngine.User(self.client.user),
 			'message': TemplateEngine.Message(ctx.message),
+			'attributes': TemplateEngine.Attributes(ctx.args),
 			'len': len,
 			'math': math,
 			'round': round,
@@ -77,6 +78,7 @@ class Owner(commands.Cog, name = 'Owner'):
 			'contains': lambda msg, word: True if word in msg.split(' ') else False,
 		}
 		result = template.render(context)
+		await ctx.send(ctx.kwargs)
 		await ctx.send(result.replace('&lt;', '<').replace('&gt;', '>').replace('&#39;', '"'))
 
 	@commands.command()

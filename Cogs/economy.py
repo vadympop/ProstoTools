@@ -1603,7 +1603,6 @@ class Economy(commands.Cog, name = 'Economy'):
 			return
 
 		def draw_progress(image: Image, percent: int):
-			print(percent)
 			if percent < 0:
 				return image
 
@@ -1615,11 +1614,9 @@ class Economy(commands.Cog, name = 'Economy'):
 			progress_height = 55
 
 			x0 = 230
-			y0 = 280
+			y0 = 285
 			x1 = x0 + progress_width
 			y1 = y0 + progress_height
-			print(x0, y0, x1, y1)
-			print(percent)
 
 			drawer = ImageDraw.Draw(image)
 			drawer.rectangle(xy=[x0, y0, x1, y1], fill='#f3f598')
@@ -1664,6 +1661,13 @@ class Economy(commands.Cog, name = 'Economy'):
 			'offline': 'offline',
 			'idle': 'sleep'
 		}
+		self.cursor.execute("""SELECT user_id FROM users ORDER BY exp DESC""")
+		users_rank = self.cursor.fetchall()
+		for user in users_rank:
+			if user[0] == member.id:
+				user_rank = users_rank.index(user) + 1
+				break
+
 		user_data = DB().sel_user(target = member)
 		multi = DB().sel_guild(guild=ctx.guild)['exp_multi']
 		user = str(member.name)
@@ -1699,19 +1703,21 @@ class Economy(commands.Cog, name = 'Economy'):
 
 		bigtext = ImageFont.truetype(self.FONT, size=56)
 		midletext = ImageFont.truetype(self.FONT, size=40)
+		smalltext = ImageFont.truetype(self.FONT, size=32)
 
 		idraw.text((230, 10), u'Профиль {}'.format(user), font = bigtext, fill='#606060' )
 		idraw.text((230, 60), f'Репутация: {user_reputation}', font = bigtext, fill='#606060' )
 		idraw.text((10, 200), f'Exp: {user_exp}', font = midletext, fill = colours[user_profile][0])
 		idraw.text((10, 230), f'Уровень: {user_level}', font = midletext, fill = colours[user_profile][0])
-		idraw.text((230, 123), f'Предупрежденний: {user_warns}', font = midletext, fill = colours[user_profile][0])
-		idraw.text((230, 157), f'Тюрма: {user_state_prison}', font = midletext, fill = colours[user_profile][0])
-		idraw.text((230, 191), f'Монет: {user_coins}', font = midletext, fill = colours[user_profile][0] )
-		idraw.text((230, 225), f'Денег: {user_money}$', font = midletext, fill = colours[user_profile][0])
-		idraw.rectangle((230, 280, 855, 335), fill='#909090')
+		idraw.text((230, 113), f'Предупрежденний: {user_warns}', font = midletext, fill = colours[user_profile][0])
+		idraw.text((230, 147), f'Тюрма: {user_state_prison}', font = midletext, fill = colours[user_profile][0])
+		idraw.text((230, 181), f'Монет: {user_coins}', font = midletext, fill = colours[user_profile][0] )
+		idraw.text((230, 215), f'Денег: {user_money}$', font = midletext, fill = colours[user_profile][0])
+		idraw.rectangle((230, 285, 855, 340), fill='#909090')
 		draw_progress(img, progress_bar_percent)
-		idraw.text((get_width_info_exp(round(level_exp - previus_level_exp)), 240), f'{round(level_exp - previus_level_exp)}/{round(level_exp - user_exp)} exp', font=midletext, fill='#444')
-		idraw.text((get_width_progress_bar(100 - progress_bar_percent), 295), f'{100 - progress_bar_percent}%', font=midletext, fill='#444')
+		idraw.text((get_width_info_exp(round(level_exp - previus_level_exp)), 250), f'{round(level_exp - previus_level_exp)}/{round(level_exp - user_exp)} exp', font=midletext, fill='#444')
+		idraw.text((get_width_progress_bar(100 - progress_bar_percent), 300), f'{100 - progress_bar_percent}%', font=midletext, fill='#444')
+		idraw.text((230, 258), f'#{user_rank}', font=smalltext, fill='#444')
 		idraw.text((15, 355), self.FOOTER, font = midletext)
 
 		img.save(self.SAVE)

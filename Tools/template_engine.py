@@ -3,6 +3,18 @@ import math
 
 from Tools.database import DB
 
+class Attributes:
+	__slots__ = '_attrs'
+
+	def __init__(self, attrs):
+		self._attrs = list(attrs)
+
+	def __str__(self):
+		return self._attrs
+
+	def get(self, key):
+		return self._attrs[key]
+
 class Rank:
 	__slots__ = 'exp', 'lvl', 'remaining_exp', 'money', 'coins', 'bio', 'count_channels', 'reputation', 'count_messages', 'count_warns', 'level_exp'
 
@@ -18,6 +30,9 @@ class Rank:
 		self.reputation = data['reputation']
 		self.count_messages = data['messages'][1]
 		self.count_warns = len(data['warns'])
+	
+	def __str__(self):
+		return self.exp
 
 class Channel:
 	__slots__ = "id", "name", 'position', 'mention', 'created_at', 'topic'
@@ -31,12 +46,17 @@ class Channel:
 		if isinstance(data, discord.TextChannel):
 			self.mention = data.mention
 			self.topic = data.topic
+		
+	def __str__(self):
+		return self.name
 
 class VoiceState:
-	__slots__ = 'deaf', 'mute', 'self_deaf', 'self_mute', 'self_stream', 'self_video', 'afk', 'channel'
+	__slots__ = 'deaf', 'mute', 'self_deaf', 'self_mute', 'self_stream', 'self_video', 'afk', 'channel', 'state'
 
 	def __init__(self, data):
+		self.state = False
 		if data:
+			self.state = True
 			self.deaf = data.deaf
 			self.mute = data.mute
 			self.self_mute = data.self_mute
@@ -45,6 +65,9 @@ class VoiceState:
 			self.self_video = data.self_video
 			self.afk = data.afk
 			self.channel = Channel(data.channel)
+
+	def __str__(self):
+		return str(self.state)
 
 class Role:
 	__slots__ = "id", "name", 'position', 'permissions', 'color', 'created_at', 'mention'
@@ -58,6 +81,9 @@ class Role:
 		self.created_at = data.created_at
 		self.mention = data.mention
 
+	def __str__(self):
+		return self.name
+
 class User:
 	__slots__ = "id", "name", 'bot', 'avatar_url', 'tag', 'created_at', 'discriminator'
 
@@ -68,6 +94,9 @@ class User:
 		self.avatar_url = data.avatar_url
 		self.discriminator = data.discriminator
 		self.created_at = data.created_at
+
+	def __str__(self):
+		return self.name+'#'+self.discriminator
 
 class Member(User):
 	__slots__ = "id", "name", 'joined_at', 'rank', 'bot', 'nick', 'mention', 'voice', 'avatar_url', 'discrininator', 'created_at', '_member_statuses', 'status'
@@ -87,6 +116,9 @@ class Member(User):
 		self.voice = VoiceState(data.voice)
 		self.status = self._member_statuses[data.status.name]
 		self.rank = Rank(db_data)
+
+	def __str__(self):
+		return self.name+'#'+self.discriminator
 
 	def has_role(self, role: Role):
 		pass
@@ -130,6 +162,9 @@ class Guild:
 		self.member_count = data.member_count
 		self.region = data.region
 		self.region_emoji = self._region_emojis[self.region.name]
+
+	def __str__(self):
+		return self.name
 	
 	def get_channel(self, id):
 		pass
@@ -153,3 +188,6 @@ class Message:
 		self.author = Member(data.author, self.__databasedataofmember)
 		self.created_at = data.created_at
 		self.jump_url = data.jump_url
+
+	def __str__(self):
+		return self.content
