@@ -271,12 +271,10 @@ class Utils(commands.Cog, name = 'Utils'):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
-		self.cursor.execute(("""SELECT * FROM mutes WHERE guild_id = %s AND guild_id = %s"""), (ctx.guild.id, ctx.guild.id))
-		data = self.cursor.fetchall()
-		print(data)
+		data = DB().get_mutes(ctx.guild.id)
 
 		if data != []:
-			mutes = '\n\n'.join(f'**Пользователь:** `{ctx.guild.get_member(mute[1])}`, **Причина:** `{mute[3]}`\n**Автор:** {mute[7]}, **Время мьюта:** `{mute[6]}`\n**Активный до**: `{mute[5]}`' for mute in data)
+			mutes = '\n\n'.join(f'**Пользователь:** `{ctx.guild.get_member(mute[1])}`, **Причина:** `{mute[3]}`\n**Автор:** {mute[6]}, **Время мьюта:** `{mute[5]}`\n**Активный до**: `{mute[4]}`' for mute in data)
 		else:
 			mutes = 'На сервере нету мьютов'
 

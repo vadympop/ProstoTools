@@ -34,3 +34,10 @@ Command raised an exception: TypeError: int() argument must be a string, a bytes
 Ошибка:
 Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s AND guild_id = %s' at line 1
 =============================================================
+
+=============================================================
+Время: 2020-10-23 15:16:06.425064
+
+Ошибка:
+Command raised an exception: DataError: 1136 (21S01): Column count doesn't match value count at row 1
+=============================================================

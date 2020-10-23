@@ -73,8 +73,8 @@ class DB:
 		except:
 			new_id = 1
 
-		sql = ("""INSERT INTO mutes VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
-		val = (new_id, kwargs['target'].id, kwargs['target'].guild.id, kwargs['reason'], 'True', str(datetime.datetime.fromtimestamp(kwargs['timestamp'])), str(datetime.datetime.today()), kwargs['author'])
+		sql = ("""INSERT INTO mutes VALUES (%s, %s, %s, %s, %s, %s, %s)""")
+		val = (new_id, kwargs['target'].id, kwargs['target'].guild.id, kwargs['reason'], str(datetime.datetime.fromtimestamp(kwargs['timestamp'])), str(datetime.datetime.today()), kwargs['author'])
 
 		self.cursor.execute(sql, val)
 		self.conn.commit()
@@ -88,6 +88,11 @@ class DB:
 			return True
 		except:
 			return False
+
+	
+	def get_mutes(self, guild_id):
+		self.cursor.execute(("""SELECT * FROM mutes WHERE guild_id = %s AND guild_id = %s"""), (guild_id, guild_id))
+		return self.cursor.fetchall()
 
 
 	def set_punishment(self, type_punishment: str, time: float, member: discord.Member, role_id: int = 0, **kwargs):
