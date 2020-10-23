@@ -12,10 +12,90 @@ class DB:
 		self.conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
 		self.cursor = self.conn.cursor(buffered = True)
 
+	def set_reminder(self, member: discord.Member, time: str, text: str):
+		pass
 
-	def set_punishment(self, type_punishment: str, time: float, member: discord.Member, role_id: int = 0):
+	
+	def get_reminder(self, member: discord.Member = None):
+		pass
+
+	
+	def del_reminder(self, reminder_id: int):
+		pass
+
+
+	def set_warn(self, **kwargs):
+		self.cursor.execute(("""SELECT id FROM warns WHERE guild_id = %s AND guild_id = %s"""), (kwargs['target'].guild.id, kwargs['target'].guild.id))
+		db_ids = self.cursor.fetchall()
+		ids = [str(stat[0]) for stat in db_ids]
+		ids.reverse()
+		try:
+			new_id = int(ids[0])+1
+		except:
+			new_id = 1
+
+		self.cursor.execute(("""SELECT num FROM warns WHERE user_id = %s AND guild_id = %s"""), (kwargs['target'].id, kwargs['target'].guild.id))
+		db_nums = self.cursor.fetchall()
+		nums = [num[0] for num in db_nums]
+		nums.reverse()
+		try:
+			new_num = nums[0]+1
+		except:
+			new_num = 1
+
+		sql = ("""INSERT INTO warns VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
+		val = (new_id, kwargs['target'].id, kwargs['target'].guild.id, kwargs['reason'], 'True', str(datetime.datetime.today()), kwargs['author'], new_num) 
+
+		self.cursor.execute(sql, val)
+		self.conn.commit()
+
+		return new_id
+
+
+	def del_warn(self, guild_id, warn_id):
+		try:
+			self.cursor.execute(("""UPDATE warns SET state = %s WHERE id = %s"""), ('False', warn_id))
+			self.conn.commit()
+
+			self.cursor.execute(("""SELECT user_id FROM warns WHERE id = %s AND id = %s"""), (warn_id, warn_id))
+			return self.cursor.fetchone()
+		except:
+			return False
+
+
+	def set_mute(self, **kwargs):
+		self.cursor.execute(("""SELECT id FROM mutes WHERE guild_id = %s AND guild_id = %s"""), (kwargs['target'].guild.id, kwargs['target'].guild.id))
+		db_ids = self.cursor.fetchall()
+		ids = [str(stat[0]) for stat in db_ids]
+		ids.reverse()
+		try:
+			new_id = int(ids[0])+1
+		except:
+			new_id = 1
+
+		sql = ("""INSERT INTO mutes VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
+		val = (new_id, kwargs['target'].id, kwargs['target'].guild.id, kwargs['reason'], 'True', str(datetime.datetime.fromtimestamp(kwargs['timestamp'])), str(datetime.datetime.today()), kwargs['author'])
+
+		self.cursor.execute(sql, val)
+		self.conn.commit()
+
+
+	def del_mute(self, member_id, guild_id):
+		try:
+			self.cursor.execute(("""DELETE FROM mutes WHERE user_id = %s AND guild_id = %s"""), (member_id, guild_id))
+			self.conn.commit()
+
+			return True
+		except:
+			return False
+
+
+	def set_punishment(self, type_punishment: str, time: float, member: discord.Member, role_id: int = 0, **kwargs):
 		self.cursor.execute("""SELECT * FROM punishments WHERE member_id = %s AND guild_id = %s""", (member.id, member.guild.id))
 		data = self.cursor.fetchone()
+
+		if type_punishment == 'mute':
+			self.set_mute(timestamp=time, target=member, reason=kwargs['reason'], author=kwargs['author'])
 
 		if not data:
 			sql = ("""INSERT INTO punishments VALUES (%s, %s, %s, %s, %s)""")
@@ -46,6 +126,9 @@ class DB:
 
 	
 	def del_punishment(self, member: discord.Member, guild_id: int, type_punishment: str):
+		if type_punishment == 'mute':
+			self.del_mute(member.id, member.guild.id)
+
 		self.cursor.execute(("""DELETE FROM punishments WHERE member_id = %s AND guild_id = %s AND type = %s"""), (member.id, guild_id, type_punishment))
 		self.conn.commit()
 
@@ -55,14 +138,17 @@ class DB:
 		val_1 = (target.id, target.guild.id)
 		sql_2 = ("""INSERT INTO users (user_id, guild_id, prison, profile, items, pets, warns, clans, messages, transantions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""")
 		val_2 = (target.id, target.guild.id, 'False', 'lime', json.dumps([]), json.dumps([]), json.dumps([]), json.dumps([]), json.dumps([0, 0, None]), json.dumps([]), '')
-		
 		sql_3 = ("""SELECT bio FROM users WHERE user_id = %s AND user_id = %s""")
 		val_3 = (target.id, target.id)
+		sql_4 = ("""SELECT * FROM warns WHERE user_id = %s AND guild_id = %s""")
+		val_4 = (target.id, target.guild.id)
 
 		self.cursor.execute(sql_1, val_1)
 		data = self.cursor.fetchone()
 		self.cursor.execute(sql_3, val_3)
 		bio = self.cursor.fetchone()
+		self.cursor.execute(sql_4, val_4)
+		db_warns = self.cursor.fetchall()
 
 		if check:
 			if not data:
@@ -81,6 +167,14 @@ class DB:
 			elif prison == 'False':
 				prison = False
 
+			warns = []
+			for warn in db_warns:
+				if warn[4] == 'True':
+					state = True
+				elif warn[4] == 'False':
+					state = False
+				warns.append({'id': warn[0], 'time': warn[5], 'reason': warn[3], 'author': warn[6], 'num_warn': warn[7], 'state': state, 'guild_id': warn[2]})
+
 			dict_data = {
 				'user_id': int(data[0]),
 				'guild_id': int(data[1]),
@@ -94,10 +188,10 @@ class DB:
 				'profile': str(data[9]),
 				'items': json.loads(data[11]),
 				'pets': json.loads(data[12]),
-				'warns': json.loads(data[13]),
-				'clans': json.loads(data[14]),
-				'messages': json.loads(data[15]),
-				'transantions': json.loads(data[16]),
+				'warns': warns,
+				'clans': json.loads(data[13]),
+				'messages': json.loads(data[14]),
+				'transantions': json.loads(data[15]),
 				'bio': bio[0]
 			}
 
@@ -155,8 +249,7 @@ class DB:
 		try:
 			self.cursor.execute(f"""SELECT * FROM bot_stats WHERE entity = '{entity}'""")
 			data = self.cursor.fetchall()
-		except Exception as e:
-			print(repr(e))
+		except:
 			data = [(0, 0)]
 
 		self.cursor.execute(f"""SELECT * FROM bot_stats WHERE entity = 'all commands'""")

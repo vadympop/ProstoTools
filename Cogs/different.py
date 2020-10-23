@@ -27,6 +27,10 @@ class Different(commands.Cog, name = 'Different'):
 		self.cursor = self.conn.cursor(buffered = True)
 		self.FOOTER = configs['FOOTER_TEXT']
 
+	@commands.command(name='reminder')
+	async def reminder(self, ctx, action: str, time: str, text: str):
+		pass
+
 
 	@commands.command(aliases=['usersend'], name = 'user-send', description = '**Отправляет сообщения указаному участнику(Cooldown - 1 мин после двох попыток)**', usage = 'user-send [@Участник] [Сообщения]')
 	@commands.cooldown(2, 60, commands.BucketType.member)

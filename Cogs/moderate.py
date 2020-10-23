@@ -614,11 +614,11 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		if mute_typetime == 'мин' or mute_typetime == 'м' or mute_typetime == 'm' or mute_typetime == "min":
 			mute_minutes = mute_time * 60
 		elif mute_typetime == 'час'  or mute_typetime == 'ч' or mute_typetime == 'h' or mute_typetime == "hour":
-			mute_minutes = mute_time * 120
+			mute_minutes = mute_time * 60 * 60
 		elif mute_typetime == 'дней' or mute_typetime == 'д' or mute_typetime == 'd' or mute_typetime == "day":
-			mute_minutes = mute_time * 120 * 12
+			mute_minutes = mute_time * 60 * 60 * 12
 		elif mute_typetime == 'недель' or mute_typetime == "н" or mute_typetime == 'week' or mute_typetime == "w":
-			mute_minutes = mute_time * 120 * 12 * 7			
+			mute_minutes = mute_time * 60 * 60 * 12 * 7			
 		else:
 			mute_minutes = mute_time
 
@@ -643,10 +643,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			emb = discord.Embed(title='Ошибка!', description=f'**Указаный пользователь уже замьючен!**' , colour=discord.Color.green())
 			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			try:
-				await member.send(embed=emb)
-			except:
-				pass
+			await ctx.send(embed=emb)
 			await ctx.message.add_reaction('❌')
 			return			
 		
@@ -720,7 +717,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 				except:
 					pass
 		elif mute_minutes > 0:
-			DB().set_punishment(type_punishment='mute', time=times, member=member, role_id=int(role.id))
+			DB().set_punishment(type_punishment='mute', time=times, member=member, role_id=int(role.id), reason=reason, author=str(ctx.author))
 			if reason:
 				emb = discord.Embed(description=f'**{ctx.author.mention} Замутил `{member}` по причине {reason} на {mute_time}{mute_typetime}**', colour=discord.Color.green())
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -871,26 +868,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 		cur_state_pr = data['prison']
 		cur_reputation = data['reputation'] - 10
 
-		num = ''
-		stop = 0
-		while stop <= 7:
-			num += str(randint(1, 9))
-			stop += 1
-
-		if cur_warns == []:
-			num_warns = 1
-		else:
-			num_warns = len(cur_warns) + 1
-
-		warn_data = {
-			'num_warn': num_warns,
-			'author': ctx.author.name,
-			'id': int(num),
-			'time': str(datetime.today()),
-			'reason': reason,
-			'state': True
-		}
-		cur_warns.append(warn_data)
+		warn_id = DB().set_warn(target=member, reason=reason, author=str(ctx.author), time=str(datetime.today()))
 
 		if cur_lvl <= 3:
 			cur_money -= 250
@@ -913,7 +891,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			cur_reputation = -100
 
 		if len(cur_warns) >= 20:
-			cur_warns.remove([warn for warn in cur_warns if not warn['state']][0])
+			DB().del_warn([warn for warn in cur_warns if not warn['state']][0]['id'])
 
 		if len([warn for warn in cur_warns if warn['state']]) >= max_warns:
 			cur_coins -= 1000
@@ -932,7 +910,7 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			await ctx.send(embed=emb)
 			return
 		else:
-			emb = discord.Embed(description=f'**Вы были предупреждены {ctx.author.mention} по причине {reason}. Количество предупрежденний - `{len(cur_warns)}`, id - `{num}`**', colour=discord.Color.green())
+			emb = discord.Embed(description=f'**Вы были предупреждены {ctx.author.mention} по причине {reason}. Количество предупрежденний - `{len(cur_warns)+1}`, id - `{warn_id}`**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			try:
@@ -940,13 +918,13 @@ class Moderate(commands.Cog, name = 'Moderate'):
 			except:
 				pass
 
-			emb = discord.Embed(description=f'**Пользователь `{member}` получил предупреждения по причине {reason}. Количество предупрежденний - `{len(cur_warns)}`, id - `{num}`**', colour=discord.Color.green())
+			emb = discord.Embed(description=f'**Пользователь `{member}` получил предупреждения по причине {reason}. Количество предупрежденний - `{len(cur_warns)+1}`, id - `{warn_id}`**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
-		sql = ("""UPDATE users SET money = %s, coins = %s, reputation = %s, warns = %s, prison = %s WHERE user_id = %s AND guild_id = %s""")
-		val = (cur_money, cur_coins, cur_reputation, json.dumps(cur_warns), str(cur_state_pr), member.id, ctx.guild.id)
+		sql = ("""UPDATE users SET money = %s, coins = %s, reputation = %s, prison = %s WHERE user_id = %s AND guild_id = %s""")
+		val = (cur_money, cur_coins, cur_reputation, str(cur_state_pr), member.id, ctx.guild.id)
 
 		self.cursor.execute(sql, val)
 		self.conn.commit()
@@ -954,53 +932,23 @@ class Moderate(commands.Cog, name = 'Moderate'):
 
 	@commands.command(aliases=['remwarn', 'rem-warn'], brief='True', name='remove-warn', description='**Снимает указаное предупреждения в участика**', usage='remove-warn [@Участник] [Id предупреждения]')
 	@commands.check(check_role)	
-	async def rem_warn(self, ctx, member: discord.Member, warn_id: int):
+	async def rem_warn(self, ctx, warn_id: int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		data = DB().del_warn(ctx.guild.id, warn_id)
+		print(data)
 
-		if member == ctx.author:
-			emb = discord.Embed(title='Ошибка!', description='Вы не можете применить эту команду к себе!', colour=discord.Color.green()) 
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-			await ctx.message.add_reaction('❌')
-			return
-
-		if member.bot:			
-			emb = discord.Embed(title='Ошибка!', description=f"**Вы не можете снять предупреждения боту!**", colour=discord.Color.green())
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb )
-			await ctx.message.add_reaction('❌')
-			return
-
-		data = DB().sel_user(target=member)
-		warns = data['warns']
-		state = False
-
-		for warn in warns:
-			if warn['id'] == warn_id:
-				warn.update({'state': False})
-				state = True
-				break
-
-		if not state:
+		if not data:
 			emb = discord.Embed(title='Ошибка!', description='**Предупреждения с таким айди не существует! Укажите правильный айди предупреждения**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 			return
-		elif state:
-			emb = discord.Embed(description=f'**Предупреждения успешно было снято с участника `{member}`**', colour=discord.Color.green())
+		elif data:
+			emb = discord.Embed(description=f'**Предупреждения успешно было снято с участника `{ctx.guild.get_member(data[0])}`**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-
-		sql = ("""UPDATE users SET warns = %s WHERE user_id = %s AND guild_id = %s""")
-		val = (json.dumps(warns), member.id, ctx.guild.id)
-
-		self.cursor.execute(sql, val)
-		self.conn.commit()
 
 
 	@commands.command(description='**Показывает список предупреждений**', usage='warns |@Участник|')

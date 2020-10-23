@@ -1,0 +1,36 @@
+
+
+=============================================================
+Время: 2020-10-23 09:02:24.566748
+
+Ошибка:
+Command raised an exception: TypeError: unsupported operand type(s) for +=: 'int' and 'datetime.time'
+=============================================================
+
+=============================================================
+Время: 2020-10-23 09:35:07.978956
+
+Ошибка:
+Command raised an exception: TypeError: float() argument must be a string or a number, not 'datetime.time'
+=============================================================
+
+=============================================================
+Время: 2020-10-23 09:35:52.351296
+
+Ошибка:
+Command raised an exception: TypeError: int() argument must be a string, a bytes-like object or a number, not 'datetime.time'
+=============================================================
+
+=============================================================
+Время: 2020-10-23 09:38:42.474432
+
+Ошибка:
+Command raised an exception: TypeError: int() argument must be a string, a bytes-like object or a number, not 'datetime.time'
+=============================================================
+
+=============================================================
+Время: 2020-10-23 10:29:56.787037
+
+Ошибка:
+Command raised an exception: ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%s AND guild_id = %s' at line 1
+=============================================================

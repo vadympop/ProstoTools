@@ -26,8 +26,13 @@ class Loops(commands.Cog, name = 'Loops'):
 		self.update_messages_loop.start()
 		self.ping_stat_loop.start()
 		self.server_stats.start()
+		self.reminders_loop.start()
 		self.FOOTER = configs['FOOTER_TEXT']
 
+
+	@tasks.loop(seconds=5)
+	async def reminders_loop(self):
+		pass
 
 	@tasks.loop(seconds=5)
 	async def mute_loop(self):
@@ -151,7 +156,6 @@ class Loops(commands.Cog, name = 'Loops'):
 
 		for stat in data:
 			if stat[1] != {}:
-				print(stat[1])
 				for stat_type, channel_id in stat[1].items():
 					guild = self.client.get_guild(stat[0])
 					if guild:

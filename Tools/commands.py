@@ -120,7 +120,7 @@ class Commands:
 					emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 					
 		if mute_minutes > 0:
-			DB().set_punishment(type_punishment='mute', time=times, member=member, role_id=role.id)
+			DB().set_punishment(type_punishment='mute', time=times, member=member, role_id=role.id, reason=reason, author=str(ctx.author))
 
 		if message:
 			return emb
@@ -145,32 +145,7 @@ class Commands:
 		cur_state_pr = data['prison']
 		cur_reputation = data['reputation'] - 10
 
-		num = ''
-		stop = 0
-		while stop <= 7:
-			num = num + str(randint(1, 9))
-			stop += 1
-
-		for i in cur_warns:
-			if i['id'] == num:
-				while stop <= 7:
-					num = num + str(randint(1, 9))
-					stop += 1		
-
-		if cur_warns == []:
-			num_warns = 1
-		else:
-			num_warns = len(cur_warns) + 1
-
-		warn_data = {
-			'num_warn': num_warns,
-			'author': author.name,
-			'id': int(num),
-			'time': str(datetime.today()),
-			'reason': reason,
-			'state': True
-		}
-		cur_warns.append(warn_data)
+		DB().set_warn(target=member, reason=reason, author=str(ctx.author), time=str(datetime.today()))
 
 		if cur_lvl <= 3:
 			cur_money -= 250
@@ -190,7 +165,7 @@ class Commands:
 			cur_reputation = -100
 
 		if len(cur_warns) >= 20:
-			cur_warns.remove([warn for warn in cur_warns if not warn['state']][0])
+			DB().del_warn([warn for warn in cur_warns if not warn['state']][0]['id'])
 
 		if len(cur_warns) >= max_warns:			
 			self.main_mute(ctx, member=member, author=ctx.author, mute_time=2, mute_typetime='h', check_role=False, message=False)
@@ -198,19 +173,19 @@ class Commands:
 			emb_ctx.set_author( name = client.user.name, icon_url = client.user.avatar_url )
 			emb_ctx.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )			
 		else:
-			emb_member = discord.Embed( description = f'**Вы были предупреждены {author.mention} по причине {reason}. Предупрежденний `{len(cur_warns)}`**' , colour = discord.Color.green() )			
+			emb_member = discord.Embed( description = f'**Вы были предупреждены {author.mention} по причине {reason}. Предупрежденний `{len(cur_warns)}`, id - `{warn_id}`**' , colour = discord.Color.green() )			
 			emb_member.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb_member.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 			await member.send(embed = emb_member)
 
-			emb_ctx = discord.Embed( description = f'**Пользователь {member.mention} получил предупреждения по причине {reason}. Количество предупрежденний - `{len(cur_warns)}`**' , colour = discord.Color.green() )
+			emb_ctx = discord.Embed( description = f'**Пользователь {member.mention} получил предупреждения по причине {reason}. Количество предупрежденний - `{len(cur_warns)}`, id - `{warn_id}`**' , colour = discord.Color.green() )
 			emb_ctx.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb_ctx.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
 
-		sql = ("""UPDATE users SET money = %s, coins = %s, reputation = %s, warns = %s, prison = %s WHERE user_id = %s AND guild_id = %s""")
-		val = (cur_money, cur_coins, cur_reputation, json.dumps(cur_warns), str(cur_state_pr))
+		sql = ("""UPDATE users SET money = %s, coins = %s, reputation = %s, prison = %s WHERE user_id = %s AND guild_id = %s""")
+		val = (cur_money, cur_coins, cur_reputation, str(cur_state_pr))
 
 		self.cursor.execute(sql, val)
 		self.conn.commit()
 
-		return emb_ctx		
+		return emb_ctx

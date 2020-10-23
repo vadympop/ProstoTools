@@ -243,7 +243,7 @@ class Utils(commands.Cog, name = 'Utils'):
 		else:
 			emb = discord.Embed(title = 'Ошибка!', description = f'Вы указали не правильное действие! Укажите add - для добавления, del или remove - для удаления', colour = discord.Color.green())
 			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 
 
@@ -255,7 +255,7 @@ class Utils(commands.Cog, name = 'Utils'):
 
 		data = DB().sel_guild(guild = ctx.guild)['moder_roles']
 		if data != []:
-			roles = '\n'.join(f'`{get(ctx.guild.roles, id = i).name}`' for i in data)
+			roles = '\n'.join(f'`{get(ctx.guild.roles, id=i).name}`' for i in data)
 		else:
 			roles = 'Роли модераторов не настроены'
 
@@ -263,6 +263,27 @@ class Utils(commands.Cog, name = 'Utils'):
 		emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 		await ctx.send( embed = emb )
+
+	
+	@commands.command(aliases=['list-mutes', 'mutes-list', 'listmutes', 'muteslist'])
+	@commands.check(check_role)
+	async def mutes(self, ctx):
+		purge = self.client.clear_commands(ctx.guild)
+		await ctx.channel.purge(limit=purge)
+
+		self.cursor.execute(("""SELECT * FROM mutes WHERE guild_id = %s AND guild_id = %s"""), (ctx.guild.id, ctx.guild.id))
+		data = self.cursor.fetchall()
+		print(data)
+
+		if data != []:
+			mutes = '\n\n'.join(f'**Пользователь:** `{ctx.guild.get_member(mute[1])}`, **Причина:** `{mute[3]}`\n**Автор:** {mute[7]}, **Время мьюта:** `{mute[6]}`\n**Активный до**: `{mute[5]}`' for mute in data)
+		else:
+			mutes = 'На сервере нету мьютов'
+
+		emb = discord.Embed(title='Список всех мьютов на сервере', description=mutes, colour=discord.Color.green())
+		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		await ctx.send(embed=emb)
 
 def setup( client ):
 	client.add_cog(Utils(client))
