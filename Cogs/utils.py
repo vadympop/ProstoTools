@@ -265,7 +265,7 @@ class Utils(commands.Cog, name = 'Utils'):
 		await ctx.send( embed = emb )
 
 	
-	@commands.command(aliases=['list-mutes', 'mutes-list', 'listmutes', 'muteslist'])
+	@commands.command(aliases=['mutes-list', 'listmutes', 'muteslist'], name='list-mutes', description='Показывает все мьюты на сервере', usage='list-mutes')
 	@commands.check(check_role)
 	async def mutes(self, ctx):
 		purge = self.client.clear_commands(ctx.guild)

@@ -38,14 +38,16 @@ class Loops(commands.Cog, name = 'Loops'):
 			if guild:
 				member = guild.get_member(int(reminder[1]))
 				channel = guild.get_channel(int(reminder[3]))
+				emb = discord.Embed(title='Напоминания!', description=f'**Текст**:\n```{reminder[5]}```', colour=discord.Color.green())
+				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				if member:
 					if float(reminder_time) <= float(time.time()):
 						DB().del_reminder(reminder[2], reminder[0])
-						emb = discord.Embed(title='Напоминания!', description=f'**Текст**:\n```{reminder[5]}```', colour=discord.Color.green())
-						emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-						await channel.send(embed=emb, content=member.mention)
-
+						if channel in guild.channels:
+							await channel.send(embed=emb, content=member.mention)
+						else:
+							await member.send(embed=emb)
 
 	@tasks.loop(seconds=5)
 	async def mute_loop(self):

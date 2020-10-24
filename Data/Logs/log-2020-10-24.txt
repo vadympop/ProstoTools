@@ -27,3 +27,31 @@ Command raised an exception: TypeError: an integer is required (got type str)
 Ошибка:
 Command raised an exception: AttributeError: 'NoneType' object has no attribute 'fetchall'
 =============================================================
+
+=============================================================
+Время: 2020-10-24 13:00:49.276067
+
+Ошибка:
+Member "?" not found.
+=============================================================
+
+=============================================================
+Время: 2020-10-24 13:01:45.000743
+
+Ошибка:
+Command raised an exception: ExtensionNotLoaded: Extension 'Cogs.?' has not been loaded.
+=============================================================
+
+=============================================================
+Время: 2020-10-24 15:56:35.724389
+
+Ошибка:
+Command raised an exception: ExtensionFailed: Extension 'Cogs.utils' raised an error: CommandRegistrationError: The alias list-mutes is already an existing command or alias.
+=============================================================
+
+=============================================================
+Время: 2020-10-24 15:58:12.383514
+
+Ошибка:
+stats_count is a required argument that is missing.
+=============================================================
