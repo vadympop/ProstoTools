@@ -12,22 +12,52 @@ class DB:
 		self.conn = mysql.connector.connect(user = 'root', password = os.environ['DB_PASSWORD'], host = 'localhost', database = 'data')
 		self.cursor = self.conn.cursor(buffered = True)
 
-	def set_reminder(self, member: discord.Member, time: str, text: str):
-		pass
+	def set_reminder(self, member: discord.Member, channel: discord.TextChannel, time: float, text: str):
+		self.cursor.execute(("""SELECT id FROM reminders WHERE guild_id = %s AND guild_id = %s"""), (member.guild.id, member.guild.id))
+		db_ids = self.cursor.fetchall()
+		ids = [str(reminder[0]) for reminder in db_ids]
+		ids.reverse()
+		try:
+			new_id = int(ids[0])+1
+		except:
+			new_id = 1
+
+		sql = ("""INSERT INTO reminders VALUES (%s, %s, %s, %s, %s, %s)""")
+		val = (new_id, member.id, member.guild.id, channel.id, time, text) 
+
+		self.cursor.execute(sql, val)
+		self.conn.commit()
+
+		return new_id
 
 	
-	def get_reminder(self, member: discord.Member = None):
-		pass
+	def get_reminder(self, target: discord.Member = None):
+		if target:
+			sql = ("""SELECT * FROM reminders WHERE user_id = %s AND guild_id = %s""")
+			val = (target.id, target.guild.id)
+
+			self.cursor.execute(sql, val)
+			return self.cursor.fetchall()
+		elif not target:
+			self.cursor.execute("""SELECT * FROM reminders""")
+			return self.cursor.fetchall()
 
 	
-	def del_reminder(self, reminder_id: int):
-		pass
+	def del_reminder(self, guild_id: int, reminder_id: int):
+		self.cursor.execute(f"""SELECT id FROM reminders WHERE guild_id = {guild_id}""")
+		ids = self.cursor.fetchall()
+		if reminder_id in [reminder_id[0] for reminder_id in ids]:
+			self.cursor.execute(("""DELETE FROM reminders WHERE id = %s AND guild_id = %s"""), (reminder_id, guild_id))
+			self.conn.commit()
+			return True
+		else:
+			return False
 
 
 	def set_warn(self, **kwargs):
 		self.cursor.execute(("""SELECT id FROM warns WHERE guild_id = %s AND guild_id = %s"""), (kwargs['target'].guild.id, kwargs['target'].guild.id))
 		db_ids = self.cursor.fetchall()
-		ids = [str(stat[0]) for stat in db_ids]
+		ids = [warn[0] for warn in db_ids]
 		ids.reverse()
 		try:
 			new_id = int(ids[0])+1
@@ -66,7 +96,7 @@ class DB:
 	def set_mute(self, **kwargs):
 		self.cursor.execute(("""SELECT id FROM mutes WHERE guild_id = %s AND guild_id = %s"""), (kwargs['target'].guild.id, kwargs['target'].guild.id))
 		db_ids = self.cursor.fetchall()
-		ids = [str(stat[0]) for stat in db_ids]
+		ids = [mute[0] for mute in db_ids]
 		ids.reverse()
 		try:
 			new_id = int(ids[0])+1

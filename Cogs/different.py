@@ -7,6 +7,7 @@ import asyncio
 import sanic
 import mysql.connector
 import requests 
+import time
 import psutil as ps
 from datetime import datetime
 from Cybernator import Paginator
@@ -27,9 +28,83 @@ class Different(commands.Cog, name = 'Different'):
 		self.cursor = self.conn.cursor(buffered = True)
 		self.FOOTER = configs['FOOTER_TEXT']
 
-	@commands.command(name='reminder')
-	async def reminder(self, ctx, action: str, time: str, text: str):
-		pass
+	@commands.command(name='reminder', aliases=['remin'], description='**Работа с напоминаниями**', usage='reminder [create/list/delete] |Время| |Текст|')
+	async def reminder(self, ctx, action: str, type_time: str = None, *, text: str = None):
+		purge = self.client.clear_commands(ctx.guild)
+		await ctx.channel.purge(limit=purge)
+
+		if action == 'create':
+			if type_time:
+				reminder_time = int(''.join(char for char in type_time if not char.isalpha()))
+				reminder_typetime = str(type_time.replace(str(reminder_time), ''))
+			else:
+				reminder_typetime = None
+				reminder_time = 0
+
+			minutes = ['m', 'min', 'mins', 'minute', 'minutes', 'м', 'мин', 'минута', 'минуту', 'минуты', 'минут']
+			hours = ['h', 'hour', 'hours', 'ч', 'час', 'часа', 'часов']
+			days = ['d', 'day', 'days', 'д', 'день', 'дня', 'дней']
+			weeks = ['w', 'week', 'weeks', 'н', 'нед', 'неделя', 'недели', 'недель', 'неделю']
+			monthes = ['m', 'month', 'monthes', 'mo', 'mos', 'months', 'мес', 'месяц', 'месяца', 'месяцев']
+			years = ['y', 'year', 'years', 'г', 'год', 'года', 'лет']
+			if reminder_typetime in minutes: 
+				reminder_minutes = reminder_time * 60
+			elif reminder_typetime in hours: 
+				reminder_minutes = reminder_time * 60 * 60
+			elif reminder_typetime in days: 
+				reminder_minutes = reminder_time * 60 * 60 * 12
+			elif reminder_typetime in weeks: 
+				reminder_minutes = reminder_time * 60 * 60 * 12 * 7
+			elif reminder_typetime in monthes:
+				reminder_minutes = reminder_time * 60 * 60 * 12 * 7 * 31
+			elif reminder_typetime in years:
+				reminder_minutes = reminder_time * 60 * 60 * 12 * 7 * 31 * 12
+			else: 
+				reminder_minutes = reminder_time
+
+			times = time.time()
+			times += reminder_minutes
+
+			reminder_id = DB().set_reminder(member=ctx.author, channel=ctx.channel, time=times, text=text)
+			emb = discord.Embed(title=f'Созданно новое напоминая #{reminder_id}', description=f'**Текст напоминая:**\n```{text}```\n**Действует до:**\n`{str(datetime.fromtimestamp(times))}`', colour=discord.Color.green() )
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+		elif action == 'list':
+			data = DB().get_reminder(target=ctx.author)
+			if data != []:
+				reminders = '\n\n'.join(f'**Id - {reminder[0]}**\n**Текст:** `{reminder[5]}`, **Действует до:** `{str(datetime.fromtimestamp(float(reminder[4])))}`' for reminder in data)
+			else:
+				reminders = 'У вас нету напоминаний'
+
+			emb = discord.Embed(title='Список напоминаний', description=reminders, colour=discord.Color.green())
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+		elif action == 'delete':
+			if type_time:
+				if type_time.isdigit():
+					state = DB().del_reminder(ctx.guild.id, int(type_time))
+					if state:
+						emb = discord.Embed(description=f"**Напоминания #{type_time} было успешно удалено**", colour=discord.Color.green())
+						emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await ctx.send(embed=emb)
+					else:
+						emb = discord.Embed(title='Ошибка!', description="**Напоминания с таким id не существует!**", colour=discord.Color.green())
+						emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await ctx.send(embed=emb)
+				else:
+					emb = discord.Embed(title='Ошибка!', description="**Указаное id - сторока!**", colour=discord.Color.green())
+					emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await ctx.send(embed=emb)
+			elif not type_time:
+				emb = discord.Embed(title='Ошибка!', description="**Вы не указали id напоминая!**", colour=discord.Color.green())
+				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
 
 
 	@commands.command(aliases=['usersend'], name = 'user-send', description = '**Отправляет сообщения указаному участнику(Cooldown - 1 мин после двох попыток)**', usage = 'user-send [@Участник] [Сообщения]')
@@ -78,8 +153,8 @@ class Different(commands.Cog, name = 'Different'):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
-		prch = get( client.users, id = 660110922865704980 )
-		mrkl = get( client.users, id = 404224656598499348 )
+		prch = get( self.client.users, id = 660110922865704980 )
+		mrkl = get( self.client.users, id = 404224656598499348 )
 
 		if typef == 'bug' or typef == 'баг':
 			emb = discord.Embed( title = f'Описания бага от пользователя - {ctx.author.name}, с сервера - {ctx.guild.name}', description = f'**Описания бага:\n{msg}**', colour = discord.Color.green() )

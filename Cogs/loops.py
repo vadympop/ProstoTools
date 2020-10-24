@@ -32,7 +32,20 @@ class Loops(commands.Cog, name = 'Loops'):
 
 	@tasks.loop(seconds=5)
 	async def reminders_loop(self):
-		pass
+		for reminder in DB().get_reminder():
+			reminder_time = reminder[4]
+			guild = self.client.get_guild(int(reminder[2]))
+			if guild:
+				member = guild.get_member(int(reminder[1]))
+				channel = guild.get_channel(int(reminder[3]))
+				if member:
+					if float(reminder_time) <= float(time.time()):
+						DB().del_reminder(reminder[2], reminder[0])
+						emb = discord.Embed(title='Напоминания!', description=f'**Текст**:\n```{reminder[5]}```', colour=discord.Color.green())
+						emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await channel.send(embed=emb, content=member.mention)
+
 
 	@tasks.loop(seconds=5)
 	async def mute_loop(self):
