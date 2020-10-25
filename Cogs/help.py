@@ -24,54 +24,20 @@ class Help(commands.Cog, name = 'Help'):
 	def __init__(self, client):
 		self.client = client
 		self.FOOTER = configs['FOOTER_TEXT']
-
-
-	@commands.command()
-	async def ehelp( self, ctx ):
-
-		purge = self.client.clear_commands(ctx.guild)
-		Prefix = get_prefix(self.client, ctx)
-		await ctx.channel.purge( limit = purge )
-
-		if ctx.author.guild_permissions.administrator: 
-
-			emb = discord.Embed( title = '**Доступние команды:**', description = f'**Префикс на этом сервере - {Prefix}, если команды после двое-точия значит их надо использовать как групу, пример: "В хелп - група: команда, надо писать - група команда", если надо ввести названия чего-либо с пробелом, укажите эго в двойных кавычках**', colour = discord.Color.green() )
-			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
-
-			emb.add_field( name = f'Модераторськие команды - {Prefix}moderate', value = '` kick  ban  un-ban  mute  un-mute  warn  clear-warns  vmute ` \n ` un-vmute  slow-mode  clear  temp-role  warns  soft-ban  un-soft-ban `', inline = False )
-			emb.add_field( name = f'Shop команды - {Prefix}economy', value = '` profile  shop-list  invertory  buy  crime  send-money  add-cash `\n` remove-cash  text-channel  remove-role  open  rob  -reputation `\n` +reputation  top  set-profile-color  daily  my-transactions `', inline = False )
-			emb.add_field( name = f'Работы - {Prefix}works', value = '` work: loader  treasure-hunter  barman  cleaner  window-washer `', inline = False )
-			emb.add_field( name = f'Кланы - {Prefix}clans(В разработке)', value = '` clan: create  accept  denied  invite  transownship  edit  delete `\n` leave  kick  list  visit  members  info `', inline = False )
-			emb.add_field( name = f'Утилиты - {Prefix}utils', value = '` settings  ban-list  anti-rade  voice-channel  server-stats  mass-role  list-moderators `', inline = False )
-			emb.add_field( name = f'Развлечения - {Prefix}games', value = '` create-qrcode  dcode-qrcode  flags  8ball  wiki  fox  cat  dog  koala `\n` bird  meme `', inline = False )
-			emb.add_field( name = f'Другое - {Prefix}different', value = '` feedback  user-info  user-send  send-guild-idea `\n` user-avatar  message-forward  random-number  server-info `\n` say  invite  info `', inline = False )
-
-			emb.set_footer( text = f'Вызвал: {ctx.author.name}', icon_url = ctx.author.avatar_url )
-
-			await ctx.send( embed = emb )
-
-		else:
-
-			emb = discord.Embed( title = '**Доступние команды:**', description = f'**Префикс на этом сервере - {Prefix}, если команды после двое-точия значит их надо использовать как групу, пример: "В хелп - група: команда, надо писать - група команда", если надо ввести названия чего-либо с пробелом, укажите эго в двойных кавычках**', colour = discord.Color.green() )
-			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
-
-			emb.add_field( name = f'Модераторськие команды - {Prefix}moderate', value = '` warns `', inline = False )
-			emb.add_field( name = f'Shop команды - {Prefix}economy', value = '` profile  shop-list  invertory  buy  crime  send-money  text-channel  open `\n` rob  -reputation  +reputation  top  set-profile-color  daily `', inline = False )
-			emb.add_field( name = f'Работы - {Prefix}works', value = '` work: loader  treasure-hunter  barman  cleaner  window-washer `', inline = False )
-			emb.add_field( name = f'Кланы - {Prefix}clans(В разработке)', value = '` clan: create  accept  denied  invite  transownship  edit  delete  leave `\n` kick  list  visit  members  info `', inline = False )
-			emb.add_field( name = f'Развлечения - {Prefix}games', value = '` create-qrcode  dcode-qrcode  flags  8ball  wiki  fox  cat  dog  koala `\n` bird  meme `', inline = False )
-			emb.add_field( name = f'Другое - {Prefix}different', value = '` feedback  user-info  user-send  send-guild-idea  user-avatar `\n` message-forward  random-number  server-info `\n` say  invite  info `', inline = False )
-
-			emb.set_footer( text = f'Вызвал: {ctx.author.name}', icon_url = ctx.author.avatar_url )
-
-			await ctx.send( embed = emb )		
+		self._names = []
+		for cog in self.client.cogs:
+			for command in self.client.get_cog(cog).get_commands():
+				for alias in command.aliases:
+					self._names.append(alias)
+				self._names.append(command.name)
+		self.commands = self._names
 
 
 	@commands.command()
 	async def works( self, ctx ):
 
 		purge = self.client.clear_commands(ctx.guild)
-		Prefix = get_prefix(self.client, ctx)
+		Prefix = self.get_prefix(self.client, ctx)
 		await ctx.channel.purge( limit = purge )
 
 		emb = discord.Embed( title = 'Категория команд - works', description = '[Пример] - требуется, |Пример| - необязательно', colour = discord.Color.green() )
@@ -106,14 +72,14 @@ class Help(commands.Cog, name = 'Help'):
 			'Utils': 5,
 			'Works': 7
 		}
-		Prefix = self.client.get_guild_prefix(ctx)
+		PREFIX = self.client.get_guild_prefix(ctx)
 
 		def add_command_loop(command, commands, count, group_name):
 			try:
 				for c in command.commands:
 					if not c.hidden:
 						if command.brief != 'True':
-							commands += f' {Prefix}{c.name} '
+							commands += f' {PREFIX}{c.name} '
 							count += 1
 							group_name = command.name
 						else:
@@ -124,12 +90,12 @@ class Help(commands.Cog, name = 'Help'):
 									break
 							
 							if state or ctx.author == ctx.guild.owner or ctx.author.guild_permissions.administrator:
-								commands += f' {Prefix}{c.name} '
+								commands += f' {PREFIX}{c.name} '
 								count += 1
 								group_name = command.name
 					else:
 						if ctx.author.guild_permissions.administrator:
-							commands += f' {Prefix}{c.name} '
+							commands += f' {PREFIX}{c.name} '
 							count += 1
 							group_name = command.name
 								
@@ -137,11 +103,11 @@ class Help(commands.Cog, name = 'Help'):
 						count = 0
 						commands += '`\n`'
 			except:
-				commands += f' {Prefix}{command.name} '
+				commands += f' {PREFIX}{command.name} '
 
 			return [commands, count, group_name]
 
-		emb_1 = discord.Embed( title = '**Доступние команды:**', description = f'**Префикс на этом сервере - **`{Prefix}`**, если команды после двое-точия значит их надо использовать как групу, пример: "В хелп - група: команда, надо писать - група команда", если надо ввести названия чего-либо с пробелом, укажите эго в двойных кавычках**', colour = discord.Color.green() )
+		emb_1 = discord.Embed( title = '**Доступние команды:**', description = f'**Префикс на этом сервере - **`{PREFIX}`**, если команды после двое-точия значит их надо использовать как групу, пример: "В хелп - група: команда, надо писать - група команда", если надо ввести названия чего-либо с пробелом, укажите эго в двойных кавычках**', colour = discord.Color.green() )
 		if not cog_name:
 			for soft_cog_name in self.client.cogs:
 				if soft_cog_name in exceptions:
@@ -184,7 +150,7 @@ class Help(commands.Cog, name = 'Help'):
 						else:
 							value = f'`{commands}`'
 
-						emb_1.add_field(name = f'Категория команд: {soft_cog_name.capitalize()} - {Prefix}help {soft_cog_name.lower()}', value = value, inline = False)
+						emb_1.add_field(name = f'Категория команд: {soft_cog_name.capitalize()} - {PREFIX}help {soft_cog_name.lower()}', value = value, inline = False)
 
 			emb_1.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 			emb_1.set_footer( text = f'Вызвал: {ctx.author.name}', icon_url = ctx.author.avatar_url )
@@ -192,16 +158,22 @@ class Help(commands.Cog, name = 'Help'):
 			return
 
 		if cog_name.capitalize() not in self.client.cogs:
-			emb = discord.Embed(title = 'Ошибка!', description = 'Такой категории нет, введите названия правильно. Список доступных категорий: different, economy, moderate, games, settings, utils, works', colour = discord.Color.green())
-			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-			await ctx.send(embed = emb)
-			return
+			if cog_name.lower() not in self.commands:
+				emb = discord.Embed(title = 'Ошибка!', description = 'Такой категории нет, введите названия правильно. Список доступных категорий: different, economy, moderate, games, settings, utils, works', colour = discord.Color.green())
+				emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
+				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
+				await ctx.send(embed = emb)
+				return
+			else:
+				emb = discord.Embed(title=f'Команда: {PREFIX+cog_name.lower()}', description=self.client.get_command(cog_name.lower()).help, colour=discord.Color.green())
+				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
+				return
 
 		emb_2 = discord.Embed(title = f'Категория команд - {cog_name.capitalize()}', description = '[Пример] - требуется, |Пример| - необязательно', colour = discord.Color.green())
-		cog = self.client.get_cog(cog_name.capitalize())
-		for c in cog.get_commands():
-			emb_2.add_field(name = f'{Prefix}{c.usage}', value = f'{c.description[2:-2]}.', inline = False)
+		for c in self.client.get_cog(cog_name.capitalize()).get_commands():
+			emb_2.add_field(name = f'{PREFIX}{c.usage}', value = f'{c.description[2:-2]}.', inline = False)
 		emb_2.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 		emb_2.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 		await ctx.send(embed = emb_2)	

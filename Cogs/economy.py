@@ -734,7 +734,7 @@ class Economy(commands.Cog, name = 'Economy'):
 		cur_transantions1 = data1['transantions']
 		cur_transantions2 = data2['transantions']
 
-		if cur_state_pr1 == False and cur_state_pr2 == False and cur_money1 > num:
+		if not cur_state_pr1 and not cur_state_pr2 and cur_money1 > num:
 			id_1 = ''
 			id_2 = ''
 			stop = 0
@@ -783,7 +783,7 @@ class Economy(commands.Cog, name = 'Economy'):
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await member.send( embed = emb )
-		elif cur_state_pr1 == True:
+		elif cur_state_pr1:
 			emb = discord.Embed( title = 'Ошибка!', description = "**У вас заблокирование транзакции, так как вы в тюрме!**", colour = discord.Color.green() )
 			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
@@ -791,7 +791,7 @@ class Economy(commands.Cog, name = 'Economy'):
 			await ctx.message.add_reaction('❌')
 			self.sendmoney.reset_cooldown(ctx)
 			return
-		elif cur_state_pr2 == True:
+		elif cur_state_pr2:
 			emb = discord.Embed( title = 'Ошибка!', description = "**В указаного пользователя заблокирование транзакции, так как он в тюрме!**", colour = discord.Color.green() )
 			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
@@ -835,7 +835,6 @@ class Economy(commands.Cog, name = 'Economy'):
 
 		emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-
 		await ctx.send(embed = emb)
 
 
@@ -1311,7 +1310,7 @@ class Economy(commands.Cog, name = 'Economy'):
 			await ctx.message.add_reaction('❌')
 			return
 
-		if cur_state_pr == False:
+		if not cur_state_pr:
 			if member in ctx.guild.members:
 				data2 = DB().sel_user(target = member)
 			else:
@@ -1416,7 +1415,7 @@ class Economy(commands.Cog, name = 'Economy'):
 
 			if rand_num <= 40:
 				state = crime_func( -5000, ctx.author )
-				if state[0] == True:
+				if state[0]:
 					emb = discord.Embed( description = f'**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Ваш текущий баланс: {state[1]}**' , colour = discord.Color.green() )
 					emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 					emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
@@ -1439,7 +1438,7 @@ class Economy(commands.Cog, name = 'Economy'):
 				emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 				await ctx.send( embed = emb )
-		elif cur_state_pr == True:
+		elif cur_state_pr:
 			emb = discord.Embed( description = f"**Вы не забыли? Вы сейчас в тюрме!**", colour = discord.Color.green() )
 			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
@@ -1449,7 +1448,7 @@ class Economy(commands.Cog, name = 'Economy'):
 			return
 
 
-	@commands.command(description = '**Показывает ваш инвертарь**', usage = 'invertory')
+	@commands.command(description = '**Показывает ваш инвертарь**', usage = 'invertory', aliases=['inv'])
 	async def invertory( self, ctx ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )

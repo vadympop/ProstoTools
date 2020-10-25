@@ -142,10 +142,8 @@ class Utils(commands.Cog, name = 'Utils'):
 				self.conn.commit()
 			else:
 				emb = discord.Embed(desciption='**На этом сервере приватные голосовые комнаты уже есть**', color=discord.Color.green())
-
 				emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 				emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-
 				await ctx.send( embed = emb )
 				await ctx.message.add_reaction('❌')
 				return
@@ -228,7 +226,7 @@ class Utils(commands.Cog, name = 'Utils'):
 
 			emb = discord.Embed(title = 'Операция добавления роли проведенна успешно', description = f'У пользователей с ролью `{for_role.name}` была добавленна роль - `{role.name}`', colour = discord.Color.green())
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
-			emb.set_footer( text = self.FOOTER, icon_url = client.user.avatar_url )
+			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )
 		elif type_act == 'remove' or type_act == 'del':
 			for member in ctx.guild.members:

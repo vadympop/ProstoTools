@@ -87,24 +87,15 @@ class Different(commands.Cog, name = 'Different'):
 					state = DB().del_reminder(ctx.guild.id, int(type_time))
 					if state:
 						emb = discord.Embed(description=f"**Напоминания #{type_time} было успешно удалено**", colour=discord.Color.green())
-						emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-						await ctx.send(embed=emb)
 					else:
 						emb = discord.Embed(title='Ошибка!', description="**Напоминания с таким id не существует!**", colour=discord.Color.green())
-						emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-						await ctx.send(embed=emb)
 				else:
 					emb = discord.Embed(title='Ошибка!', description="**Указаное id - сторока!**", colour=discord.Color.green())
-					emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-					await ctx.send(embed=emb)
 			elif not type_time:
 				emb = discord.Embed(title='Ошибка!', description="**Вы не указали id напоминая!**", colour=discord.Color.green())
-				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await ctx.send(embed=emb)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
 
 
 	@commands.command(aliases=['usersend'], name = 'user-send', description = '**Отправляет сообщения указаному участнику(Cooldown - 1 мин после двох попыток)**', usage = 'user-send [@Участник] [Сообщения]')
@@ -323,26 +314,10 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.channel.purge( limit = purge )
 
 		data = DB().sel_guild(guild = ctx.guild)
-		guild = ctx.message.guild
-		guild_name = guild.name
-		guild_id = guild.id
-		guild_reg = guild.region.name
-		guild_owner_name = guild.owner
-		guild_channels = len(guild.channels)
-		guild_text_channels = len(guild.text_channels)
-		guild_voice_channels = len(guild.voice_channels)
-		guild_categories = len(guild.categories)
-		guild_member_count = int(guild.member_count)
-		guild_roles = len(guild.roles)
 		guild_created_at_year = guild.created_at.year
 		guild_created_at_month = guild.created_at.month
 		guild_created_at_day = guild.created_at.day
 		guild_created_at_hour = guild.created_at.hour
-		dnd = 0
-		sleep = 0
-		online = 0
-		offline = 0
-		bots = 0
 		time = data['timedelete_textchannel']
 		max_warns = data['max_warns']
 		all_message = data['all_message']
@@ -407,33 +382,32 @@ class Different(commands.Cog, name = 'Different'):
 		offline = len([str(member.id) for member in ctx.guild.members if member.status.name == 'offline'])
 		bots = len([str(member.id) for member in ctx.guild.members if member.bot])
 
-		emb = discord.Embed( title = 'Информация о вашем сервере', colour = discord.Color.green() )
+		emb = discord.Embed(title='Информация о вашем сервере', colour=discord.Color.green())
 
 		emb.add_field( 
-			name = f'Основная информация', 
-			value = f'**Название сервера:** {guild_name}\n**Id сервера:** {guild_id}\n**Регион сервера:** {regions[guild_reg]}\n**Уровень верификации:** {verifications[guild.verification_level.name]}\n**Всего сообщений:** {all_message}\n**Владелец сервера:** {guild_owner_name}\n**Созданн:** {guild_created_at_day} {monthes[guild_created_at_month]} {guild_created_at_year} года в {guild_created_at_hour} часов', 
-			inline = False 
+			name=f'Основная информация', 
+			value=f'**Название сервера:** {ctx.guild.name}\n**Id сервера:** {ctx.guild.id}\n**Регион сервера:** {regions[ctx.guild.region.name]}\n**Уровень верификации:** {verifications[ctx.guild.verification_level.name]}\n**Всего сообщений:** {all_message}\n**Владелец сервера:** {ctx.guild.owner.name+ctx.guild.owner.discriminator}\n**Созданн:** {guild_created_at_day} {monthes[guild_created_at_month]} {guild_created_at_year} года в {guild_created_at_hour} часов', 
+			inline=False 
 		)
 		emb.add_field( 
-			name = 'Статистика', 
-			value = f'**<:channels:730400768049414144> Всего каналов:** {guild_channels}\n**<:text_channel:730396561326211103> Текстовых каналов:** {guild_text_channels}\n**<:voice_channel:730399079418429561> Голосовых каналов:** {guild_voice_channels}\n**<:category:730399838897963038> Категорий:** {guild_categories}\n**<:role:730396229220958258> Количество ролей:** {guild_roles}', 
-			inline = False 
+			name='Статистика', 
+			value=f'**<:channels:730400768049414144> Всего каналов:** {len(ctx.guild.channels)}\n**<:text_channel:730396561326211103> Текстовых каналов:** {len(ctx.guild.text_channels)}\n**<:voice_channel:730399079418429561> Голосовых каналов:** {len(ctx.guild.voice_channels)}\n**<:category:730399838897963038> Категорий:** {len(ctx.guild.categories)}\n**<:role:730396229220958258> Количество ролей:** {len(ctx.guild.roles)}', 
+			inline=False 
 		)
 		emb.add_field( 
-			name = 'Участники', 
-			value = f'**:baby: Общее количество участников:** {guild_member_count}\n**<:bot:731819847905837066> Боты:** {bots}\n**<:sleep:730390502972850256> Отошли:** {sleep}\n**<:dnd:730391353929760870> Не беспокоить:** {dnd}\n**<:offline:730392846573633626> Не в сети:** {offline}\n**<:online:730393440046809108> В сети:** {online}', 
-			inline = False 
+			name= Участники', 
+			value=f'**:baby: Общее количество участников:** {ctx.guild.member_count}\n**<:bot:731819847905837066> Боты:** {bots}\n**<:sleep:730390502972850256> Отошли:** {sleep}\n**<:dnd:730391353929760870> Не беспокоить:** {dnd}\n**<:offline:730392846573633626> Не в сети:** {offline}\n**<:online:730393440046809108> В сети:** {online}', 
+			inline=False 
 		)
 		emb.add_field( 
-			name = 'Настройки сервера', 
-			value = f'**Канал идей:** {ideachannel}\n**Удаления команд:** {purge}\n**Категория приватных текстовых каналов:** {text_category}\n**Максимальное количество предупрежденний:** {max_warns}\n**Время удаления приватного текстового канала:** {time}мин',
-			inline = False
+			name='Настройки сервера', 
+			value=f'**Канал идей:** {ideachannel}\n**Удаления команд:** {purge}\n**Категория приватных текстовых каналов:** {text_category}\n**Максимальное количество предупрежденний:** {max_warns}\n**Время удаления приватного текстового канала:** {time}мин',
+			inline=False
 		 )
 
-		emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
-		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-
-		await ctx.send( embed = emb )
+		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		await ctx.send(embed=emb)
 
 
 	@commands.command(aliases=['idea', 'guildidea'], name = 'guild-idea', description = '**Отправляет вашу идею (Cooldown - 30мин)**', usage = 'guild-idea [Ваша идея]')
@@ -502,7 +476,6 @@ class Different(commands.Cog, name = 'Different'):
 	async def say( self, ctx, *, text ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
-
 		await ctx.send(text)
 
 
@@ -511,8 +484,7 @@ class Different(commands.Cog, name = 'Different'):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
-		random_num = randint( rnum1, rnum2 )
-		emb = discord.Embed( title = f'Рандомное число от {rnum1} до {rnum2}', description = f'**Бот зарандомил число {random_num}**', colour = discord.Color.green() )
+		emb = discord.Embed( title = f'Рандомное число от {rnum1} до {rnum2}', description = f'**Бот зарандомил число {randint(rnum1, rnum2)}**', colour = discord.Color.green() )
 		emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 		emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 		await ctx.send( embed = emb )
@@ -531,7 +503,6 @@ class Different(commands.Cog, name = 'Different'):
 			self.conn.commit()
 
 			await ctx.message.add_reaction('✅')
-
 		if len(text) > 1000:
 			await ctx.message.add_reaction('❌')
 			return
@@ -548,7 +519,11 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.command(name='calc', aliases=['calculator', 'c'], description='Выполняет математические операции', usage='calc [Операция]')
 	async def calc(self, ctx, *, exp = None):
 		if not exp:
-			await ctx.send('**Укажите пример!**')
+			emb = discord.Embed(title='Ошибка!', description='**Укажите пример!**', colour=discord.Color.green())
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url )
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url )
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
 			return
 
 		link = 'http://api.mathjs.org/v4/'
@@ -565,7 +540,12 @@ class Different(commands.Cog, name = 'Different'):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		except:
-			await ctx.send('**Это калькулятор, текст нельзя -.-**')
+			emb = discord.Embed(title='Ошибка!', description='**Что-то пошло не так :(**', colour=discord.Color.green())
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url )
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url )
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
 
 def setup( client ):
 	client.add_cog(Different(client))
