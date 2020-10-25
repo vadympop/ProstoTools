@@ -3,6 +3,8 @@ import math
 
 from Tools.database import DB
 
+client = None
+
 class Attributes:
 	__slots__ = '_attrs'
 
@@ -15,10 +17,12 @@ class Attributes:
 	def get(self, key):
 		return self._attrs[key]
 
+
 class Rank:
-	__slots__ = 'exp', 'lvl', 'remaining_exp', 'money', 'coins', 'bio', 'count_channels', 'reputation', 'count_messages', 'count_warns', 'level_exp'
+	__slots__ = '_id', 'exp', 'lvl', 'remaining_exp', 'money', 'coins', 'bio', 'count_channels', 'reputation', 'count_messages', 'count_warns', 'level_exp'
 
 	def __init__(self, data):
+		self._id = data['user_id']
 		self.exp = data['exp']
 		self.lvl = data['lvl']
 		self.level_exp = math.floor(9 * (self.lvl ** 2) + 50 * self.lvl + 125 * data['multi'])
@@ -32,7 +36,7 @@ class Rank:
 		self.count_warns = len(data['warns'])
 	
 	def __str__(self):
-		return self.exp
+		return client.get_user(self._id).name+client.get_user(self._id).discriminator
 
 class Channel:
 	__slots__ = "id", "name", 'position', 'mention', 'created_at', 'topic'
@@ -99,7 +103,7 @@ class User:
 		return self.name+'#'+self.discriminator
 
 class Member(User):
-	__slots__ = "id", "name", 'joined_at', 'rank', 'bot', 'nick', 'mention', 'voice', 'avatar_url', 'discrininator', 'created_at', '_member_statuses', 'status'
+	__slots__ = 'permissions', 'guild_id', 'roles', "id", "name", 'joined_at', 'rank', 'bot', 'nick', 'mention', 'voice', 'avatar_url', 'discrininator', 'created_at', '_member_statuses', 'status'
 
 	def __init__(self, data, db_data):
 		super().__init__(data)
@@ -110,24 +114,30 @@ class Member(User):
 			'idle': '<:sleep:730390502972850256> - Отошёл',
 		}
 
+		self.guild_id = data.guild.id 
 		self.joined_at = data.joined_at
 		self.nick = data.display_name
 		self.mention = data.mention
 		self.voice = VoiceState(data.voice)
 		self.status = self._member_statuses[data.status.name]
 		self.rank = Rank(db_data)
+		self.roles = [Role(role) for role in data.roles]
+		self.permissions = [perm[0] for perm in data.guild_permissions if perm[1]]
 
 	def __str__(self):
 		return self.name+'#'+self.discriminator
 
-	def has_role(self, role: Role):
-		pass
+	def has_role(self, id):
+		if Role(client.get_guild(self.guild_id).get_role(id)) in self.roles:
+			return True
+		else:
+			return False
 
-	def has_permission(self, permission: discord.Permissions):
-		pass
-
-	def has_channel_permission(self, channel: Channel, permission: discord.Permissions):
-		pass
+	def has_permission(self, permission):
+		if permission.lower() in self.permissions:
+			return True
+		else:
+			return False
 
 class Guild:
 	__slots__ = "id", "name", 'icon_url', 'owner', 'member_count', 'exp_multiplier', 'region', 'created_at', 'region_emoji', '_region_emojis', '__databasedataofmember'
@@ -167,13 +177,16 @@ class Guild:
 		return self.name
 	
 	def get_channel(self, id):
-		pass
+		return Channel(client.get_channel(id))
 
 	def get_member(self, id):
-		pass
+		member = client.get_guild(self.id).get_member(id)
+		db_member = DB().sel_user(member)
+		db_member.update({'multi': self.exp_multiplier})
+		return Member(member, db_member)
 
 	def get_role(self, id):
-		pass
+		return Role(client.get_guild(self.id).get_role(id))
 
 class Message:
 	__slots__ = 'id', 'content', 'author', 'created_at', 'exp_multipier', '__databasedataofmember', 'guild', 'jump_url'

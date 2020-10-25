@@ -334,8 +334,8 @@ class Events(commands.Cog, name = 'Events'):
 					member_channel = await member.guild.create_voice_channel( name = f'{member.name} Channel', overwrites = overwrites, category = category, guild = member.guild )
 					await member.move_to( member_channel )
 
-					def check(a, b, c):
-						return len(member_channel.members) == 0
+					def check():
+						return len(member_channel.members) <= 0
 
 					await self.client.wait_for('voice_state_update', check=check)
 					await member_channel.delete()

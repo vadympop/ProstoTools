@@ -6,3 +6,414 @@
 Ошибка:
 Command raised an exception: TypeError: can only concatenate str (not "NoneType") to str
 =============================================================
+
+=============================================================
+Время: 2020-10-25 09:59:06.640543
+
+Ошибка:
+Command raised an exception: TypeError: can only concatenate str (not "NoneType") to str
+=============================================================
+
+=============================================================
+Время: 2020-10-25 15:55:49.081923
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 619, in _load_from_module_spec
+    setup(self)
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 14, in setup
+    client.add_cog(Clans(client))
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 10, in __init__
+    self.FOOTER = configs['FOOTER']
+TypeError: 'module' object is not subscriptable
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 77, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 624, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.clans' raised an error: TypeError: 'module' object is not subscriptable
+
+=============================================================
+
+=============================================================
+Время: 2020-10-25 15:55:49.329264
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 607, in _load_from_module_spec
+    spec.loader.exec_module(lib)
+  File "<frozen importlib._bootstrap_external>", line 779, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 916, in get_code
+  File "<frozen importlib._bootstrap_external>", line 846, in source_to_code
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "e:\PyProg\ProstoTools\Cogs\different.py", line 398
+    name= Участники',
+                     ^
+SyntaxError: EOL while scanning string literal
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 77, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 610, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.different' raised an error: SyntaxError: EOL while scanning string literal (different.py, line 398)
+
+=============================================================
+
+=============================================================
+Время: 2020-10-25 15:57:44.795075
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 619, in _load_from_module_spec
+    setup(self)
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 14, in setup
+    client.add_cog(Clans(client))
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 10, in __init__
+    self.FOOTER = configs['FOOTER']
+KeyError: 'FOOTER'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 77, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 624, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.clans' raised an error: KeyError: 'FOOTER'
+
+=============================================================
+
+=============================================================
+Время: 2020-10-25 15:58:12.758295
+
+Ошибка:
+Command raised an exception: TypeError: __str__ returned non-string (type int)
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:03:41.998872
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 619, in _load_from_module_spec
+    setup(self)
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 14, in setup
+    client.add_cog(Clans(client))
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 10, in __init__
+    self.FOOTER = configs['FOOTER']
+KeyError: 'FOOTER'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 77, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 624, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.clans' raised an error: KeyError: 'FOOTER'
+
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:04:09.614023
+
+Ошибка:
+Command raised an exception: KeyError: 0
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:04:42.167967
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 619, in _load_from_module_spec
+    setup(self)
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 14, in setup
+    client.add_cog(Clans(client))
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 10, in __init__
+    self.FOOTER = configs['FOOTER']
+KeyError: 'FOOTER'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 77, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 624, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.clans' raised an error: KeyError: 'FOOTER'
+
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:04:52.171216
+
+Ошибка:
+Command raised an exception: AttributeError: 'User' object has no attribute 'guild'
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:05:44.385585
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 619, in _load_from_module_spec
+    setup(self)
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 14, in setup
+    client.add_cog(Clans(client))
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 10, in __init__
+    self.FOOTER = configs['FOOTER']
+KeyError: 'FOOTER'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 77, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 624, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.clans' raised an error: KeyError: 'FOOTER'
+
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:05:55.449997
+
+Ошибка:
+Command raised an exception: AttributeError: 'dict' object has no attribute 'id'
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:06:49.471828
+
+Ошибка:
+Command raised an exception: AttributeError: 'dict' object has no attribute 'id'
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:07:46.507393
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 619, in _load_from_module_spec
+    setup(self)
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 14, in setup
+    client.add_cog(Clans(client))
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 10, in __init__
+    self.FOOTER = configs['FOOTER']
+KeyError: 'FOOTER'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 77, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 624, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.clans' raised an error: KeyError: 'FOOTER'
+
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:08:14.809782
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 619, in _load_from_module_spec
+    setup(self)
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 14, in setup
+    client.add_cog(Clans(client))
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 10, in __init__
+    self.FOOTER = configs['FOOTER']
+KeyError: 'FOOTER'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 77, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 624, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.clans' raised an error: KeyError: 'FOOTER'
+
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:08:21.406143
+
+Ошибка:
+Command raised an exception: AttributeError: 'User' object has no attribute 'guild'
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:09:03.410815
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 619, in _load_from_module_spec
+    setup(self)
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 14, in setup
+    client.add_cog(Clans(client))
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 10, in __init__
+    self.FOOTER = configs['FOOTER']
+KeyError: 'FOOTER'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 77, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 624, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.clans' raised an error: KeyError: 'FOOTER'
+
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:09:11.531099
+
+Ошибка:
+Command raised an exception: AttributeError: 'dict' object has no attribute 'id'
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:10:12.823193
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 619, in _load_from_module_spec
+    setup(self)
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 14, in setup
+    client.add_cog(Clans(client))
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 10, in __init__
+    self.FOOTER = configs['FOOTER']
+KeyError: 'FOOTER'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 77, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 624, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.clans' raised an error: KeyError: 'FOOTER'
+
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:10:51.757076
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 619, in _load_from_module_spec
+    setup(self)
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 14, in setup
+    client.add_cog(Clans(client))
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 10, in __init__
+    self.FOOTER = configs['FOOTER']
+KeyError: 'FOOTER'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 77, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 624, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.clans' raised an error: KeyError: 'FOOTER'
+
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:11:05.218084
+
+Ошибка:
+Command raised an exception: KeyError: 'multi'
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:13:50.736457
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 619, in _load_from_module_spec
+    setup(self)
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 14, in setup
+    client.add_cog(Clans(client))
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 10, in __init__
+    self.FOOTER = configs['FOOTER']
+KeyError: 'FOOTER'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 77, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 624, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.clans' raised an error: KeyError: 'FOOTER'
+
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:14:09.643954
+
+Ошибка:
+Command raised an exception: HTTPException: 400 Bad Request (error code: 50006): Cannot send an empty message
+=============================================================
+
+=============================================================
+Время: 2020-10-25 16:20:48.806715
+
+Ошибка:
+Traceback (most recent call last):
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 619, in _load_from_module_spec
+    setup(self)
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 14, in setup
+    client.add_cog(Clans(client))
+  File "e:\PyProg\ProstoTools\Cogs\clans.py", line 10, in __init__
+    self.FOOTER = configs['FOOTER']
+KeyError: 'FOOTER'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "e:/PyProg/ProstoTools/bot.py", line 77, in <module>
+    client.load_extension(f'Cogs.{filename[:-3]}')
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 664, in load_extension
+    self._load_from_module_spec(spec, name)
+  File "C:\Users\ProstoChelovek\AppData\Local\Programs\Python\Python38-32\lib\site-packages\discord\ext\commands\bot.py", line 624, in _load_from_module_spec
+    raise errors.ExtensionFailed(key, e) from e
+discord.ext.commands.errors.ExtensionFailed: Extension 'Cogs.clans' raised an error: KeyError: 'FOOTER'
+
+=============================================================

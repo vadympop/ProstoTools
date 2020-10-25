@@ -10,6 +10,7 @@ from discord.ext import commands
 from discord.utils import get
 from configs import configs
 from Tools.database import DB
+import Tools.template_engine as temp_eng
 init()
 
 class Client(commands.AutoShardedBot):
@@ -48,6 +49,7 @@ load_error = ''
 now_date = str(datetime.datetime.today())[:-16]
 log_file = f'./Data/Logs/log-{now_date}.txt'
 space = ''
+temp_eng.client = client
 
 try:
 	log = client.txt_load(log_file)

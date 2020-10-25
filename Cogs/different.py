@@ -395,7 +395,7 @@ class Different(commands.Cog, name = 'Different'):
 			inline=False 
 		)
 		emb.add_field( 
-			name= Участники', 
+			name='Участники', 
 			value=f'**:baby: Общее количество участников:** {ctx.guild.member_count}\n**<:bot:731819847905837066> Боты:** {bots}\n**<:sleep:730390502972850256> Отошли:** {sleep}\n**<:dnd:730391353929760870> Не беспокоить:** {dnd}\n**<:offline:730392846573633626> Не в сети:** {offline}\n**<:online:730393440046809108> В сети:** {online}', 
 			inline=False 
 		)
