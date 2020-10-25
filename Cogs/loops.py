@@ -47,7 +47,10 @@ class Loops(commands.Cog, name = 'Loops'):
 						if channel in guild.channels:
 							await channel.send(embed=emb, content=member.mention)
 						else:
-							await member.send(embed=emb)
+							try:
+								await member.send(embed=emb)
+							except:
+								pass
 
 	@tasks.loop(seconds=5)
 	async def mute_loop(self):

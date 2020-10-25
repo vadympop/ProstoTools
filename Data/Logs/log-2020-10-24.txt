@@ -55,3 +55,10 @@ Command raised an exception: ExtensionFailed: Extension 'Cogs.utils' raised an e
 Ошибка:
 stats_count is a required argument that is missing.
 =============================================================
+
+=============================================================
+Время: 2020-10-24 17:52:02.116910
+
+Ошибка:
+Command "*ВАЖНО:**" is not found
+=============================================================
