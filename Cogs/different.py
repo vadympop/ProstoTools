@@ -493,9 +493,11 @@ class Different(commands.Cog, name = 'Different'):
 	@commands.command(description = '**Устанавливает краткое описания о вас**', usage = 'bio [Текст]')
 	async def bio( self, ctx, *, text: str = None ):
 		purge = self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge( limit = purge )
+		await ctx.channel.purge(limit=purge)
+		cur_bio = DB().sel_user(target=ctx.author)['bio']
 
-		if not text:
+		clears = ['clear', '-', 'delete', 'очистить', "удалить"]
+		if text in clears:
 			sql = ("""UPDATE users SET bio = %s WHERE user_id = %s""")
 			val = ('', ctx.author.id)
 
@@ -503,6 +505,13 @@ class Different(commands.Cog, name = 'Different'):
 			self.conn.commit()
 
 			await ctx.message.add_reaction('✅')
+			return
+		if not text:
+			emb = discord.Embed(title='Ваша биография', description="У вас нету биографии" if cur_bio == '' else f'```{cur_bio}```', colour=discord.Color.green())
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			return
 		if len(text) > 1000:
 			await ctx.message.add_reaction('❌')
 			return

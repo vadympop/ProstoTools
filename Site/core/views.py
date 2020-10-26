@@ -2,31 +2,25 @@
 import datetime
 import json
 import asyncio
-import sys
 import os
 import socket
-sys.path.insert(0, 'E:\PyProg\ProstoTools')
 
 import mysql.connector
 import requests
 
-from config import Config
-from utils import Utils
-from Site.__init__ import app, cursor, conn, jinja, session
-# from bot import client
+from Site.config import Config
+from Site.core.utils import Utils
+from Site.app import jinja
+from sanic import Blueprint
 from sanic.exceptions import NotFound, ServerError
 from sanic import response
-# from flask import render_template, redirect, request, url_for, session
 
-utils = Utils()
+client = None
+conn = mysql.connector.connect(user='root', passwd=os.environ['DB_PASSWORD'], host='localhost', db='data')
+cursor = conn.cursor(buffered=True)
+bp = Blueprint('views', url_prefix='/')
 
-# @app.before_request
-# def make_session_permanent():
-# 	session.permanent = True
-# 	app.permanent_session_lifetime = datetime.timedelta(days=365)
-
-
-@app.route('/')
+@bp.route('/')
 async def index(request):
 	cursor.execute("""SELECT count FROM bot_stats WHERE entity = 'all commands'""") # Database query
 	amout_used_commands = cursor.fetchall()
@@ -34,15 +28,15 @@ async def index(request):
 	amout_used_commands = amout_used_commands[0] # Get the biggest value
 
 	try:
-		return jinja.render('index.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], bot_stats=[len(client.guilds), len(client.users), amout_used_commands])
+		return jinja.render('index.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], bot_stats=[len(client.guilds), len(client.users), amout_used_commands])
 	except:
-		return jinja.render('index.html', request, url=utils.DISCORD_LOGIN_URI, bot_stats=[len(client.guilds), len(client.users), amout_used_commands])
+		return jinja.render('index.html', request, url=Utils().DISCORD_LOGIN_URI, bot_stats=[len(client.guilds), len(client.users), amout_used_commands])
 
 
-@app.route('/servers')
+@bp.route('/servers')
 async def servers(request):
 	code = request.args.get('code') # Get code from url
-	access_token = utils.get_access_token(code) # Get an user access token 
+	access_token = Utils().get_access_token(code) # Get an user access token 
 
 	if code: # If code is not None, it redirects to the servers page
 
@@ -52,7 +46,7 @@ async def servers(request):
 		return response.redirect('/servers')
 
 	access_token = request.ctx.session['access_token']
-	user_datas = utils.get_user_data(access_token)
+	user_datas = Utils().get_user_data(access_token)
 
 	# If length of username the biggest than 16, it is shorting the username and it is unating a username and disciminator 
 	if len(user_datas[0]['username']) > 16:
@@ -121,29 +115,29 @@ async def servers(request):
 	else:
 		request.ctx.session['user_guilds'] = session_guild_datas
 
-	return jinja.render('servers.html', request, url=utils.DISCORD_LOGIN_URI, datas=datas, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'])
+	return jinja.render('servers.html', request, url=Utils().DISCORD_LOGIN_URI, datas=datas, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'])
 
 
-@app.route('/dashboard/<int:guild_id>', methods=['POST', 'GET'])
+@bp.route('/dashboard/<int:guild_id>', methods=['POST', 'GET'])
 async def dashboard(request, guild_id):
 
 	# Check if user is logging 
 	if not request.ctx.session['user_state_login']:
-		return response.redirect(utils.DISCORD_LOGIN_URI)
+		return response.redirect(Utils().DISCORD_LOGIN_URI)
 
 	# Get the guilds, roles and channels
-	datas_guild = utils.get_guild_channel_roles(guild_id)
+	datas_guild = Utils().get_guild_channel_roles(guild_id)
 	guilds = request.ctx.session['user_guilds']
-	guild_data = utils.get_db_guild_data(guild_id)
+	guild_data = Utils().get_db_guild_data(guild_id)
 	new_idea_channel = 0
 	
 	if request.method == 'POST':
 
 		# Check if prefix is incorect introduced
 		if len(request.form['new_prefix']) < 1:
-			return jinja.render( url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global', alert=['danger', 'Укажите префикс'])
+			return jinja.render( url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global', alert=['danger', 'Укажите префикс'])
 		elif len(request.form['new_prefix']) > 3:
-			return jinja.render(url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global', alert=['danger', 'Префикс должен быть меньше 4 символов'])
+			return jinja.render(url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global', alert=['danger', 'Префикс должен быть меньше 4 символов'])
 		else:
 			new_prefix = request.form['new_prefix']
 
@@ -191,97 +185,97 @@ async def dashboard(request, guild_id):
 		cursor.execute(sql, val) # Database query
 		conn.commit()
 		
-	guild_data = utils.get_db_guild_data(guild_id)
-	return jinja.render('dashboard.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global')
+	guild_data = Utils().get_db_guild_data(guild_id)
+	return jinja.render('dashboard.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='global')
 
 
-@app.route('/dashboard/<int:guild_id>/moderation')
+@bp.route('/dashboard/<int:guild_id>/moderation')
 async def dashboard_moderation(request, guild_id):
 
 	# Check if user is logging 
 	if not request.ctx.session['user_state_login']:
-		return response.redirect(utils.DISCORD_LOGIN_URI)
+		return response.redirect(Utils().DISCORD_LOGIN_URI)
 
-	guild_data = utils.get_db_guild_data(guild_id)
-	datas_guild = utils.get_guild_channel_roles(guild_id)
+	guild_data = Utils().get_db_guild_data(guild_id)
+	datas_guild = Utils().get_guild_channel_roles(guild_id)
 	guilds = request.ctx.session['user_guilds']
 
-	return jinja.render('dashboard.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='moderation')
+	return jinja.render('dashboard.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='moderation')
 
 
-@app.route('/dashboard/<int:guild_id>/economy')
+@bp.route('/dashboard/<int:guild_id>/economy')
 async def dashboard_economy(request, guild_id):
 
 	# Check if user is logging 
 	if not request.ctx.session['user_state_login']:
-		return response.redirect(utils.DISCORD_LOGIN_URI)
+		return response.redirect(Utils().DISCORD_LOGIN_URI)
 
-	guild_data = utils.get_db_guild_data(guild_id)
-	datas_guild = utils.get_guild_channel_roles(guild_id)
+	guild_data = Utils().get_db_guild_data(guild_id)
+	datas_guild = Utils().get_guild_channel_roles(guild_id)
 	guilds = request.ctx.session['user_guilds']
 
-	return jinja.render('dashboard.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='economy')
+	return jinja.render('dashboard.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='economy')
 
 
-@app.route('/dashboard/<int:guild_id>/levels')
+@bp.route('/dashboard/<int:guild_id>/levels')
 async def dashboard_levels(request, guild_id):
 
 	# Check if user is logging 
 	if not request.ctx.session['user_state_login']:
-		return response.redirect(utils.DISCORD_LOGIN_URI)
+		return response.redirect(Utils().DISCORD_LOGIN_URI)
 
-	guild_data = utils.get_db_guild_data(guild_id)
-	datas_guild = utils.get_guild_channel_roles(guild_id)
+	guild_data = Utils().get_db_guild_data(guild_id)
+	datas_guild = Utils().get_guild_channel_roles(guild_id)
 	guilds = request.ctx.session['user_guilds']
 
-	return jinja.render('dashboard.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='levels')
+	return jinja.render('dashboard.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='levels')
 
 
-@app.route('/dashboard/<int:guild_id>/welcome')
+@bp.route('/dashboard/<int:guild_id>/welcome')
 async def dashboard_welcome(request, guild_id):
 
 	# Check if user is logging 
 	if not request.ctx.session['user_state_login']:
-		return response.redirect(utils.DISCORD_LOGIN_URI)
+		return response.redirect(Utils().DISCORD_LOGIN_URI)
 
-	guild_data = utils.get_db_guild_data(guild_id)
-	datas_guild = utils.get_guild_channel_roles(guild_id)
+	guild_data = Utils().get_db_guild_data(guild_id)
+	datas_guild = Utils().get_guild_channel_roles(guild_id)
 	guilds = request.ctx.session['user_guilds']
 
-	return jinja.render('dashboard.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='welcome')
+	return jinja.render('dashboard.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='welcome')
 
 
-@app.route('/dashboard/<int:guild_id>/utils')
+@bp.route('/dashboard/<int:guild_id>/utils')
 async def dashboard_utils(request, guild_id):
 
 	# Check if user is logging 
 	if not request.ctx.session['user_state_login']:
-		return response.redirect(utils.DISCORD_LOGIN_URI)
+		return response.redirect(Utils().DISCORD_LOGIN_URI)
 
-	guild_data = utils.get_db_guild_data(guild_id)
-	datas_guild = utils.get_guild_channel_roles(guild_id)
+	guild_data = Utils().get_db_guild_data(guild_id)
+	datas_guild = Utils().get_guild_channel_roles(guild_id)
 	guilds = request.ctx.session['user_guilds']
 
-	return jinja.render('dashboard.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='utils')
+	return jinja.render('dashboard.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], guild_data=[[guild_id, guilds[str(guild_id)][0], guilds[str(guild_id)][1]], guild_data, datas_guild], category='utils')
 
 
-@app.route('/commands')
+@bp.route('/commands')
 async def commands(request):		
 	try:
-		return jinja.render('commands.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], client=client)
+		return jinja.render('commands.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], client=client)
 	except:
-		return jinja.render('commands.html', request, url=utils.DISCORD_LOGIN_URI, client=client)
+		return jinja.render('commands.html', request, url=Utils().DISCORD_LOGIN_URI, client=client)
 
 
-@app.route('/profile')
+@bp.route('/profile')
 async def profile(request):
 
 	# Check if user is logging 
 	if not request.ctx.session['user_state_login']:
-		return response.redirect(utils.DISCORD_LOGIN_URI)
+		return response.redirect(Utils().DISCORD_LOGIN_URI)
 
 	access_token = request.ctx.session['access_token'] # Get the user access token form request.ctx.session
-	user_datas = utils.get_user_data(access_token)
+	user_datas = Utils().get_user_data(access_token)
 
 	sql_1 = ("""SELECT money FROM users WHERE user_id = %s AND user_id = %s""")
 	val_1 = (user_datas[0]['id'], user_datas[0]['id'])
@@ -301,28 +295,28 @@ async def profile(request):
 	cursor.execute(sql_2, val_2) # Database query
 	bio = cursor.fetchone()[0]
 
-	return jinja.render('profile.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], user_data=[user_datas[0]['id'], len(user_datas[1]), money, bio])
+	return jinja.render('profile.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], user_data=[user_datas[0]['id'], len(user_datas[1]), money, bio])
 
 
-@app.route('/stats')
+@bp.route('/stats')
 async def stats(request):
 	channels = len([str(channel.id) for guild in client.guilds for channel in guild.channels ])
 
 	try:
-		return jinja.render('stats.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], bot_stats=[channels, len(client.guilds), len(client.users)])
+		return jinja.render('stats.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], bot_stats=[channels, len(client.guilds), len(client.users)])
 	except:
-		return jinja.render('stats.html', request, url=utils.DISCORD_LOGIN_URI, bot_stats=[channels, len(client.guilds), len(client.users)])
+		return jinja.render('stats.html', request, url=Utils().DISCORD_LOGIN_URI, bot_stats=[channels, len(client.guilds), len(client.users)])
 
 
-@app.route('/transactions')
+@bp.route('/transactions')
 async def transactions(request):
 	
 	# Check if user is logging 
 	if not request.ctx.session['user_state_login']:
-		return response.redirect(utils.DISCORD_LOGIN_URI)
+		return response.redirect(Utils().DISCORD_LOGIN_URI)
 
 	access_token = request.ctx.session['access_token'] # Get the user access token form session
-	user_datas = utils.get_user_data(access_token)
+	user_datas = Utils().get_user_data(access_token)
 
 	sql = ("""SELECT transantions FROM users WHERE user_id = %s AND user_id = %s""")
 	val = (user_datas[0]['id'], user_datas[0]['id'])
@@ -342,10 +336,10 @@ async def transactions(request):
 			guild_icon = 'https://cdn.discordapp.com/attachments/717783820308316272/743448353672790136/1.png'
 		t.update({'guild_icon': guild_icon})
 
-	return jinja.render('transactions.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], transactions=transactions)
+	return jinja.render('transactions.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], transactions=transactions)
 
 
-@app.route('/leaderboard')
+@bp.route('/leaderboard')
 async def leaderboard(request):
 	cursor.execute("""SELECT money, reputation, exp, level, coins, user_id FROM users ORDER BY exp DESC LIMIT 100""") # Database query
 	data = cursor.fetchall()
@@ -366,12 +360,12 @@ async def leaderboard(request):
 
 	users_list = sorted(users, key=lambda user: users[user]['exp'], reverse=True)
 	try:
-		return jinja.render('leaderboard.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], users_data=users, users_list=users_list)
+		return jinja.render('leaderboard.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], users_data=users, users_list=users_list)
 	except:
-		return jinja.render('leaderboard.html', request, url=utils.DISCORD_LOGIN_URI, users_data=users, users_list=users_list)
+		return jinja.render('leaderboard.html', request, url=Utils().DISCORD_LOGIN_URI, users_data=users, users_list=users_list)
 
 
-@app.route('/logout')
+@bp.route('/logout')
 async def logout(request):
 	"""Logout function"""
 	
@@ -384,12 +378,12 @@ async def logout(request):
 
 	return response.redirect('/')
 
-@app.route('/test')
+@bp.route('/test')
 async def test(request):
 	return response.json({'message': "message"})
 
 
-@app.exception(NotFound)
+@bp.exception(NotFound)
 async def not_found_error(request, exception):
 	"""Catch the 404 code error
 	And return html page
@@ -397,12 +391,12 @@ async def not_found_error(request, exception):
 	"""
 	
 	try:
-		return jinja.render('error_404.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'])
+		return jinja.render('error_404.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'])
 	except:
-		return jinja.render('error_404.html', request, url=utils.DISCORD_LOGIN_URI)
+		return jinja.render('error_404.html', request, url=Utils().DISCORD_LOGIN_URI)
 
 
-@app.exception(ServerError)
+@bp.exception(ServerError)
 async def internal_error(request, exception):
 	"""Catch the 500 code error
 	And return html page
@@ -410,10 +404,6 @@ async def internal_error(request, exception):
 	"""
 	
 	try:
-		return jinja.render('error_500.html', request, url=utils.DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], error=exception)
+		return jinja.render('error_500.html', request, url=Utils().DISCORD_LOGIN_URI, avatar=request.ctx.session['user_avatar'], login=request.ctx.session['user_state_login'], user_name=request.ctx.session['user_name'], error=exception)
 	except:
-		return jinja.render('error_500.html', request, url=utils.DISCORD_LOGIN_URI, error=exception)
-
-# Run the app
-if __name__ == "__main__":
-	app.run(port=5000, debug=True)
+		return jinja.render('error_500.html', request, url=Utils().DISCORD_LOGIN_URI, error=exception)

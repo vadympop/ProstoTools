@@ -4,20 +4,20 @@ import json
 import os
 import mysql.connector
 
-from Site.__init__ import conn, cursor
-
-
 # Create new class Utils
 class Utils:
-	# Const variables
-	CLIENT_ID = '700767394154414142'
-	CLIENT_SECRET = 'DsxERoWInGaqcX1CoJQu3QfNX7pak-Yd'
-	SCOPE = 'identify%20guilds'
-	REDIRECT_URI = 'http://127.0.0.1:5000/servers'
-	DISCORD_LOGIN_URI = f'https://discord.com/api/oauth2/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&response_type=code&scope={SCOPE}'
-	DISCORD_TOKEN_URI = 'https://discord.com/api/v6/oauth2/token'
-	DISCORD_API_URI = 'https://discord.com/api/v6'
-	CLIENT_TOKEN = os.environ['BOT_TOKEN']
+	def __init__(self):
+		# Const variables
+		self.conn = mysql.connector.connect(user='root', passwd=os.environ['DB_PASSWORD'], host='localhost', db='data')
+		self.cursor = self.conn.cursor(buffered=True)
+		self.CLIENT_ID = '700767394154414142'
+		self.CLIENT_SECRET = 'DsxERoWInGaqcX1CoJQu3QfNX7pak-Yd'
+		self.SCOPE = 'identify%20guilds'
+		self.REDIRECT_URI = 'http://127.0.0.1:5000/servers'
+		self.DISCORD_LOGIN_URI = f'https://discord.com/api/oauth2/authorize?client_id={self.CLIENT_ID}&redirect_uri={self.REDIRECT_URI}&response_type=code&scope={self.SCOPE}'
+		self.DISCORD_TOKEN_URI = 'https://discord.com/api/v6/oauth2/token'
+		self.DISCORD_API_URI = 'https://discord.com/api/v6'
+		self.CLIENT_TOKEN = os.environ['BOT_TOKEN']
 
 	def get_access_token(self, code):
 		"""Return the access token of user
@@ -90,8 +90,8 @@ class Utils:
 
 		"""
 
-		cursor.execute("""SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s""", (guild_id, guild_id))
-		guild_data = cursor.fetchone()
+		self.cursor.execute("""SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s""", (guild_id, guild_id))
+		guild_data = self.cursor.fetchone()
 
 		donate = guild_data[8]
 		react_channels = []
