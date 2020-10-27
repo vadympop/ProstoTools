@@ -8,6 +8,7 @@ import asyncio
 import typing
 import math
 import io
+import uuid
 import mysql.connector
 from Tools.database import DB
 from Cybernator import Paginator
@@ -297,18 +298,12 @@ class Economy(commands.Cog, name = 'Economy'):
 					cur_items = []
 					return True
 
-				id_trans = ''
-				stop = 0
-				while stop <= 12:
-					id_trans += str(randint(1, 9))
-					stop += 1
-
 				info_transantion = {
 					'to': 'Магазин',
 					'from': ctx.author.id,
 					'cash': func_cost,
 					'time': str(datetime.datetime.today()),
-					'id': id_trans,
+					'id': str(uuid.uuid4),
 					'guild_id': ctx.guild.id
 				}
 				cur_transantions.append(info_transantion)
@@ -347,18 +342,12 @@ class Economy(commands.Cog, name = 'Economy'):
 					cur_items = []
 					return True
 
-				id_trans = ''
-				stop = 0
-				while stop <= 12:
-					id_trans += str(randint(1, 9))
-					stop += 1
-
 				info_transantion = {
 					'to': 'Магазин',
 					'from': ctx.author.id,
 					'cash': cost,
 					'time': str(datetime.datetime.today()),
-					'id': id_trans,
+					'id': str(uuid.uuid4),
 					'guild_id': ctx.guild.id
 				}
 				cur_transantions.append(info_transantion)
@@ -735,20 +724,12 @@ class Economy(commands.Cog, name = 'Economy'):
 		cur_transantions2 = data2['transantions']
 
 		if not cur_state_pr1 and not cur_state_pr2 and cur_money1 > num:
-			id_1 = ''
-			id_2 = ''
-			stop = 0
-			while stop <= 12:
-				id_1 += str(randint(1, 9))
-				id_2 += str(randint(1, 9))
-				stop += 1
-
 			info_transantion_1 = {
 				'to': member.id,
 				'from': ctx.author.id,
 				'cash': num,
 				'time': str(datetime.datetime.today()),
-				'id': id_1,
+				'id': str(uuid.uuid4),
 				'guild_id': ctx.guild.id
 			}
 			info_transantion_2 = {
@@ -756,7 +737,7 @@ class Economy(commands.Cog, name = 'Economy'):
 				'from': ctx.author.id,
 				'cash': num,
 				'time': str(datetime.datetime.today()),
-				'id': id_2,
+				'id': str(uuid.uuid4),
 				'guild_id': ctx.guild.id
 			}
 

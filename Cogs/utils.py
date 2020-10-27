@@ -109,7 +109,7 @@ class Utils(commands.Cog, name = 'Utils'):
 		else:
 			emb = discord.Embed( title = 'Список заблокированных участников', colour = discord.Color.green() )
 			for user in banned_users:
-				emb.add_field( name = f'Участник: {user.user}', value = f'**Причина бана: {user.reason}**' )
+				emb.add_field( name = f'Участник: {user.user}', value = f'**Причина бана: {user.reason}**' if user.reason else '**Причина бана: Причина не указана**')
 			emb.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await ctx.send( embed = emb )

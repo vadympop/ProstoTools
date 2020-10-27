@@ -314,10 +314,9 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.channel.purge( limit = purge )
 
 		data = DB().sel_guild(guild = ctx.guild)
-		guild_created_at_year = guild.created_at.year
-		guild_created_at_month = guild.created_at.month
-		guild_created_at_day = guild.created_at.day
-		guild_created_at_hour = guild.created_at.hour
+		t = Translator()
+		created_at_en = datetime.strftime(ctx.guild.created_at, '%d %B %Y %X')
+		created_at = t.translate(created_at_en, dest='ru', src='en').text
 		time = data['timedelete_textchannel']
 		max_warns = data['max_warns']
 		all_message = data['all_message']
@@ -361,20 +360,6 @@ class Different(commands.Cog, name = 'Different'):
 			"india": ":flag_in: — Индия",
 			"hongkong": ":flag_hk: — Гонконг",
 		}
-		monthes = {
-			1: 'Января',
-			2: 'Февраля',
-			3: 'Марта',
-			4: 'Апреля',
-			5: 'Мая',
-			6: 'Июня',
-			7: 'Июля',
-			8: 'Августа',
-			9: 'Сентября',
-			10: 'Октября',
-			11: 'Ноября',
-			12: 'Декабря'
-		}
 
 		dnd = len([str(member.id) for member in ctx.guild.members if member.status.name == 'dnd'])
 		sleep = len([str(member.id) for member in ctx.guild.members if member.status.name == 'idle'])
@@ -386,7 +371,7 @@ class Different(commands.Cog, name = 'Different'):
 
 		emb.add_field( 
 			name=f'Основная информация', 
-			value=f'**Название сервера:** {ctx.guild.name}\n**Id сервера:** {ctx.guild.id}\n**Регион сервера:** {regions[ctx.guild.region.name]}\n**Уровень верификации:** {verifications[ctx.guild.verification_level.name]}\n**Всего сообщений:** {all_message}\n**Владелец сервера:** {ctx.guild.owner.name+ctx.guild.owner.discriminator}\n**Созданн:** {guild_created_at_day} {monthes[guild_created_at_month]} {guild_created_at_year} года в {guild_created_at_hour} часов', 
+			value=f'**Название сервера:** {ctx.guild.name}\n**Id сервера:** {ctx.guild.id}\n**Регион сервера:** {regions[ctx.guild.region.name]}\n**Уровень верификации:** {verifications[ctx.guild.verification_level.name]}\n**Всего сообщений:** {all_message}\n**Владелец сервера:** {ctx.guild.owner.name+ctx.guild.owner.discriminator}\n**Созданн:** {created_at}', 
 			inline=False 
 		)
 		emb.add_field( 

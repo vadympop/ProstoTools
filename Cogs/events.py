@@ -130,83 +130,6 @@ class Events(commands.Cog, name = 'Events'):
 						await member.send( embed = emb )
 
 
-	# @commands.Cog.listener()
-	# async def on_member_join( self, member ):
-	# 	DB().add_amout_command(entity='members', add_counter=len(self.client.users))
-
-	# 	if not member.bot:
-	# 		DB().sel_user(target = member)
-
-	# 	try:
-	# 		data = DB().sel_guild(guild = member.guild)['server_stats']
-	# 		async def edit_channel(channel_id: int, counter):
-	# 			channel = self.client.get_channel( channel_id )
-
-	# 			if counter >= 100:
-	# 				stats_channel_name = channel.name[6:]
-	# 			elif counter >= 10:
-	# 				stats_channel_name = channel.name[5:]
-	# 			elif counter < 10:
-	# 				stats_channel_name = channel.name[4:]
-
-	# 			await channel.edit( name = f'[{counter}] {stats_channel_name}' )
-
-	# 		for key in data.keys():
-	# 			if key == 'members':
-	# 				stats_channel_id = int(data['members'])
-	# 				count = len(' '.join(str(member.id) for member in member.guild.members if not member.bot and member.id != self.client.user.id).split(' '))
-	# 				await edit_channel(stats_channel_id, count)
-
-	# 			if key == 'bots':
-	# 				stats_channel_id = int(data['bots'])
-	# 				count = len(' '.join(str(bot.id) for bot in member.guild.members if bot.bot).split(' '))
-	# 				await edit_channel(stats_channel_id, count)
-				
-	# 			if key == 'all':
-	# 				stats_channel_id = int(data['all'])
-	# 				count = member.guild.member_count
-	# 				await edit_channel(stats_channel_id, count)
-	# 	except:
-	# 		pass
-
-
-	# @commands.Cog.listener()
-	# async def on_member_remove( self, member ):
-	# 	DB().add_amout_command(entity='members', add_counter=len(self.client.users))
-
-	# 	try:
-	# 		data = DB().sel_guild(guild = member.guild)['server_stats']
-	# 		async def edit_channel(channel_id: int, counter):
-	# 			channel = self.client.get_channel( channel_id )
-
-	# 			if counter >= 100:
-	# 				stats_channel_name = channel.name[6:]
-	# 			elif counter >= 10:
-	# 				stats_channel_name = channel.name[5:]
-	# 			elif counter < 10:
-	# 				stats_channel_name = channel.name[4:]
-
-	# 			await channel.edit( name = f'[{counter}] {stats_channel_name}' )
-
-	# 		for key in data.keys():
-	# 			if key == 'members':
-	# 				stats_channel_id = int(data['members'])
-	# 				count = len(' '.join(str(member.id) for member in member.guild.members if not member.bot and member.id != self.client.user.id).split(' '))
-	# 				await edit_channel(stats_channel_id, count)
-
-	# 			if key == 'bots':
-	# 				stats_channel_id = int(data['bots'])
-	# 				count = len(' '.join(str(bot.id) for bot in member.guild.members if bot.bot).split(' '))
-	# 				await edit_channel(stats_channel_id, count)
-				
-	# 			if key == 'all':
-	# 				stats_channel_id = int(data['all'])
-	# 				count = member.guild.member_count
-	# 				await edit_channel(stats_channel_id, count)
-	# 	except:
-	# 		pass
-
-
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
 		if after.status.name == 'offline':
@@ -334,7 +257,7 @@ class Events(commands.Cog, name = 'Events'):
 					member_channel = await member.guild.create_voice_channel( name = f'{member.name} Channel', overwrites = overwrites, category = category, guild = member.guild )
 					await member.move_to( member_channel )
 
-					def check():
+					def check(a, b, c):
 						return len(member_channel.members) <= 0
 
 					await self.client.wait_for('voice_state_update', check=check)

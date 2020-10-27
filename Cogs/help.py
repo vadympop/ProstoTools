@@ -59,7 +59,7 @@ class Help(commands.Cog, name = 'Help'):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 		exceptions = ['Help', 'Loops', 'Events', 'Owner', 'Errors']
-		groups = ['settings', 'works']
+		groups = ['settings', 'works', 'clans']
 		moder_roles = DB().sel_guild(guild = ctx.guild)['moder_roles']
 		state = False
 		group_name = ''
@@ -70,7 +70,8 @@ class Help(commands.Cog, name = 'Help'):
 			'Moderate': 6,
 			'Settings': 3,
 			'Utils': 5,
-			'Works': 7
+			'Works': 7,
+			'Clans': 7
 		}
 		PREFIX = self.client.get_guild_prefix(ctx)
 
