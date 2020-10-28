@@ -171,8 +171,8 @@ class DB:
 	def sel_user(self, target, check = True):
 		sql_1 = ("""SELECT * FROM users WHERE user_id = %s AND guild_id = %s""")
 		val_1 = (target.id, target.guild.id)
-		sql_2 = ("""INSERT INTO users (user_id, guild_id, prison, profile, items, pets, clans, messages, transantions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""")
-		val_2 = (target.id, target.guild.id, 'False', 'lime', json.dumps([]), json.dumps([]), json.dumps([]), json.dumps([]), json.dumps([0, 0, None]), json.dumps([]), '')
+		sql_2 = ("""INSERT INTO users (user_id, guild_id, prison, profile, items, pets, clan, messages, transantions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""")
+		val_2 = (target.id, target.guild.id, 'False', 'lime', json.dumps([]), json.dumps([]), json.dumps({}), json.dumps([0, 0, None]), json.dumps([]), '')
 		sql_3 = ("""SELECT bio FROM users WHERE user_id = %s AND user_id = %s""")
 		val_3 = (target.id, target.id)
 		sql_4 = ("""SELECT * FROM warns WHERE user_id = %s AND guild_id = %s""")
@@ -224,7 +224,7 @@ class DB:
 				'items': json.loads(data[11]),
 				'pets': json.loads(data[12]),
 				'warns': warns,
-				'clans': json.loads(data[13]),
+				'clan': json.loads(data[13]),
 				'messages': json.loads(data[14]),
 				'transantions': json.loads(data[15]),
 				'bio': bio[0]
