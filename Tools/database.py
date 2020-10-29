@@ -249,7 +249,7 @@ class DB:
 		self.cursor.execute(sql_1, val_1)
 		data = self.cursor.fetchone()
 
-		donate = data[8]
+		donate = data[9]
 		if donate == 'True':
 			donate = True
 		elif donate == 'False':
@@ -258,24 +258,25 @@ class DB:
 		dict_data = {
 			'guild_id': int(data[0]),
 			'purge': int(data[1]),
-			'all_message': int(data[2]),
-			'textchannels_category': int(data[3]),
-			'max_warns': int(data[4]),
-			'exp_multi': float(data[5]),
-			'idea_channel': int(data[6]),
-			'timedelete_textchannel': int(data[7]),
+			'log_channel': int(data[2]),
+			'all_message': int(data[3]),
+			'textchannels_category': int(data[4]),
+			'max_warns': int(data[5]),
+			'exp_multi': float(data[6]),
+			'idea_channel': int(data[7]),
+			'timedelete_textchannel': int(data[8]),
 			'donate': donate,
-			'prefix': str(data[9]),
-			'server_stats': json.loads(data[10]),
+			'prefix': str(data[10]),
+			'server_stats': json.loads(data[11]),
 			'voice_channel': json.loads(data[11]),
-			'shop_list': json.loads(data[12]),
-			'ignored_channels': json.loads(data[13]),
-			'auto_mod': json.loads(data[14]),
-			'clans': json.loads(data[15]),
-			'moder_roles': json.loads(data[16]),
-			'react_channels': json.loads(data[17]),
-			'welcome': json.loads(data[18]),
-			'auto_roles': json.loads(data[19])
+			'shop_list': json.loads(data[13]),
+			'ignored_channels': json.loads(data[14]),
+			'auto_mod': json.loads(data[15]),
+			'clans': json.loads(data[16]),
+			'moder_roles': json.loads(data[17]),
+			'react_channels': json.loads(data[18]),
+			'welcome': json.loads(data[19]),
+			'auto_roles': json.loads(data[20])
 		}
 
 		return dict_data
