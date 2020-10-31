@@ -172,7 +172,7 @@ class DB:
 		sql_1 = ("""SELECT * FROM users WHERE user_id = %s AND guild_id = %s""")
 		val_1 = (target.id, target.guild.id)
 		sql_2 = ("""INSERT INTO users (user_id, guild_id, prison, profile, items, pets, clan, messages, transantions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""")
-		val_2 = (target.id, target.guild.id, 'False', 'lime', json.dumps([]), json.dumps([]), json.dumps({}), json.dumps([0, 0, None]), json.dumps([]), '')
+		val_2 = (target.id, target.guild.id, 'False', 'lime', json.dumps([]), json.dumps([]), '', json.dumps([0, 0, None]), json.dumps([]), '')
 		sql_3 = ("""SELECT bio FROM users WHERE user_id = %s AND user_id = %s""")
 		val_3 = (target.id, target.id)
 		sql_4 = ("""SELECT * FROM warns WHERE user_id = %s AND guild_id = %s""")
@@ -221,10 +221,10 @@ class DB:
 				'reputation': int(data[7]),
 				'prison': prison,
 				'profile': str(data[9]),
-				'items': json.loads(data[11]),
-				'pets': json.loads(data[12]),
+				'clan': str(data[11]),
+				'items': json.loads(data[12]),
+				'pets': json.loads(data[13]),
 				'warns': warns,
-				'clan': json.loads(data[13]),
 				'messages': json.loads(data[14]),
 				'transantions': json.loads(data[15]),
 				'bio': bio[0]
