@@ -95,6 +95,7 @@ class Utils(commands.Cog, name = 'Utils'):
 
 	@commands.command(aliases=['banlist'], brief = 'True', name = 'ban-list', description = '**Показывает заблокированных пользователей**', usage = 'ban-list')
 	@commands.check(check_role)
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bannedusers( self, ctx ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -117,6 +118,7 @@ class Utils(commands.Cog, name = 'Utils'):
 
 	@commands.command(aliases=['voicerooms'], name = 'voice-rooms', hidden = True, description = '**Создает голосовой канал для создания приватных голосовых комнат**', usage = 'voice-rooms [Вкл/Выкл]')
 	@commands.check(check_owner)
+	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def voicechannel( self, ctx, state: str ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -167,6 +169,7 @@ class Utils(commands.Cog, name = 'Utils'):
 
 	@commands.command(aliases=['serverstats'], name = 'server-stats', hidden = True, description = '**Создает статистику сервера**', usage = 'server-stats [Счетчик]')
 	@commands.check(check_owner)
+	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def serverstats( self, ctx, stats_count ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -247,6 +250,7 @@ class Utils(commands.Cog, name = 'Utils'):
 
 	@commands.command(brief = 'True', aliases = ['list-moders', 'moders', 'moderators'], name = 'list-moderators', description = '**Показывает список ролей модераторов**', usage = 'list-moderators')
 	@commands.check(check_role)
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def list_moderators(self, ctx):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -265,6 +269,7 @@ class Utils(commands.Cog, name = 'Utils'):
 	
 	@commands.command(aliases=['mutes-list', 'listmutes', 'muteslist'], name='list-mutes', description='Показывает все мьюты на сервере', usage='list-mutes')
 	@commands.check(check_role)
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def mutes(self, ctx):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -280,6 +285,7 @@ class Utils(commands.Cog, name = 'Utils'):
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
+
 
 def setup( client ):
 	client.add_cog(Utils(client))

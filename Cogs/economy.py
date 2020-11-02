@@ -33,6 +33,7 @@ class Economy(commands.Cog, name = 'Economy'):
 
 
 	@commands.command(description = '**Показывает лидеров по разных валютах**', usage = 'top')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def top(self, ctx):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -230,6 +231,7 @@ class Economy(commands.Cog, name = 'Economy'):
 
 
 	@commands.command(aliases=['shoplist'], name = 'shop-list', description = '**Показывает список покупаемых предметов**', usage = 'shop-list')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def shoplist( self, ctx ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -255,6 +257,7 @@ class Economy(commands.Cog, name = 'Economy'):
 
 
 	@commands.command(description = '**Купляет указанный товар**', usage = 'buy [Имя товара]')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def buy( self, ctx, item: typing.Optional[str], num: typing.Optional[int] = None ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -791,6 +794,7 @@ class Economy(commands.Cog, name = 'Economy'):
 
 
 	@commands.command(aliases=['trans', 'transactions'], name = 'my-transactions', description = '**Показывает всё ваши транзакции на текущем сервере**', usage = 'my-transactions')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def trans(self, ctx):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -820,6 +824,7 @@ class Economy(commands.Cog, name = 'Economy'):
 
 
 	@commands.command(description = '**Открывает указаный лут бокс**', usage = 'open [Лут бокс]')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def open(self, ctx, box: str = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -1430,6 +1435,7 @@ class Economy(commands.Cog, name = 'Economy'):
 
 
 	@commands.command(description = '**Показывает ваш инвертарь**', usage = 'invertory', aliases=['inv'])
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def invertory( self, ctx ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -1510,6 +1516,7 @@ class Economy(commands.Cog, name = 'Economy'):
 
 
 	@commands.command(aliases=['profile-color', 'profilecolor'], name = 'set-profile-color', description = '**Ставит новый цвет для вашего профиля**', usage = 'set-profile-color [Цвет]')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def profile_color(self, ctx, color: str = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -1557,6 +1564,7 @@ class Economy(commands.Cog, name = 'Economy'):
 
 
 	@commands.command(description = '**Показывает профиль указаного пользователя, без упоминания ваш профиль**', usage = 'profile |@Участник|')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def profile( self, ctx, member: typing.Optional[discord.Member] = None ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )

@@ -29,6 +29,7 @@ class Different(commands.Cog, name = 'Different'):
 		self.FOOTER = configs['FOOTER_TEXT']
 
 	@commands.command(name='reminder', aliases=['remin'], description='**Работа с напоминаниями**', usage='reminder [create/list/delete] |Время| |Текст|')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def reminder(self, ctx, action: str, type_time: str = None, *, text: str = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -170,6 +171,7 @@ class Different(commands.Cog, name = 'Different'):
 
 
 	@commands.command(aliases=['userinfo', 'user'], name = 'user-info', description = '**Показывает информацию указаного учасника**', usage = 'user-info [@Участник]')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def userinfo( self, ctx, member: discord.Member = None ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -226,6 +228,7 @@ class Different(commands.Cog, name = 'Different'):
 
 
 	@commands.command(aliases=['useravatar', 'avatar'], name = 'user-avatar', description = '**Показывает аватар указаного учасника**', usage = 'user-avatar [@Участник]')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def avatar( self, ctx, member: typing.Optional[ discord.Member ] = None ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -241,6 +244,7 @@ class Different(commands.Cog, name = 'Different'):
 
 
 	@commands.command(name="info-bot", aliases=["botinfo", "infobot", "bot-info"], usage="info-bot", description="Подробная информация о боте")
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bot(self, ctx):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -309,6 +313,7 @@ class Different(commands.Cog, name = 'Different'):
 
 
 	@commands.command(aliases=['server', 'serverinfo', 'guild', 'guildinfo', 'guild-info'], name = 'server-info', description = '**Показывает информацию о сервере**', usage = 'server-info')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def serverinfo( self, ctx ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -422,6 +427,7 @@ class Different(commands.Cog, name = 'Different'):
 
 
 	@commands.command(description = '**Отправляет ссылку на приглашения бота на сервер**', usage = 'invite')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def invite( self, ctx ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -465,6 +471,7 @@ class Different(commands.Cog, name = 'Different'):
 
 
 	@commands.command(aliases=['rnum', 'randomnumber'], name = 'random-number', description = '**Пишет рандомное число в указаном диапазоне**', usage = 'random-number [Первое число (От)] [Второе число (До)]')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def rnum( self, ctx, rnum1: int, rnum2: int ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -476,6 +483,7 @@ class Different(commands.Cog, name = 'Different'):
 
 	
 	@commands.command(description = '**Устанавливает краткое описания о вас**', usage = 'bio [Текст]')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bio( self, ctx, *, text: str = None ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -511,6 +519,7 @@ class Different(commands.Cog, name = 'Different'):
 
 
 	@commands.command(name='calc', aliases=['calculator', 'c'], description='Выполняет математические операции', usage='calc [Операция]')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def calc(self, ctx, *, exp = None):
 		if not exp:
 			emb = discord.Embed(title='Ошибка!', description='**Укажите пример!**', colour=discord.Color.green())
@@ -540,6 +549,7 @@ class Different(commands.Cog, name = 'Different'):
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction('❌')
 			return
+
 
 def setup( client ):
 	client.add_cog(Different(client))

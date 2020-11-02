@@ -34,3 +34,17 @@ Command raised an exception: ValueError: list.remove(x): x not in list
 Ошибка:
 Command raised an exception: Forbidden: 403 Forbidden (error code: 50007): Cannot send messages to this user
 =============================================================
+
+=============================================================
+Время: 2020-11-02 20:28:46.711961
+
+Ошибка:
+Command raised an exception: AttributeError: 'Clans' object has no attribute 'name'
+=============================================================
+
+=============================================================
+Время: 2020-11-02 20:31:21.035868
+
+Ошибка:
+Command raised an exception: AttributeError: 'str' object has no attribute '__name__'
+=============================================================

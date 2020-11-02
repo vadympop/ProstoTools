@@ -174,7 +174,11 @@ class Help(commands.Cog, name = 'Help'):
 
 		emb_2 = discord.Embed(title = f'Категория команд - {cog_name.capitalize()}', description = '[Пример] - требуется, |Пример| - необязательно', colour = discord.Color.green())
 		for c in self.client.get_cog(cog_name.capitalize()).get_commands():
-			emb_2.add_field(name = f'{PREFIX}{c.usage}', value = f'{c.description[2:-2]}.', inline = False)
+			if self.client.get_cog(cog_name.capitalize()).qualified_name.lower() in groups:
+				for command in c.commands:
+					emb_2.add_field(name = f'{PREFIX}{c.usage}', value = f'{c.description[2:-2]}.', inline = False)
+			else:
+				emb_2.add_field(name = f'{PREFIX}{c.usage}', value = f'{c.description[2:-2]}.', inline = False)
 		emb_2.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
 		emb_2.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 		await ctx.send(embed = emb_2)	

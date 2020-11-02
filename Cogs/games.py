@@ -24,6 +24,7 @@ class Games(commands.Cog, name = 'Games'):
 
 
 	@commands.command(name = 'create-qrcode', description = '**Закодирует указаный текст в qr-код**', usage = 'create-qrcode [Ваш текст]')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def cr_qr( self, ctx, *, code_text: str ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -39,6 +40,7 @@ class Games(commands.Cog, name = 'Games'):
 
 
 	@commands.command(name = 'dcode-qrcode', description = '**Разкодирует qr-код**', usage = 'dcode-qrcode [Ссылка на изображения]')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def scan_url( self, ctx, url):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -128,6 +130,7 @@ class Games(commands.Cog, name = 'Games'):
 
 
 	@commands.command(description = '**Википедия, расказывает о вашем запросе**', usage = 'wiki [Ваш запрос]')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def wiki( self, ctx, *, text ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -149,6 +152,7 @@ class Games(commands.Cog, name = 'Games'):
 
 
 	@commands.command( name = '8ball', description = '**Магический шар предсказаний**', usage = '8ball [Ваш вопрос]')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def magic_ball( self, ctx, *, msg ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
@@ -173,6 +177,7 @@ class Games(commands.Cog, name = 'Games'):
 
 
 	@commands.command(description = '**Рандомная картинка собаки**', usage = 'dog')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def dog(self, ctx):
 		response = requests.get('https://some-random-api.ml/img/dog')
 		json_data = json.loads(response.text)
@@ -186,6 +191,7 @@ class Games(commands.Cog, name = 'Games'):
 
 
 	@commands.command(description = '**Рандомная картинка кошки**', usage = 'cat')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def cat(self, ctx):
 		response = requests.get('https://some-random-api.ml/img/cat')
 		json_data = json.loads(response.text)
@@ -199,6 +205,7 @@ class Games(commands.Cog, name = 'Games'):
 	
 
 	@commands.command(description = '**Рандомная картинка лисы**', usage = 'fox')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def fox(self, ctx):
 		response = requests.get('https://some-random-api.ml/img/fox')
 		json_data = json.loads(response.text)
@@ -212,6 +219,7 @@ class Games(commands.Cog, name = 'Games'):
 
 
 	@commands.command(description = '**Рандомная картинка птички**', usage = 'bird')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bird(self, ctx):
 		response = requests.get('https://some-random-api.ml/img/birb')
 		json_data = json.loads(response.text)
@@ -225,6 +233,7 @@ class Games(commands.Cog, name = 'Games'):
 
 
 	@commands.command(description = '**Рандомная картинка коалы**', usage = 'koala')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def koala(self, ctx):
 		response = requests.get('https://some-random-api.ml/img/koala')
 		json_data = json.loads(response.text)
@@ -238,6 +247,7 @@ class Games(commands.Cog, name = 'Games'):
 
 
 	@commands.command(description = '**Рандомный мем**', usage = 'meme')
+	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def meme(self, ctx):
 		url = 'https://pda.anekdot.ru/random/mem/'
 		headers = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0'}
