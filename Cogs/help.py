@@ -71,7 +71,7 @@ class Help(commands.Cog, name = 'Help'):
 			'Settings': 3,
 			'Utils': 5,
 			'Works': 7,
-			'Clans': 7
+			'Clans': 3
 		}
 		PREFIX = self.client.get_guild_prefix(ctx)
 
@@ -108,7 +108,7 @@ class Help(commands.Cog, name = 'Help'):
 
 			return [commands, count, group_name]
 
-		emb_1 = discord.Embed( title = '**Доступние команды:**', description = f'**Префикс на этом сервере - **`{PREFIX}`**, если команды после двое-точия значит их надо использовать как групу, пример: "В хелп - група: команда, надо писать - група команда", если надо ввести названия чего-либо с пробелом, укажите эго в двойных кавычках**', colour = discord.Color.green() )
+		emb_1 = discord.Embed( title = '**Доступние команды:**', description = f'**Префикс на этом сервере - **`{PREFIX}`**, если команды после двое-точия значит их надо использовать как групу, пример: "В хелп - група: команда, надо писать - `[Префикс на сервере]група команда`", если надо ввести названия чего-либо с пробелом, укажите его в двойных кавычках**', colour = discord.Color.green() )
 		if not cog_name:
 			for soft_cog_name in self.client.cogs:
 				if soft_cog_name in exceptions:

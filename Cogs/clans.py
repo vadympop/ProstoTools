@@ -3,6 +3,8 @@ import os
 import uuid
 import json
 import mysql.connector
+import random
+from string import ascii_uppercase
 from configs import configs
 from Tools.database import DB
 from discord.ext import commands
@@ -14,6 +16,20 @@ class Clans(commands.Cog):
 		self.FOOTER = configs['FOOTER_TEXT']
 		self.conn = mysql.connector.connect(user='root', password=os.environ['DB_PASSWORD'], host='localhost', database='data')
 		self.cursor = self.conn.cursor(buffered=True)
+
+
+	async def _add_member(self, ctx, clan_id: str, member: discord.Member):
+		data = DB().sel_guild(guild=ctx.guild)['clans']
+		for clan in data:
+			if clan['id'] == clan_id:
+				if member.id not in clan['members']:
+					clan_id = clan['id']
+					clan['members'].append(member.id)
+
+		self.cursor.execute(("""UPDATE users SET clan = %s WHERE user_id = %s AND guild_id = %s"""), (clan_id, member.id, ctx.guild.id))
+		self.cursor.execute(("""UPDATE guilds SET clans = %s WHERE guild_id = %s AND guild_id = %s"""), (json.dumps(data), ctx.guild.id, ctx.guild.id))
+		self.conn.commit()
+		await ctx.message.add_reaction('✅')
 
 
 	@commands.group()
@@ -64,7 +80,10 @@ class Clans(commands.Cog):
 			'owner': ctx.author.id,
 			'description': 'Не указано',
 			'short_desc': 'Не указано',
-			'size': 10
+			'size': 10,
+			'type': 'public',
+			'invites': [],
+			'join_requests': []
 		})
 
 		emb = discord.Embed(title=f'Успешно созданн новый клан', description=f'**Id -** `{new_id}`\n**Названия -** `{name}`', colour=discord.Color.green())
@@ -82,14 +101,95 @@ class Clans(commands.Cog):
 
 
 	@clan.command()
-	async def edit(self, ctx, clan_id: str, field: str, value):
-		pass
+	async def edit(self, ctx, field: str, *, value):
+		data = DB().sel_guild(guild=ctx.guild)['clans']
+		user_clan = DB().sel_user(target=ctx.author)['clan']
+		field = field.lower()
 
-	
+		if user_clan == "":
+			emb = discord.Embed(title='Ошибка!', description='**Вас нету ни в одном клане сервера!**', colour=discord.Color.green())
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
+		for clan in data:
+			if clan['id'] == user_clan:
+				if clan['owner'] == ctx.author.id:
+					fields = ['name', 'description', 'short_desc', 'type']
+					if field in fields:	
+						emb = discord.Embed(description=f"""**Был установлен новое значения - `{value}` для параметра - `{field}`**""", colour=discord.Color.green())
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await ctx.send(embed=emb)
+						await ctx.message.add_reaction('✅')
+
+						clan[field] = value
+						self.cursor.execute(("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""), (json.dumps(data), ctx.guild.id))
+						self.conn.commit()
+					else:
+						emb = discord.Embed(title='Ошибка!', description=f"""**Укажите изменяемый параметр из этих: {', '.join(fields)}!**""", colour=discord.Color.green())
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await ctx.send(embed=emb)
+						await ctx.message.add_reaction('❌')
+						return
+				else:
+					emb = discord.Embed(title='Ошибка!', description='**Вы не владелец указаного клана!**', colour=discord.Color.green())
+					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await ctx.send(embed=emb)
+					await ctx.message.add_reaction('❌')
+					return
+
+
+	@clan.command(name='trans-owner-ship')
+	async def trans_own_ship(self, ctx, member: discord.Member):
+		data = DB().sel_guild(guild=ctx.guild)['clans']
+		user_clan = DB().sel_user(target=ctx.author)['clan']
+
+		if user_clan == "":
+			emb = discord.Embed(title='Ошибка!', description='**Вас нету ни в одном клане сервера!**', colour=discord.Color.green())
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
+		if member == ctx.author:
+			emb = discord.Embed(title='Ошибка!', description='**Вы не можете передать права на владения клана себе!**', colour=discord.Color.green())
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
+		for clan in data:
+			if clan['id'] == user_clan:
+				if clan['owner'] == ctx.author.id:
+					emb = discord.Embed(description=f'**Права на владения клана успешно переданы другому участнику - `{str(member)}`!**', colour=discord.Color.green())
+					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await ctx.send(embed=emb)
+					
+					clan['owner'] = member.id
+					self.cursor.execute(("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""), (json.dumps(data), ctx.guild.id))
+					self.conn.commit()
+				else:
+					emb = discord.Embed(title='Ошибка!', description='**Вы не владелец указаного клана!**', colour=discord.Color.green())
+					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await ctx.send(embed=emb)
+					await ctx.message.add_reaction('❌')
+					return
+
+
 	@clan.command()
 	async def delete(self, ctx):
 		data = DB().sel_guild(guild=ctx.guild)['clans']
 		user_clan = DB().sel_user(target=ctx.author)['clan']
+
 		if user_clan == "":
 			emb = discord.Embed(title='Ошибка!', description='**Вас нету ни в одном клане сервера!**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -102,6 +202,12 @@ class Clans(commands.Cog):
 			if clan['id'] == user_clan:
 				if clan['owner'] == ctx.author.id:
 					delete_clan = clan
+					if 'category_id' in clan.keys():
+						category = ctx.guild.get_channel(clan['category_id'])
+						if category:
+							for channel in category.channels:
+								await channel.delete()
+							await category.delete()
 					try:
 						data.remove(clan)
 						for member_id in clan['members']:
@@ -152,10 +258,11 @@ class Clans(commands.Cog):
 
 		for clan in data:
 			if clan['id'] == clan_id:
-				state = True
-				members = '\n'.join(f'**Участник -** `{str(ctx.guild.get_member(member_id))}`' if member_id != clan['owner'] else f'**Владелец -** `{str(ctx.guild.get_member(member_id))}`' for member_id in clan['members'])
-				emb = discord.Embed(title=f"""Список участников клана - {clan['name']}""", description=members, colour=discord.Color.green())
-				break
+				if clan['type'] == 'public':
+					state = True
+					members = '\n'.join(f'**Участник -** `{str(ctx.guild.get_member(member_id))}`' if member_id != clan['owner'] else f'**Владелец -** `{str(ctx.guild.get_member(member_id))}`' for member_id in clan['members'])
+					emb = discord.Embed(title=f"""Список участников клана - {clan['name']}""", description=members, colour=discord.Color.green())
+					break
 
 		if state:
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -221,7 +328,7 @@ class Clans(commands.Cog):
 
 	@clan.command(name='list')
 	async def list_clans(self, ctx):
-		data = DB().sel_guild(guild=ctx.guild)['clans']
+		data = [clan for clan in DB().sel_guild(guild=ctx.guild)['clans'] if clan['type'] == 'public']
 		if data != []:
 			emb = discord.Embed(title='Список кланов сервера', description=f'**Общее количество кланов на сервере:** `{len(data)}`', colour=discord.Color.green())
 			for clan in data:
@@ -236,22 +343,30 @@ class Clans(commands.Cog):
 	@clan.command()
 	async def info(self, ctx, clan_id: str = None):
 		data = DB().sel_guild(guild=ctx.guild)['clans']
+		user_clan = DB().sel_user(target=ctx.author)['clan']
 		state = False
 		if not clan_id:
-			if DB().sel_user(target=ctx.author)['clan'] != '':
-				clan_id = DB().sel_user(target=ctx.author)['clan']
+			if user_clan != '':
+				clan_id = user_clan
 			else:
 				emb = discord.Embed(title='Ошибка!', description='**Вы не указали аргумент. Укажити аргумент - clan_id к указаной команде!**', colour=discord.Color.green())
 				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
 				await ctx.message.add_reaction('❌')
+				return
 
 		for clan in data:
 			if clan['id'] == clan_id:
-				state = True
-				emb = discord.Embed(title=f"""Информация о клане - {clan['name']}""", description=f"""**Id -** `{clan['id']}`\n**Описания -** `{clan['description']}`\n**Владелец -** `{ctx.guild.get_member(clan['owner'])}`\n**Роль клана -** `{ctx.guild.get_role(clan['role_id']).name}`\n**Максимальное количество участников -** `{clan['size']}`\n**Участников -** `{len(clan['members'])}`""", colour=discord.Color.green())
-				break
+				if clan['type'] == 'public':
+					state = True
+					emb = discord.Embed(title=f"""Информация о клане - {clan['name']}""", description=f"""**Id -** `{clan['id']}`\n**Описания -** `{clan['description']}`\n**Владелец -** `{ctx.guild.get_member(clan['owner'])}`\n**Роль клана -** `{ctx.guild.get_role(clan['role_id']).name}`\n**Максимальное количество участников -** `{clan['size']}`\n**Участников -** `{len(clan['members'])}`""", colour=discord.Color.green())
+					break
+				else:
+					if clan['id'] == user_clan:
+						state = True
+						emb = discord.Embed(title=f"""Информация о клане - {clan['name']}""", description=f"""**Id -** `{clan['id']}`\n**Описания -** `{clan['description']}`\n**Владелец -** `{ctx.guild.get_member(clan['owner'])}`\n**Роль клана -** `{ctx.guild.get_role(clan['role_id']).name}`\n**Максимальное количество участников -** `{clan['size']}`\n**Участников -** `{len(clan['members'])}`""", colour=discord.Color.green())
+						break
 
 		if state:
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -299,18 +414,11 @@ class Clans(commands.Cog):
 					return
 
 
-	@clan.command()
-	async def invite(self, ctx, member: discord.Member):
+	@clan.command(name='create-invite')
+	async def create_invite(self, ctx):
 		user_clan = DB().sel_user(target=ctx.author)['clan']
 		data = DB().sel_guild(guild=ctx.guild)['clans']
 
-		if member == ctx.author:
-			emb = discord.Embed(title='Ошибка!', description='**Вы не можете пригласить себя!**', colour=discord.Color.green())
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-			await ctx.message.add_reaction('❌')
-		
 		if user_clan == '':
 			emb = discord.Embed(title='Ошибка!', description='**Вас нету ни в одном клане сервера!**', colour=discord.Color.green())
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -321,15 +429,82 @@ class Clans(commands.Cog):
 		
 		for clan in data:
 			if clan['id'] == user_clan:
-				if len(clan['members']) < clan['size']:
-					pass
+				if clan['type'] == 'public':
+					if len(clan['members']) < clan['size']:
+						new_invite = ''.join(random.choice(ascii_uppercase) for i in range(12))
+
+						emb = discord.Embed(description=f"""**Для клана - `{clan['name']}` было созданно новое приглашения - `{new_invite}`**""", colour=discord.Color.green())
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await ctx.send(embed=emb)
+						
+						clan['invites'].append(new_invite)
+						self.cursor.execute(("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""), (json.dumps(data), ctx.guild.id))
+						self.conn.commit()
+					else:
+						emb = discord.Embed(title='Ошибка!', description='**Указаный клан переполнен!**', colour=discord.Color.green())
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await ctx.send(embed=emb)
+						await ctx.message.add_reaction('❌')
+						return
 				else:
-					emb = discord.Embed(title='Ошибка!', description='**Указаный клан переполнен!**', colour=discord.Color.green())
+					if clan['owner'] == ctx.author.id:
+						if len(clan['members']) < clan['size']:
+							pass
+						else:
+							emb = discord.Embed(title='Ошибка!', description='**Указаный клан переполнен!**', colour=discord.Color.green())
+							emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+							emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+							await ctx.send(embed=emb)
+							await ctx.message.add_reaction('❌')
+							return
+					else:
+						emb = discord.Embed(title='Ошибка!', description='**Указаный клан приватный!**', colour=discord.Color.green())
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await ctx.send(embed=emb)
+						await ctx.message.add_reaction('❌')
+						return
+
+
+	@clan.command(name='use-invite')
+	async def use_invite(self, ctx, invite: str):
+		data = DB().sel_guild(guild=ctx.guild)['clans']
+		state = False
+
+		if DB().sel_user(target=ctx.author)['clan'] != '':
+			emb = discord.Embed(title='Ошибка!', description='**Вы уже находитесь в одном из кланов сервера!**', colour=discord.Color.green())
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
+		for clan in data:
+			if invite in clan['invites']:
+				state = True
+				if ctx.author.id not in clan['members']:
+					clan['invites'].remove(invite)
+					clan['members'].append(ctx.author.id)
+					await self._add_member(ctx, clan['id'], ctx.author)
+					self.cursor.execute(("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""), (json.dumps(data), ctx.guild.id))
+					self.conn.commit()
+					break
+				else:
+					emb = discord.Embed(title='Ошибка!', description='**Вы уже находитесь в этом клане!**', colour=discord.Color.green())
 					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 					await ctx.send(embed=emb)
 					await ctx.message.add_reaction('❌')
 					return
+
+		if not state:
+			emb = discord.Embed(title='Ошибка!', description='**Такого приглашения не существует!**', colour=discord.Color.green())
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
 
 
 	@clan.command(name='send-join-request')
@@ -349,13 +524,29 @@ class Clans(commands.Cog):
 			if clan['id'] == clan_id:
 				state = True
 				if len(clan['members']) < clan['size']:
-					pass
+					if ctx.author.id not in clan['join_requests']:
+						emb = discord.Embed(description=f"""**Запрос на присоединения был успешно отправлен**""", colour=discord.Color.green())
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await ctx.send(embed=emb)
+						
+						clan['join_requests'].append(ctx.author.id)
+						self.cursor.execute(("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""), (json.dumps(data), ctx.guild.id))
+						self.conn.commit()
+					else:
+						emb = discord.Embed(title='Ошибка!', description='**Вы уже отправили запрос этому клану!**', colour=discord.Color.green())
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await ctx.send(embed=emb)
+						await ctx.message.add_reaction('❌')
+						return
 				else:
 					emb = discord.Embed(title='Ошибка!', description='**Указаный клан переполнен!**', colour=discord.Color.green())
 					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 					await ctx.send(embed=emb)
 					await ctx.message.add_reaction('❌')
+					return
 
 		if not state:
 			emb = discord.Embed(title='Ошибка!', description='**Клана с таким id не существует!**', colour=discord.Color.green())
@@ -363,6 +554,127 @@ class Clans(commands.Cog):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction('❌')
+
+
+	@clan.command(name='list-join-requests')
+	async def list_join_requests(self, ctx):
+		user_clan = DB().sel_user(target=ctx.author)['clan']
+		data = DB().sel_guild(guild=ctx.guild)['clans']
+
+		if user_clan == '':
+			emb = discord.Embed(title='Ошибка!', description='**Вас нету ни в одном клане сервера!**', colour=discord.Color.green())
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
+		for clan in data:
+			if clan['id'] == user_clan:
+				if clan['owner'] == ctx.author.id:
+					join_requests = '\n'.join([str(ctx.guild.get_member(member_id)) for member_id in clan['join_requests']])
+					emb = discord.Embed(description=f'**Запросы на приглашения к вашему клану:**\n{join_requests}', colour=discord.Color.green())
+					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await ctx.send(embed=emb)
+					return
+				else:
+					emb = discord.Embed(title='Ошибка!', description='**Вы не владелец указаного клана!**', colour=discord.Color.green())
+					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await ctx.send(embed=emb)
+					await ctx.message.add_reaction('❌')
+					return
+
+
+	@clan.command(name='accept-join-request')
+	async def accept_join_request(self, ctx, member: discord.Member):
+		user_clan = DB().sel_user(target=ctx.author)['clan']
+		data = DB().sel_guild(guild=ctx.guild)['clans']
+
+		if user_clan == '':
+			emb = discord.Embed(title='Ошибка!', description='**Вас нету ни в одном клане сервера!**', colour=discord.Color.green())
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
+		for clan in data:
+			if clan['id'] == user_clan:
+				if clan['owner'] == ctx.author.id:
+					if member.id in clan['join_requests']:
+						emb = discord.Embed(description=f"""**Запрос на присоиденения к клану - `{clan['name']}` был принят!**""", colour=discord.Color.green())
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						try:
+							await member.send(embed=emb)
+						except:
+							pass
+						await ctx.message.add_reaction('✅')						
+						await self._add_member(ctx, clan['id'], member)
+						clan['join_requests'].remove(member.id)
+						self.cursor.execute(("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""), (json.dumps(data), ctx.guild.id))
+						self.conn.commit()
+					else:
+						emb = discord.Embed(title='Ошибка!', description='**Указаный участник не отправлял запрос на присоиденения к клану!**', colour=discord.Color.green())
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await ctx.send(embed=emb)
+						await ctx.message.add_reaction('❌')
+						return
+				else:
+					emb = discord.Embed(title='Ошибка!', description='**Вы не владелец указаного клана!**', colour=discord.Color.green())
+					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await ctx.send(embed=emb)
+					await ctx.message.add_reaction('❌')
+					return
+
+
+	@clan.command(name='reject-join-request')
+	async def reject_join_request(self, ctx, member: discord.Member):
+		user_clan = DB().sel_user(target=ctx.author)['clan']
+		data = DB().sel_guild(guild=ctx.guild)['clans']
+
+		if user_clan == '':
+			emb = discord.Embed(title='Ошибка!', description='**Вас нету ни в одном клане сервера!**', colour=discord.Color.green())
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction('❌')
+			return
+
+		for clan in data:
+			if clan['id'] == user_clan:
+				if clan['owner'] == ctx.author.id:
+					if member.id in clan['join_requests']:
+						emb = discord.Embed(description=f"""**Запрос на присоиденения к клану - `{clan['name']}` был отклонен!**""", colour=discord.Color.green())
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						try:
+							await member.send(embed=emb)
+						except:
+							pass
+						await ctx.message.add_reaction('✅')
+
+						clan['join_requests'].remove(member.id)
+						self.cursor.execute(("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""), (json.dumps(data), ctx.guild.id))
+						self.conn.commit()
+					else:
+						emb = discord.Embed(title='Ошибка!', description='**Указаный участник не отправлял запрос на присоиденения к клану!**', colour=discord.Color.green())
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await ctx.send(embed=emb)
+						await ctx.message.add_reaction('❌')
+						return
+				else:
+					emb = discord.Embed(title='Ошибка!', description='**Вы не владелец указаного клана!**', colour=discord.Color.green())
+					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await ctx.send(embed=emb)
+					await ctx.message.add_reaction('❌')
+					return
 
 
 	@clan.command()
@@ -391,9 +703,9 @@ class Clans(commands.Cog):
 							})
 							category = await ctx.guild.create_category(name='PT-[CLAN]-'+clan['name'], overwrites=overwrites)
 							clan.update({'category_id': category.id})
-							user_data['coins'] - 10000
+							user_data['coins'] -= 10000
 
-							emb = discord.Embed(description=f"""**Вы успешно купили категорию - `{category.name}` для клана - `{clan['name']}`!**""", colour=discord.Color.green())
+							emb = discord.Embed(description=f"""**Вы успешно купили категорию - `{category.name}`!**""", colour=discord.Color.green())
 							emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 							emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 							await ctx.send(embed=emb)
@@ -430,10 +742,10 @@ class Clans(commands.Cog):
 						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 						await ctx.send(embed=emb)
 						
-						clan['size'] + 5
-						user_data['coins'] - 7500
+						clan['size'] += 5
+						user_data['coins'] -= 7500
 						self.cursor.execute(("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""), (json.dumps(data), ctx.guild.id))
-						self.cursor.execute(("""UPDATE users SET coins WHERE user_id = %s AND guild_id = %s"""), (user_data['coins'], ctx.author.id, ctx.guild.id))
+						self.cursor.execute(("""UPDATE users SET coins = %s WHERE user_id = %s AND guild_id = %s"""), (user_data['coins'], ctx.author.id, ctx.guild.id))
 						self.conn.commit()
 					else:
 						emb = discord.Embed(title='Ошибка!', description='**У вас не достаточно коинов!**', colour=discord.Color.green())
@@ -467,6 +779,14 @@ class Clans(commands.Cog):
 						'blurple': 0x7289da,
 						'greyple': 0x99aab5,
 					}
+					if color not in colors.keys():
+						emb = discord.Embed(title='Ошибка!', description=f"""**Указан не правильный цвет, укажите из этих: {', '.join(colors.keys())}!**""", colour=discord.Color.green())
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await ctx.send(embed=emb)
+						await ctx.message.add_reaction('❌')
+						return
+
 					if user_data['coins'] >= 5000:
 						try:
 							await ctx.guild.get_role(clan['role_id']).edit(colour=colors[color.lower()])
@@ -474,6 +794,10 @@ class Clans(commands.Cog):
 							emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 							emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 							await ctx.send(embed=emb)
+
+							user_data['coins'] -= 5000
+							self.cursor.execute(("""UPDATE users SET coins = %s WHERE user_id = %s AND guild_id = %s"""), (user_data['coins'], ctx.author.id, ctx.guild.id))
+							self.conn.commit()
 						except:
 							emb = discord.Embed(title='Ошибка!', description='**Была удалена роль клана!**', colour=discord.Color.green())
 							emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -497,21 +821,5 @@ class Clans(commands.Cog):
 					return
 
 	
-	@clan.command()
-	async def add_member_test(self, ctx, member: discord.Member):
-		data = DB().sel_guild(guild=ctx.guild)['clans']
-		user_clan = DB().sel_user(target=ctx.author)['clan']
-		for clan in data:
-			if clan['id'] == user_clan:
-				if member.id not in clan['members']:
-					clan_id = clan['id']
-					clan['members'].append(member.id)
-
-		self.cursor.execute(("""UPDATE users SET clan = %s WHERE user_id = %s AND guild_id = %s"""), (clan_id, member.id, ctx.guild.id))
-		self.cursor.execute(("""UPDATE guilds SET clans = %s WHERE guild_id = %s AND guild_id = %s"""), (json.dumps(data), ctx.guild.id, ctx.guild.id))
-		self.conn.commit()
-		await ctx.message.add_reaction('✅')
-
-
 def setup(client):
 	client.add_cog(Clans(client))
