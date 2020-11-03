@@ -1670,7 +1670,7 @@ class Economy(commands.Cog, name = 'Economy'):
 		level_exp = math.floor(9 * (user_level ** 2) + 50 * user_level + 125 * multi)
 		previus_level_exp = math.floor(9 * ((user_level - 1) ** 2) + 50 * (user_level - 1) + 125 * multi)
 		progress_bar_percent = round(((level_exp - user_exp) / (level_exp - previus_level_exp)) * 100)
-		user_image_status = Image.open(self.BACKGROUND[:-8]+statuses[member.status.name]+'.png')
+		user_image_status = Image.open(self.BACKGROUND[:-8]+statuses[member.status.name]+'.png').convert('RGBA')
 
 		if user_state_prison:
 			user_state_prison = 'Сейчас в тюрме'
@@ -1698,7 +1698,7 @@ class Economy(commands.Cog, name = 'Economy'):
 		idraw.text((10, 200), f'Exp: {user_exp}', font = midletext, fill = colours[user_profile][0])
 		idraw.text((10, 230), f'Уровень: {user_level}', font = midletext, fill = colours[user_profile][0])
 		idraw.text((230, 113), f'Предупрежденний: {user_warns}', font = midletext, fill = colours[user_profile][0])
-		idraw.text((230, 147), f'Тюрма: {user_state_prison}', font = midletext, fill = colours[user_profile][0])
+		idraw.text((230, 147), f'Тюрьма: {user_state_prison}', font = midletext, fill = colours[user_profile][0])
 		idraw.text((230, 181), f'Монет: {user_coins}', font = midletext, fill = colours[user_profile][0] )
 		idraw.text((230, 215), f'Денег: {user_money}$', font = midletext, fill = colours[user_profile][0])
 		idraw.rectangle((230, 285, 855, 340), fill='#909090')
@@ -1709,7 +1709,7 @@ class Economy(commands.Cog, name = 'Economy'):
 		idraw.text((15, 355), self.FOOTER, font = midletext)
 
 		img.save(self.SAVE)
-		await ctx.send( file = discord.File( fp = self.SAVE ) )
+		await ctx.send(file=discord.File(fp=self.SAVE))
 
 
 def setup( client ):

@@ -33,6 +33,7 @@ class Client(commands.AutoShardedBot):
 		with open( filename, 'r', encoding='utf-8' ) as f:
 			return f.read()
 
+
 	def get_guild_prefix(self, ctx):
 		data = DB().sel_guild(guild=ctx.guild)
 		return str(data['prefix'])

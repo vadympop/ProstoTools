@@ -176,7 +176,7 @@ class Help(commands.Cog, name = 'Help'):
 		for c in self.client.get_cog(cog_name.capitalize()).get_commands():
 			if self.client.get_cog(cog_name.capitalize()).qualified_name.lower() in groups:
 				for command in c.commands:
-					emb_2.add_field(name = f'{PREFIX}{c.usage}', value = f'{c.description[2:-2]}.', inline = False)
+					emb_2.add_field(name = f'{PREFIX}{command.usage}', value = f'{command.description[2:-2]}.', inline = False)
 			else:
 				emb_2.add_field(name = f'{PREFIX}{c.usage}', value = f'{c.description[2:-2]}.', inline = False)
 		emb_2.set_author( name = self.client.user.name, icon_url = self.client.user.avatar_url )
