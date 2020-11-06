@@ -166,7 +166,8 @@ class Help(commands.Cog, name = 'Help'):
 				await ctx.send(embed = emb)
 				return
 			else:
-				emb = discord.Embed(title=f'Команда: {PREFIX+cog_name.lower()}', description=self.client.get_command(cog_name.lower()).help, colour=discord.Color.green())
+				aliases = f"""Алиасы команды: {', '.join(self.client.get_command(cog_name.lower()).aliases)}\n\n""" if self.client.get_command(cog_name.lower()).aliases != [] else ''
+				emb = discord.Embed(title=f'Команда: {PREFIX+cog_name.lower()}', description=aliases+self.client.get_command(cog_name.lower()).help.format(Prefix=PREFIX), colour=discord.Color.green())
 				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)

@@ -17,7 +17,7 @@ class Client(commands.AutoShardedBot):
 	def __init__(self, command_prefix, case_insensitive, intents):
 		super().__init__(command_prefix=command_prefix, case_insensitive=case_insensitive, intents=intents)
 	
-
+	
 	def clear_commands(self, guild):
 		data = DB().sel_guild(guild=guild)
 		purge = data['purge']
@@ -43,19 +43,15 @@ def get_prefix(client, message):
 	data = DB().sel_guild(guild = message.guild)
 	return str(data['prefix'])
 
-intents = discord.Intents.all()
-client = Client(command_prefix=get_prefix, case_insensitive=True, intents=intents)
+client = Client(command_prefix=get_prefix, case_insensitive=True, intents=discord.Intents.all())
 client.remove_command('help')
-load_error = ''
-now_date = str(datetime.datetime.today())[:-16]
-log_file = f'./Data/Logs/log-{now_date}.txt'
-space = ''
+log_file = f'./Data/Logs/log-{str(datetime.datetime.today())[:-16]}.txt'
 temp_eng.client = client
 
 try:
 	log = client.txt_load(log_file)
 except:
-	client.txt_dump(log_file, space)
+	client.txt_dump(log_file, '')
 	log = client.txt_load(log_file)
 
 @client.command()
@@ -77,12 +73,11 @@ for filename in os.listdir('./Cogs'):
 		try:
 			client.load_extension(f'Cogs.{filename[:-3]}')
 		except Exception as e:
-			print( Fore.RED+f'[PT-SYSTEM-ERROR]:::An error occurred in the cog {filename[:-3].upper()}' )
-			load_error = load_error+f'\n\n=============================================================\nВремя: {str(datetime.datetime.today())}\n\nОшибка:\n{str(traceback.format_exc())}\n============================================================='
-			load_error = log+load_error
+			print(Fore.RED+f'[PT-SYSTEM-ERROR]:::An error occurred in the cog {filename[:-3].upper()}')
+			load_error = log+f'\n\n=============================================================\nВремя: {str(datetime.datetime.today())}\n\nОшибка:\n{str(traceback.format_exc())}\n============================================================='
 			client.txt_dump(log_file, load_error)
 		else:
-			print( Fore.GREEN+f'[PT-SYSTEM-COG]:::{filename[:-3].upper()} - Loaded')
+			print(Fore.GREEN+f'[PT-SYSTEM-COG]:::{filename[:-3].upper()} - Loaded')
 
 print(Fore.RESET)
 client.run(configs['TOKEN'])

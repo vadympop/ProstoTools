@@ -151,13 +151,13 @@ class Utils(commands.Cog, name = 'Utils'):
 				return
 
 		elif state in off_answers:
-				await ctx.message.add_reaction('✅')
+			await ctx.message.add_reaction('✅')
 
-				sql = ("""UPDATE guilds SET voice_channel = %s WHERE guild_id = %s AND guild_id = %s""")
-				val = (json.dumps({}), ctx.guild.id, ctx.guild.id)
+			sql = ("""UPDATE guilds SET voice_channel = %s WHERE guild_id = %s AND guild_id = %s""")
+			val = (json.dumps({}), ctx.guild.id, ctx.guild.id)
 
-				self.cursor.execute(sql, val)
-				self.conn.commit()
+			self.cursor.execute(sql, val)
+			self.conn.commit()
 		else:
 			emb = discord.Embed(title='Ошибка!', desciption='**Вы не правильно указали действие! Укажите on - что бы включить, off - что бы выключить**', color=discord.Color.green())
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )

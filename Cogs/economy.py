@@ -32,7 +32,9 @@ class Economy(commands.Cog, name = 'Economy'):
 		self.SAVE = configs['SAVE_IMG']
 
 
-	@commands.command(description = '**Показывает лидеров по разных валютах**', usage = 'top')
+	@commands.command(
+		description='**Показывает лидеров по разных валютах**', 
+		usage='top')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def top(self, ctx):
 		purge = self.client.clear_commands(ctx.guild)
@@ -66,7 +68,11 @@ class Economy(commands.Cog, name = 'Economy'):
 		await ctx.send(embed=emb)
 
 
-	@commands.command(name = '+rep', aliases = ['+reputation', 'repp'], description = '**Добавления репутации(от 1 до 5) указаному пользователю(Cooldown 1 час)**', usage = '+rep [@Участник] [Число репутации]')
+	@commands.command(
+		name='+rep',
+		aliases=['+reputation', 'repp'], 
+		description='**Добавления репутации(от 1 до 5) указаному пользователю(Cooldown 1 час)**', 
+		usage='+rep [@Участник] [Число репутации]')
 	@commands.cooldown(1, 3600, commands.BucketType.member)
 	async def repp( self, ctx, member: discord.Member, num: int ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -111,7 +117,11 @@ class Economy(commands.Cog, name = 'Economy'):
 		await ctx.send( embed = emb )
 
 
-	@commands.command(name = '-rep', aliases = ['-reputation', 'repm'], description = '**Отнимает репутацию(от 1 до 3) указаному пользователю(Cooldown 1 час)**', usage = '-rep [@Участник] [Число репутации]')
+	@commands.command(
+		name='-rep', 
+		aliases=['-reputation', 'repm'], 
+		description='**Отнимает репутацию(от 1 до 3) указаному пользователю(Cooldown 1 час)**', 
+		usage='-rep [@Участник] [Число репутации]')
 	@commands.cooldown(1, 3600, commands.BucketType.member)
 	async def repm( self, ctx, member: discord.Member, num: int ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -156,7 +166,9 @@ class Economy(commands.Cog, name = 'Economy'):
 		await ctx.send( embed = emb )
 
 
-	@commands.command(description = '**Ежедневная награда**', usage = 'daily')
+	@commands.command(
+		description='**Ежедневная награда**', 
+		usage='daily')
 	@commands.cooldown(1, 86400, commands.BucketType.member)
 	async def daily( self, ctx ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -178,7 +190,11 @@ class Economy(commands.Cog, name = 'Economy'):
 		await ctx.send( embed = emb )
 
 
-	@commands.command(aliases=['textchannel'], name = 'text-channel', description = '**Создает приватный текстовый канал. По умолчанию у вас есть 20 каналов(Их можно купить в магазине), создавать их можно только в определлёной категории. Он автоматически удаляеться через 30мин!(Cooldown - 3 мин)**', usage = 'text-channel [Имя канала]')
+	@commands.command(
+		aliases=['textchannel'], 
+		name='text-channel', 
+		description='**Создает приватный текстовый канал. По умолчанию у вас есть 20 каналов(Их можно купить в магазине), создавать их можно только в определлёной категории. Он автоматически удаляеться через 30мин!(Cooldown - 3 мин)**', 
+		usage='text-channel [Имя канала]')
 	@commands.cooldown(1, 240, commands.BucketType.member)
 	async def textchannel( self, ctx, *, name ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -230,7 +246,11 @@ class Economy(commands.Cog, name = 'Economy'):
 			await text_channel.delete()
 
 
-	@commands.command(aliases=['shoplist'], name = 'shop-list', description = '**Показывает список покупаемых предметов**', usage = 'shop-list')
+	@commands.command(
+		aliases=['shoplist'], 
+		name='shop-list', 
+		description='**Показывает список покупаемых предметов**', 
+		usage='shop-list')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def shoplist( self, ctx ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -256,7 +276,9 @@ class Economy(commands.Cog, name = 'Economy'):
 			await ctx.send( embed = emb )
 
 
-	@commands.command(description = '**Купляет указанный товар**', usage = 'buy [Имя товара]')
+	@commands.command(
+		description='**Купляет указанный товар**', 
+		usage='buy [Имя товара]')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def buy( self, ctx, item: typing.Optional[str], num: typing.Optional[int] = None ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -694,7 +716,11 @@ class Economy(commands.Cog, name = 'Economy'):
 			return
 
 
-	@commands.command(aliases=['sendmoney'], name = 'send-money', description = '**Этой командой можно оправить свои деньги другому пользователю(Cooldown - 30 мин)**', usage = 'send-money [@Участник]')
+	@commands.command(
+		aliases=['sendmoney'], 
+		name='send-money', 
+		description='**Этой командой можно оправить свои деньги другому пользователю(Cooldown - 30 мин)**', 
+		usage='send-money [@Участник]')
 	@commands.cooldown(1, 1800, commands.BucketType.member)
 	async def sendmoney( self, ctx, member: discord.Member, num: int ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -793,7 +819,11 @@ class Economy(commands.Cog, name = 'Economy'):
 			return
 
 
-	@commands.command(aliases=['trans', 'transactions'], name = 'my-transactions', description = '**Показывает всё ваши транзакции на текущем сервере**', usage = 'my-transactions')
+	@commands.command(
+		aliases=['trans', 'transactions'], 
+		name='my-transactions', 
+		description='**Показывает всё ваши транзакции на текущем сервере**', 
+		usage='my-transactions')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def trans(self, ctx):
 		purge = self.client.clear_commands(ctx.guild)
@@ -823,7 +853,9 @@ class Economy(commands.Cog, name = 'Economy'):
 		await ctx.send(embed = emb)
 
 
-	@commands.command(description = '**Открывает указаный лут бокс**', usage = 'open [Лут бокс]')
+	@commands.command(
+		description='**Открывает указаный лут бокс**', 
+		usage='open [Лут бокс]')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def open(self, ctx, box: str = None):
 		purge = self.client.clear_commands(ctx.guild)
@@ -1124,7 +1156,12 @@ class Economy(commands.Cog, name = 'Economy'):
 			await ctx.message.add_reaction('❌')
 
 
-	@commands.command(aliases=['removerole'], hidden = True, name = 'remove-role', description = '**Удаляет указаную роль из профиля пользователя(Объязательно используйте эту команду для снятия роли, а не простое удаление роли через сам дискорд!, Cooldown - 3 часа)', usage = 'remove-role [@Участник] [@Роль]')
+	@commands.command(
+		aliases=['removerole'], 
+		hidden=True, 
+		name='remove-role', 
+		description='**Удаляет указаную роль из профиля пользователя(Объязательно используйте эту команду для снятия роли, а не простое удаление роли через сам дискорд!, Cooldown - 3 часа)',
+		usage='remove-role [@Участник] [@Роль]')
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	@commands.has_permissions( administrator = True )
 	async def remove_role(self, ctx, member: discord.Member, role: discord.Role):
@@ -1171,7 +1208,12 @@ class Economy(commands.Cog, name = 'Economy'):
 			await ctx.send( embed = emb )
 
 
-	@commands.command(aliases=['addcash'], hidden = True, name = 'add-cash', description = '**Добавляет указаний тип валюты в профиль**', usage = 'add-cash [@Участник] [Название валюты] [Количество]')
+	@commands.command(
+		aliases=['addcash'], 
+		hidden=True, 
+		name='add-cash', 
+		description='**Добавляет указаний тип валюты в профиль**', 
+		usage='add-cash [@Участник] [Название валюты] [Количество]')
 	@commands.has_permissions( administrator = True )
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	async def add_cash( self, ctx, member: discord.Member, typem: str, num: int ):
@@ -1225,7 +1267,12 @@ class Economy(commands.Cog, name = 'Economy'):
 		self.conn.commit()
 
 
-	@commands.command(aliases=['removecash'], hidden = True, name = 'remove-cash', description = '**Удаляет указаний тип валюты из профиля**', usage = 'remove-cash [@Участник] [Название валюты] [Количество]')
+	@commands.command(
+		aliases=['removecash'], 
+		hidden=True,
+		name='remove-cash', 
+		description='**Удаляет указаний тип валюты из профиля**', 
+		usage='remove-cash [@Участник] [Название валюты] [Количество]')
 	@commands.has_permissions( administrator = True )
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	async def remove_cash( self, ctx, member: discord.Member, typem: str, num: int ):
@@ -1279,7 +1326,9 @@ class Economy(commands.Cog, name = 'Economy'):
 		self.conn.commit()
 
 
-	@commands.command(description = '**Этой командой можно ограбить пользователя(Cooldown 24 часа)**', usage = 'rob [@Участник]')
+	@commands.command(
+		description='**Этой командой можно ограбить пользователя(Cooldown 24 часа)**', 
+		usage='rob [@Участник]')
 	@commands.cooldown(1, 86400, commands.BucketType.member)
 	async def rob( self, ctx, member: discord.Member ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -1371,7 +1420,9 @@ class Economy(commands.Cog, name = 'Economy'):
 			return
 
 
-	@commands.command(description = '**Незаконная добыча денег(Cooldown - 12 часов)**', usage = 'crime')
+	@commands.command(
+		description='**Незаконная добыча денег(Cooldown - 12 часов)**',
+		usage='crime')
 	@commands.cooldown(1, 43200, commands.BucketType.member)
 	async def crime( self, ctx ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -1434,7 +1485,10 @@ class Economy(commands.Cog, name = 'Economy'):
 			return
 
 
-	@commands.command(description = '**Показывает ваш инвертарь**', usage = 'invertory', aliases=['inv'])
+	@commands.command(
+		description='**Показывает ваш инвертарь**', 
+		usage='invertory', 
+		aliases=['inv'])
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def invertory( self, ctx ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -1515,7 +1569,11 @@ class Economy(commands.Cog, name = 'Economy'):
 		await ctx.send( embed = emb )
 
 
-	@commands.command(aliases=['profile-color', 'profilecolor'], name = 'set-profile-color', description = '**Ставит новый цвет для вашего профиля**', usage = 'set-profile-color [Цвет]')
+	@commands.command(
+		aliases=['profile-color', 'profilecolor'], 
+		name='set-profile-color', 
+		description='**Ставит новый цвет для вашего профиля**', 
+		usage='set-profile-color [Цвет]')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def profile_color(self, ctx, color: str = None):
 		purge = self.client.clear_commands(ctx.guild)
@@ -1563,7 +1621,9 @@ class Economy(commands.Cog, name = 'Economy'):
 		await ctx.send( embed = emb )
 
 
-	@commands.command(description = '**Показывает профиль указаного пользователя, без упоминания ваш профиль**', usage = 'profile |@Участник|')
+	@commands.command(
+		description='**Показывает профиль указаного пользователя, без упоминания ваш профиль**', 
+		usage='profile |@Участник|')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def profile( self, ctx, member: typing.Optional[discord.Member] = None ):
 		purge = self.client.clear_commands(ctx.guild)

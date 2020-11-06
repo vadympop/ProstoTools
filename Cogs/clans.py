@@ -32,14 +32,16 @@ class Clans(commands.Cog):
 		await ctx.message.add_reaction('✅')
 
 
-	@commands.group()
+	@commands.group(help=f"""**Команды групы:** buy, members, accept-join-request, send-join-request, kick, reject-join-request, list-join-requests, list, use-invite, info, create, edit, leave, create-invite, trans-owner-ship, delete\n\n""")
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def clan(self, ctx):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 
-	@clan.command(usage='clan create [Названия]', description='**Создаёт клан**')
+	@clan.command(
+		usage='clan create [Названия]', 
+		description='**Создаёт клан**')
 	async def create(self, ctx, *, name: str):
 		data = DB().sel_guild(guild=ctx.guild)['clans']
 		user_data = DB().sel_user(target=ctx.author)
@@ -101,7 +103,9 @@ class Clans(commands.Cog):
 		self.conn.commit()
 
 
-	@clan.command(usage='clan edit [Параметр] [Новое значения]', description='**Изменяет настройки клана**')
+	@clan.command(
+		usage='clan edit [Параметр] [Новое значения]', 
+		description='**Изменяет настройки клана**')
 	async def edit(self, ctx, field: str, *, value):
 		data = DB().sel_guild(guild=ctx.guild)['clans']
 		user_clan = DB().sel_user(target=ctx.author)['clan']
@@ -145,7 +149,10 @@ class Clans(commands.Cog):
 					return
 
 
-	@clan.command(name='trans-owner-ship', usage='clan trans-owner-ship [@Участник]', description='**Передаёт права владения клана указаному участнику**')
+	@clan.command(
+		name='trans-owner-ship', 
+		usage='clan trans-owner-ship [@Участник]', 
+		description='**Передаёт права владения клана указаному участнику**')
 	async def trans_own_ship(self, ctx, member: discord.Member):
 		data = DB().sel_guild(guild=ctx.guild)['clans']
 		user_clan = DB().sel_user(target=ctx.author)['clan']
@@ -186,7 +193,9 @@ class Clans(commands.Cog):
 					return
 
 
-	@clan.command(usage='clan delete', description='**Удаляет клан**')
+	@clan.command(
+		usage='clan delete', 
+		description='**Удаляет клан**')
 	async def delete(self, ctx):
 		data = DB().sel_guild(guild=ctx.guild)['clans']
 		user_clan = DB().sel_user(target=ctx.author)['clan']
@@ -243,7 +252,9 @@ class Clans(commands.Cog):
 		await ctx.message.add_reaction('✅')
 
 
-	@clan.command(usage='clan members', description='**Показывает всех участников клана**')
+	@clan.command(
+		usage='clan members', 
+		description='**Показывает всех участников клана**')
 	async def members(self, ctx, clan_id: str = None):
 		data = DB().sel_guild(guild=ctx.guild)['clans']
 		state = False
@@ -277,7 +288,9 @@ class Clans(commands.Cog):
 			await ctx.message.add_reaction('❌')
 
 
-	@clan.command(usage='clan kick [@Участник]', description='**Кикает указаного участника с клана**')
+	@clan.command(
+		usage='clan kick [@Участник]', 
+		description='**Кикает указаного участника с клана**')
 	async def kick(self, ctx, member: discord.Member):
 		data = DB().sel_guild(guild=ctx.guild)['clans']
 		user_clan = DB().sel_user(target=ctx.author)['clan']
@@ -327,7 +340,10 @@ class Clans(commands.Cog):
 					return
 
 
-	@clan.command(name='list', usage='clan list-clans', description='**Показывает все кланы сервера**')
+	@clan.command(
+		name='list', 
+		usage='clan list-clans', 
+		description='**Показывает все кланы сервера**')
 	async def list_clans(self, ctx):
 		data = [clan for clan in DB().sel_guild(guild=ctx.guild)['clans'] if clan['type'] == 'public']
 		if data != []:
@@ -341,7 +357,9 @@ class Clans(commands.Cog):
 		await ctx.send(embed=emb)
 
 
-	@clan.command(usage='clan info |Id|', description='**Показывает полную информацию о клане**')
+	@clan.command(
+		usage='clan info |Id|', 
+		description='**Показывает полную информацию о клане**')
 	async def info(self, ctx, clan_id: str = None):
 		data = DB().sel_guild(guild=ctx.guild)['clans']
 		user_clan = DB().sel_user(target=ctx.author)['clan']
@@ -381,7 +399,9 @@ class Clans(commands.Cog):
 			await ctx.message.add_reaction('❌')
 
 
-	@clan.command(usage='clan leave', description='**С помощью команды вы покидаете ваш клан**')
+	@clan.command(
+		usage='clan leave', 
+		description='**С помощью команды вы покидаете ваш клан**')
 	async def leave(self, ctx):
 		data = DB().sel_guild(guild=ctx.guild)['clans']
 		user_clan = DB().sel_user(target=ctx.author)['clan']
@@ -415,7 +435,10 @@ class Clans(commands.Cog):
 					return
 
 
-	@clan.command(name='create-invite', usage='clan create-invite', description='**Создаёт новое приглашения**')
+	@clan.command(
+		name='create-invite', 
+		usage='clan create-invite', 
+		description='**Создаёт новое приглашения**')
 	async def create_invite(self, ctx):
 		user_clan = DB().sel_user(target=ctx.author)['clan']
 		data = DB().sel_guild(guild=ctx.guild)['clans']
@@ -469,7 +492,10 @@ class Clans(commands.Cog):
 						return
 
 
-	@clan.command(name='use-invite', usage='clan use-invite [Код приглашения]', description='**С помощью команды вы используете указаное приглашения**')
+	@clan.command(
+		name='use-invite', 
+		usage='clan use-invite [Код приглашения]', 
+		description='**С помощью команды вы используете указаное приглашения**')
 	async def use_invite(self, ctx, invite: str):
 		data = DB().sel_guild(guild=ctx.guild)['clans']
 		state = False
@@ -508,7 +534,9 @@ class Clans(commands.Cog):
 			await ctx.message.add_reaction('❌')
 
 
-	@clan.command(name='send-join-request')
+	@clan.command(
+		name='send-join-request',
+		description='**Отправляет запрос на присоиденения к клану**')
 	async def send_join_request(self, ctx, clan_id: str):
 		data = DB().sel_guild(guild=ctx.guild)['clans']
 		state = False
@@ -557,7 +585,9 @@ class Clans(commands.Cog):
 			await ctx.message.add_reaction('❌')
 
 
-	@clan.command(name='list-join-requests')
+	@clan.command(
+		name='list-join-requests',
+		description='Показывает список всех кланов на сервере')
 	async def list_join_requests(self, ctx):
 		user_clan = DB().sel_user(target=ctx.author)['clan']
 		data = DB().sel_guild(guild=ctx.guild)['clans']
@@ -588,7 +618,9 @@ class Clans(commands.Cog):
 					return
 
 
-	@clan.command(name='accept-join-request')
+	@clan.command(
+		name='accept-join-request',
+		description='**Принимает указаный запрос на присоиденения к клану**')
 	async def accept_join_request(self, ctx, member: discord.Member):
 		user_clan = DB().sel_user(target=ctx.author)['clan']
 		data = DB().sel_guild(guild=ctx.guild)['clans']
@@ -633,7 +665,9 @@ class Clans(commands.Cog):
 					return
 
 
-	@clan.command(name='reject-join-request')
+	@clan.command(
+		name='reject-join-request',
+		description='**Отклоняет указаный запрос на присоиденения к клану**')
 	async def reject_join_request(self, ctx, member: discord.Member):
 		user_clan = DB().sel_user(target=ctx.author)['clan']
 		data = DB().sel_guild(guild=ctx.guild)['clans']
@@ -678,7 +712,7 @@ class Clans(commands.Cog):
 					return
 
 
-	@clan.command()
+	@clan.command(description='**Покупает указаный предмет для клана**')
 	async def buy(self, ctx, item: str, color: str = None):
 		user_data = DB().sel_user(target=ctx.author)
 		data = DB().sel_guild(guild=ctx.guild)['clans']

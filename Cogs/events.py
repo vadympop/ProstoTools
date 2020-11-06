@@ -338,13 +338,7 @@ class Events(commands.Cog, name = 'Events'):
 
 	@commands.Cog.listener()
 	async def on_voice_state_update( self, member, before, after ):
-
-		if after.channel:
-			pass
-		elif before.channel:
-			pass
-
-		data = DB().sel_guild(guild = member.guild)['voice_channel']
+		data = DB().sel_guild(guild=member.guild)['voice_channel']
 		if data != {}:
 			main_channel = data['channel_id']
 			main_channel_obj = self.client.get_channel(int(main_channel))

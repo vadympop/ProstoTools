@@ -268,7 +268,7 @@ class DB:
 			'donate': donate,
 			'prefix': str(data[10]),
 			'server_stats': json.loads(data[11]),
-			'voice_channel': json.loads(data[11]),
+			'voice_channel': json.loads(data[12]),
 			'shop_list': json.loads(data[13]),
 			'ignored_channels': json.loads(data[14]),
 			'auto_mod': json.loads(data[15]),

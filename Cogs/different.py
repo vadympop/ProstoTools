@@ -28,7 +28,12 @@ class Different(commands.Cog, name = 'Different'):
 		self.cursor = self.conn.cursor(buffered = True)
 		self.FOOTER = configs['FOOTER_TEXT']
 
-	@commands.command(name='reminder', aliases=['remin'], description='**Работа с напоминаниями**', usage='reminder [create/list/delete] |Время| |Текст|')
+	@commands.command(
+		name='reminder', 
+		aliases=['remin'], 
+		description='**Работа с напоминаниями**', 
+		usage='reminder [create/list/delete] |Время| |Текст|',
+		help='**Примеры использования:**\n1. `{Prefix}reminder create 1h Example reminder text`\n2. `{Prefix}reminder list`\n3. `{Prefix}reminder delete 1`\n\n**Пример 1:** Напомнит `Example reminder text` через 1 час\n**Пример 2:** Покажет список ваших напоминаний\n**Пример 3:** Удалит напоминания с id - `1`')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def reminder(self, ctx, action: str, type_time: str = None, *, text: str = None):
 		purge = self.client.clear_commands(ctx.guild)
@@ -99,7 +104,12 @@ class Different(commands.Cog, name = 'Different'):
 			await ctx.send(embed=emb)
 
 
-	@commands.command(aliases=['usersend'], name = 'user-send', description = '**Отправляет сообщения указаному участнику(Cooldown - 1 мин после двох попыток)**', usage = 'user-send [@Участник] [Сообщения]')
+	@commands.command(
+		aliases=['usersend'], 
+		name='user-send', 
+		description='**Отправляет сообщения указаному участнику(Cooldown - 1 мин после двох попыток)**', 
+		usage='user-send [@Участник] [Сообщения]',
+		help='**Примеры использования:**\n1. `{Prefix}user-send @Участник Hello my friend`\n2. `{Prefix}user-send 660110922865704980 Hello my friend`\n\n**Пример 1:** Отправит упомянутому участнику сообщения `Hello my friend`\n**Пример 2:** Отправит участнику с указаным id сообщения `Hello my friend`')
 	@commands.cooldown(2, 60, commands.BucketType.member)
 	async def send( self, ctx, member: discord.Member, *, message ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -139,7 +149,11 @@ class Different(commands.Cog, name = 'Different'):
 			return
 
 
-	@commands.command(aliases=['devs'], name = 'feedback', description = '**Отправляет описания бага в боте разработчикам или идею к боту(Cooldown - 2ч)**', usage = 'feedback [bug/idea] [Описания бага или идея к боту]')
+	@commands.command(
+		aliases=['devs'], 
+		name='feedback', description='**Отправляет описания бага в боте разработчикам или идею к боту(Cooldown - 2ч)**', 
+		usage='feedback [bug/idea] [Описания бага или идея к боту]',
+		help='**Примеры использования:**\n1. {Prefix}feedback баг Error\n2. {Prefix}feedback идея Idea\n\n**Пример 1:** Отправит баг `Error`\n**Пример 2: Отправит идею `Idea`**')
 	@commands.cooldown(1, 7200, commands.BucketType.member)
 	async def devs( self, ctx, typef, *, msg ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -170,9 +184,12 @@ class Different(commands.Cog, name = 'Different'):
 			return
 
 
-	@commands.command(aliases=['userinfo', 'user'], name = 'user-info', description = '**Показывает информацию указаного учасника**', usage = 'user-info [@Участник]')
+	@commands.command(
+		aliases=['userinfo', 'user'], 
+		name='user-info', description='**Показывает информацию указаного учасника**', usage='user-info |@Участник|',
+		help='**Примеры использования:**\n1. {Prefix}user-info @Участник\n2. {Prefix}user-info 660110922865704980\n3. {Prefix}user-info\n\n**Пример 1:** Покажет информацию о упомянутом участнике\n**Пример 2:** Покажет информацию о участнике с указаным id\n**Пример 3:** Покажет информацию о вас')
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def userinfo( self, ctx, member: discord.Member = None ):
+	async def userinfo(self, ctx, member: discord.Member = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -227,9 +244,14 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.send( embed = emb )  
 
 
-	@commands.command(aliases=['useravatar', 'avatar'], name = 'user-avatar', description = '**Показывает аватар указаного учасника**', usage = 'user-avatar [@Участник]')
+	@commands.command(
+		aliases=['useravatar', 'avatar'], 
+		name='user-avatar', 
+		description='**Показывает аватар указаного учасника**', 
+		usage='user-avatar |@Участник|',
+		help='**Примеры использования:**\n1. {Prefix}user-avatar @Участник\n2. {Prefix}user-avatar 660110922865704980\n3. {Prefix}user-avatar\n\n**Пример 1:** Покажет аватар упомянутого участника\n**Пример 2:** Покажет аватар участника с указаным id\n**Пример 3:** Покажет ваш аватар')
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def avatar( self, ctx, member: typing.Optional[ discord.Member ] = None ):
+	async def avatar( self, ctx, member: discord.Member = None ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -243,7 +265,12 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.send( embed = emb )
 
 
-	@commands.command(name="info-bot", aliases=["botinfo", "infobot", "bot-info"], usage="info-bot", description="Подробная информация о боте")
+	@commands.command(
+		name="info-bot", 
+		aliases=["botinfo", "infobot", "bot-info"], 
+		usage="info-bot", 
+		description="Подробная информация о боте",
+		help='**Примеры использования:**\n1. {Prefix}info-bot\n\n**Пример 1:** Покажет информацию обо мне')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bot(self, ctx):
 		purge = self.client.clear_commands(ctx.guild)
@@ -312,7 +339,10 @@ class Different(commands.Cog, name = 'Different'):
 		await page.start()
 
 
-	@commands.command(aliases=['server', 'serverinfo', 'guild', 'guildinfo', 'guild-info'], name = 'server-info', description = '**Показывает информацию о сервере**', usage = 'server-info')
+	@commands.command(
+		aliases=['server', 'serverinfo', 'guild', 'guildinfo', 'guild-info'], 
+		name='server-info', description='**Показывает информацию о сервере**', usage='server-info',
+		help='**Примеры использования:**\n1. {Prefix}server-info\n\n**Пример 1:** Покажет информацию о сервере')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def serverinfo( self, ctx ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -400,9 +430,14 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.send(embed=emb)
 
 
-	@commands.command(aliases=['idea', 'guildidea'], name = 'guild-idea', description = '**Отправляет вашу идею (Cooldown - 30мин)**', usage = 'guild-idea [Ваша идея]')
+	@commands.command(
+		aliases=['idea', 'guildidea'], 
+		name='guild-idea', 
+		description='**Отправляет вашу идею (Cooldown - 30мин)**', 
+		usage='guild-idea [Ваша идея]',
+		help='**Примеры использования:**\n1. {Prefix}guild-idea I have an idea\n\n**Пример 1:** Отправит идею `I have an idea` в настроеный канал дял идей сервера')
 	@commands.cooldown(1, 7200, commands.BucketType.member)
-	async def idea( self, ctx, *, arg ):
+	async def idea( self, ctx, *, text ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
@@ -419,14 +454,17 @@ class Different(commands.Cog, name = 'Different'):
 			return
 		elif idea_channel_id:
 			idea_channel = self.client.get_channel(int(idea_channel_id))
-			emb = discord.Embed( title = 'Новая идея!', description = f'**От {ctx.author.mention} прийшла идея: {arg}**', colour = discord.Color.green() )
+			emb = discord.Embed( title = 'Новая идея!', description = f'**От {ctx.author.mention} прийшла идея: {text}**', colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_thumbnail( url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
 			await idea_channel.send( embed = emb)
 
 
-	@commands.command(description = '**Отправляет ссылку на приглашения бота на сервер**', usage = 'invite')
+	@commands.command(
+		description='**Отправляет ссылку на приглашения бота на сервер**', 
+		usage='invite',
+		help='**Примеры использования:**\n1. {Prefix}invite\n\n**Пример 1:** Отправит приглашения на меня')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def invite( self, ctx ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -439,19 +477,23 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.send( embed = emb )
 
 
-	@commands.command(aliases=['msg-f', 'msg-forward', 'msgf'], name = 'message-forward', description = '**Перенаправляет ваше сообщения в указаный канал(Cooldown - 2 мин)**', usage = 'message-forward [Id Канала] [Сообщения]')
+	@commands.command(
+		aliases=['msg-f', 'msg-forward', 'msgf', 'msg-forw'], 
+		name='message-forward', 
+		description='**Перенаправляет ваше сообщения в указаный канал(Cooldown - 2 мин)**', 
+		usage='message-forward [Канал] [Сообщения]',
+		help='**Примеры использования:**\n1. {Prefix}message-forward #Канал Hello everyone\n2. {Prefix}message-forward 717776571406090313 Hello everyone\n\n**Пример 1:** Перенаправит сообщения `Hello everyone` в упомянутый канал\n**Пример 2:**  Перенаправит сообщения `Hello everyone` в канал с указаным id')
 	@commands.cooldown(1, 120, commands.BucketType.member)
-	async def msgforw( self, ctx, channel: int, *, msg ):
+	async def msgforw( self, ctx, channel: discord.TextChannel, *, msg ):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge( limit = purge )
 
-		msgforw_channel = self.client.get_channel(channel)
-		if ctx.author.permissions_in(msgforw_channel).send_messages:
-			emb = discord.Embed( title = 'Новое сообщения!', description = f'{ctx.author.mention} Перенаправил сообщения в этот канал. ***Само сообщения: {msg}***', colour = discord.Color.green() )
+		if ctx.author.permissions_in(channel).send_messages:
+			emb = discord.Embed( title = 'Новое сообщения!', description = f'{ctx.author.mention} Перенаправил сообщения в этот канал. **Само сообщения: {msg}**', colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
 			emb.set_thumbnail( url = ctx.author.avatar_url )
 			emb.set_footer( text = self.FOOTER, icon_url = self.client.user.avatar_url )
-			await msgforw_channel.send( embed = emb)
+			await channel.send( embed = emb)
 		else:
 			emb = discord.Embed( title = 'Ошибка!', description = f'**Отказанно в доступе! Вы не имеете прав в указном канале**', colour = discord.Color.green() )
 			emb.set_author( name = ctx.author.name, icon_url = ctx.author.avatar_url )
@@ -462,15 +504,22 @@ class Different(commands.Cog, name = 'Different'):
 			return
 
 
-	@commands.command(description = '**Отправляет ваше сообщения от именни бота(Cooldown - 30 сек после трёх попыток)**', usage = 'say [Сообщения]')
+	@commands.command(
+		description='**Отправляет ваше сообщения от именни бота(Cooldown - 30 сек после трёх попыток)**', 
+		usage='say [Сообщения]',
+		help='**Примеры использования:**\n1. {Prefix}say Hello, I am write a text\n\n**Пример 1:** Отправит указаное сообщения от именни бота в текущем канале и удалит сообщения участника')
 	@commands.cooldown(3, 30, commands.BucketType.member)
 	async def say( self, ctx, *, text ):
-		purge = self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge( limit = purge )
+		await ctx.message.delete()
 		await ctx.send(text)
 
 
-	@commands.command(aliases=['rnum', 'randomnumber'], name = 'random-number', description = '**Пишет рандомное число в указаном диапазоне**', usage = 'random-number [Первое число (От)] [Второе число (До)]')
+	@commands.command(
+		aliases=['rnum', 'randomnumber'], 
+		name='random-number', 
+		description='**Пишет рандомное число в указаном диапазоне**', 
+		usage='random-number [Первое число (От)] [Второе число (До)]',
+		help='**Примеры использования:**\n1. {Prefix}rnum 1 10\n\n**Пример 1:** Выберет рандомное число в диапазоне указаных')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def rnum( self, ctx, rnum1: int, rnum2: int ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -482,7 +531,10 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.send( embed = emb )
 
 	
-	@commands.command(description = '**Устанавливает краткое описания о вас**', usage = 'bio [Текст]')
+	@commands.command(
+		description='**Устанавливает краткое описания о вас**', 
+		usage='bio [Текст]',
+		help='**Примеры использования:**\n1. {Prefix}bio -\n2. {Prefix}bio\n3. {Prefix}bio New biography\n\n**Пример 1:** Очистит биографию\n**Пример 2:** Покажет текущую биограцию\n**Пример 3:** Поставит новую биограцию - `New biography`')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bio( self, ctx, *, text: str = None ):
 		purge = self.client.clear_commands(ctx.guild)
@@ -500,7 +552,7 @@ class Different(commands.Cog, name = 'Different'):
 			await ctx.message.add_reaction('✅')
 			return
 		if not text:
-			emb = discord.Embed(title='Ваша биография', description="У вас нету биографии" if cur_bio == '' else f'```{cur_bio}```', colour=discord.Color.green())
+			emb = discord.Embed(title='Ваша биография', description="У вас нету биографии" if cur_bio == '' else cur_bio, colour=discord.Color.green())
 			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
@@ -518,7 +570,12 @@ class Different(commands.Cog, name = 'Different'):
 		await ctx.message.add_reaction('✅')
 
 
-	@commands.command(name='calc', aliases=['calculator', 'c'], description='Выполняет математические операции', usage='calc [Операция]')
+	@commands.command(
+		name='calc', 
+		aliases=['calculator', 'c'], 
+		description='Выполняет математические операции', 
+		usage='calc [Операция]',
+		help='**Примеры использования:**\n1. {Prefix}calc 2+1\n\n**Пример 1:** Вычислит уравнения `2+1`')
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def calc(self, ctx, *, exp = None):
 		if not exp:

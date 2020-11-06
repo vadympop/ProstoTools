@@ -30,7 +30,7 @@ class Loops(commands.Cog, name = 'Loops'):
 		self.FOOTER = configs['FOOTER_TEXT']
 
 
-	@tasks.loop(seconds=5)
+	@tasks.loop(seconds=30)
 	async def reminders_loop(self):
 		for reminder in DB().get_reminder():
 			reminder_time = reminder[4]
@@ -187,16 +187,14 @@ class Loops(commands.Cog, name = 'Loops'):
 							}
 							counter = counters[stat_type]
 							channel = guild.get_channel(channel_id)
-							if counter >= 100:
-								stats_channel_name = channel.name[6:]
-							elif counter >= 10:
-								stats_channel_name = channel.name[5:]
-							elif counter < 10:
-								stats_channel_name = channel.name[4:]
+							numbers = ''.join(char for char in channel.name if char.isdigit())
+							print('Numbers - ', numbers)
+							new_name = channel.name.replace(numbers, str(counter))
+							print('New name - ', new_name)
 
-							await channel.edit( name = f'[{counter}] {stats_channel_name}' )
-						except:
-							pass
+							await channel.edit(name=new_name)
+						except Exception as e:
+							raise(e)
 
 					
 def setup( client ):
