@@ -1129,7 +1129,7 @@ class Economy(commands.Cog, name="Economy"):
 		name="send-money",
 		description="**Этой командой можно оправить свои деньги другому пользователю(Cooldown - 30 мин)**",
 		usage="send-money [@Участник]",
-		help='**Примеры использования:**\n1. {Prefix}send-money @Участник 1000\n2. {Prefix}send-money 660110922865704980 1000\n\n**Пример 1:** Отправляет 1000$ упомянутому участнику\n**Пример 2:** Отправляет 1000$ участнику с указаным id')
+		help='**Примеры использования:**\n1. {Prefix}send-money @Участник 1000\n2. {Prefix}send-money 660110922865704980 1000\n\n**Пример 1:** Отправляет 1000$ упомянутому участнику\n**Пример 2:** Отправляет 1000$ участнику с указаным id',
 	)
 	@commands.cooldown(1, 1800, commands.BucketType.member)
 	async def sendmoney(self, ctx, member: discord.Member, num: int):

@@ -5,6 +5,7 @@ import qrcode
 import wikipedia
 import requests
 import cv2
+import asyncio
 from googletrans import Translator
 from pyzbar import pyzbar
 from discord.ext import commands
