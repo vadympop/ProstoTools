@@ -31,6 +31,7 @@ class Loops(commands.Cog, name="Loops"):
 		self.ping_stat_loop.start()
 		self.server_stats.start()
 		self.reminders_loop.start()
+		self.channel_loop.start()
 		self.FOOTER = configs["FOOTER_TEXT"]
 
 	@tasks.loop(seconds=30)
@@ -74,7 +75,7 @@ class Loops(commands.Cog, name="Loops"):
 							DB().del_punishment(
 								member=member, guild_id=guild.id, type_punishment="mute"
 							)
-							mute_role = get(guild.roles, id=int(mute[4]))
+							mute_role = await guild.get_role(int(mute[4]))
 							await member.remove_roles(mute_role)
 
 							emb = discord.Embed(
@@ -162,7 +163,7 @@ class Loops(commands.Cog, name="Loops"):
 								guild_id=guild.id,
 								type_punishment="vmute",
 							)
-							vmute_role = get(guild.roles, id=int(vmute[4]))
+							vmute_role = await guild.get_role(int(vmute[4]))
 							await member.remove_roles(vmute_role)
 
 							overwrite = discord.PermissionOverwrite(connect=None)
@@ -186,6 +187,24 @@ class Loops(commands.Cog, name="Loops"):
 								await member.send(embed=emb)
 							except:
 								pass
+
+	@tasks.loop(seconds=5)
+	async def channel_loop(self):
+		for channel in DB().get_punishment():
+			channel_time = channel[2]
+			guild = self.client.get_guild(int(channel[1]))
+			if channel[3] == "text_channel":
+				if guild:
+					member = guild.get_member(int(channel[0]))
+					if member:
+						if float(channel_time) <= float(time.time()):
+							DB().del_punishment(
+								member=member,
+								guild_id=guild.id,
+								type_punishment="text_channel",
+							)
+							delete_channel = guild.get_channel(int(channel[4]))
+							await delete_channel.delete()
 
 	@tasks.loop(minutes=30)
 	async def ping_stat_loop(self):

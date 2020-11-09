@@ -9,6 +9,7 @@ import typing
 import math
 import io
 import uuid
+import time
 import mysql.connector
 from Tools.database import DB
 from Cybernator import Paginator
@@ -272,12 +273,12 @@ class Economy(commands.Cog, name="Economy"):
 		await ctx.channel.purge(limit=purge)
 
 		data = DB().sel_user(target=ctx.author)
-		sql = """UPDATE users SET text_channel = text_channel - 1 WHERE user_id = %s AND guild_id = %s"""
+		sql = ("""UPDATE users SET text_channel = text_channel - 1 WHERE user_id = %s AND guild_id = %s""")
 		val = (ctx.author.id, ctx.guild.id)
 
 		guild_data = DB().sel_guild(guild=ctx.guild)
 		category_id = guild_data["textchannels_category"]
-		time = guild_data["timedelete_textchannel"]
+		time_channel = guild_data["timedelete_textchannel"]
 		num_textchannels = data["text_channels"]
 
 		if category_id == 0:
@@ -313,7 +314,7 @@ class Economy(commands.Cog, name="Economy"):
 				)
 
 				emb = discord.Embed(
-					title=f"{ctx.author.name} Создал текстовый канал #{text_channel}",
+					description=f"`{str(ctx.author)}` Создал текстовый канал `#{text_channel}`",
 					colour=discord.Color.green(),
 				)
 				emb.set_author(
@@ -321,6 +322,16 @@ class Economy(commands.Cog, name="Economy"):
 				)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
+
+				self.cursor.execute(sql, val)
+				self.conn.commit()
+
+				DB().set_punishment(
+					type_punishment='text_channel',
+					time=float(time.time()+60*time_channel),
+					member=ctx.author,
+					role_id=text_channel.id
+				)
 			elif num_textchannels <= 0:
 				emb = discord.Embed(
 					title=f"**У вас не достаточно каналов!**",
@@ -334,12 +345,6 @@ class Economy(commands.Cog, name="Economy"):
 				await ctx.message.add_reaction("❌")
 				self.textchannel.reset_cooldown(ctx)
 				return
-
-			self.cursor.execute(sql, val)
-			self.conn.commit()
-
-			await asyncio.sleep(60 * time)
-			await text_channel.delete()
 
 	@commands.command(
 		aliases=["shoplist"],
