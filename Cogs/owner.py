@@ -195,15 +195,16 @@ class Owner(commands.Cog, name="Owner"):
 						print(Fore.GREEN + f"[PT-SYSTEM-COG]:::{filename.upper()} - Reloaded")
 			await ctx.message.add_reaction('✅')
 			return
+			
 		try:	
 			self.client.unload_extension(f"Cogs.{extension}")
 			self.client.load_extension(f"Cogs.{extension}")
 		except:
 			print(
 				Fore.RED
-				+ f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {filename[:-3].upper()}"
+				+ f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension.upper()}"
 			)
-			await ctx.message.add_reaction('❌')
+			return 
 		print(Fore.GREEN + f"[PT-SYSTEM-COG]:::{extension.upper()} - Reloaded")
 		await ctx.message.add_reaction('✅')
 

@@ -2452,9 +2452,8 @@ class Economy(commands.Cog, name="Economy"):
 		)
 		responce = ImageOps.expand(responce, border=10, fill="white")
 		img.paste(responce, (10, 10))
-		img.paste(user_image_status, (160, 160))
+		img.paste(user_image_status, (160, 160), user_image_status)
 		idraw = ImageDraw.Draw(img)
-
 		bigtext = ImageFont.truetype(self.FONT, size=56)
 		midletext = ImageFont.truetype(self.FONT, size=40)
 		smalltext = ImageFont.truetype(self.FONT, size=32)
