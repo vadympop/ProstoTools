@@ -48,7 +48,7 @@ class Owner(commands.Cog, name="Owner"):
 
 	@commands.command()
 	async def test(self, ctx, member: discord.Member = None, *, message: str = None):
-		template = Template(message, autoescape=True)
+		template = Template(message, autoescape=False)
 		data = DB().sel_user(member)
 		multi = DB().sel_guild(ctx.guild)["exp_multi"]
 		data.update({"multi": multi})
@@ -81,10 +81,7 @@ class Owner(commands.Cog, name="Owner"):
 			"contains": lambda msg, word: True if word in msg.split(" ") else False,
 		}
 		result = template.render(context)
-		await ctx.send(ctx.kwargs)
-		await ctx.send(
-			result.replace("&lt;", "<").replace("&gt;", ">").replace("&#39;", '"')
-		)
+		await ctx.send(result)
 
 	@commands.command()
 	@commands.is_owner()
