@@ -264,9 +264,7 @@ class Loops(commands.Cog, name="Loops"):
 							numbers = "".join(
 								char for char in channel.name if char.isdigit()
 							)
-							print("Numbers - ", numbers)
 							new_name = channel.name.replace(numbers, str(counter))
-							print("New name - ", new_name)
 
 							await channel.edit(name=new_name)
 						except Exception as e:
