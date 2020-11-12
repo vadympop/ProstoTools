@@ -320,6 +320,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def kick(self, ctx, member: discord.Member, *, reason=None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)['log_channel']
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -372,6 +373,19 @@ class Moderate(commands.Cog, name="Moderate"):
 			await member.send(embed=emb)
 		except:
 			pass
+		
+		if logs_channel_id != 0:
+			e = discord.Embed(
+				description=f"Пользователь `{str(member)}` был кикнут",
+				colour=discord.Color.green(),
+				timestamp=datetime.utcnow(),
+			)
+			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
+			e.add_field(name="Причина", value=reason, inline=False,)
+			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+			e.set_author(name="Журнал аудита | Кик пользователя", icon_url=ctx.author.avatar_url)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
 	@commands.command(
 		aliases=["softban"],
@@ -386,6 +400,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -522,6 +537,23 @@ class Moderate(commands.Cog, name="Moderate"):
 				type_punishment="temprole", time=times, member=member, role=role.id
 			)
 
+		if logs_channel_id != 0:
+			e = discord.Embed(
+				description=f"Пользователь `{str(member)}` был апаратно забанен",
+				colour=discord.Color.green(),
+				timestamp=datetime.utcnow(),
+			)
+			e.add_field(
+				name=f"Модератором {str(ctx.author)}", 
+				value=f"На {softban_minutes} {softban_typetime}" if softban_minutes != 0 else "Перманентно", 
+				inline=False,
+			)
+			e.add_field(name="Причина", value=reason, inline=False,)
+			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+			e.set_author(name="Журнал аудита | Апаратный бан пользователя", icon_url=ctx.author.avatar_url)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+
 	@commands.command(
 		aliases=["unsoftban"],
 		brief="True",
@@ -533,6 +565,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def unsoftban(self, ctx, member: discord.Member):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)['log_channel']
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -573,6 +606,18 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		if role in member.roles:
 			await member.remove_roles(role)
+
+		if logs_channel_id != 0:
+			e = discord.Embed(
+				description=f"Пользователь `{str(member)}` был апаратно разбанен",
+				colour=discord.Color.green(),
+				timestamp=datetime.utcnow(),
+			)
+			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
+			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+			e.set_author(name="Журнал аудита | Апаратный разбан пользователя", icon_url=ctx.author.avatar_url)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
 	@commands.command(
 		hidden=True,
@@ -791,6 +836,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -920,6 +966,23 @@ class Moderate(commands.Cog, name="Moderate"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
+		if logs_channel_id != 0:
+			e = discord.Embed(
+				description=f"Пользователь `{str(member)}` был замьючен в голосовых каналах",
+				colour=discord.Color.green(),
+				timestamp=datetime.utcnow(),
+			)
+			e.add_field(
+				name=f"Модератором {str(ctx.author)}", 
+				value=f"На {vmute_minutes} {vmute_typetime}" if vmute_minutes != 0 else "Перманентно", 
+				inline=False,
+			)
+			e.add_field(name="Причина", value=reason, inline=False,)
+			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+			e.set_author(name="Журнал аудита | Голосовой мьют пользователя", icon_url=ctx.author.avatar_url)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+
 	@commands.command(
 		aliases=["unvmute"],
 		brief="True",
@@ -931,6 +994,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def unvmute(self, ctx, member: discord.Member):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -975,6 +1039,18 @@ class Moderate(commands.Cog, name="Moderate"):
 					await member.send(embed=emb)
 				except:
 					pass
+
+				if logs_channel_id != 0:
+					e = discord.Embed(
+						description=f"Пользователь `{str(member)}` был размьючен в голосовых каналах",
+						colour=discord.Color.green(),
+						timestamp=datetime.utcnow(),
+					)
+					e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
+					e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+					e.set_author(name="Журнал аудита | Голосовой размьют пользователя", icon_url=ctx.author.avatar_url)
+					e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 				return
 
 	@commands.command(
@@ -988,6 +1064,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -1220,6 +1297,24 @@ class Moderate(commands.Cog, name="Moderate"):
 			except:
 				pass
 
+		if logs_channel_id != 0:
+			e = discord.Embed(
+				description=f"Пользователь `{str(member)}` был замьючен",
+				colour=discord.Color.green(),
+				timestamp=datetime.utcnow(),
+			)
+			e.add_field(
+				name=f"Модератором {str(ctx.author)}", 
+				value=f"На {mute_minutes} {mute_typetime}" if mute_minutes != 0 else "Перманентно", 
+				inline=False,
+			)
+			e.add_field(name="Причина", value=reason, inline=False,)
+			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+			e.set_author(name="Журнал аудита | Мьют пользователя", icon_url=ctx.author.avatar_url)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+
+
 	@commands.command(
 		aliases=["unmute"],
 		brief="True",
@@ -1231,6 +1326,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def unmute(self, ctx, member: discord.Member):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -1272,6 +1368,18 @@ class Moderate(commands.Cog, name="Moderate"):
 				except:
 					pass
 
+		if logs_channel_id != 0:
+			e = discord.Embed(
+				description=f"Пользователь `{str(member)}` был размьючен",
+				colour=discord.Color.green(),
+				timestamp=datetime.utcnow(),
+			)
+			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
+			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+			e.set_author(name="Журнал аудита | Размьют пользователя", icon_url=ctx.author.avatar_url)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+
 	@commands.command(
 		aliases=["clearwarns"],
 		brief="True",
@@ -1283,6 +1391,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def clearwarn(self, ctx, member: discord.Member):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -1328,6 +1437,18 @@ class Moderate(commands.Cog, name="Moderate"):
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
 
+		if logs_channel_id != 0:
+			e = discord.Embed(
+				description=f"У пользователя `{str(member)}` были сняты все предупреждения",
+				colour=discord.Color.green(),
+				timestamp=datetime.utcnow(),
+			)
+			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
+			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+			e.set_author(name="Журнал аудита | Снятия всех предупреждений пользователя", icon_url=ctx.author.avatar_url)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+
 	@commands.command(
 		brief="True",
 		description="**Дает придупреждения учаснику по указаной причине**",
@@ -1337,6 +1458,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def warn(self, ctx, member: discord.Member, *, reason=None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -1505,6 +1627,23 @@ class Moderate(commands.Cog, name="Moderate"):
 		self.cursor.execute(sql, val)
 		self.conn.commit()
 
+		if logs_channel_id != 0:
+			e = discord.Embed(
+				description=f"Пользователь `{str(member)}` получил предуждения",
+				colour=discord.Color.green(),
+				timestamp=datetime.utcnow(),
+			)
+			e.add_field(
+				name=f"Модератором {str(ctx.author)}", 
+				value=f"Id предупреждения - {warn_id}", 
+				inline=False,
+			)
+			e.add_field(name="Причина", value=reason, inline=False,)
+			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+			e.set_author(name="Журнал аудита | Предупреждения пользователя", icon_url=ctx.author.avatar_url)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+
 	@commands.command(
 		aliases=["remwarn", "rem-warn"],
 		brief="True",
@@ -1517,6 +1656,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		data = DB().del_warn(ctx.guild.id, warn_id)
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 
 		if not data:
 			emb = discord.Embed(
@@ -1537,12 +1677,31 @@ class Moderate(commands.Cog, name="Moderate"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
+		if logs_channel_id != 0:
+			e = discord.Embed(
+				description=f"У пользователь `{str(ctx.guild.get_member(data[0]))}` было снято предепреждения",
+				colour=discord.Color.green(),
+				timestamp=datetime.utcnow(),
+			)
+			e.add_field(
+				name=f"Модератором {str(ctx.author)}", 
+				value=f"Id предупреждения - {warn_id}", 
+				inline=False,
+			)
+			e.add_field(name="Id Участника", value=f"`{ctx.guild.get_member(data[0]).id}`", inline=False)
+			e.set_author(name="Журнал аудита | Снятий предупреждения пользователя", icon_url=ctx.author.avatar_url)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+
 	@commands.command(
 		description="**Показывает список предупреждений**", usage="warns |@Участник|"
 	)
 	async def warns(self, ctx, member: discord.Member = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+
+		if not member:
+			member = ctx.author
 
 		if member.bot:
 			emb = discord.Embed(
@@ -1557,9 +1716,6 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction("❌")
 			return
-
-		if not member:
-			member = ctx.author
 
 		data = DB().sel_user(target=member)
 		warns = data["warns"]

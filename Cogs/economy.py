@@ -1670,6 +1670,7 @@ class Economy(commands.Cog, name="Economy"):
 	async def remove_role(self, ctx, member: discord.Member, role: discord.Role):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 
 		if member.bot:
 			emb = discord.Embed(
@@ -1728,6 +1729,19 @@ class Economy(commands.Cog, name="Economy"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
+		if logs_channel_id != 0:
+			e = discord.Embed(
+				description=f"У пользователя `{str(member)}` была убрана роль",
+				colour=discord.Color.green(),
+				timestamp=datetime.datetime.utcnow(),
+			)
+			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
+			e.add_field(name="Роль", value=role.name, inline=False,)
+			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+			e.set_author(name="Журнал аудита | Удаления роли пользователя", icon_url=ctx.author.avatar_url)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+
 	@commands.command(
 		aliases=["addcash"],
 		hidden=True,
@@ -1741,6 +1755,7 @@ class Economy(commands.Cog, name="Economy"):
 	async def add_cash(self, ctx, member: discord.Member, typem: str, num: int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 
 		if member.bot:
 			emb = discord.Embed(
@@ -1809,6 +1824,20 @@ class Economy(commands.Cog, name="Economy"):
 		self.cursor.execute(sql, val)
 		self.conn.commit()
 
+		if logs_channel_id != 0:
+			e = discord.Embed(
+				description=f"Пользователю `{str(member)}` были добавлены средства",
+				colour=discord.Color.green(),
+				timestamp=datetime.datetime.utcnow(),
+			)
+			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
+			e.add_field(name="Тип средствов", value=typem, inline=False,)
+			e.add_field(name="Количество", value=num, inline=False,)
+			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+			e.set_author(name="Журнал аудита | Изменения средствов пользователя", icon_url=ctx.author.avatar_url)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+
 	@commands.command(
 		aliases=["removecash"],
 		hidden=True,
@@ -1822,6 +1851,7 @@ class Economy(commands.Cog, name="Economy"):
 	async def remove_cash(self, ctx, member: discord.Member, typem: str, num: int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 
 		if member.bot:
 			emb = discord.Embed(
@@ -1889,6 +1919,20 @@ class Economy(commands.Cog, name="Economy"):
 
 		self.cursor.execute(sql, val)
 		self.conn.commit()
+
+		if logs_channel_id != 0:
+			e = discord.Embed(
+				description=f"Пользователю `{str(member)}` были отняты средства",
+				colour=discord.Color.green(),
+				timestamp=datetime.datetime.utcnow(),
+			)
+			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
+			e.add_field(name="Тип средствов", value=typem, inline=False,)
+			e.add_field(name="Количество", value="-"+str(num), inline=False,)
+			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+			e.set_author(name="Журнал аудита | Изменения средствов пользователя", icon_url=ctx.author.avatar_url)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
 	@commands.command(
 		description="**Этой командой можно ограбить пользователя(Cooldown 24 часа)**",
