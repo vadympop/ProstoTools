@@ -421,7 +421,7 @@ class Events(commands.Cog, name="Events"):
                 await message.channel.send(embed=emb_lvl)
 
             if messages[0] >= reput_msg:
-                reputation = reputation + 1
+                reputation += 1
                 messages[0] = 0
 
             if reputation >= 100:
@@ -441,11 +441,8 @@ class Events(commands.Cog, name="Events"):
             self.cursor.execute(sql, val)
             self.conn.commit()
 
-            def check(m):
-                return m.content == last_msg and m.channel == message.channel
-
             try:
-                await self.client.wait_for("message", check=check, timeout=2.0)
+                await self.client.wait_for("message", check=lambda m: m.content == last_msg and m.channel == message.channel, timeout=2.0)
             except asyncio.TimeoutError:
                 pass
             else:
@@ -457,7 +454,7 @@ class Events(commands.Cog, name="Events"):
                         mute_typetime="h",
                         reason="Авто-модерация: Флуд",
                     )
-                    if emb:
+                    if emb is not None:
                         await message.channel.send(embed=emb)
 
     @commands.Cog.listener()
@@ -470,7 +467,7 @@ class Events(commands.Cog, name="Events"):
 
         try:
             if after.channel.id == main_channel:
-                if not before.channel and after.channel:
+                if before.channel is None and after.channel:
 
                     overwrites = {
                         member.guild.default_role: discord.PermissionOverwrite(
@@ -495,7 +492,10 @@ class Events(commands.Cog, name="Events"):
                     def check(a, b, c):
                         return len(member_channel.members) <= 0
 
-                    await self.client.wait_for("voice_state_update", check=check)
+                    await self.client.wait_for(
+                        "voice_state_update", 
+                        check=lambda a, b, c: len(member_channel.members) <= 0
+                    )
                     await member_channel.delete()
             else:
                 return

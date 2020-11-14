@@ -139,7 +139,7 @@ class Help(commands.Cog, name="Help"):
             description=f'**Префикс на этом сервере - **`{PREFIX}`**, если команды после двое-точия значит их надо использовать как групу, пример: "В хелп - група: команда, надо писать - `[Префикс на сервере]група команда`", если надо ввести названия чего-либо с пробелом, укажите его в двойных кавычках**',
             colour=discord.Color.green(),
         )
-        if not cog_name:
+        if cog_name is None:
             for soft_cog_name in self.client.cogs:
                 if soft_cog_name in exceptions:
                     continue

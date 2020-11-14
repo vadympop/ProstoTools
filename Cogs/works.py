@@ -56,7 +56,7 @@ class Works(commands.Cog, name="Works"):
         cur_state_pr = data["prison"]
         cur_items = data["items"]
 
-        if cur_state_pr == False:
+        if not cur_state_pr:
             if lvl_member >= 3:
                 if "gloves" in cur_items:
                     sql = """UPDATE users SET money = money + %s WHERE user_id = %s AND guild_id = %s"""
@@ -143,9 +143,9 @@ class Works(commands.Cog, name="Works"):
                 msg_content = "**Сегодня вы ничего не нашли**"
                 return msg_content
 
-        if cur_state_pr == False:
+        if not cur_state_pr:
             if lvl_member >= 2:
-                if cur_items != None:
+                if cur_items is not None:
 
                     if "metal_1" in cur_items and "metal_2" in cur_items:
                         msg_content = func_trHunt(20)
@@ -292,7 +292,7 @@ class Works(commands.Cog, name="Works"):
         cur_items = data["items"]
         cur_state_pr = data["prison"]
 
-        def cleaner_func(rnum1: int, rnum2: int):
+        def cleaner_func(rnum1:int, rnum2:int):
             rnum = randint(rnum1, rnum2)
 
             sql = """UPDATE users SET money = money + %s WHERE user_id = %s AND guild_id = %s"""
@@ -346,7 +346,7 @@ class Works(commands.Cog, name="Works"):
             emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
             await ctx.send(embed=emb)
 
-        if cur_state_pr == True and data["money"] > 0:
+        if cur_state_pr and data["money"] > 0:
             emb = discord.Embed(
                 description="**Вы успешно погасили борг и выйшли с тюрмы!**",
                 colour=discord.Color.green(),

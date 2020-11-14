@@ -13,14 +13,9 @@ from configs import configs
 from Tools.database import DB
 
 
-def check_owner(ctx):
-    return ctx.author == ctx.guild.owner
-
-
 def check_role(ctx):
     data = DB().sel_guild(guild=ctx.guild)["moder_roles"]
-    roles = ctx.guild.roles
-    roles.reverse()
+    roles = ctx.guild.roles[::-1]
     data.append(roles[0].id)
 
     if data != []:
@@ -49,7 +44,7 @@ class Utils(commands.Cog, name="Utils"):
         usage="anti-rade [Время действия] [Уровень защиты]",
     )
     @commands.check(check_role)
-    async def antirade(self, ctx, time: int, mode: int):
+    async def antirade(self, ctx, time:int, mode:int):
         purge = self.client.clear_commands(ctx.guild)
         await ctx.channel.purge(limit=purge)
 
@@ -165,9 +160,9 @@ class Utils(commands.Cog, name="Utils"):
         description="**Создает голосовой канал для создания приватных голосовых комнат**",
         usage="voice-rooms [Вкл/Выкл]",
     )
-    @commands.check(check_owner)
+    @commands.check(lambda ctx: ctx.author == ctx.guild.owner)
     @commands.cooldown(1, 60, commands.BucketType.member)
-    async def voicechannel(self, ctx, state: str):
+    async def voicechannel(self, ctx, state:str):
         purge = self.client.clear_commands(ctx.guild)
         await ctx.channel.purge(limit=purge)
 
@@ -230,7 +225,7 @@ class Utils(commands.Cog, name="Utils"):
         description="**Создает статистику сервера**",
         usage="server-stats [Счетчик]",
     )
-    @commands.check(check_owner)
+    @commands.check(lambda ctx: ctx.author == ctx.guild.owner)
     @commands.cooldown(1, 60, commands.BucketType.member)
     async def serverstats(self, ctx, stats_count):
         purge = self.client.clear_commands(ctx.guild)
@@ -300,7 +295,7 @@ class Utils(commands.Cog, name="Utils"):
     @commands.cooldown(1, 1800, commands.BucketType.member)
     @commands.has_permissions(administrator=True)
     async def mass_role(
-        self, ctx, type_act: str, for_role: discord.Role, role: discord.Role
+        self, ctx, type_act:str, for_role:discord.Role, role:discord.Role
     ):
         purge = self.client.clear_commands(ctx.guild)
         await ctx.channel.purge(limit=purge)

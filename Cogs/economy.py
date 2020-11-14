@@ -60,7 +60,7 @@ class Economy(commands.Cog, name="Economy"):
 		num = 1
 		for user in data:
 			member = get(ctx.guild.members, id=user[0])
-			if member:
+			if member is not None:
 				if not member.bot:
 					if num == 1:
 						emb.add_field(
@@ -98,7 +98,7 @@ class Economy(commands.Cog, name="Economy"):
 		help="**Примеры использования:**\n1. {Prefix}+rep @Участник 1\n2. {Prefix}+rep 660110922865704980 1\n\n**Пример 1:** Даст упомянутому участнику одну репутацию\n**Пример 2:** Даст участнику с указаным id одну репутацию",
 	)
 	@commands.cooldown(1, 3600, commands.BucketType.member)
-	async def repp(self, ctx, member: discord.Member, num: int):
+	async def repp(self, ctx, member:discord.Member, num:int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -169,7 +169,7 @@ class Economy(commands.Cog, name="Economy"):
 		help="**Примеры использования:**\n1. {Prefix}-rep @Участник 1\n2. {Prefix}-rep 660110922865704980 1\n\n**Пример 1:** Отнимет упомянутому участнику одну репутацию\n**Пример 2:** Отнимет участнику с указаным id одну репутацию",
 	)
 	@commands.cooldown(1, 3600, commands.BucketType.member)
-	async def repm(self, ctx, member: discord.Member, num: int):
+	async def repm(self, ctx, member:discord.Member, num:int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -295,7 +295,7 @@ class Economy(commands.Cog, name="Economy"):
 			await ctx.message.add_reaction("❌")
 			self.textchannel.reset_cooldown(ctx)
 			return
-		elif category_id:
+		elif category_id != 0:
 			if num_textchannels >= 0:
 				overwrites = {
 					ctx.guild.default_role: discord.PermissionOverwrite(
@@ -396,7 +396,7 @@ class Economy(commands.Cog, name="Economy"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def buy(
-		self, ctx, item: typing.Optional[str], num: typing.Optional[int] = None
+		self, ctx, item:str=None, num:int=None
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -407,13 +407,13 @@ class Economy(commands.Cog, name="Economy"):
 		cur_state_prison = data["prison"]
 		member_items = data["items"]
 
-		if cur_state_prison == False:
+		if not cur_state_prison:
 			try:
 				role = get(ctx.guild.roles, name=item)
 			except:
 				pass
 
-			if not item:
+			if item is None:
 				emb = discord.Embed(
 					title="Как купить товары?",
 					description=f"Метало искатель 1-го уровня - metal_1 или металоискатель_1\nМетало искатель 2-го уровня - metal_2 или металоискатель_2\nТелефон - tel или телефон\nСим-карта - sim или сим-карта\nТекстовый канал - текстовый-канал или text-channel\nМетла - метла или broom\nШвабра - швабра или mop\nПерчатки - перчатки или gloves\nДля покупки роли нужно вести её названия\n\n**Все цены можно узнать с помощю команды {self.client.get_prefix(self.client, ctx)}shoplist**",
@@ -436,7 +436,7 @@ class Economy(commands.Cog, name="Economy"):
 				cur_transantions = data["transantions"]
 				prison = "False"
 
-				if isinstance(cur_items, list) == True:
+				if isinstance(cur_items, list):
 					cur_items.append(func_item)
 				elif cur_items == []:
 					cur_items.append(func_item)
@@ -473,7 +473,7 @@ class Economy(commands.Cog, name="Economy"):
 				coins_member = data["coins"] - func_cost
 				cur_items = data["items"]
 
-				if isinstance(cur_items, list) == True:
+				if isinstance(cur_items, list):
 					cur_items.append(func_item)
 				elif cur_items == []:
 					cur_items.append(func_item)
@@ -533,7 +533,7 @@ class Economy(commands.Cog, name="Economy"):
 						stack = False
 
 						for i in cur_items:
-							if isinstance(i, list) == True:
+							if isinstance(i, list):
 								if i[0] == item[0]:
 									stack = True
 
@@ -569,7 +569,7 @@ class Economy(commands.Cog, name="Economy"):
 							cur_money = data["money"] - cost
 
 							for i in cur_items:
-								if isinstance(i, list) == True:
+								if isinstance(i, list):
 									if i[0] == item[0]:
 										i[1] += 1
 
@@ -658,7 +658,7 @@ class Economy(commands.Cog, name="Economy"):
 						stack = False
 
 						for i in cur_items:
-							if isinstance(i, list) == True:
+							if isinstance(i, list):
 								if i[0] == item[0]:
 									stack = True
 
@@ -693,7 +693,7 @@ class Economy(commands.Cog, name="Economy"):
 							cur_money = data["money"] - cost
 
 							for i in cur_items:
-								if isinstance(i, list) == True:
+								if isinstance(i, list):
 									if i[0] == item[0]:
 										i[1] += 1
 
@@ -799,7 +799,7 @@ class Economy(commands.Cog, name="Economy"):
 					await ctx.message.add_reaction("❌")
 					await ctx.send(embed=embeds[2])
 
-			elif role != None:
+			elif role is not None:
 				role_state = False
 
 				for i in roles:
@@ -877,7 +877,7 @@ class Economy(commands.Cog, name="Economy"):
 
 			elif item == "метла" or item == "broom" or item == "metla":
 				if data["coins"] >= 500:
-					if member_items != None and isinstance(member_items, int) == False:
+					if member_items is not None and not isinstance(member_items, int):
 						if "broom" not in member_items:
 							buy_coins_func("broom", 500)
 							emb = discord.Embed(
@@ -1073,7 +1073,7 @@ class Economy(commands.Cog, name="Economy"):
 			):
 				if num:
 					state = buy_text_channel(costs[4], num)
-					if state == True:
+					if state:
 						emb = discord.Embed(
 							description=f"**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком.**",
 							colour=discord.Color.green(),
@@ -1099,7 +1099,7 @@ class Economy(commands.Cog, name="Economy"):
 						text=self.FOOTER, icon_url=self.client.user.avatar_url
 					)
 					await ctx.send(embed=emb)
-				elif not num:
+				elif num is None:
 					await ctx.message.add_reaction("❌")
 					emb = discord.Embed(
 						title="Ошибка!",
@@ -1137,7 +1137,7 @@ class Economy(commands.Cog, name="Economy"):
 		help='**Примеры использования:**\n1. {Prefix}send-money @Участник 1000\n2. {Prefix}send-money 660110922865704980 1000\n\n**Пример 1:** Отправляет 1000$ упомянутому участнику\n**Пример 2:** Отправляет 1000$ участнику с указаным id',
 	)
 	@commands.cooldown(1, 1800, commands.BucketType.member)
-	async def sendmoney(self, ctx, member: discord.Member, num: int):
+	async def sendmoney(self, ctx, member:discord.Member, num:int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -1323,7 +1323,7 @@ class Economy(commands.Cog, name="Economy"):
 		help="**Примеры использования:**\n1. {Prefix}open box-E\n\n**Пример 1:** Открывает указаный лут-бокс",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def open(self, ctx, box: str = None):
+	async def open(self, ctx, box:str=None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -1337,7 +1337,7 @@ class Economy(commands.Cog, name="Economy"):
 			"box-I": ["Невероятный бокс", 16000],
 		}
 
-		if not box:
+		if box is None:
 			emb = discord.Embed(
 				title="Укажите пожалуйста бокс!",
 				description=f"**Обычный бокс - box-C\nРедкий бокс - box-R\nЭпический бокс - box-E\nЛегендарный бокс - box-L\nНевероятный бокс - box-I**",
@@ -1619,7 +1619,7 @@ class Economy(commands.Cog, name="Economy"):
 							msg_content = f"С невероятного бокса выпал предмет - {dict_items[choice]}"
 
 			money += rand_money
-			if pet:
+			if pet is not None:
 				if pet[0] in pets:
 					coins += dict_boxes[pet[1]][1]
 					msg_content = f"К сожалению выйграный питомец уже есть в вашем инвертаре, по этому вам выпали коины в размере - {dict_boxes[pet[1]][1]}"
@@ -1667,7 +1667,7 @@ class Economy(commands.Cog, name="Economy"):
 	)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	@commands.has_permissions(administrator=True)
-	async def remove_role(self, ctx, member: discord.Member, role: discord.Role):
+	async def remove_role(self, ctx, member:discord.Member, role:discord.Role):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
@@ -1752,7 +1752,7 @@ class Economy(commands.Cog, name="Economy"):
 	)
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
-	async def add_cash(self, ctx, member: discord.Member, typem: str, num: int):
+	async def add_cash(self, ctx, member:discord.Member, typem:str, num:int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
@@ -1848,7 +1848,7 @@ class Economy(commands.Cog, name="Economy"):
 	)
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
-	async def remove_cash(self, ctx, member: discord.Member, typem: str, num: int):
+	async def remove_cash(self, ctx, member:discord.Member, typem:str, num:int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
@@ -1940,7 +1940,7 @@ class Economy(commands.Cog, name="Economy"):
 		help="**Примеры использования:**\n1. {Prefix}rob @Участник\n2. {Prefix}rob 660110922865704980\n\n**Пример 1:** Грабит упомянутому участника\n**Пример 2:** Грабит участника с указаным id",
 	)
 	@commands.cooldown(1, 86400, commands.BucketType.member)
-	async def rob(self, ctx, member: discord.Member):
+	async def rob(self, ctx, member:discord.Member):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -2231,12 +2231,12 @@ class Economy(commands.Cog, name="Economy"):
 				check_state = False
 			elif items != []:
 				for i in items:
-					if isinstance(i, list) == True:
+					if isinstance(i, list):
 						box_content = box_content + f"{boxes[i[0]]} - {i[1]}шт \n"
 					else:
-						if isinstance(i, str) == True:
+						if isinstance(i, str):
 							items_content = items_content + f"{names_of_items[i]}\n "
-						elif isinstance(i, int) == True:
+						elif isinstance(i, int):
 							role = get(ctx.guild.roles, id=i)
 							roles_content = roles_content + f"{role.mention}\n "
 
@@ -2275,7 +2275,7 @@ class Economy(commands.Cog, name="Economy"):
 		help="**Примеры использования:**\n1. {Prefix}set-profile-color orange\n\n**Пример 1:** Ставит оранжевый цвет профиля",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def profile_color(self, ctx, color: str = None):
+	async def profile_color(self, ctx, color:str=None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -2308,7 +2308,7 @@ class Economy(commands.Cog, name="Economy"):
 			"красный": "red",
 		}
 
-		if not color:
+		if color is None:
 			emb = discord.Embed(
 				description=f"**Выберите цвет профиля среди этих: зелёный, лаймовый, оранжевый, фиолетовый, розовый, красный. Стандартный цвет - лаймовый.**",
 				colour=discord.Color.green(),
@@ -2353,11 +2353,11 @@ class Economy(commands.Cog, name="Economy"):
 		help="**Примеры использования:**\n1. {Prefix}profile @Участник\n2. {Prefix}profile 660110922865704980\n3. {Prefix}profile\n\n**Пример 1:** Показывает профиль упомянутого участника\n**Пример 2:** Показывает профиль участника с указаным id\n**Пример 3:** Показывает ваш профиль",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def profile(self, ctx, member: typing.Optional[discord.Member] = None):
+	async def profile(self, ctx, member:discord.Member=None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
-		if not member:
+		if member is None:
 			member = ctx.author
 
 		if member.bot:
@@ -2483,9 +2483,9 @@ class Economy(commands.Cog, name="Economy"):
 		elif not user_state_prison:
 			user_state_prison = "На свободе"
 
-		if not user_profile:
+		if user_profile is None:
 			img = Image.open(self.BACKGROUND)
-		elif user_profile:
+		elif user_profile is not None:
 			img = Image.open(self.BACKGROUND[:-8] + f"{user_profile}.png")
 
 		user_image_status.thumbnail((40, 40), Image.ANTIALIAS)

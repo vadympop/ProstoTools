@@ -39,7 +39,7 @@ class Loops(commands.Cog, name="Loops"):
 		for reminder in DB().get_reminder():
 			reminder_time = reminder[4]
 			guild = self.client.get_guild(int(reminder[2]))
-			if guild:
+			if guild is not None:
 				member = guild.get_member(int(reminder[1]))
 				channel = guild.get_channel(int(reminder[3]))
 				emb = discord.Embed(
@@ -51,7 +51,7 @@ class Loops(commands.Cog, name="Loops"):
 					name=self.client.user.name, icon_url=self.client.user.avatar_url
 				)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				if member:
+				if member is not None:
 					if float(reminder_time) <= float(time.time()):
 						DB().del_reminder(reminder[2], reminder[0])
 						if channel in guild.channels:
@@ -68,9 +68,9 @@ class Loops(commands.Cog, name="Loops"):
 			mute_time = mute[2]
 			guild = self.client.get_guild(int(mute[1]))
 			if mute[3] == "mute":
-				if guild:
+				if guild is not None:
 					member = guild.get_member(int(mute[0]))
-					if member:
+					if member is not None:
 						if float(mute_time) <= float(time.time()):
 							DB().del_punishment(
 								member=member, guild_id=guild.id, type_punishment="mute"
@@ -100,7 +100,7 @@ class Loops(commands.Cog, name="Loops"):
 			ban_time = ban[2]
 			guild = self.client.get_guild(int(ban[1]))
 			if ban[3] == "ban":
-				if guild:
+				if guild is not None:
 					bans = await guild.bans()
 					for ban_entry in bans:
 						user = ban_entry.user
@@ -136,9 +136,9 @@ class Loops(commands.Cog, name="Loops"):
 			temprole_time = temprole[2]
 			guild = self.client.get_guild(int(temprole[1]))
 			if temprole[3] == "temprole":
-				if guild:
+				if guild is not None:
 					member = guild.get_member(int(temprole[0]))
-					if member:
+					if member is not None:
 						if float(temprole_time) <= float(time.time()):
 							DB().del_punishment(
 								member=member,
@@ -154,9 +154,9 @@ class Loops(commands.Cog, name="Loops"):
 			vmute_time = vmute[2]
 			guild = self.client.get_guild(int(vmute[1]))
 			if vmute[3] == "vmute":
-				if guild:
+				if guild is not None:
 					member = guild.get_member(int(vmute[0]))
-					if member:
+					if member is not None:
 						if float(vmute_time) <= float(time.time()):
 							DB().del_punishment(
 								member=member,
@@ -194,9 +194,9 @@ class Loops(commands.Cog, name="Loops"):
 			channel_time = channel[2]
 			guild = self.client.get_guild(int(channel[1]))
 			if channel[3] == "text_channel":
-				if guild:
+				if guild is not None:
 					member = guild.get_member(int(channel[0]))
-					if member:
+					if member is not None:
 						if float(channel_time) <= float(time.time()):
 							DB().del_punishment(
 								member=member,
