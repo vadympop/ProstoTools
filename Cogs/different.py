@@ -38,7 +38,7 @@ class Different(commands.Cog, name="Different"):
 		aliases=["remin"],
 		description="**Работа с напоминаниями**",
 		usage="reminder [create/list/delete] |Время| |Текст|",
-		help="**Примеры использования:**\n1. `{Prefix}reminder create 1h Example reminder text`\n2. `{Prefix}reminder list`\n3. `{Prefix}reminder delete 1`\n\n**Пример 1:** Напомнит `Example reminder text` через 1 час\n**Пример 2:** Покажет список ваших напоминаний\n**Пример 3:** Удалит напоминания с id - `1`",
+		help="**Примеры использования:**\n1. {Prefix}reminder create 1h Example reminder text\n2. {Prefix}reminder list\n3. {Prefix}reminder delete 1\n\n**Пример 1:** Напомнит `Example reminder text` через 1 час\n**Пример 2:** Покажет список ваших напоминаний\n**Пример 3:** Удалит напоминания с id - `1`",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def reminder(
