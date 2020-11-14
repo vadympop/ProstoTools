@@ -48,7 +48,7 @@ class Different(commands.Cog, name="Different"):
 		await ctx.channel.purge(limit=purge)
 
 		if action == "create":
-			if type_time:
+			if type_time is not None:
 				reminder_time = int(
 					"".join(char for char in type_time if not char.isalpha())
 				)
@@ -116,14 +116,24 @@ class Different(commands.Cog, name="Different"):
 			reminder_id = DB().set_reminder(
 				member=ctx.author, channel=ctx.channel, time=times, text=text
 			)
-			emb = discord.Embed(
-				title=f"Созданно новое напоминая #{reminder_id}",
-				description=f"**Текст напоминая:**\n```{text}```\n**Действует до:**\n`{str(datetime.fromtimestamp(times))}`",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
+			if reminder_id:
+				emb = discord.Embed(
+					title=f"Созданно новое напоминая #{reminder_id}",
+					description=f"**Текст напоминая:**\n```{text}```\n**Действует до:**\n`{str(datetime.fromtimestamp(times))}`",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
+			elif not reminder_id:
+				emb = discord.Embed(
+					title="Ошибка!",
+					description="**Превишен лимит напоминалок(25)!**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
 		elif action == "list":
 			data = DB().get_reminder(target=ctx.author)
 			if data != []:
@@ -145,9 +155,9 @@ class Different(commands.Cog, name="Different"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif action == "delete":
-			if type_time:
+			if type_time is not None:
 				if type_time.isdigit():
-					state = DB().del_reminder(ctx.guild.id, int(type_time))
+					state = DB().del_reminder(ctx.author, int(type_time))
 					if state:
 						emb = discord.Embed(
 							description=f"**Напоминания #{type_time} было успешно удалено**",
@@ -168,7 +178,7 @@ class Different(commands.Cog, name="Different"):
 			elif type_time is None:
 				emb = discord.Embed(
 					title="Ошибка!",
-					description="**Вы не указали id напоминая!**",
+					description="**Вы не указали id напоминания!**",
 					colour=discord.Color.green(),
 				)
 			emb.set_author(

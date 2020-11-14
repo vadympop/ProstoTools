@@ -180,8 +180,8 @@ class Owner(commands.Cog, name="Owner"):
 			for filename in os.listdir("./Cogs"):
 				if filename.endswith(".py"):
 					try:
-						self.client.unload_extension(f"Cogs.{filename[:-3]}")
-						self.client.load_extension(f"Cogs.{filename[:-3]}")
+						self.client.unload_extension(f"Cogs.{filename[:-3].upper()}")
+						self.client.load_extension(f"Cogs.{filename[:-3].upper()}")
 					except:
 						print(
 							Fore.RED
@@ -189,7 +189,7 @@ class Owner(commands.Cog, name="Owner"):
 						)
 						await ctx.message.add_reaction('❌')
 					else:
-						print(Fore.GREEN + f"[PT-SYSTEM-COG]:::{filename.upper()} - Reloaded")
+						print(Fore.GREEN + f"[PT-SYSTEM-COG]:::{filename[:-3].upper()} - Reloaded")
 			await ctx.message.add_reaction('✅')
 			return
 			

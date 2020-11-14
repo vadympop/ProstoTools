@@ -183,13 +183,13 @@ class Member(User):
     def __str__(self):
         return self.name + "#" + self.discriminator
 
-    def has_role(self, id):
+    def has_role(self, id:int) -> bool:
         if Role(client.get_guild(self.guild_id).get_role(id)) in self.roles:
             return True
         else:
             return False
 
-    def has_permission(self, permission):
+    def has_permission(self, permission:str) -> bool:
         if permission.lower() in self.permissions:
             return True
         else:
@@ -245,16 +245,16 @@ class Guild:
     def __str__(self):
         return self.name
 
-    def get_channel(self, id):
+    def get_channel(self, id:int) -> Channel:
         return Channel(client.get_channel(id))
 
-    def get_member(self, id):
+    def get_member(self, id:int) -> Member:
         member = client.get_guild(self.id).get_member(id)
         db_member = DB().sel_user(member)
         db_member.update({"multi": self.exp_multiplier})
         return Member(member, db_member)
 
-    def get_role(self, id):
+    def get_role(self, id:int) -> Role:
         return Role(client.get_guild(self.id).get_role(id))
 
 
