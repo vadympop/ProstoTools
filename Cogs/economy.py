@@ -268,7 +268,7 @@ class Economy(commands.Cog, name="Economy"):
 		help="**Примеры использования:**\n1. {Prefix}text-channel Name\n\n**Пример 1:** Создаёт временный текстовый канал с названиям `Name`",
 	)
 	@commands.cooldown(1, 240, commands.BucketType.member)
-	async def textchannel(self, ctx, *, name):
+	async def textchannel(self, ctx, *, name:str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 

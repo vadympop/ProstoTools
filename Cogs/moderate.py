@@ -297,7 +297,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}kick @Участник Нарушения правил сервера\n2. {Prefix}kick 660110922865704980 Нарушения правил сервера\n3. {Prefix}kick @Участник\n4. {Prefix}kick 660110922865704980\n\n**Пример 1:** Кикает с сервера упомянутого участника по причине `Нарушения правил сервера`\n**Пример 2:** Кикает с сервера участника с указаным id по причине `Нарушения правил сервера`\n**Пример 3:** Кикает с сервера упомянутого участника без причины\n**Пример 4:** Кикает с сервера участника с указаным id без причины"
 	)
 	@commands.check(check_role)
-	async def kick(self, ctx, member:discord.Member, *, reason=None):
+	async def kick(self, ctx, member:discord.Member, *, reason:str=None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)['log_channel']
@@ -377,7 +377,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def softban(
-		self, ctx, member:discord.Member, type_time:str=None, *, reason=None
+		self, ctx, member:discord.Member, type_time:str=None, *, reason:str=None
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -1441,7 +1441,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}warn @Участник Нарушения правил сервера\n2. {Prefix}warn 660110922865704980 Нарушения правил сервера\n3. {Prefix}warn @Участник\n4. {Prefix}warn 660110922865704980\n\n**Пример 1:** Даёт предупреждения упомянутого участнику по причине `Нарушения правил сервера`\n**Пример 2:** Даёт предупреждения участнику с указаным id по причине\n`Нарушения правил сервера`\n**Пример 3:** Даёт предупреждения упомянутого участнику без причины\n**Пример 4:** Даёт предупреждения участнику с указаным id без причины"
 	)
 	@commands.check(check_role)
-	async def warn(self, ctx, member:discord.Member, *, reason=None):
+	async def warn(self, ctx, member:discord.Member, *, reason:str=None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]

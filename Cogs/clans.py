@@ -145,7 +145,7 @@ class Clans(commands.Cog):
 		usage="clan edit [Параметр] [Новое значения]",
 		description="**Изменяет настройки клана**",
 	)
-	async def edit(self, ctx, field: str, *, value):
+	async def edit(self, ctx, field:str, *, value:str):
 		data = DB().sel_guild(guild=ctx.guild)["clans"]
 		user_clan = DB().sel_user(target=ctx.author)["clan"]
 		field = field.lower()
@@ -542,7 +542,7 @@ class Clans(commands.Cog):
 	@clan.command(
 		usage="clan info |Id|", description="**Показывает полную информацию о клане**"
 	)
-	async def info(self, ctx, clan_id: str = None):
+	async def info(self, ctx, clan_id:str=None):
 		data = DB().sel_guild(guild=ctx.guild)["clans"]
 		user_clan = DB().sel_user(target=ctx.author)["clan"]
 		state = False

@@ -74,7 +74,7 @@ class Games(commands.Cog, name="Games"):
 	# 	help='**Примеры использования:**\n1. {Prefix}dcode-qrcode https://media.discordapp.net/attachments/717776571406090313/775762508211945482/myqr.jpg\n\n**Пример 1:** Раскодирует QR-код в указаном изображении'
 	# )
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def scan_url(self, ctx, url):
+	async def scan_url(self, ctx, url:str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -228,7 +228,7 @@ class Games(commands.Cog, name="Games"):
 		help='**Примеры использования:**\n1. {Prefix}wiki Bot\n\n**Пример 1:** Покажет информацию по запросе `Bot` на википедии'
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def wiki(self, ctx, *, text):
+	async def wiki(self, ctx, *, text:str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -265,7 +265,7 @@ class Games(commands.Cog, name="Games"):
 		help='**Примеры использования:**\n1. {Prefix}8ball My owner is nice programmer?\n\n**Пример 1:** Ответит на ваш вопрос магическим образом =)'
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def magic_ball(self, ctx, *, msg):
+	async def magic_ball(self, ctx, *, msg:str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
