@@ -525,7 +525,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}", 
-				value=f"На {softban_minutes} {softban_typetime}" if softban_minutes != 0 else "Перманентно", 
+				value=f"На {softban_time} {softban_typetime}" if softban_minutes != 0 else "Перманентно", 
 				inline=False,
 			)
 			e.add_field(name="Причина", value=reason, inline=False,)
@@ -956,7 +956,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}", 
-				value=f"На {vmute_minutes} {vmute_typetime}" if vmute_minutes != 0 else "Перманентно", 
+				value=f"На {vmute_time} {vmute_typetime}" if vmute_minutes != 0 else "Перманентно", 
 				inline=False,
 			)
 			e.add_field(name="Причина", value=reason, inline=False,)
@@ -1288,7 +1288,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}", 
-				value=f"На {mute_minutes} {mute_typetime}" if mute_minutes != 0 else "Перманентно", 
+				value=f"На {mute_time} {mute_typetime}" if mute_minutes != 0 else "Перманентно", 
 				inline=False,
 			)
 			e.add_field(name="Причина", value=reason, inline=False,)

@@ -227,7 +227,7 @@ class Utils(commands.Cog, name="Utils"):
 		hidden=True,
 		description="**Создает статистику сервера**",
 		usage="server-stats [Счетчик]",
-		help="**Примеры использования:**\n1. {Prefix}server-stats all\n\n**Пример 1:** Создаёт счетчик всех пользователей сервера"
+		help="**Примеры использования:**\n1. {Prefix}server-stats all\n2. {Prefix}server-stats сообщения\n\n**Пример 1:** Создаёт счетчик всех пользователей сервера\n**Пример 2:** Создаёт сообщения в текущем канале с основной информацией о сервере"
 	)
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
@@ -235,6 +235,7 @@ class Utils(commands.Cog, name="Utils"):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
+		data = DB().sel_guild(guild=ctx.guild)["server_stats"]
 		members_count = len(
 			[
 				member.id
@@ -252,6 +253,19 @@ class Utils(commands.Cog, name="Utils"):
 			"channels": ["Каналов", channels_count],
 			"members": ["Участников", members_count],
 		}
+
+		if stats_count.lower() in ["message", "сообщения"]:
+			message = await ctx.send(embed=emb)
+			await ctx.message.add_reaction("✅")
+
+			data = DB().sel_guild(guild=ctx.guild)["server_stats"]
+			data.update({stats_count.lower(): message.id})
+
+			sql = """UPDATE guilds SET server_stats = %s WHERE guild_id = %s AND guild_id = %s"""
+			val = (json.dumps(data), ctx.guild.id, ctx.guild.id)
+
+			self.cursor.execute(sql, val)
+			self.conn.commit()
 
 		if stats_count.lower() not in counters.keys():
 			emb = discord.Embed(

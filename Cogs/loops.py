@@ -31,6 +31,7 @@ class Loops(commands.Cog, name="Loops"):
 		self.ping_stat_loop.start()
 		self.server_stats.start()
 		self.reminders_loop.start()
+		self.message_stat_loop.start()
 		self.channel_loop.start()
 		self.FOOTER = configs["FOOTER_TEXT"]
 
@@ -228,6 +229,10 @@ class Loops(commands.Cog, name="Loops"):
 
 				self.cursor.execute(sql, val)
 				self.conn.commit()
+
+	@tasks.loop(minutes=5)
+	async def message_stat_loop(self):
+		pass
 
 	@tasks.loop(minutes=10)
 	async def server_stats(self):
