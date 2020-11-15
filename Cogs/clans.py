@@ -811,6 +811,7 @@ class Clans(commands.Cog):
 
 	@clan.command(
 		name="send-join-request",
+		usage="clan send-join-request [Id клана]",
 		description="**Отправляет запрос на присоиденения к клану**",
 	)
 	async def send_join_request(self, ctx, clan_id:str):
@@ -894,7 +895,8 @@ class Clans(commands.Cog):
 
 	@clan.command(
 		name="list-join-requests",
-		description="Показывает список всех кланов на сервере",
+		usage="clan list-join-requests",
+		description="**Показывает список всех кланов на сервере**",
 	)
 	async def list_join_requests(self, ctx):
 		user_clan = DB().sel_user(target=ctx.author)["clan"]
@@ -947,6 +949,7 @@ class Clans(commands.Cog):
 
 	@clan.command(
 		name="accept-join-request",
+		usage="clan accept-join-request [@Участник]",
 		description="**Принимает указаный запрос на присоиденения к клану**",
 	)
 	async def accept_join_request(self, ctx, member:discord.Member):
@@ -1022,6 +1025,7 @@ class Clans(commands.Cog):
 
 	@clan.command(
 		name="reject-join-request",
+		usage="clan reject-join-request [@Участник]",
 		description="**Отклоняет указаный запрос на присоиденения к клану**",
 	)
 	async def reject_join_request(self, ctx, member:discord.Member):
@@ -1095,7 +1099,10 @@ class Clans(commands.Cog):
 					await ctx.message.add_reaction("❌")
 					return
 
-	@clan.command(description="**Покупает указаный предмет для клана**")
+	@clan.command(
+		usage="clan buy [Предмет] |Цвет|",
+		description="**Покупает указаный предмет для клана**"
+	)
 	async def buy(self, ctx, item:str, color:str=None):
 		user_data = DB().sel_user(target=ctx.author)
 		data = DB().sel_guild(guild=ctx.guild)["clans"]
