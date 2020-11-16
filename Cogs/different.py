@@ -422,10 +422,10 @@ class Different(commands.Cog, name="Different"):
 
 			return f"{number}B"
 
-		self.cursor.execute(
-			"""SELECT count FROM bot_stats WHERE entity = 'all commands' ORDER BY count DESC LIMIT 1"""
-		)
-		commands_count = self.cursor.fetchone()[0]
+		commands_count = DB().query_execute(
+			query="""SELECT count FROM bot_stats WHERE entity = 'all commands' ORDER BY count DESC LIMIT 1""",
+			fetchone=True
+		)[0]
 		embed1 = discord.Embed(
 			title=f"{self.client.user.name}#{self.client.user.discriminator}",
 			description=f"Информация о боте **{self.client.user.name}**.\nМного-функциональный бот со своей экономикой, кланами и системой модерации!",
@@ -558,6 +558,7 @@ class Different(commands.Cog, name="Different"):
 		else:
 			text_category = "Не указана"
 
+		exp_multi = str(data["exp_multi"] * 100) + "%"
 		verifications = {
 			"none": ":white_circle: — Нет верификации",
 			"low": ":green_circle: — Маленькая верификация",
@@ -634,7 +635,7 @@ class Different(commands.Cog, name="Different"):
 		)
 		emb.add_field(
 			name="Настройки сервера",
-			value=f"**Канал идей:** {ideachannel}\n**Удаления команд:** {purge}\n**Категория приватных текстовых каналов:** {text_category}\n**Максимальное количество предупрежденний:** {max_warns}\n**Время удаления приватного текстового канала:** {time}мин",
+			value=f"**Канал идей:** {ideachannel}\n**Удаления команд:** {purge}\n**Категория приватных текстовых каналов:** {text_category}\n**Максимальное количество предупрежденний:** {max_warns}\n**Время удаления приватного текстового канала:** {time}мин\n**Множитель опыта:** {exp_multi}",
 			inline=False,
 		)
 

@@ -396,7 +396,14 @@ class DB:
 
 		return dict_data
 
-	def add_amout_command(self, entity:str="all commands", add_counter=None) -> None:
+	def query_execute(self, query:str, val:typing.Union[tuple, list]=(), fetchone:bool=False) -> list:
+		self.cursor.execute(query, val)
+		if fetchone:
+			return self.cursor.fetchone()
+		else:
+			return self.cursor.fetchall()
+
+	def add_amout_command(self, entity:str="all commands", add_counter:typing.Union[int, float]=None) -> None:
 		try:
 			self.cursor.execute(
 				f"""SELECT * FROM bot_stats WHERE entity = '{entity}'"""

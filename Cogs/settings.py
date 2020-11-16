@@ -600,10 +600,10 @@ class Settings(commands.Cog, name="Settings"):
     async def expform(self, ctx, multiplier: str):
         client = self.client
         multi = int(multiplier[:-1])
-        if multi > 1000 or multi <= 0:
+        if multi > 10000 or multi <= 0:
             emb = discord.Embed(
                 title="Ошибка!",
-                description="Укажите множитель опыта в диапазоне от 1% до 1000%",
+                description="Укажите множитель опыта в диапазоне от 1% до 10000%",
                 colour=discord.Color.green(),
             )
             emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)

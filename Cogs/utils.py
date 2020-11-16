@@ -255,17 +255,87 @@ class Utils(commands.Cog, name="Utils"):
 		}
 
 		if stats_count.lower() in ["message", "сообщения"]:
+			val = (ctx.guild.id, ctx.guild.id)
+			sql_1 = """SELECT user_id, exp, money, reputation, messages FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 20"""
+			sql_2 = """SELECT exp FROM users WHERE guild_id = %s AND guild_id = %s"""
+
+			data = DB().query_execute(sql_1, val)
+			all_exp = sum([i[0] for i in DB().query_execute(sql_2, val)])
+			dnd = len(
+				[
+					str(member.id)
+					for member in ctx.guild.members
+					if member.status.name == "dnd"
+				]
+			)
+			sleep = len(
+				[
+					str(member.id)
+					for member in ctx.guild.members
+					if member.status.name == "idle"
+				]
+			)
+			online = len(
+				[
+					str(member.id)
+					for member in ctx.guild.members
+					if member.status.name == "online"
+				]
+			)
+			offline = len(
+				[
+					str(member.id)
+					for member in ctx.guild.members
+					if member.status.name == "offline"
+				]
+			)
+			description = "Статистика обновляеться каждые 5 минут\n\n**20 Самых активных участников сервера**"
+			num = 1
+			for profile in data:
+				member = ctx.guild.get_member(profile[0])
+				if member is not None:
+					if not member.bot:
+						if len(member.name) > 15:
+							member = member.name[:len(member.name)-15]+"..."+member.discriminator
+						description += f"""\n`{num}. {str(member)} {profile[1]}exp {profile[2]}$ {profile[3]}rep {json.loads(profile[4])[1]}msg`"""
+						num += 1
+			
+			description += f"""
+			\n**Общая инфомация**
+			:baby:Пользователей: **{ctx.guild.member_count}**
+			:family_man_girl_boy:Участников: **{len([m.id for m in ctx.guild.members if not m.bot])}**
+			<:bot:731819847905837066>Ботов: **{len([m.id for m in ctx.guild.members if m.bot])}**
+			<:voice_channel:730399079418429561>Голосовых подключений: **{sum([len(v.members) for v in ctx.guild.voice_channels])}**
+			<:text_channel:730396561326211103>Каналов: **{len([c.id for c in ctx.guild.channels])}**
+			<:role:730396229220958258>Ролей: **{len([r.id for r in ctx.guild.roles])}**
+			:star:Всего опыта: **{all_exp}**\n
+			**Статусы участников**
+			<:online:730393440046809108>`{online}`  <:offline:730392846573633626>`{offline}`
+			<:sleep:730390502972850256>`{sleep}`  <:mobile:777854822300385291>`{len([m.id for m in ctx.guild.members if m.is_on_mobile()])}`
+			<:dnd:730391353929760870>`{dnd}` <:boost:777854437724127272>`{len(set(ctx.guild.premium_subscribers))}`
+			"""
+
+			emb = discord.Embed(
+				title="Статистика сервера",
+				description=description,
+				colour=discord.Color.green()
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			message = await ctx.send(embed=emb)
 			await ctx.message.add_reaction("✅")
 
 			data = DB().sel_guild(guild=ctx.guild)["server_stats"]
-			data.update({stats_count.lower(): message.id})
+			data.update({"message": [message.id, ctx.channel.id]})
 
 			sql = """UPDATE guilds SET server_stats = %s WHERE guild_id = %s AND guild_id = %s"""
 			val = (json.dumps(data), ctx.guild.id, ctx.guild.id)
 
 			self.cursor.execute(sql, val)
 			self.conn.commit()
+			return
 
 		if stats_count.lower() not in counters.keys():
 			emb = discord.Embed(

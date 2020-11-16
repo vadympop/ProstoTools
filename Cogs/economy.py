@@ -50,8 +50,7 @@ class Economy(commands.Cog, name="Economy"):
 		sql = """SELECT user_id, exp, level, money, reputation FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 15"""
 		val = (ctx.guild.id, ctx.guild.id)
 
-		self.cursor.execute(sql, val)
-		data = self.cursor.fetchall()
+		data = DB().query_execute(sql, val)
 
 		emb = discord.Embed(title="Лидеры сервера", colour=discord.Color.green())
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -1788,6 +1787,21 @@ class Economy(commands.Cog, name="Economy"):
 			self.add_cash.reset_cooldown(ctx)
 			return
 
+		if num >= 1000000000:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description=f"**Указано слишком большое значения!**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			self.add_cash.reset_cooldown(ctx)
+			return
+
 		coins_member = data["coins"]
 		cur_money = data["money"]
 
@@ -1831,10 +1845,10 @@ class Economy(commands.Cog, name="Economy"):
 				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
-			e.add_field(name="Тип средствов", value=typem, inline=False,)
+			e.add_field(name="Тип средств", value=typem, inline=False,)
 			e.add_field(name="Количество", value=num, inline=False,)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(name="Журнал аудита | Изменения средствов пользователя", icon_url=ctx.author.avatar_url)
+			e.set_author(name="Журнал аудита | Изменения средств пользователя", icon_url=ctx.author.avatar_url)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
@@ -1927,10 +1941,10 @@ class Economy(commands.Cog, name="Economy"):
 				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
-			e.add_field(name="Тип средствов", value=typem, inline=False,)
+			e.add_field(name="Тип средств", value=typem, inline=False,)
 			e.add_field(name="Количество", value="-"+str(num), inline=False,)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(name="Журнал аудита | Изменения средствов пользователя", icon_url=ctx.author.avatar_url)
+			e.set_author(name="Журнал аудита | Изменения средств пользователя", icon_url=ctx.author.avatar_url)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
@@ -2449,8 +2463,10 @@ class Economy(commands.Cog, name="Economy"):
 			"offline": "offline",
 			"idle": "sleep",
 		}
-		self.cursor.execute("""SELECT user_id FROM users ORDER BY exp DESC""")
-		users_rank = self.cursor.fetchall()
+		users_rank = DB().query_execute(
+			query="""SELECT user_id FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC""",
+			val=(ctx.guild.id, ctx.guild.id)
+		)
 		for user in users_rank:
 			if user[0] == member.id:
 				user_rank = users_rank.index(user) + 1

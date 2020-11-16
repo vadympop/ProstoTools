@@ -218,8 +218,7 @@ class Loops(commands.Cog, name="Loops"):
 
 	@tasks.loop(seconds=86400)
 	async def update_messages_loop(self):
-		self.cursor.execute("""SELECT user_id, guild_id, messages FROM users""")
-		data = self.cursor.fetchall()
+		data = DB().query_execute("""SELECT user_id, guild_id, messages FROM users""")
 
 		for profile in data:
 			if profile != []:
@@ -232,48 +231,123 @@ class Loops(commands.Cog, name="Loops"):
 
 	@tasks.loop(minutes=5)
 	async def message_stat_loop(self):
-		pass
+		for guild in self.client.guilds:
+			data_guild = DB().sel_guild(guild=guild)
+			if "message" in data_guild["server_stats"].keys():
+				message = await guild.get_channel(data_guild["server_stats"]["message"][1]).fetch_message(
+					data_guild["server_stats"]["message"][0]
+				)
+				if message is not None:
+					val = (guild.id, guild.id)
+					sql_1 = """SELECT user_id, exp, money, reputation, messages FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 20"""
+					sql_2 = """SELECT exp FROM users WHERE guild_id = %s AND guild_id = %s"""
+
+					data = DB().query_execute(sql_1, val)
+					all_exp = sum([i[0] for i in DB().query_execute(sql_2, val)])
+					dnd = len(
+						[
+							str(member.id)
+							for member in guild.members
+							if member.status.name == "dnd"
+						]
+					)
+					sleep = len(
+						[
+							str(member.id)
+							for member in guild.members
+							if member.status.name == "idle"
+						]
+					)
+					online = len(
+						[
+							str(member.id)
+							for member in guild.members
+							if member.status.name == "online"
+						]
+					)
+					offline = len(
+						[
+							str(member.id)
+							for member in guild.members
+							if member.status.name == "offline"
+						]
+					)
+					description = "Статистика обновляеться каждые 5 минут\n\n**20 Самых активных участников сервера**"
+					num = 1
+					for profile in data:
+						member = guild.get_member(profile[0])
+						if member is not None:
+							if not member.bot:
+								if len(member.name) > 15:
+									member = member.name[:len(member.name)-15]+"..."+member.discriminator
+								description += f"""\n`{num}. {str(member)} {profile[1]}exp {profile[2]}$ {profile[3]}rep {json.loads(profile[4])[1]}msg`"""
+								num += 1
+					
+					description += f"""
+					\n**Общая инфомация**
+					:baby:Пользователей: **{guild.member_count}**
+					:family_man_girl_boy:Участников: **{len([m.id for m in guild.members if not m.bot])}**
+					<:bot:731819847905837066>Ботов: **{len([m.id for m in guild.members if m.bot])}**
+					<:voice_channel:730399079418429561>Голосовых подключений: **{sum([len(v.members) for v in guild.voice_channels])}**
+					<:text_channel:730396561326211103>Каналов: **{len([c.id for c in guild.channels])}**
+					<:role:730396229220958258>Ролей: **{len([r.id for r in guild.roles])}**
+					:star:Всего опыта: **{all_exp}**\n
+					**Статусы участников**
+					<:online:730393440046809108>`{online}`  <:offline:730392846573633626>`{offline}`
+					<:sleep:730390502972850256>`{sleep}`  <:mobile:777854822300385291>`{len([m.id for m in guild.members if m.is_on_mobile()])}`
+					<:dnd:730391353929760870>`{dnd}`  <:boost:777854437724127272>`{len(set(guild.premium_subscribers))}`
+					"""
+
+					emb = discord.Embed(
+						title="Статистика сервера",
+						description=description,
+						colour=discord.Color.green()
+					)
+					emb.set_author(
+						name=self.client.user.name, icon_url=self.client.user.avatar_url
+					)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await message.edit(embed=emb)
 
 	@tasks.loop(minutes=10)
 	async def server_stats(self):
-		self.cursor.execute("""SELECT guild_id, server_stats FROM guilds""")
-		data = self.cursor.fetchall()
-		data = [(stat[0], json.loads(stat[1])) for stat in data]
+		data = [(stat[0], json.loads(stat[1])) for stat in DB().query_execute("""SELECT guild_id, server_stats FROM guilds""")]
 
 		for stat in data:
 			if stat[1] != {}:
 				for stat_type, channel_id in stat[1].items():
-					guild = self.client.get_guild(stat[0])
-					if guild:
-						try:
-							counters = {
-								"members": len(
-									[
-										member.id
-										for member in guild.members
-										if not member.bot
-										and member.id != self.client.user.id
-									]
-								),
-								"bots": len(
-									[bot.id for bot in guild.members if bot.bot]
-								),
-								"channels": len(
-									[channel.id for channel in guild.channels]
-								),
-								"roles": len([role.id for role in guild.roles]),
-								"all": guild.member_count,
-							}
-							counter = counters[stat_type]
-							channel = guild.get_channel(channel_id)
-							numbers = "".join(
-								char for char in channel.name if char.isdigit()
-							)
-							new_name = channel.name.replace(numbers, str(counter))
+					if stat_type != "message":
+						guild = self.client.get_guild(stat[0])
+						if guild:
+							try:
+								counters = {
+									"members": len(
+										[
+											member.id
+											for member in guild.members
+											if not member.bot
+											and member.id != self.client.user.id
+										]
+									),
+									"bots": len(
+										[bot.id for bot in guild.members if bot.bot]
+									),
+									"channels": len(
+										[channel.id for channel in guild.channels]
+									),
+									"roles": len([role.id for role in guild.roles]),
+									"all": guild.member_count,
+								}
+								counter = counters[stat_type]
+								channel = guild.get_channel(channel_id)
+								numbers = "".join(
+									char for char in channel.name if char.isdigit()
+								)
+								new_name = channel.name.replace(numbers, str(counter))
 
-							await channel.edit(name=new_name)
-						except Exception as e:
-							raise (e)
+								await channel.edit(name=new_name)
+							except Exception as e:
+								raise (e)
 
 
 def setup(client):

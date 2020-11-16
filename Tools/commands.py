@@ -30,14 +30,14 @@ class Commands:
     async def main_mute(
         self,
         ctx,
-        member: discord.Member,
-        author: discord.User = None,
-        mute_time: int = 0,
-        mute_typetime: str = None,
-        check_role=True,
-        reason=None,
-        message=True,
-    ):
+        member:discord.Member,
+        author:discord.User=None,
+        mute_time:int=0,
+        mute_typetime:str=None,
+        check_role:bool=True,
+        reason:str=None,
+        message:bool=True,
+    ) -> typing.Union[discord.Embed, bool]:
         client = self.client
         overwrite = discord.PermissionOverwrite(send_messages=False)
         types = [
@@ -222,8 +222,8 @@ class Commands:
             return True
 
     async def main_warn(
-        self, ctx, member: discord.Member, author: discord.User, reason=None
-    ):
+        self, ctx, member:discord.Member, author:discord.User, reason:str=None
+    ) -> discord.Embed:
         client = self.client
 
         if member in ctx.guild.members:
