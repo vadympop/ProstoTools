@@ -4,7 +4,7 @@ import random
 import qrcode
 import wikipedia
 import requests
-# import cv2
+import cv2
 import asyncio
 from googletrans import Translator
 from pyzbar import pyzbar
@@ -66,13 +66,13 @@ class Games(commands.Cog, name="Games"):
 			file=discord.File("./Data/Img/myqr.jpg"),
 		)
 
-	# @commands.command(
-	# 	aliases=['dcode_qr', 'd_qr', 'd-qr'],
-	# 	name="dcode-qrcode",
-	# 	description="**Разкодирует qr-код**",
-	# 	usage="dcode-qrcode [Ссылка на изображения]",
-	# 	help='**Примеры использования:**\n1. {Prefix}dcode-qrcode https://media.discordapp.net/attachments/717776571406090313/775762508211945482/myqr.jpg\n\n**Пример 1:** Раскодирует QR-код в указаном изображении'
-	# )
+	@commands.command(
+		aliases=['dcode_qr', 'd_qr', 'd-qr'],
+		name="dcode-qrcode",
+		description="**Разкодирует qr-код**",
+		usage="dcode-qrcode [Ссылка на изображения]",
+		help='**Примеры использования:**\n1. {Prefix}dcode-qrcode https://media.discordapp.net/attachments/717776571406090313/775762508211945482/myqr.jpg\n\n**Пример 1:** Раскодирует QR-код в указаном изображении'
+	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def scan_url(self, ctx, url:str):
 		purge = self.client.clear_commands(ctx.guild)

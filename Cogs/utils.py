@@ -296,24 +296,11 @@ class Utils(commands.Cog, name="Utils"):
 				if member is not None:
 					if not member.bot:
 						if len(member.name) > 15:
-							member = member.name[:len(member.name)-15]+"..."+member.discriminator
+							member = member.name[:15]+"..."+"#"+member.discriminator
 						description += f"""\n`{num}. {str(member)} {profile[1]}exp {profile[2]}$ {profile[3]}rep {json.loads(profile[4])[1]}msg`"""
 						num += 1
 			
-			description += f"""
-			\n**Общая инфомация**
-			:baby:Пользователей: **{ctx.guild.member_count}**
-			:family_man_girl_boy:Участников: **{len([m.id for m in ctx.guild.members if not m.bot])}**
-			<:bot:731819847905837066>Ботов: **{len([m.id for m in ctx.guild.members if m.bot])}**
-			<:voice_channel:730399079418429561>Голосовых подключений: **{sum([len(v.members) for v in ctx.guild.voice_channels])}**
-			<:text_channel:730396561326211103>Каналов: **{len([c.id for c in ctx.guild.channels])}**
-			<:role:730396229220958258>Ролей: **{len([r.id for r in ctx.guild.roles])}**
-			:star:Всего опыта: **{all_exp}**\n
-			**Статусы участников**
-			<:online:730393440046809108>`{online}`  <:offline:730392846573633626>`{offline}`
-			<:sleep:730390502972850256>`{sleep}`  <:mobile:777854822300385291>`{len([m.id for m in ctx.guild.members if m.is_on_mobile()])}`
-			<:dnd:730391353929760870>`{dnd}` <:boost:777854437724127272>`{len(set(ctx.guild.premium_subscribers))}`
-			"""
+			description += f"""\n\n**Общая инфомация**\n:baby:Пользователей: **{ctx.guild.member_count}**\n:family_man_girl_boy:Участников: **{len([m.id for m in ctx.guild.members if not m.bot])}**\n<:bot:731819847905837066>Ботов: **{len([m.id for m in ctx.guild.members if m.bot])}**\n<:voice_channel:730399079418429561>Голосовых подключений: **{sum([len(v.members) for v in ctx.guild.voice_channels])}**\n<:text_channel:730396561326211103>Каналов: **{len([c.id for c in ctx.guild.channels])}**\n<:role:730396229220958258>Ролей: **{len([r.id for r in ctx.guild.roles])}**\n:star:Всего опыта: **{all_exp}**\n\n**Статусы участников**\n<:online:730393440046809108>`{online}`  <:offline:730392846573633626>`{offline}`\n<:sleep:730390502972850256>`{sleep}`  <:mobile:777854822300385291>`{len([m.id for m in ctx.guild.members if m.is_on_mobile()])}`\n<:dnd:730391353929760870>`{dnd}` <:boost:777854437724127272>`{len(set(ctx.guild.premium_subscribers))}`"""
 
 			emb = discord.Embed(
 				title="Статистика сервера",
