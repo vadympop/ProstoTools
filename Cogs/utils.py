@@ -232,9 +232,6 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def serverstats(self, ctx, stats_count:str):
-		purge = self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		data = DB().sel_guild(guild=ctx.guild)["server_stats"]
 		members_count = len(
 			[
@@ -255,6 +252,7 @@ class Utils(commands.Cog, name="Utils"):
 		}
 
 		if stats_count.lower() in ["message", "сообщения"]:
+			await ctx.message.delete()
 			val = (ctx.guild.id, ctx.guild.id)
 			sql_1 = """SELECT user_id, exp, money, reputation, messages FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 20"""
 			sql_2 = """SELECT exp FROM users WHERE guild_id = %s AND guild_id = %s"""
@@ -323,6 +321,9 @@ class Utils(commands.Cog, name="Utils"):
 			self.cursor.execute(sql, val)
 			self.conn.commit()
 			return
+
+		purge = self.client.clear_commands(ctx.guild)
+		await ctx.channel.purge(limit=purge)
 
 		if stats_count.lower() not in counters.keys():
 			emb = discord.Embed(
