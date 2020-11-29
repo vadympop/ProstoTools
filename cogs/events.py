@@ -7,15 +7,15 @@ import math
 import datetime
 import colorama
 import mysql.connector
-from Tools.commands import Commands
+
+from .tools import Commands
+from .tools import DB
+
 from colorama import *
-from discord.ext import commands, tasks
+from discord.ext import commands
 from discord.utils import get
-from discord.voice_client import VoiceClient
-from discord.ext.commands import Bot
 from random import randint
 from configs import configs
-from Tools.database import DB
 
 init()
 
@@ -34,16 +34,6 @@ class Events(commands.Cog, name="Events"):
 		self.MUTE_ROLE = configs["MUTE_ROLE"]
 		self.HELP_SERVER = configs["HELP_SERVER"]
 
-	@commands.Cog.listener()
-	async def on_ready(self):
-		print(
-			Fore.MAGENTA
-			+ f"[PT-SYSTEM-LOGGING]:::{self.client.user.name} is connected to discord server"
-			+ Fore.RESET
-		)
-		await self.client.change_presence(
-			status=discord.Status.online, activity=discord.Game(" *help | *invite ")
-		)
 
 	@commands.Cog.listener()
 	async def on_guild_join(self, guild):
@@ -66,7 +56,7 @@ class Events(commands.Cog, name="Events"):
 			if not member.bot:
 				DB().sel_user(target=member)
 
-		guild_owner_bot = get(self.client.guilds, id=717776571406090310)
+		guild_owner_bot = self.client.get_guild(717776571406090310)
 		channel = guild_owner_bot.text_channels[3]
 		invite = await guild.text_channels[0].create_invite(
 			reason="For more information"
@@ -104,7 +94,7 @@ class Events(commands.Cog, name="Events"):
 			self.cursor.execute(sql_2, val_2)
 			self.conn.commit()
 
-		guild_owner_bot = get(self.client.guilds, id=717776571406090310)
+		guild_owner_bot = self.client.get_guild(717776571406090310)
 		channel = guild_owner_bot.text_channels[3]
 
 		emb_info = discord.Embed(

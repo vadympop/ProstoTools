@@ -1,7 +1,7 @@
 import discord
 import math
 
-from Tools.database import DB
+from . import DB
 
 client = None
 

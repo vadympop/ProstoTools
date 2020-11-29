@@ -1,17 +1,15 @@
 import discord
 import json
-import asyncio
 import typing
 import time
 import datetime
 import random
 import mysql.connector
-from Tools.database import DB
-from random import randint
+
+from . import DB
+
 from datetime import datetime
-from discord.ext import commands
 from discord.utils import get
-from discord.ext.commands import Bot
 from configs import configs
 
 

@@ -1,13 +1,16 @@
-import discord
 import os
 import uuid
 import json
-import mysql.connector
 import random
+
+import discord
+import mysql.connector
+
+from .tools import DB
+
 from datetime import datetime
 from string import ascii_uppercase
 from configs import configs
-from Tools.database import DB
 from discord.ext import commands
 
 

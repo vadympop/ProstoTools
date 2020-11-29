@@ -3,12 +3,12 @@ import mysql.connector
 import json
 import typing
 import os
+
+from .tools import DB
+
 from discord.ext import commands
 from discord.utils import get
-from discord.voice_client import VoiceClient
-from discord.ext.commands import Bot
 from configs import configs
-from Tools.database import DB
 
 
 def clear_commands(guild):

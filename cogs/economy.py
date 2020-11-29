@@ -1,22 +1,19 @@
-import discord
 import datetime
 import os
 import json
 import random
-import requests
-import asyncio
-import typing
 import math
 import io
 import uuid
 import time
+
+import discord
 import mysql.connector
-from Tools.database import DB
-from Cybernator import Paginator
-from discord.ext import commands, tasks
+
+from .tools import DB
+
+from discord.ext import commands
 from discord.utils import get
-from discord.voice_client import VoiceClient
-from discord.ext.commands import Bot
 from PIL import Image, ImageFont, ImageDraw, ImageFilter, ImageEnhance, ImageOps
 from random import randint
 from configs import configs

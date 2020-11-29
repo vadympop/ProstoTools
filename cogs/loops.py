@@ -1,16 +1,14 @@
 import discord
-import datetime
 import os
 import json
-import random
-import asyncio
 import time
 import mysql.connector
+
+from .tools import DB
+
 from configs import configs
-from Tools.database import DB
 from discord.ext import commands, tasks
 from discord.utils import get
-from discord.ext.commands import Bot
 
 
 class Loops(commands.Cog, name="Loops"):

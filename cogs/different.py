@@ -1,24 +1,23 @@
-import discord
 import json
 import random
 import os
-import typing
-import asyncio
+import time
+
+import discord
 import sanic
 import mysql.connector
 import requests
-import time
 import psutil as ps
+
+from .tools import DB
+
 from datetime import datetime
 from Cybernator import Paginator
 from discord.ext import commands
 from discord.utils import get
-from discord.voice_client import VoiceClient
-from discord.ext.commands import Bot
 from random import randint
 from googletrans import Translator
 from configs import configs
-from Tools.database import DB
 
 
 class Different(commands.Cog, name="Different"):

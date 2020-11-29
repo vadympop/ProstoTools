@@ -4,13 +4,13 @@ import asyncio
 import time
 import os
 import mysql.connector
-from discord.ext import commands, tasks
+
+from .tools import DB
+
+from discord.ext import commands
 from discord.utils import get
-from discord.voice_client import VoiceClient
-from discord.ext.commands import Bot
 from random import randint
 from configs import configs
-from Tools.database import DB
 
 
 def check_role(ctx):

@@ -1,23 +1,13 @@
 import discord
-import datetime
-import os
-import json
 import random
-import requests
-import io
-import asyncio
-import typing
-import sqlite3
-import ast
-from discord.ext import commands, tasks
+
+from .tools import DB
+
+from discord.ext import commands
 from discord.utils import get
-from discord.voice_client import VoiceClient
-from discord.ext.commands import Bot
 from PIL import Image, ImageFont, ImageDraw, ImageFilter, ImageEnhance
 from random import randint
-from itertools import cycle
 from configs import configs
-from Tools.database import DB
 
 
 class Help(commands.Cog, name="Help"):

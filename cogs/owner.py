@@ -1,19 +1,17 @@
 import discord
-import datetime
 import os
-import json
 import asyncio
 import ast
 import math
 import random
-import Tools.template_engine as TemplateEngine
+
+from .tools import DB
+from .tools import template_engine as TemplateEngine
+
 from discord.ext import commands
 from colorama import *
 from discord.utils import get
-from discord.voice_client import VoiceClient
-from discord.ext.commands import Bot
 from configs import configs
-from Tools.database import DB
 from jinja2 import Template
 
 init()
@@ -172,39 +170,6 @@ class Owner(commands.Cog, name="Owner"):
 		await ctx.channel.purge(limit=purge)
 		command = self.client.get_command(command)
 		command.reset_cooldown(ctx)
-
-	@commands.command()
-	@commands.is_owner()
-	async def reload(self, ctx, extension):
-		if extension.lower() == 'all':
-			for filename in os.listdir("./Cogs"):
-				if filename.endswith(".py"):
-					try:
-						self.client.unload_extension(f"Cogs.{filename[:-3].upper()}")
-						self.client.load_extension(f"Cogs.{filename[:-3].upper()}")
-					except:
-						print(
-							Fore.RED
-							+ f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {filename[:-3].upper()}"
-						)
-						await ctx.message.add_reaction('❌')
-					else:
-						print(Fore.GREEN + f"[PT-SYSTEM-COG]:::{filename[:-3].upper()} - Reloaded")
-			await ctx.message.add_reaction('✅')
-			return
-			
-		try:	
-			self.client.unload_extension(f"Cogs.{extension}")
-			self.client.load_extension(f"Cogs.{extension}")
-		except:
-			print(
-				Fore.RED
-				+ f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension.upper()}"
-			)
-			return 
-		print(Fore.GREEN + f"[PT-SYSTEM-COG]:::{extension.upper()} - Reloaded")
-		await ctx.message.add_reaction('✅')
-
 
 def setup(client):
 	client.add_cog(Owner(client))

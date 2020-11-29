@@ -6,16 +6,15 @@ import wikipedia
 import requests
 import cv2
 import asyncio
-from googletrans import Translator
+
+from .tools import DB
+
 from pyzbar import pyzbar
 from discord.ext import commands
 from discord.utils import get
-from discord.voice_client import VoiceClient
-from discord.ext.commands import Bot
 from random import randint
 from configs import configs
 from bs4 import BeautifulSoup as bs
-from Tools.database import DB
 
 
 class Games(commands.Cog, name="Games"):
