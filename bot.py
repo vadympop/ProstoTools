@@ -36,6 +36,7 @@ class Client(commands.AutoShardedBot):
 			case_insensitive=case_insensitive,
 			intents=intents,
 		)
+		self.remove_command("help")
 
 	async def on_ready(self):
 		logger.info(f"[PT-SYSTEM-LOGGING]:::{self.user.name} is connected to discord server")
@@ -69,15 +70,7 @@ def get_prefix(client, message):
 client = Client(
 	command_prefix=get_prefix, case_insensitive=True, intents=discord.Intents.all()
 )
-client.remove_command("help")
-log_file = f"./data/Logs/log-{str(datetime.datetime.today())[:-16]}.txt"
 temp_eng.client = client
-
-try:
-	log = client.txt_load(log_file)
-except:
-	client.txt_dump(log_file, "")
-	log = client.txt_load(log_file)
 
 @client.command()
 @commands.is_owner()

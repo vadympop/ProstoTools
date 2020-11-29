@@ -27,22 +27,6 @@ class Errors(commands.Cog, name="Errors"):
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, error):
 		PREFIX = DB().sel_guild(guild=ctx.guild)["prefix"]
-		now_date = str(datetime.datetime.today())[:-16]
-		filename = f"./Data/Logs/log-{now_date}.txt"
-		space = ""
-		log_error = f"\n\n=============================================================\nВремя: {str(datetime.datetime.today())}\n\nОшибка:\n{error}\n============================================================="
-
-		try:
-			log = self.load(filename)
-		except:
-			self.dump(filename, space)
-			log = self.load(filename)
-
-		if log == "":
-			self.dump(filename, log_error)
-		else:
-			log_error = log + log_error
-			self.dump(filename, log_error)
 
 		if isinstance(error, commands.errors.CommandOnCooldown):
 			await ctx.message.add_reaction("❌")
