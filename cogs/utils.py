@@ -476,6 +476,25 @@ class Utils(commands.Cog, name="Utils"):
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
 
+	@commands.command(
+		aliases=["apikey", "api_key"],
+		name="api-key",
+		hidden=True,
+		description="**Отправляет ключ API сервера**",
+		usage="api-key",
+		help="**Примеры использования:**\n1. {Prefix}api-key\n\n**Пример 1:** Отправляет ключ API сервера"
+	)
+	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
+	@commands.cooldown(1, 60, commands.BucketType.member)
+	async def api_key(self, ctx):
+		purge = self.client.clear_commands(ctx.guild)
+		await ctx.channel.purge(limit=purge)
+
+		key = DB().sel_guild(guild=ctx.guild)["api_key"]
+
+		await ctx.author.send(f"Ключ API сервера - {ctx.guild.name}: `{key}`\n**__Никому его не передавайте. Он даёт доступ к данным сервера__**")
+		await ctx.message.add_reaction("✅")
+
 
 def setup(client):
 	client.add_cog(Utils(client))

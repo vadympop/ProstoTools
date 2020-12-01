@@ -34,5 +34,13 @@ async def get_user_punishments(request, guild_id: int, user_id: int):
 
 
 @bp.get("/users/<guild_id:int>/<user_id:int>/reminders")
-async def get_user_reminders(request):
-	return response.json(await Database().get_user_reminders())
+async def get_user_reminders(request, guild_id: int, user_id: int):
+	return response.json(
+		await Database().get_user_reminders(guild_id=guild_id, user_id=user_id)
+	)
+
+
+@bp.get("/users/<guild_id:int>")
+async def get_user(request, guild_id: int):
+	return response.json(await Database().get_guild(guild_id=guild_id))
+

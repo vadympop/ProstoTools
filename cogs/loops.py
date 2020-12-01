@@ -9,6 +9,7 @@ from .tools import DB
 from configs import configs
 from discord.ext import commands, tasks
 from discord.utils import get
+import uuid
 
 
 class Loops(commands.Cog, name="Loops"):
@@ -52,7 +53,7 @@ class Loops(commands.Cog, name="Loops"):
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				if member is not None:
 					if float(reminder_time) <= float(time.time()):
-						DB().del_reminder(reminder[2], reminder[0])
+						DB().del_reminder(member, reminder[0])
 						if channel in guild.channels:
 							await channel.send(embed=emb, content=member.mention)
 						else:

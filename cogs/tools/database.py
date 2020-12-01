@@ -1,5 +1,6 @@
 import mysql.connector
 import os
+import uuid
 import datetime
 import json
 import typing
@@ -336,6 +337,7 @@ class DB:
 			guild.id,
 			"False",
 			"*",
+			str(uuid.uuid4()),
 			json.dumps([]),
 			json.dumps([]),
 			json.dumps(
@@ -382,16 +384,17 @@ class DB:
 			"timedelete_textchannel": int(data[8]),
 			"donate": donate,
 			"prefix": str(data[10]),
-			"server_stats": json.loads(data[11]),
-			"voice_channel": json.loads(data[12]),
-			"shop_list": json.loads(data[13]),
-			"ignored_channels": json.loads(data[14]),
-			"auto_mod": json.loads(data[15]),
-			"clans": json.loads(data[16]),
-			"moder_roles": json.loads(data[17]),
-			"react_channels": json.loads(data[18]),
-			"welcome": json.loads(data[19]),
-			"auto_roles": json.loads(data[20]),
+			"api_key": data[11],
+			"server_stats": json.loads(data[12]),
+			"voice_channel": json.loads(data[13]),
+			"shop_list": json.loads(data[14]),
+			"ignored_channels": json.loads(data[15]),
+			"auto_mod": json.loads(data[16]),
+			"clans": json.loads(data[17]),
+			"moder_roles": json.loads(data[18]),
+			"react_channels": json.loads(data[19]),
+			"welcome": json.loads(data[20]),
+			"auto_roles": json.loads(data[21]),
 		}
 
 		return dict_data

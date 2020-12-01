@@ -1,4 +1,5 @@
 import os
+import json
 import aiomysql
 import asyncio
 
@@ -19,20 +20,20 @@ class Database:
 		conn.close()
 		return {
 			user[0]: {
-				"guild_id": user[1],
-				"lvl": user[2],
-				"exp": user[3],
-				"money": user[4],
-				"coins": user[5],
-				"text_channels": user[6],
-				"reputation": user[7],
+				"guild_id": int(user[1]),
+				"lvl": int(user[2]),
+				"exp": int(user[3]),
+				"money": int(user[4]),
+				"coins": int(user[5]),
+				"text_channels": int(user[6]),
+				"reputation": int(user[7]),
 				"prison": user[8],
 				"profile": user[9],
 				"clan": user[11],
-				"items": user[12],
-				"pets": user[13],
-				"messages": user[14],
-				"transantions": user[15],
+				"items": json.loads(user[12]),
+				"pets": json.loads(user[13]),
+				"messages": json.loads(user[14]),
+				"transantions": json.loads(user[15]),
 			}
 			for user in users
 		}
@@ -50,21 +51,18 @@ class Database:
 
 		conn.close()
 		return {
-			user[0]: {
-				"guild_id": user[1],
-				"lvl": user[2],
-				"exp": user[3],
-				"money": user[4],
-				"coins": user[5],
-				"text_channels": user[6],
-				"reputation": user[7],
-				"prison": user[8],
-				"profile": user[9],
-				"clan": user[11],
-				"items": user[12],
-				"pets": user[13],
-				"transantions": user[15],
-			}
+			"lvl": int(user[2]),
+			"exp": int(user[3]),
+			"money": int(user[4]),
+			"coins": int(user[5]),
+			"text_channels": int(user[6]),
+			"reputation": int(user[7]),
+			"prison": user[8],
+			"profile": user[9],
+			"clan": user[11],
+			"items": json.loads(user[12]),
+			"pets": json.loads(user[13]),
+			"transantions": json.loads(user[15]),
 		}
 
 	async def get_user_bio(self, user_id: int) -> dict:
@@ -89,7 +87,17 @@ class Database:
 			)
 			warns = await cur.fetchall()
 
-		return list(warns)
+		return [
+			{
+				"id": warn[0],
+				"reason": warn[3],
+				"state": warn[4],
+				"time": warn[5],
+				"author": warn[6],
+				"num": warn[7],
+			}
+			for warn in warns
+		]
 
 	async def get_user_punishments(self, user_id: int, guild_id: int) -> list:
 		conn = await aiomysql.connect(
@@ -102,4 +110,30 @@ class Database:
 			)
 			punishments = await cur.fetchall()
 
-		return list(punishments)
+		return [
+			{
+				"time": punishment[2],
+				"type": punishment[3],
+			}
+			for punishment in punishments
+		]
+
+	async def get_user_reminders(self, user_id: int, guild_id: int) -> list:
+		conn = await aiomysql.connect(
+			host="localhost", user="root", password=os.environ["DB_PASSWORD"], db="data"
+		)
+
+		async with conn.cursor() as cur:
+			await cur.execute(
+				f"SELECT * FROM reminders WHERE user_id = {user_id} AND guild_id = {guild_id}"
+			)
+			reminders = await cur.fetchall()
+
+		return [
+			{
+				"id": reminder[0],
+				"time": reminder[4],
+				"text": reminder[5],
+			}
+			for reminder in reminders
+		]
