@@ -86,12 +86,12 @@ async def unload(ctx, extension):
 
 @client.command()
 @commands.is_owner()
-async def reload(self, ctx, extension):
+async def reload(ctx, extension):
 	if extension.lower() == 'all':
 		for extension in extensions:
 			try:
-				self.client.unload_extension(extension)
-				self.client.load_extension(extension)
+				client.unload_extension(extension)
+				client.load_extension(extension)
 			except:
 				logger.error(f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension}")
 			else:
@@ -100,8 +100,8 @@ async def reload(self, ctx, extension):
 		return
 	
 	try:	
-		self.client.unload_extension(extension)
-		self.client.load_extension(extension)
+		client.unload_extension(extension)
+		client.load_extension(extension)
 	except:
 		logger.error(f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension}")
 		return

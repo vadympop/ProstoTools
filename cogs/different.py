@@ -41,7 +41,7 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def reminder(
-		self, ctx, action:str, type_time:str=None, *, text:str=None
+		self, ctx, action: str, type_time: str = None, *, text: str = None
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -194,7 +194,7 @@ class Different(commands.Cog, name="Different"):
 		help="**Примеры использования:**\n1. `{Prefix}user-send @Участник Hello my friend`\n2. `{Prefix}user-send 660110922865704980 Hello my friend`\n\n**Пример 1:** Отправит упомянутому участнику сообщения `Hello my friend`\n**Пример 2:** Отправит участнику с указаным id сообщения `Hello my friend`",
 	)
 	@commands.cooldown(2, 60, commands.BucketType.member)
-	async def send(self, ctx, member:discord.Member, *, message:str):
+	async def send(self, ctx, member: discord.Member, *, message: str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -251,7 +251,7 @@ class Different(commands.Cog, name="Different"):
 		help="**Примеры использования:**\n1. {Prefix}feedback баг Error\n2. {Prefix}feedback идея Idea\n\n**Пример 1:** Отправит баг `Error`\n**Пример 2: Отправит идею `Idea`**",
 	)
 	@commands.cooldown(1, 7200, commands.BucketType.member)
-	async def devs(self, ctx, typef:str, *, msg:str):
+	async def devs(self, ctx, typef: str, *, msg: str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -299,7 +299,7 @@ class Different(commands.Cog, name="Different"):
 		help="**Примеры использования:**\n1. {Prefix}user-info @Участник\n2. {Prefix}user-info 660110922865704980\n3. {Prefix}user-info\n\n**Пример 1:** Покажет информацию о упомянутом участнике\n**Пример 2:** Покажет информацию о участнике с указаным id\n**Пример 3:** Покажет информацию о вас",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def userinfo(self, ctx, member:discord.Member=None):
+	async def userinfo(self, ctx, member: discord.Member = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -379,7 +379,7 @@ class Different(commands.Cog, name="Different"):
 		help="**Примеры использования:**\n1. {Prefix}user-avatar @Участник\n2. {Prefix}user-avatar 660110922865704980\n3. {Prefix}user-avatar\n\n**Пример 1:** Покажет аватар упомянутого участника\n**Пример 2:** Покажет аватар участника с указаным id\n**Пример 3:** Покажет ваш аватар",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def avatar(self, ctx, member:discord.Member=None):
+	async def avatar(self, ctx, member: discord.Member = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -388,7 +388,11 @@ class Different(commands.Cog, name="Different"):
 
 		emb = discord.Embed(title=f"Аватар {member.name}", colour=discord.Color.green())
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-		emb.set_image(url=member.avatar_url)
+		emb.set_image(
+			url=member.avatar_url_as(
+				format="gif" if member.is_avatar_animated() else "png"
+			)
+		)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
 
@@ -423,7 +427,7 @@ class Different(commands.Cog, name="Different"):
 
 		commands_count = DB().query_execute(
 			query="""SELECT count FROM bot_stats WHERE entity = 'all commands' ORDER BY count DESC LIMIT 1""",
-			fetchone=True
+			fetchone=True,
 		)[0]
 		embed1 = discord.Embed(
 			title=f"{self.client.user.name}#{self.client.user.discriminator}",
@@ -650,7 +654,7 @@ class Different(commands.Cog, name="Different"):
 		help="**Примеры использования:**\n1. {Prefix}guild-idea I have an idea\n\n**Пример 1:** Отправит идею `I have an idea` в настроеный канал дял идей сервера",
 	)
 	@commands.cooldown(1, 7200, commands.BucketType.member)
-	async def idea(self, ctx, *, text:str):
+	async def idea(self, ctx, *, text: str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -726,7 +730,7 @@ class Different(commands.Cog, name="Different"):
 		help="**Примеры использования:**\n1. {Prefix}message-forward #Канал Hello everyone\n2. {Prefix}message-forward 717776571406090313 Hello everyone\n\n**Пример 1:** Перенаправит сообщения `Hello everyone` в упомянутый канал\n**Пример 2:**  Перенаправит сообщения `Hello everyone` в канал с указаным id",
 	)
 	@commands.cooldown(1, 120, commands.BucketType.member)
-	async def msgforw(self, ctx, channel:discord.TextChannel, *, msg:str):
+	async def msgforw(self, ctx, channel: discord.TextChannel, *, msg: str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -759,7 +763,7 @@ class Different(commands.Cog, name="Different"):
 		help="**Примеры использования:**\n1. {Prefix}say Hello, I am write a text\n\n**Пример 1:** Отправит указаное сообщения от именни бота в текущем канале и удалит сообщения участника",
 	)
 	@commands.cooldown(3, 30, commands.BucketType.member)
-	async def say(self, ctx, *, text:str):
+	async def say(self, ctx, *, text: str):
 		await ctx.message.delete()
 		await ctx.send(text)
 
@@ -771,7 +775,7 @@ class Different(commands.Cog, name="Different"):
 		help="**Примеры использования:**\n1. {Prefix}rnum 1 10\n\n**Пример 1:** Выберет рандомное число в диапазоне указаных",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def rnum(self, ctx, rnum1:int, rnum2:int):
+	async def rnum(self, ctx, rnum1: int, rnum2: int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -802,7 +806,7 @@ class Different(commands.Cog, name="Different"):
 		help="**Примеры использования:**\n1. {Prefix}bio -\n2. {Prefix}bio\n3. {Prefix}bio New biography\n\n**Пример 1:** Очистит биографию\n**Пример 2:** Покажет текущую биограцию\n**Пример 3:** Поставит новую биограцию - `New biography`",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def bio(self, ctx, *, text:str=None):
+	async def bio(self, ctx, *, text: str = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		cur_bio = DB().sel_user(target=ctx.author)["bio"]
@@ -849,7 +853,7 @@ class Different(commands.Cog, name="Different"):
 		help="**Примеры использования:**\n1. {Prefix}calc 2+1\n\n**Пример 1:** Вычислит уравнения `2+1`",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def calc(self, ctx, *, exp:str=None):
+	async def calc(self, ctx, *, exp: str = None):
 		if exp is None:
 			emb = discord.Embed(
 				title="Ошибка!",
