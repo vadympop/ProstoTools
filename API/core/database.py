@@ -8,6 +8,28 @@ class Database:
 	def __init__(self):
 		pass
 
+	async def _get_guild_api_key(self, guild_id: int) -> str:
+		conn = await aiomysql.connect(
+			host="localhost", user="root", password=os.environ["DB_PASSWORD"], db="data"
+		)
+
+		async with conn.cursor() as cur:
+			await cur.execute(f"SELECT api_key FROM guilds WHERE guild_id = {guild_id}")
+			api_key = (await cur.fetchone())[0]
+
+		return api_key
+
+	async def _get_user_bio(self, user_id: int) -> str:
+		conn = await aiomysql.connect(
+			host="localhost", user="root", password=os.environ["DB_PASSWORD"], db="data"
+		)
+
+		async with conn.cursor() as cur:
+			await cur.execute(f"SELECT bio FROM users WHERE user_id = {user_id}")
+			bio = (await cur.fetchone())[0]
+
+		return bio
+
 	async def get_users(self) -> dict:
 		conn = await aiomysql.connect(
 			host="localhost", user="root", password=os.environ["DB_PASSWORD"], db="data"
@@ -51,6 +73,7 @@ class Database:
 
 		conn.close()
 		return {
+			"bio": await self._get_user_bio(user_id),
 			"lvl": int(user[2]),
 			"exp": int(user[3]),
 			"money": int(user[4]),
@@ -64,17 +87,6 @@ class Database:
 			"pets": json.loads(user[13]),
 			"transantions": json.loads(user[15]),
 		}
-
-	async def get_user_bio(self, user_id: int) -> dict:
-		conn = await aiomysql.connect(
-			host="localhost", user="root", password=os.environ["DB_PASSWORD"], db="data"
-		)
-
-		async with conn.cursor() as cur:
-			await cur.execute(f"SELECT bio FROM users WHERE user_id = {user_id}")
-			bio = (await cur.fetchone())[0]
-
-		return {"bio": bio}
 
 	async def get_user_warns(self, user_id: int, guild_id: int) -> list:
 		conn = await aiomysql.connect(
