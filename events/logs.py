@@ -72,9 +72,6 @@ class Events(commands.Cog, name="Events"):
 
 	@commands.Cog.listener()
 	async def on_member_ban(self, guild, user):
-		if user.bot:
-			return
-
 		channel_id = DB().sel_guild(guild=guild)["log_channel"]
 		if channel_id == 0:
 			return

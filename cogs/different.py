@@ -2,6 +2,7 @@ import json
 import random
 import os
 import time
+import locale
 
 import discord
 import sanic
@@ -31,6 +32,7 @@ class Different(commands.Cog, name="Different"):
 		)
 		self.cursor = self.conn.cursor(buffered=True)
 		self.FOOTER = configs["FOOTER_TEXT"]
+		locale.setlocale(locale.LC_ALL, "ru")
 
 	@commands.command(
 		name="reminder",
@@ -320,13 +322,10 @@ class Different(commands.Cog, name="Different"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		t = Translator()
 		data = DB().sel_user(target=member)
 		all_message = data["messages"][1]
-		joined_at_en = datetime.strftime(member.joined_at, "%d %B %Y %X")
-		joined_at = t.translate(joined_at_en, dest="ru", src="en").text
-		created_at_en = datetime.strftime(member.created_at, "%d %B %Y %X")
-		created_at = t.translate(created_at_en, dest="ru", src="en").text
+		joined_at = datetime.strftime(member.joined_at, "%d %B %Y %X")
+		created_at = datetime.strftime(member.created_at, "%d %B %Y %X")
 
 		get_bio = (
 			lambda: ""
@@ -366,7 +365,7 @@ class Different(commands.Cog, name="Different"):
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		emb.add_field(
 			name="Основная информация",
-			value=f"{get_bio()}**Имя пользователя:** {member}\n**Статус:** {statuses[member.status.name]}{get_activity()}\n**Id пользователя:** {member.id}\n**Акаунт созданн:** {created_at}\n**Присоиденился:** {joined_at}\n**Сообщений:** {all_message}",
+			value=f"""{get_bio()}**Имя пользователя:** {member}\n**Статус:** {statuses[member.status.name]}{get_activity()}\n**Id пользователя:** {member.id}\n**Акаунт созданн:** {created_at}\n**Присоиденился:** {joined_at}\n**Сообщений:** {all_message}\n**Вызванно команд:** {data["num_commands"]}""",
 			inline=False,
 		)
 		await ctx.send(embed=emb)
@@ -537,9 +536,7 @@ class Different(commands.Cog, name="Different"):
 		await ctx.channel.purge(limit=purge)
 
 		data = DB().sel_guild(guild=ctx.guild)
-		t = Translator()
-		created_at_en = datetime.strftime(ctx.guild.created_at, "%d %B %Y %X")
-		created_at = t.translate(created_at_en, dest="ru", src="en").text
+		created_at = datetime.strftime(ctx.guild.created_at, "%d %B %Y %X")
 		time = data["timedelete_textchannel"]
 		max_warns = data["max_warns"]
 		all_message = data["all_message"]

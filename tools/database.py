@@ -285,7 +285,7 @@ class DB:
 		bio = self.cursor.fetchone()
 
 		if data is not None:
-			prison = data[8]
+			prison = data[9]
 			if prison == "True":
 				prison = True
 			elif prison == "False":
@@ -318,14 +318,15 @@ class DB:
 				"coins": int(data[5]),
 				"text_channels": int(data[6]),
 				"reputation": int(data[7]),
+				"num_commands": int(data[8]),
 				"prison": prison,
-				"profile": str(data[9]),
-				"clan": str(data[11]),
-				"items": json.loads(data[12]),
-				"pets": json.loads(data[13]),
+				"profile": str(data[10]),
+				"clan": str(data[12]),
+				"items": json.loads(data[13]),
+				"pets": json.loads(data[14]),
 				"warns": warns,
-				"messages": json.loads(data[14]),
-				"transantions": json.loads(data[15]),
+				"messages": json.loads(data[15]),
+				"transantions": json.loads(data[16]),
 				"bio": bio[0],
 			}
 
@@ -346,7 +347,7 @@ class DB:
 				{
 					"anti_flud": False,
 					"auto_anti_rade_mode": False,
-					"react_coomands": True,
+					"react_coomands": False,
 				}
 			),
 			json.dumps([]),

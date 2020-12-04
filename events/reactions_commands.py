@@ -68,7 +68,10 @@ class EventsReactionsCmds(commands.Cog):
 							emb.set_footer(
 								text=self.FOOTER, icon_url=self.client.user.avatar_url
 							)
-							await member.send(embed=emb)
+							try:
+								await member.send(embed=emb)
+							except:
+								pass
 						elif reaction.name == "🤐":
 							emb = await Commands(self.client).main_mute(
 								ctx=message,
@@ -98,7 +101,10 @@ class EventsReactionsCmds(commands.Cog):
 							emb.set_footer(
 								text=self.FOOTER, icon_url=self.client.user.avatar_url
 							)
-							await member.send(embed=emb)
+							try:
+								await member.send(embed=emb)
+							except:
+								pass
 
 
 def setup(client):
