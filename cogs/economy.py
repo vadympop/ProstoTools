@@ -10,7 +10,7 @@ import time
 import discord
 import mysql.connector
 
-from .tools import DB
+from tools import DB
 
 from discord.ext import commands
 from discord.utils import get
@@ -94,7 +94,7 @@ class Economy(commands.Cog, name="Economy"):
 		help="**Примеры использования:**\n1. {Prefix}+rep @Участник 1\n2. {Prefix}+rep 660110922865704980 1\n\n**Пример 1:** Даст упомянутому участнику одну репутацию\n**Пример 2:** Даст участнику с указаным id одну репутацию",
 	)
 	@commands.cooldown(1, 3600, commands.BucketType.member)
-	async def repp(self, ctx, member:discord.Member, num:int):
+	async def repp(self, ctx, member: discord.Member, num: int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -165,7 +165,7 @@ class Economy(commands.Cog, name="Economy"):
 		help="**Примеры использования:**\n1. {Prefix}-rep @Участник 1\n2. {Prefix}-rep 660110922865704980 1\n\n**Пример 1:** Отнимет упомянутому участнику одну репутацию\n**Пример 2:** Отнимет участнику с указаным id одну репутацию",
 	)
 	@commands.cooldown(1, 3600, commands.BucketType.member)
-	async def repm(self, ctx, member:discord.Member, num:int):
+	async def repm(self, ctx, member: discord.Member, num: int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -264,12 +264,12 @@ class Economy(commands.Cog, name="Economy"):
 		help="**Примеры использования:**\n1. {Prefix}text-channel Name\n\n**Пример 1:** Создаёт временный текстовый канал с названиям `Name`",
 	)
 	@commands.cooldown(1, 240, commands.BucketType.member)
-	async def textchannel(self, ctx, *, name:str):
+	async def textchannel(self, ctx, *, name: str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		data = DB().sel_user(target=ctx.author)
-		sql = ("""UPDATE users SET text_channel = text_channel - 1 WHERE user_id = %s AND guild_id = %s""")
+		sql = """UPDATE users SET text_channel = text_channel - 1 WHERE user_id = %s AND guild_id = %s"""
 		val = (ctx.author.id, ctx.guild.id)
 
 		guild_data = DB().sel_guild(guild=ctx.guild)
@@ -323,10 +323,10 @@ class Economy(commands.Cog, name="Economy"):
 				self.conn.commit()
 
 				DB().set_punishment(
-					type_punishment='text_channel',
-					time=float(time.time()+60*time_channel),
+					type_punishment="text_channel",
+					time=float(time.time() + 60 * time_channel),
 					member=ctx.author,
-					role_id=text_channel.id
+					role_id=text_channel.id,
 				)
 			elif num_textchannels <= 0:
 				emb = discord.Embed(
@@ -386,14 +386,12 @@ class Economy(commands.Cog, name="Economy"):
 			await ctx.send(embed=emb)
 
 	@commands.command(
-		description="**Купляет указанный товар**", 
+		description="**Купляет указанный товар**",
 		usage="buy [Имя товара]",
 		help="**Примеры использования:**\n1. {Prefix}buy gloves\n2. {Prefix}buy text-channel 10\n3. {Prefix}buy box-E\n\n**Пример 1:** Купляет товар с названиям `gloves`\n**Пример 2:** Купляет десять приватных каналов\n**Пример 3:** Купляет эпический лут-бокс",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def buy(
-		self, ctx, item:str=None, num:int=None
-	):
+	async def buy(self, ctx, item: str = None, num: int = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -1130,10 +1128,10 @@ class Economy(commands.Cog, name="Economy"):
 		name="send-money",
 		description="**Этой командой можно оправить свои деньги другому пользователю(Cooldown - 30 мин)**",
 		usage="send-money [@Участник]",
-		help='**Примеры использования:**\n1. {Prefix}send-money @Участник 1000\n2. {Prefix}send-money 660110922865704980 1000\n\n**Пример 1:** Отправляет 1000$ упомянутому участнику\n**Пример 2:** Отправляет 1000$ участнику с указаным id',
+		help="**Примеры использования:**\n1. {Prefix}send-money @Участник 1000\n2. {Prefix}send-money 660110922865704980 1000\n\n**Пример 1:** Отправляет 1000$ упомянутому участнику\n**Пример 2:** Отправляет 1000$ участнику с указаным id",
 	)
 	@commands.cooldown(1, 1800, commands.BucketType.member)
-	async def sendmoney(self, ctx, member:discord.Member, num:int):
+	async def sendmoney(self, ctx, member: discord.Member, num: int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -1314,12 +1312,12 @@ class Economy(commands.Cog, name="Economy"):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		description="**Открывает указаный лут бокс**", 
+		description="**Открывает указаный лут бокс**",
 		usage="open [Лут бокс]",
 		help="**Примеры использования:**\n1. {Prefix}open box-E\n\n**Пример 1:** Открывает указаный лут-бокс",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def open(self, ctx, box:str=None):
+	async def open(self, ctx, box: str = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -1663,7 +1661,7 @@ class Economy(commands.Cog, name="Economy"):
 	)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	@commands.has_permissions(administrator=True)
-	async def remove_role(self, ctx, member:discord.Member, role:discord.Role):
+	async def remove_role(self, ctx, member: discord.Member, role: discord.Role):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
@@ -1731,10 +1729,21 @@ class Economy(commands.Cog, name="Economy"):
 				colour=discord.Color.green(),
 				timestamp=datetime.datetime.utcnow(),
 			)
-			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
-			e.add_field(name="Роль", value=role.name, inline=False,)
+			e.add_field(
+				name="Модератором",
+				value=str(ctx.author),
+				inline=False,
+			)
+			e.add_field(
+				name="Роль",
+				value=role.name,
+				inline=False,
+			)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(name="Журнал аудита | Удаления роли пользователя", icon_url=ctx.author.avatar_url)
+			e.set_author(
+				name="Журнал аудита | Удаления роли пользователя",
+				icon_url=ctx.author.avatar_url,
+			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
@@ -1748,7 +1757,7 @@ class Economy(commands.Cog, name="Economy"):
 	)
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
-	async def add_cash(self, ctx, member:discord.Member, typem:str, num:int):
+	async def add_cash(self, ctx, member: discord.Member, typem: str, num: int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
@@ -1841,11 +1850,26 @@ class Economy(commands.Cog, name="Economy"):
 				colour=discord.Color.green(),
 				timestamp=datetime.datetime.utcnow(),
 			)
-			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
-			e.add_field(name="Тип средств", value=typem, inline=False,)
-			e.add_field(name="Количество", value=num, inline=False,)
+			e.add_field(
+				name="Модератором",
+				value=str(ctx.author),
+				inline=False,
+			)
+			e.add_field(
+				name="Тип средств",
+				value=typem,
+				inline=False,
+			)
+			e.add_field(
+				name="Количество",
+				value=num,
+				inline=False,
+			)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(name="Журнал аудита | Изменения средств пользователя", icon_url=ctx.author.avatar_url)
+			e.set_author(
+				name="Журнал аудита | Изменения средств пользователя",
+				icon_url=ctx.author.avatar_url,
+			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
@@ -1859,7 +1883,7 @@ class Economy(commands.Cog, name="Economy"):
 	)
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
-	async def remove_cash(self, ctx, member:discord.Member, typem:str, num:int):
+	async def remove_cash(self, ctx, member: discord.Member, typem: str, num: int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
@@ -1937,11 +1961,26 @@ class Economy(commands.Cog, name="Economy"):
 				colour=discord.Color.green(),
 				timestamp=datetime.datetime.utcnow(),
 			)
-			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
-			e.add_field(name="Тип средств", value=typem, inline=False,)
-			e.add_field(name="Количество", value="-"+str(num), inline=False,)
+			e.add_field(
+				name="Модератором",
+				value=str(ctx.author),
+				inline=False,
+			)
+			e.add_field(
+				name="Тип средств",
+				value=typem,
+				inline=False,
+			)
+			e.add_field(
+				name="Количество",
+				value="-" + str(num),
+				inline=False,
+			)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(name="Журнал аудита | Изменения средств пользователя", icon_url=ctx.author.avatar_url)
+			e.set_author(
+				name="Журнал аудита | Изменения средств пользователя",
+				icon_url=ctx.author.avatar_url,
+			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
@@ -1951,7 +1990,7 @@ class Economy(commands.Cog, name="Economy"):
 		help="**Примеры использования:**\n1. {Prefix}rob @Участник\n2. {Prefix}rob 660110922865704980\n\n**Пример 1:** Грабит упомянутому участника\n**Пример 2:** Грабит участника с указаным id",
 	)
 	@commands.cooldown(1, 86400, commands.BucketType.member)
-	async def rob(self, ctx, member:discord.Member):
+	async def rob(self, ctx, member: discord.Member):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -2088,7 +2127,7 @@ class Economy(commands.Cog, name="Economy"):
 			return
 
 	@commands.command(
-		description="**Незаконная добыча денег(Cooldown - 12 часов)**", 
+		description="**Незаконная добыча денег(Cooldown - 12 часов)**",
 		usage="crime",
 		help="**Примеры использования:**\n1. {Prefix}crime\n\n**Пример 1:** Незаконно добывает деньги",
 	)
@@ -2190,8 +2229,8 @@ class Economy(commands.Cog, name="Economy"):
 			return
 
 	@commands.command(
-		description="**Показывает ваш инвертарь**", 
-		usage="invertory", 
+		description="**Показывает ваш инвертарь**",
+		usage="invertory",
 		aliases=["inv"],
 		help="**Примеры использования:**\n1. {Prefix}invertory\n\n**Пример 1:** Показывает ваш инвертарь",
 	)
@@ -2286,7 +2325,7 @@ class Economy(commands.Cog, name="Economy"):
 		help="**Примеры использования:**\n1. {Prefix}set-profile-color orange\n\n**Пример 1:** Ставит оранжевый цвет профиля",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def profile_color(self, ctx, color:str=None):
+	async def profile_color(self, ctx, color: str = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -2364,7 +2403,7 @@ class Economy(commands.Cog, name="Economy"):
 		help="**Примеры использования:**\n1. {Prefix}profile @Участник\n2. {Prefix}profile 660110922865704980\n3. {Prefix}profile\n\n**Пример 1:** Показывает профиль упомянутого участника\n**Пример 2:** Показывает профиль участника с указаным id\n**Пример 3:** Показывает ваш профиль",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def profile(self, ctx, member:discord.Member=None):
+	async def profile(self, ctx, member: discord.Member = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -2462,7 +2501,7 @@ class Economy(commands.Cog, name="Economy"):
 		}
 		users_rank = DB().query_execute(
 			query="""SELECT user_id FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC""",
-			val=(ctx.guild.id, ctx.guild.id)
+			val=(ctx.guild.id, ctx.guild.id),
 		)
 		for user in users_rank:
 			if user[0] == member.id:

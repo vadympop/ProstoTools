@@ -7,7 +7,7 @@ import requests
 import cv2
 import asyncio
 
-from .tools import DB
+from tools import DB
 
 from pyzbar import pyzbar
 from discord.ext import commands
@@ -23,14 +23,14 @@ class Games(commands.Cog, name="Games"):
 		self.FOOTER = configs["FOOTER_TEXT"]
 
 	@commands.command(
-		aliases=['cr-qr', 'cr_qr', 'create-qr', 'create_qrcode'],
+		aliases=["cr-qr", "cr_qr", "create-qr", "create_qrcode"],
 		name="create-qrcode",
 		description="**Закодирует указаный текст в qr-код**",
 		usage="create-qrcode [Ваш текст]",
-		help='**Примеры использования:**\n1. {Prefix}create-qrcode My text\n\n**Пример 1:** Создаёт QR-код с указаным текстом',
+		help="**Примеры использования:**\n1. {Prefix}create-qrcode My text\n\n**Пример 1:** Создаёт QR-код с указаным текстом",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def cr_qr(self, ctx, *, code_text:str):
+	async def cr_qr(self, ctx, *, code_text: str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -66,14 +66,14 @@ class Games(commands.Cog, name="Games"):
 		)
 
 	@commands.command(
-		aliases=['dcode_qr', 'd_qr', 'd-qr'],
+		aliases=["dcode_qr", "d_qr", "d-qr"],
 		name="dcode-qrcode",
 		description="**Разкодирует qr-код**",
 		usage="dcode-qrcode [Ссылка на изображения]",
-		help='**Примеры использования:**\n1. {Prefix}dcode-qrcode https://media.discordapp.net/attachments/717776571406090313/775762508211945482/myqr.jpg\n\n**Пример 1:** Раскодирует QR-код в указаном изображении'
+		help="**Примеры использования:**\n1. {Prefix}dcode-qrcode https://media.discordapp.net/attachments/717776571406090313/775762508211945482/myqr.jpg\n\n**Пример 1:** Раскодирует QR-код в указаном изображении",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def scan_url(self, ctx, url:str):
+	async def scan_url(self, ctx, url: str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -98,7 +98,7 @@ class Games(commands.Cog, name="Games"):
 	@commands.command(
 		description="**Мини ивент, состоящий из угадываний флагов разных стран, количество раундов 7, для игры нужно как минимум два человека**",
 		usage="flags",
-		help='**Примеры использования:**\n1. {Prefix}flags\n\n**Пример 1:** Запускает игру флаги'
+		help="**Примеры использования:**\n1. {Prefix}flags\n\n**Пример 1:** Запускает игру флаги",
 	)
 	@commands.cooldown(1, 43200, commands.BucketType.member)
 	async def flags(self, ctx):
@@ -224,10 +224,10 @@ class Games(commands.Cog, name="Games"):
 	@commands.command(
 		description="**Википедия, расказывает о вашем запросе**",
 		usage="wiki [Ваш запрос]",
-		help='**Примеры использования:**\n1. {Prefix}wiki Bot\n\n**Пример 1:** Покажет информацию по запросе `Bot` на википедии'
+		help="**Примеры использования:**\n1. {Prefix}wiki Bot\n\n**Пример 1:** Покажет информацию по запросе `Bot` на википедии",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def wiki(self, ctx, *, text:str):
+	async def wiki(self, ctx, *, text: str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -261,10 +261,10 @@ class Games(commands.Cog, name="Games"):
 		name="8ball",
 		description="**Магический шар предсказаний**",
 		usage="8ball [Ваш вопрос]",
-		help='**Примеры использования:**\n1. {Prefix}8ball My owner is nice programmer?\n\n**Пример 1:** Ответит на ваш вопрос магическим образом =)'
+		help="**Примеры использования:**\n1. {Prefix}8ball My owner is nice programmer?\n\n**Пример 1:** Ответит на ваш вопрос магическим образом =)",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def magic_ball(self, ctx, *, msg:str):
+	async def magic_ball(self, ctx, *, msg: str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -308,9 +308,9 @@ class Games(commands.Cog, name="Games"):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		description="**Рандомная картинка собаки**", 
+		description="**Рандомная картинка собаки**",
 		usage="dog",
-		help='**Примеры использования:**\n1. {Prefix}dog\n\n**Пример 1:** Покажет рандомную картинку собаки'
+		help="**Примеры использования:**\n1. {Prefix}dog\n\n**Пример 1:** Покажет рандомную картинку собаки",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def dog(self, ctx):
@@ -325,9 +325,9 @@ class Games(commands.Cog, name="Games"):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		description="**Рандомная картинка кошки**", 
+		description="**Рандомная картинка кошки**",
 		usage="cat",
-		help='**Примеры использования:**\n1. {Prefix}cat\n\n**Пример 1:** Покажет рандомную картинку кошки'
+		help="**Примеры использования:**\n1. {Prefix}cat\n\n**Пример 1:** Покажет рандомную картинку кошки",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def cat(self, ctx):
@@ -342,9 +342,9 @@ class Games(commands.Cog, name="Games"):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		description="**Рандомная картинка лисы**", 
+		description="**Рандомная картинка лисы**",
 		usage="fox",
-		help='**Примеры использования:**\n1. {Prefix}fox\n\n**Пример 1:** Покажет рандомную картинку лисы'
+		help="**Примеры использования:**\n1. {Prefix}fox\n\n**Пример 1:** Покажет рандомную картинку лисы",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def fox(self, ctx):
@@ -359,9 +359,9 @@ class Games(commands.Cog, name="Games"):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		description="**Рандомная картинка птички**", 
+		description="**Рандомная картинка птички**",
 		usage="bird",
-		help='**Примеры использования:**\n1. {Prefix}dog\n\n**Пример 1:** Покажет рандомную картинку птички'
+		help="**Примеры использования:**\n1. {Prefix}dog\n\n**Пример 1:** Покажет рандомную картинку птички",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bird(self, ctx):
@@ -376,9 +376,9 @@ class Games(commands.Cog, name="Games"):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		description="**Рандомная картинка коалы**", 
+		description="**Рандомная картинка коалы**",
 		usage="koala",
-		help='**Примеры использования:**\n1. {Prefix}koala\n\n**Пример 1:** Покажет рандомную картинку коалы'
+		help="**Примеры использования:**\n1. {Prefix}koala\n\n**Пример 1:** Покажет рандомную картинку коалы",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def koala(self, ctx):
@@ -393,9 +393,9 @@ class Games(commands.Cog, name="Games"):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		description="**Рандомный мем**", 
+		description="**Рандомный мем**",
 		usage="meme",
-		help='**Примеры использования:**\n1. {Prefix}meme\n\n**Пример 1:** Покажет рандомный мем :3'
+		help="**Примеры использования:**\n1. {Prefix}meme\n\n**Пример 1:** Покажет рандомный мем :3",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def meme(self, ctx):

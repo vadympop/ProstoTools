@@ -9,7 +9,7 @@ import mysql.connector
 import requests
 import psutil as ps
 
-from .tools import DB
+from tools import DB
 
 from datetime import datetime
 from Cybernator import Paginator
@@ -390,8 +390,7 @@ class Different(commands.Cog, name="Different"):
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_image(
 			url=member.avatar_url_as(
-				format="gif" if member.is_avatar_animated() else "png",
-				size=2048
+				format="gif" if member.is_avatar_animated() else "png", size=2048
 			)
 		)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)

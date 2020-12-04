@@ -7,8 +7,7 @@ import os
 import mysql.connector
 import uuid
 
-from .tools import Commands
-from .tools import DB
+from tools import Commands, DB
 
 from datetime import datetime
 from discord.ext import commands
@@ -49,16 +48,16 @@ class Moderate(commands.Cog, name="Moderate"):
 		brief="True",
 		description="**Удаляет указаное число сообщений**",
 		usage="clear |@Участник| [Число удаляемых сообщений]",
-		help="**Примеры использования:**\n1. {Prefix}clear 10\n2. {Prefix}clear @Участник 10\n3. {Prefix}clear 660110922865704980 10\n\n**Пример 1:** Удалит 10 сообщений\n**Пример 2:** Удалит 10 сообщений упомянотого участника в текущем канале\n**Пример 3:** Удалит 10 сообщений участника с указаным id"
+		help="**Примеры использования:**\n1. {Prefix}clear 10\n2. {Prefix}clear @Участник 10\n3. {Prefix}clear 660110922865704980 10\n\n**Пример 1:** Удалит 10 сообщений\n**Пример 2:** Удалит 10 сообщений упомянотого участника в текущем канале\n**Пример 3:** Удалит 10 сообщений участника с указаным id",
 	)
 	@commands.check(check_role)
-	async def clear(self, ctx, member:typing.Optional[discord.Member], amount:int):
+	async def clear(self, ctx, member: typing.Optional[discord.Member], amount: int):
 		amount += 1
 		number = 0
 		delete_messages = ""
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 		if member is None:
-			delete_messages_fp = self.TEMP_PATH+str(uuid.uuid4())+'.txt'
+			delete_messages_fp = self.TEMP_PATH + str(uuid.uuid4()) + ".txt"
 			async for msg in ctx.channel.history():
 				if logs_channel_id != 0:
 					delete_messages += f"""\n{msg.created_at.strftime("%H:%M:%S %d-%m-%Y")} -- {str(msg.author)}\n{msg.content}\n\n"""
@@ -90,9 +89,16 @@ class Moderate(commands.Cog, name="Moderate"):
 							name="Журнал аудита | Модерация",
 							icon_url=ctx.author.avatar_url,
 						)
-						e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-						await ctx.guild.get_channel(logs_channel_id).send(embed=e, file=discord.File(fp=delete_messages_fp))
-						os.remove("e:\\PyProg\\ProstoTools"+delete_messages_fp.replace("/", "\\")[1:])
+						e.set_footer(
+							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						)
+						await ctx.guild.get_channel(logs_channel_id).send(
+							embed=e, file=discord.File(fp=delete_messages_fp)
+						)
+						os.remove(
+							"e:\\PyProg\\ProstoTools"
+							+ delete_messages_fp.replace("/", "\\")[1:]
+						)
 					break
 
 		elif member is not None and member in ctx.guild.members:
@@ -117,11 +123,11 @@ class Moderate(commands.Cog, name="Moderate"):
 		name="temp-role",
 		description="**Дает указаную роль учаснику на время**",
 		usage="temp-role [@Участник] [@Роль] [Длительность]",
-		help="**Примеры использования:**\n1. {Prefix}temp-role @Участник @Роль 10m\n2. {Prefix}temp-role 660110922865704980 717776604461531146 10m\n3. {Prefix}temp-role @Участник 717776604461531146 10m\n4. {Prefix}temp-role 660110922865704980 @Роль 10m\n\n**Пример 1:** Даёт упомянутую роль упомянутому участнику\n**Пример 2:** Даёт роль с указаным id участнику с указаным id\n**Пример 3:** Даёт роль с указаным id упомянутому участнику\n**Пример 4:** Даёт упомянутую роль участнику с указаным id"
+		help="**Примеры использования:**\n1. {Prefix}temp-role @Участник @Роль 10m\n2. {Prefix}temp-role 660110922865704980 717776604461531146 10m\n3. {Prefix}temp-role @Участник 717776604461531146 10m\n4. {Prefix}temp-role 660110922865704980 @Роль 10m\n\n**Пример 1:** Даёт упомянутую роль упомянутому участнику\n**Пример 2:** Даёт роль с указаным id участнику с указаным id\n**Пример 3:** Даёт роль с указаным id упомянутому участнику\n**Пример 4:** Даёт упомянутую роль участнику с указаным id",
 	)
 	@commands.check(check_role)
 	async def temprole(
-		self, ctx, member:discord.Member, role:discord.Role, type_time:str
+		self, ctx, member: discord.Member, role: discord.Role, type_time: str
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -236,10 +242,10 @@ class Moderate(commands.Cog, name="Moderate"):
 		name="slow-mode",
 		description="**Ставить медленный режим указаному каналу(Если канал не указан медленный режим ставиться всем каналам, 0 - выключает медленный режим, длительность не указывать меньше нуля)**",
 		usage="slow-mode [Время] |Канал|",
-		help="**Примеры использования:**\n1. {Prefix}slow-mode 10 #Канал\n2. {Prefix}slow-mode 10 717776571406090313\n\n**Пример 1:** Ставит упомянутому канала медленный режим на 10 секунд\n**Пример 2:** Ставит каналу с указаным id медленный режим на 10 секунд"
+		help="**Примеры использования:**\n1. {Prefix}slow-mode 10 #Канал\n2. {Prefix}slow-mode 10 717776571406090313\n\n**Пример 1:** Ставит упомянутому канала медленный режим на 10 секунд\n**Пример 2:** Ставит каналу с указаным id медленный режим на 10 секунд",
 	)
 	@commands.check(check_role)
-	async def slowmode(self, ctx, delay:int, channel:discord.TextChannel):
+	async def slowmode(self, ctx, delay: int, channel: discord.TextChannel):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -291,13 +297,13 @@ class Moderate(commands.Cog, name="Moderate"):
 		brief="True",
 		description="**Кикает учасника из сервера**",
 		usage="kick [@Участник] |Причина|",
-		help="**Примеры использования:**\n1. {Prefix}kick @Участник Нарушения правил сервера\n2. {Prefix}kick 660110922865704980 Нарушения правил сервера\n3. {Prefix}kick @Участник\n4. {Prefix}kick 660110922865704980\n\n**Пример 1:** Кикает с сервера упомянутого участника по причине `Нарушения правил сервера`\n**Пример 2:** Кикает с сервера участника с указаным id по причине `Нарушения правил сервера`\n**Пример 3:** Кикает с сервера упомянутого участника без причины\n**Пример 4:** Кикает с сервера участника с указаным id без причины"
+		help="**Примеры использования:**\n1. {Prefix}kick @Участник Нарушения правил сервера\n2. {Prefix}kick 660110922865704980 Нарушения правил сервера\n3. {Prefix}kick @Участник\n4. {Prefix}kick 660110922865704980\n\n**Пример 1:** Кикает с сервера упомянутого участника по причине `Нарушения правил сервера`\n**Пример 2:** Кикает с сервера участника с указаным id по причине `Нарушения правил сервера`\n**Пример 3:** Кикает с сервера упомянутого участника без причины\n**Пример 4:** Кикает с сервера участника с указаным id без причины",
 	)
 	@commands.check(check_role)
-	async def kick(self, ctx, member:discord.Member, *, reason:str=None):
+	async def kick(self, ctx, member: discord.Member, *, reason: str = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		logs_channel_id = DB().sel_guild(guild=ctx.guild)['log_channel']
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -350,17 +356,27 @@ class Moderate(commands.Cog, name="Moderate"):
 			await member.send(embed=emb)
 		except:
 			pass
-		
+
 		if logs_channel_id != 0:
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был кикнут",
 				colour=discord.Color.green(),
 				timestamp=datetime.utcnow(),
 			)
-			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
-			e.add_field(name="Причина", value=reason, inline=False,)
+			e.add_field(
+				name="Модератором",
+				value=str(ctx.author),
+				inline=False,
+			)
+			e.add_field(
+				name="Причина",
+				value=reason,
+				inline=False,
+			)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(name="Журнал аудита | Кик пользователя", icon_url=ctx.author.avatar_url)
+			e.set_author(
+				name="Журнал аудита | Кик пользователя", icon_url=ctx.author.avatar_url
+			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
@@ -370,11 +386,11 @@ class Moderate(commands.Cog, name="Moderate"):
 		name="soft-ban",
 		description="**Апаратно банит указаного участника - участник имеет доступ к серверу, но к каналам доступа нет**",
 		usage="soft-ban [@Участник] |Длительность| |Причина|",
-		help="**Примеры использования:**\n1. {Prefix}soft-ban @Участник 10d Нарушения правил сервера\n2. {Prefix}soft-ban 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}soft-ban @Участник 10d\n4. {Prefix}soft-ban 660110922865704980 10d\n5. {Prefix}soft-ban @Участник\n6. {Prefix}soft-ban 660110922865704980\n7. {Prefix}soft-ban @Участник Нарушения правил сервера\n8. {Prefix}soft-ban 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Апапаратно банит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Апапаратно банит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Апапаратно банит упомянутого участника без причины на 10 дней\n**Пример 4:** Апапаратно банит участника с указаным id без причины на 10 дней\n**Пример 5:** Даёт перманентный апапаратный бан упомянутому участнику без причины\n**Пример 6:** Даёт перманентный апапаратный бан участнику с указаным id без причины\n**Пример 7:** Даёт перманентный апапаратный бан упомянутому участнику по причине\n`Нарушения правил сервера`\n**Пример 8:** Даёт апапаратный апапаратный бан участнику с указаным id по причине\n`Нарушения правил сервера`"
+		help="**Примеры использования:**\n1. {Prefix}soft-ban @Участник 10d Нарушения правил сервера\n2. {Prefix}soft-ban 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}soft-ban @Участник 10d\n4. {Prefix}soft-ban 660110922865704980 10d\n5. {Prefix}soft-ban @Участник\n6. {Prefix}soft-ban 660110922865704980\n7. {Prefix}soft-ban @Участник Нарушения правил сервера\n8. {Prefix}soft-ban 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Апапаратно банит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Апапаратно банит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Апапаратно банит упомянутого участника без причины на 10 дней\n**Пример 4:** Апапаратно банит участника с указаным id без причины на 10 дней\n**Пример 5:** Даёт перманентный апапаратный бан упомянутому участнику без причины\n**Пример 6:** Даёт перманентный апапаратный бан участнику с указаным id без причины\n**Пример 7:** Даёт перманентный апапаратный бан упомянутому участнику по причине\n`Нарушения правил сервера`\n**Пример 8:** Даёт апапаратный апапаратный бан участнику с указаным id по причине\n`Нарушения правил сервера`",
 	)
 	@commands.check(check_role)
 	async def softban(
-		self, ctx, member:discord.Member, type_time:str=None, *, reason:str=None
+		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = None
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -521,13 +537,22 @@ class Moderate(commands.Cog, name="Moderate"):
 				timestamp=datetime.utcnow(),
 			)
 			e.add_field(
-				name=f"Модератором {str(ctx.author)}", 
-				value=f"На {softban_time} {softban_typetime}" if softban_minutes != 0 else "Перманентно", 
+				name=f"Модератором {str(ctx.author)}",
+				value=f"На {softban_time} {softban_typetime}"
+				if softban_minutes != 0
+				else "Перманентно",
 				inline=False,
 			)
-			e.add_field(name="Причина", value=reason, inline=False,)
+			e.add_field(
+				name="Причина",
+				value=reason,
+				inline=False,
+			)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(name="Журнал аудита | Апаратный бан пользователя", icon_url=ctx.author.avatar_url)
+			e.set_author(
+				name="Журнал аудита | Апаратный бан пользователя",
+				icon_url=ctx.author.avatar_url,
+			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
@@ -537,13 +562,13 @@ class Moderate(commands.Cog, name="Moderate"):
 		name="unsoft-ban",
 		description="**Снимает апаратный с указаного участника**",
 		usage="unsoft-ban [@Участник]",
-		help="**Примеры использования:**\n1. {Prefix}unsoft-ban @Участник\n2. {Prefix}unsoft-ban 660110922865704980\n\n**Пример 1:** Снимает апаратный бан с упомянутого участника\n**Пример 2:** Снимает апаратный бан с участника с указаным id"
+		help="**Примеры использования:**\n1. {Prefix}unsoft-ban @Участник\n2. {Prefix}unsoft-ban 660110922865704980\n\n**Пример 1:** Снимает апаратный бан с упомянутого участника\n**Пример 2:** Снимает апаратный бан с участника с указаным id",
 	)
 	@commands.check(check_role)
-	async def unsoftban(self, ctx, member:discord.Member):
+	async def unsoftban(self, ctx, member: discord.Member):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		logs_channel_id = DB().sel_guild(guild=ctx.guild)['log_channel']
+		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -591,9 +616,16 @@ class Moderate(commands.Cog, name="Moderate"):
 				colour=discord.Color.green(),
 				timestamp=datetime.utcnow(),
 			)
-			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
+			e.add_field(
+				name="Модератором",
+				value=str(ctx.author),
+				inline=False,
+			)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(name="Журнал аудита | Апаратный разбан пользователя", icon_url=ctx.author.avatar_url)
+			e.set_author(
+				name="Журнал аудита | Апаратный разбан пользователя",
+				icon_url=ctx.author.avatar_url,
+			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
@@ -601,11 +633,11 @@ class Moderate(commands.Cog, name="Moderate"):
 		hidden=True,
 		description="**Банит учасника по указаной причине (Перманентно или на время)**",
 		usage="ban [@Участник] |Длительность| |Причина|",
-		help="**Примеры использования:**\n1. {Prefix}ban @Участник 10d Нарушения правил сервера\n2. {Prefix}ban 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}ban @Участник 10d\n4. {Prefix}ban 660110922865704980 10d\n5. {Prefix}ban @Участник\n6. {Prefix}ban 660110922865704980\n7. {Prefix}ban @Участник Нарушения правил сервера\n8. {Prefix}ban 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Банит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Банит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Банит упомянутого участника без причины на 10 дней\n**Пример 4:** Банит участника с указаным id без причины на 10 дней\n**Пример 5:** Перманентно банит упомянутого участника без причины\n**Пример 6:** Перманентно банит участника с указаным id без причины\n**Пример 7:** Перманентно банит упомянутого участника по причине\n`Нарушения правил сервера`\n**Пример 8:** Перманентно банит участника с указаным id по причине\n`Нарушения правил сервера`"
+		help="**Примеры использования:**\n1. {Prefix}ban @Участник 10d Нарушения правил сервера\n2. {Prefix}ban 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}ban @Участник 10d\n4. {Prefix}ban 660110922865704980 10d\n5. {Prefix}ban @Участник\n6. {Prefix}ban 660110922865704980\n7. {Prefix}ban @Участник Нарушения правил сервера\n8. {Prefix}ban 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Банит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Банит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Банит упомянутого участника без причины на 10 дней\n**Пример 4:** Банит участника с указаным id без причины на 10 дней\n**Пример 5:** Перманентно банит упомянутого участника без причины\n**Пример 6:** Перманентно банит участника с указаным id без причины\n**Пример 7:** Перманентно банит упомянутого участника по причине\n`Нарушения правил сервера`\n**Пример 8:** Перманентно банит участника с указаным id по причине\n`Нарушения правил сервера`",
 	)
 	@commands.has_permissions(ban_members=True)
 	async def ban(
-		self, ctx, member:discord.Member, type_time:str=None, *, reason:str=None
+		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = None
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -754,10 +786,10 @@ class Moderate(commands.Cog, name="Moderate"):
 		name="un-ban",
 		description="**Снимает бан из указаного учасника**",
 		usage="un-ban [@Пользователь]",
-		help="**Примеры использования:**\n1. {Prefix}un-ban @Ник+тэг\n2. {Prefix}un-ban 660110922865704980\n\n**Пример 1:** Разбанит указаного пользователя\n**Пример 2:** Разбанит пользователя с указаным id"
+		help="**Примеры использования:**\n1. {Prefix}un-ban @Ник+тэг\n2. {Prefix}un-ban 660110922865704980\n\n**Пример 1:** Разбанит указаного пользователя\n**Пример 2:** Разбанит пользователя с указаным id",
 	)
 	@commands.has_permissions(ban_members=True)
-	async def unban(self, ctx, *, member:discord.User):
+	async def unban(self, ctx, *, member: discord.User):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -808,11 +840,11 @@ class Moderate(commands.Cog, name="Moderate"):
 		brief="True",
 		description="**Мьютит указаного участника в голосовых каналах**",
 		usage="vmute [@Участник] |Длительность| |Причина|",
-		help="**Примеры использования:**\n1. {Prefix}vmute @Участник 10d Нарушения правил сервера\n2. {Prefix}vmute 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}vmute @Участник 10d\n4. {Prefix}vmute 660110922865704980 10d\n5. {Prefix}vmute @Участник\n6. {Prefix}vmute 660110922865704980\n7. {Prefix}vmute @Участник Нарушения правил сервера\n8. {Prefix}vmute 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Мьютит упомянутого участника в голосовых каналах по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Мьютит участника с указаным id в голосовых каналах по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Мьютит упомянутого участника в голосовых каналах без причины на 10 дней\n**Пример 4:** Мьютит участника с указаным id в голосовых каналах без причины на 10 дней\n**Пример 5:** Перманентно мьютит упомянутого участника в голосовых каналах без причины\n**Пример 6:** Перманентно мьютит участника с указаным id в голосовых каналах без причины\n**Пример 7:** Перманентно мьютит упомянутого участника в голосовых каналах по причине\n`Нарушения правил сервера`\n**Пример 8:** Перманентно мьютит участника с указаным id в голосовых каналах по причине\n`Нарушения правил сервера`"
+		help="**Примеры использования:**\n1. {Prefix}vmute @Участник 10d Нарушения правил сервера\n2. {Prefix}vmute 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}vmute @Участник 10d\n4. {Prefix}vmute 660110922865704980 10d\n5. {Prefix}vmute @Участник\n6. {Prefix}vmute 660110922865704980\n7. {Prefix}vmute @Участник Нарушения правил сервера\n8. {Prefix}vmute 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Мьютит упомянутого участника в голосовых каналах по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Мьютит участника с указаным id в голосовых каналах по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Мьютит упомянутого участника в голосовых каналах без причины на 10 дней\n**Пример 4:** Мьютит участника с указаным id в голосовых каналах без причины на 10 дней\n**Пример 5:** Перманентно мьютит упомянутого участника в голосовых каналах без причины\n**Пример 6:** Перманентно мьютит участника с указаным id в голосовых каналах без причины\n**Пример 7:** Перманентно мьютит упомянутого участника в голосовых каналах по причине\n`Нарушения правил сервера`\n**Пример 8:** Перманентно мьютит участника с указаным id в голосовых каналах по причине\n`Нарушения правил сервера`",
 	)
 	@commands.check(check_role)
 	async def vmute(
-		self, ctx, member:discord.Member, type_time:str=None, reason:str=None
+		self, ctx, member: discord.Member, type_time: str = None, reason: str = None
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -952,13 +984,22 @@ class Moderate(commands.Cog, name="Moderate"):
 				timestamp=datetime.utcnow(),
 			)
 			e.add_field(
-				name=f"Модератором {str(ctx.author)}", 
-				value=f"На {vmute_time} {vmute_typetime}" if vmute_minutes != 0 else "Перманентно", 
+				name=f"Модератором {str(ctx.author)}",
+				value=f"На {vmute_time} {vmute_typetime}"
+				if vmute_minutes != 0
+				else "Перманентно",
 				inline=False,
 			)
-			e.add_field(name="Причина", value=reason, inline=False,)
+			e.add_field(
+				name="Причина",
+				value=reason,
+				inline=False,
+			)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(name="Журнал аудита | Голосовой мьют пользователя", icon_url=ctx.author.avatar_url)
+			e.set_author(
+				name="Журнал аудита | Голосовой мьют пользователя",
+				icon_url=ctx.author.avatar_url,
+			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
@@ -968,10 +1009,10 @@ class Moderate(commands.Cog, name="Moderate"):
 		name="un-vmute",
 		description="**Снимает мьют с указаного участника в голосовых каналах**",
 		usage="un-vmute [@Участник]",
-		help="**Примеры использования:**\n1. {Prefix}un-vmute @Участник\n2. {Prefix}un-vmute 660110922865704980\n\n**Пример 1:** Размьютит указаного участника в голосовых каналах\n**Пример 2:** Размьютит участника с указаным id в голосовых каналах"
+		help="**Примеры использования:**\n1. {Prefix}un-vmute @Участник\n2. {Prefix}un-vmute 660110922865704980\n\n**Пример 1:** Размьютит указаного участника в голосовых каналах\n**Пример 2:** Размьютит участника с указаным id в голосовых каналах",
 	)
 	@commands.check(check_role)
-	async def unvmute(self, ctx, member:discord.Member):
+	async def unvmute(self, ctx, member: discord.Member):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
@@ -1026,9 +1067,18 @@ class Moderate(commands.Cog, name="Moderate"):
 						colour=discord.Color.green(),
 						timestamp=datetime.utcnow(),
 					)
-					e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
-					e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-					e.set_author(name="Журнал аудита | Голосовой размьют пользователя", icon_url=ctx.author.avatar_url)
+					e.add_field(
+						name="Модератором",
+						value=str(ctx.author),
+						inline=False,
+					)
+					e.add_field(
+						name="Id Участника", value=f"`{member.id}`", inline=False
+					)
+					e.set_author(
+						name="Журнал аудита | Голосовой размьют пользователя",
+						icon_url=ctx.author.avatar_url,
+					)
 					e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 					await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 				return
@@ -1037,11 +1087,11 @@ class Moderate(commands.Cog, name="Moderate"):
 		brief="True",
 		description="**Мютит учасника по указаной причине (На выбор, можно без причины)**",
 		usage="mute [@Участник] |Длительность| |Причина|",
-		help="**Примеры использования:**\n1. {Prefix}mute @Участник 10d Нарушения правил сервера\n2. {Prefix}mute 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}mute @Участник 10d\n4. {Prefix}mute 660110922865704980 10d\n5. {Prefix}mute @Участник\n6. {Prefix}mute 660110922865704980\n7. {Prefix}mute @Участник Нарушения правил сервера\n8. {Prefix}mute 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Мьютит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Мьютит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Мьютит упомянутого участника без причины на 10 дней\n**Пример 4:** Мьютит участника с указаным id без причины на 10 дней\n**Пример 5:** Перманентно мьютит упомянутого участника без причины\n**Пример 6:** Перманентно мьютит участника с указаным id без причины\n**Пример 7:** Перманентно мьютит упомянутого участника по причине\n`Нарушения правил сервера`\n**Пример 8:** Перманентно мьютит участника с указаным id по причине\n`Нарушения правил сервера`"
+		help="**Примеры использования:**\n1. {Prefix}mute @Участник 10d Нарушения правил сервера\n2. {Prefix}mute 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}mute @Участник 10d\n4. {Prefix}mute 660110922865704980 10d\n5. {Prefix}mute @Участник\n6. {Prefix}mute 660110922865704980\n7. {Prefix}mute @Участник Нарушения правил сервера\n8. {Prefix}mute 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Мьютит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Мьютит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Мьютит упомянутого участника без причины на 10 дней\n**Пример 4:** Мьютит участника с указаным id без причины на 10 дней\n**Пример 5:** Перманентно мьютит упомянутого участника без причины\n**Пример 6:** Перманентно мьютит участника с указаным id без причины\n**Пример 7:** Перманентно мьютит упомянутого участника по причине\n`Нарушения правил сервера`\n**Пример 8:** Перманентно мьютит участника с указаным id по причине\n`Нарушения правил сервера`",
 	)
 	@commands.check(check_role)
 	async def mute(
-		self, ctx, member:discord.Member, type_time:str=None, *, reason:str=None
+		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = None
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -1284,16 +1334,23 @@ class Moderate(commands.Cog, name="Moderate"):
 				timestamp=datetime.utcnow(),
 			)
 			e.add_field(
-				name=f"Модератором {str(ctx.author)}", 
-				value=f"На {mute_time} {mute_typetime}" if mute_minutes != 0 else "Перманентно", 
+				name=f"Модератором {str(ctx.author)}",
+				value=f"На {mute_time} {mute_typetime}"
+				if mute_minutes != 0
+				else "Перманентно",
 				inline=False,
 			)
-			e.add_field(name="Причина", value=reason, inline=False,)
+			e.add_field(
+				name="Причина",
+				value=reason,
+				inline=False,
+			)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(name="Журнал аудита | Мьют пользователя", icon_url=ctx.author.avatar_url)
+			e.set_author(
+				name="Журнал аудита | Мьют пользователя", icon_url=ctx.author.avatar_url
+			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
-
 
 	@commands.command(
 		aliases=["unmute"],
@@ -1301,10 +1358,10 @@ class Moderate(commands.Cog, name="Moderate"):
 		name="un-mute",
 		description="**Размютит указаного учасника**",
 		usage="un-mute [@Участник]",
-		help="**Примеры использования:**\n1. {Prefix}un-mute @Участник\n2. {Prefix}un-mute 660110922865704980\n\n**Пример 1:** Размьютит указаного участника\n**Пример 2:** Размьютит участника с указаным id"
+		help="**Примеры использования:**\n1. {Prefix}un-mute @Участник\n2. {Prefix}un-mute 660110922865704980\n\n**Пример 1:** Размьютит указаного участника\n**Пример 2:** Размьютит участника с указаным id",
 	)
 	@commands.check(check_role)
-	async def unmute(self, ctx, member:discord.Member):
+	async def unmute(self, ctx, member: discord.Member):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
@@ -1355,9 +1412,16 @@ class Moderate(commands.Cog, name="Moderate"):
 				colour=discord.Color.green(),
 				timestamp=datetime.utcnow(),
 			)
-			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
+			e.add_field(
+				name="Модератором",
+				value=str(ctx.author),
+				inline=False,
+			)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(name="Журнал аудита | Размьют пользователя", icon_url=ctx.author.avatar_url)
+			e.set_author(
+				name="Журнал аудита | Размьют пользователя",
+				icon_url=ctx.author.avatar_url,
+			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
@@ -1367,10 +1431,10 @@ class Moderate(commands.Cog, name="Moderate"):
 		name="clear-warns",
 		description="**Очищает предупреждения в указаного пользователя**",
 		usage="clear-warns [@Участник]",
-		help="**Примеры использования:**\n1. {Prefix}clear-warns @Участник\n2. {Prefix}clear-warns 660110922865704980\n\n**Пример 1:** Очищает все предупреждения указаного участника\n**Пример 2:** Очищает все предупреждения участника с указаным id"
+		help="**Примеры использования:**\n1. {Prefix}clear-warns @Участник\n2. {Prefix}clear-warns 660110922865704980\n\n**Пример 1:** Очищает все предупреждения указаного участника\n**Пример 2:** Очищает все предупреждения участника с указаным id",
 	)
 	@commands.check(check_role)
-	async def clearwarn(self, ctx, member:discord.Member):
+	async def clearwarn(self, ctx, member: discord.Member):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
@@ -1425,9 +1489,16 @@ class Moderate(commands.Cog, name="Moderate"):
 				colour=discord.Color.green(),
 				timestamp=datetime.utcnow(),
 			)
-			e.add_field(name="Модератором", value=str(ctx.author), inline=False,)
+			e.add_field(
+				name="Модератором",
+				value=str(ctx.author),
+				inline=False,
+			)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(name="Журнал аудита | Снятия всех предупреждений пользователя", icon_url=ctx.author.avatar_url)
+			e.set_author(
+				name="Журнал аудита | Снятия всех предупреждений пользователя",
+				icon_url=ctx.author.avatar_url,
+			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
@@ -1435,10 +1506,10 @@ class Moderate(commands.Cog, name="Moderate"):
 		brief="True",
 		description="**Дает придупреждения учаснику по указаной причине**",
 		usage="warn [@Участник] |Причина|",
-		help="**Примеры использования:**\n1. {Prefix}warn @Участник Нарушения правил сервера\n2. {Prefix}warn 660110922865704980 Нарушения правил сервера\n3. {Prefix}warn @Участник\n4. {Prefix}warn 660110922865704980\n\n**Пример 1:** Даёт предупреждения упомянутого участнику по причине `Нарушения правил сервера`\n**Пример 2:** Даёт предупреждения участнику с указаным id по причине\n`Нарушения правил сервера`\n**Пример 3:** Даёт предупреждения упомянутого участнику без причины\n**Пример 4:** Даёт предупреждения участнику с указаным id без причины"
+		help="**Примеры использования:**\n1. {Prefix}warn @Участник Нарушения правил сервера\n2. {Prefix}warn 660110922865704980 Нарушения правил сервера\n3. {Prefix}warn @Участник\n4. {Prefix}warn 660110922865704980\n\n**Пример 1:** Даёт предупреждения упомянутого участнику по причине `Нарушения правил сервера`\n**Пример 2:** Даёт предупреждения участнику с указаным id по причине\n`Нарушения правил сервера`\n**Пример 3:** Даёт предупреждения упомянутого участнику без причины\n**Пример 4:** Даёт предупреждения участнику с указаным id без причины",
 	)
 	@commands.check(check_role)
-	async def warn(self, ctx, member:discord.Member, *, reason:str=None):
+	async def warn(self, ctx, member: discord.Member, *, reason: str = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
@@ -1617,13 +1688,20 @@ class Moderate(commands.Cog, name="Moderate"):
 				timestamp=datetime.utcnow(),
 			)
 			e.add_field(
-				name=f"Модератором {str(ctx.author)}", 
-				value=f"Id предупреждения - {warn_id}", 
+				name=f"Модератором {str(ctx.author)}",
+				value=f"Id предупреждения - {warn_id}",
 				inline=False,
 			)
-			e.add_field(name="Причина", value=reason, inline=False,)
+			e.add_field(
+				name="Причина",
+				value=reason,
+				inline=False,
+			)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(name="Журнал аудита | Предупреждения пользователя", icon_url=ctx.author.avatar_url)
+			e.set_author(
+				name="Журнал аудита | Предупреждения пользователя",
+				icon_url=ctx.author.avatar_url,
+			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
@@ -1633,10 +1711,10 @@ class Moderate(commands.Cog, name="Moderate"):
 		name="remove-warn",
 		description="**Снимает указаное предупреждения в участика**",
 		usage="remove-warn [Id предупреждения]",
-		help="**Примеры использования:**\n1. {Prefix}remove-warn 1\n\n**Пример 1:** Снимает прежупреждения с id - `1`"
+		help="**Примеры использования:**\n1. {Prefix}remove-warn 1\n\n**Пример 1:** Снимает прежупреждения с id - `1`",
 	)
 	@commands.check(check_role)
-	async def rem_warn(self, ctx, warn_id:int):
+	async def rem_warn(self, ctx, warn_id: int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		data = DB().del_warn(ctx.guild.id, warn_id)
@@ -1668,21 +1746,28 @@ class Moderate(commands.Cog, name="Moderate"):
 				timestamp=datetime.utcnow(),
 			)
 			e.add_field(
-				name=f"Модератором {str(ctx.author)}", 
-				value=f"Id предупреждения - {warn_id}", 
+				name=f"Модератором {str(ctx.author)}",
+				value=f"Id предупреждения - {warn_id}",
 				inline=False,
 			)
-			e.add_field(name="Id Участника", value=f"`{ctx.guild.get_member(data[0]).id}`", inline=False)
-			e.set_author(name="Журнал аудита | Снятий предупреждения пользователя", icon_url=ctx.author.avatar_url)
+			e.add_field(
+				name="Id Участника",
+				value=f"`{ctx.guild.get_member(data[0]).id}`",
+				inline=False,
+			)
+			e.set_author(
+				name="Журнал аудита | Снятий предупреждения пользователя",
+				icon_url=ctx.author.avatar_url,
+			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
 
 	@commands.command(
-		description="**Показывает список предупреждений**", 
+		description="**Показывает список предупреждений**",
 		usage="warns |@Участник|",
-		help="**Примеры использования:**\n1. {Prefix}warns @Участник\n2. {Prefix}warns 660110922865704980\n\n**Пример 1:** Показывает предупреждения указаного участника\n**Пример 2:** Показывает предупреждения участника с указаным id"
+		help="**Примеры использования:**\n1. {Prefix}warns @Участник\n2. {Prefix}warns 660110922865704980\n\n**Пример 1:** Показывает предупреждения указаного участника\n**Пример 2:** Показывает предупреждения участника с указаным id",
 	)
-	async def warns(self, ctx, member:discord.Member=None):
+	async def warns(self, ctx, member: discord.Member = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 

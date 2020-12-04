@@ -20,10 +20,10 @@ class DB:
 
 	def set_reminder(
 		self,
-		member:discord.Member,
-		channel:discord.TextChannel,
-		time:float,
-		text:str,
+		member: discord.Member,
+		channel: discord.TextChannel,
+		time: float,
+		text: str,
 	) -> typing.Union[int, bool]:
 		self.cursor.execute(
 			("""SELECT id FROM reminders WHERE user_id = %s AND user_id = %s"""),
@@ -52,7 +52,7 @@ class DB:
 
 		return new_id
 
-	def get_reminder(self, target:discord.Member=None) -> list:
+	def get_reminder(self, target: discord.Member = None) -> list:
 		if target is not None:
 			sql = """SELECT * FROM reminders WHERE user_id = %s AND guild_id = %s"""
 			val = (target.id, target.guild.id)
@@ -63,8 +63,10 @@ class DB:
 			self.cursor.execute("""SELECT * FROM reminders""")
 			return self.cursor.fetchall()
 
-	def del_reminder(self, member:discord.Member, reminder_id:int) -> bool:
-		self.cursor.execute(f"""SELECT * FROM reminders WHERE guild_id = {member.guild.id}""")
+	def del_reminder(self, member: discord.Member, reminder_id: int) -> bool:
+		self.cursor.execute(
+			f"""SELECT * FROM reminders WHERE guild_id = {member.guild.id}"""
+		)
 		reminders = self.cursor.fetchall()
 		for reminder in reminders:
 			if reminder[0] == reminder_id:
@@ -119,7 +121,7 @@ class DB:
 
 		return new_id
 
-	def del_warn(self, guild_id:int, warn_id:int) -> typing.Union[bool, tuple]:
+	def del_warn(self, guild_id: int, warn_id: int) -> typing.Union[bool, tuple]:
 		try:
 			self.cursor.execute(
 				("""UPDATE warns SET state = %s WHERE id = %s"""), ("False", warn_id)
@@ -161,7 +163,7 @@ class DB:
 		self.cursor.execute(sql, val)
 		self.conn.commit()
 
-	def del_mute(self, member_id:int, guild_id:int) -> bool:
+	def del_mute(self, member_id: int, guild_id: int) -> bool:
 		try:
 			self.cursor.execute(
 				("""DELETE FROM mutes WHERE user_id = %s AND guild_id = %s"""),
@@ -182,10 +184,10 @@ class DB:
 
 	def set_punishment(
 		self,
-		type_punishment:str,
-		time:float,
+		type_punishment: str,
+		time: float,
 		member: discord.Member,
-		role_id:int=0,
+		role_id: int = 0,
 		**kwargs,
 	) -> None:
 		self.cursor.execute(
@@ -215,7 +217,7 @@ class DB:
 			self.cursor.execute(sql, val)
 			self.conn.commit()
 
-	def get_punishment(self, member:discord.Member=None) -> list:
+	def get_punishment(self, member: discord.Member = None) -> list:
 		if member is not None:
 			sql = """SELECT * FROM punishments WHERE member = %s AND member = %s"""
 			val = member.id
@@ -231,7 +233,7 @@ class DB:
 		return data
 
 	def del_punishment(
-		self, member:discord.Member, guild_id:int, type_punishment:str
+		self, member: discord.Member, guild_id: int, type_punishment: str
 	) -> None:
 		if type_punishment == "mute":
 			self.del_mute(member.id, member.guild.id)
@@ -399,14 +401,18 @@ class DB:
 
 		return dict_data
 
-	def query_execute(self, query:str, val:typing.Union[tuple, list]=(), fetchone:bool=False) -> list:
+	def query_execute(
+		self, query: str, val: typing.Union[tuple, list] = (), fetchone: bool = False
+	) -> list:
 		self.cursor.execute(query, val)
 		if fetchone:
 			return self.cursor.fetchone()
 		else:
 			return self.cursor.fetchall()
 
-	def add_amout_command(self, entity:str="all commands", add_counter:typing.Union[int, float]=None) -> None:
+	def add_amout_command(
+		self, entity: str = "all commands", add_counter: typing.Union[int, float] = None
+	) -> None:
 		try:
 			self.cursor.execute(
 				f"""SELECT * FROM bot_stats WHERE entity = '{entity}'"""

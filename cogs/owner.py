@@ -5,8 +5,7 @@ import ast
 import math
 import random
 
-from .tools import DB
-from .tools import template_engine as TemplateEngine
+from tools import DB, template_engine as TemplateEngine
 
 from discord.ext import commands
 from colorama import *
@@ -170,6 +169,7 @@ class Owner(commands.Cog, name="Owner"):
 		await ctx.channel.purge(limit=purge)
 		command = self.client.get_command(command)
 		command.reset_cooldown(ctx)
+
 
 def setup(client):
 	client.add_cog(Owner(client))

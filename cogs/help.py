@@ -1,7 +1,7 @@
 import discord
 import random
 
-from .tools import DB
+from tools import DB
 
 from discord.ext import commands
 from discord.utils import get
@@ -69,7 +69,7 @@ class Help(commands.Cog, name="Help"):
 	@commands.command(
 		help="**Примеры использования:**\n1. {Prefix}help\n2. {Prefix}help moderate\n2. {Prefix}help ban\n\n**Пример 1:** Показывает список всех команд бота\n**Пример 2:** Показывает список всех указаной групы\n**Пример 3:** Показывает документацию по указаной команде"
 	)
-	async def help(self, ctx, cog_name:str=None):
+	async def help(self, ctx, cog_name: str = None):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		exceptions = ["Help", "Loops", "Events", "Owner", "Errors"]

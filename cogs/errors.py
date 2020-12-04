@@ -1,7 +1,7 @@
 import discord
 import datetime
 
-from .tools import DB
+from tools import DB
 
 from discord.ext import commands
 from discord.utils import get

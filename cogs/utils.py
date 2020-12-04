@@ -5,7 +5,7 @@ import time
 import os
 import mysql.connector
 
-from .tools import DB
+from tools import DB
 
 from discord.ext import commands
 from discord.utils import get
@@ -42,10 +42,10 @@ class Utils(commands.Cog, name="Utils"):
 		brief="True",
 		description="**Устанавливает анти-рейд режим. Есть не сколько режимов, 1 - Слабый 5сек задержка в текстовых каналах и средний уровень модерации, 2 - Сильний 10сек задержка в текстовых каналах и високий уровень модерации, 3 - Найвисшый 15сек задержка в текстовых каналах и найвисшый уровень модерации**",
 		usage="anti-rade [Время действия] [Уровень защиты]",
-		help="**Примеры использования:**\n1. {Prefix}anti-rade 10 2\n\n**Пример 1:** Ставит анти-рейд режим второго уровня на 10 минут"
+		help="**Примеры использования:**\n1. {Prefix}anti-rade 10 2\n\n**Пример 1:** Ставит анти-рейд режим второго уровня на 10 минут",
 	)
 	@commands.check(check_role)
-	async def antirade(self, ctx, time:int, mode:int):
+	async def antirade(self, ctx, time: int, mode: int):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -118,7 +118,7 @@ class Utils(commands.Cog, name="Utils"):
 		name="ban-list",
 		description="**Показывает заблокированных пользователей**",
 		usage="ban-list",
-		help="**Примеры использования:**\n1. {Prefix}ban-list\n\n**Пример 1:** Показывает все баны сервера"
+		help="**Примеры использования:**\n1. {Prefix}ban-list\n\n**Пример 1:** Показывает все баны сервера",
 	)
 	@commands.check(check_role)
 	@commands.cooldown(2, 10, commands.BucketType.member)
@@ -161,11 +161,11 @@ class Utils(commands.Cog, name="Utils"):
 		hidden=True,
 		description="**Создает голосовой канал для создания приватных голосовых комнат**",
 		usage="voice-rooms [Вкл/Выкл]",
-		help="**Примеры использования:**\n1. {Prefix}voice-rooms вкл\n2. {Prefix}voice-rooms выкл\n\n**Пример 1:** Включает приватные голосовые комнаты на сервере\n**Пример 2:** Выключает приватные голосовые комнаты на сервере"
+		help="**Примеры использования:**\n1. {Prefix}voice-rooms вкл\n2. {Prefix}voice-rooms выкл\n\n**Пример 1:** Включает приватные голосовые комнаты на сервере\n**Пример 2:** Выключает приватные голосовые комнаты на сервере",
 	)
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
-	async def voicechannel(self, ctx, state:str):
+	async def voicechannel(self, ctx, state: str):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
@@ -227,11 +227,11 @@ class Utils(commands.Cog, name="Utils"):
 		hidden=True,
 		description="**Создает статистику сервера**",
 		usage="server-stats [Счетчик]",
-		help="**Примеры использования:**\n1. {Prefix}server-stats all\n2. {Prefix}server-stats сообщения\n\n**Пример 1:** Создаёт счетчик всех пользователей сервера\n**Пример 2:** Создаёт сообщения в текущем канале с основной информацией о сервере"
+		help="**Примеры использования:**\n1. {Prefix}server-stats all\n2. {Prefix}server-stats сообщения\n\n**Пример 1:** Создаёт счетчик всех пользователей сервера\n**Пример 2:** Создаёт сообщения в текущем канале с основной информацией о сервере",
 	)
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
-	async def serverstats(self, ctx, stats_count:str):
+	async def serverstats(self, ctx, stats_count: str):
 		data = DB().sel_guild(guild=ctx.guild)["server_stats"]
 		members_count = len(
 			[
@@ -294,16 +294,18 @@ class Utils(commands.Cog, name="Utils"):
 				if member is not None:
 					if not member.bot:
 						if len(member.name) > 15:
-							member = member.name[:15]+"..."+"#"+member.discriminator
+							member = (
+								member.name[:15] + "..." + "#" + member.discriminator
+							)
 						description += f"""\n`{num}. {str(member)} {profile[1]}exp {profile[2]}$ {profile[3]}rep {json.loads(profile[4])[1]}msg`"""
 						num += 1
-			
+
 			description += f"""\n\n**Общая инфомация**\n:baby:Пользователей: **{ctx.guild.member_count}**\n:family_man_girl_boy:Участников: **{len([m.id for m in ctx.guild.members if not m.bot])}**\n<:bot:731819847905837066>Ботов: **{len([m.id for m in ctx.guild.members if m.bot])}**\n<:voice_channel:730399079418429561>Голосовых подключений: **{sum([len(v.members) for v in ctx.guild.voice_channels])}**\n<:text_channel:730396561326211103>Каналов: **{len([c.id for c in ctx.guild.channels])}**\n<:role:730396229220958258>Ролей: **{len([r.id for r in ctx.guild.roles])}**\n:star:Всего опыта: **{all_exp}**\n\n**Статусы участников**\n<:online:730393440046809108>`{online}`  <:offline:730392846573633626>`{offline}`\n<:sleep:730390502972850256>`{sleep}`  <:mobile:777854822300385291>`{len([m.id for m in ctx.guild.members if m.is_on_mobile()])}`\n<:dnd:730391353929760870>`{dnd}` <:boost:777854437724127272>`{len(set(ctx.guild.premium_subscribers))}`"""
 
 			emb = discord.Embed(
 				title="Статистика сервера",
 				description=description,
-				colour=discord.Color.green()
+				colour=discord.Color.green(),
 			)
 			emb.set_author(
 				name=self.client.user.name, icon_url=self.client.user.avatar_url
@@ -367,12 +369,12 @@ class Utils(commands.Cog, name="Utils"):
 		hidden=True,
 		description="**Удаляет или добавляет роль участникам с указаной ролью**",
 		usage="mass-role [add/remove] [@Роль] [@Изменяемая роль]",
-		help="**Примеры использования:**\n1. {Prefix}mass-role add @Роль @ИзменяемаяРоль\n2. {Prefix}mass-role add 717776604461531146 717776604461531146\n3. {Prefix}mass-role remove @Роль @ИзменяемаяРоль\n4. {Prefix}mass-role remove 717776604461531146 717776604461531146\n\n**Пример 1:** Добавляет упомянутою роль участникам с упомянутою ролью\n**Пример 2:** Добавляет роль с указаным id участникам с ролью с указаным id\n**Пример 3:** Убирает упомянутою роль в участников с упомянутой ролью\n**Пример 4:** Убирает роль с указаным id в участников с ролью с указаным id"
+		help="**Примеры использования:**\n1. {Prefix}mass-role add @Роль @ИзменяемаяРоль\n2. {Prefix}mass-role add 717776604461531146 717776604461531146\n3. {Prefix}mass-role remove @Роль @ИзменяемаяРоль\n4. {Prefix}mass-role remove 717776604461531146 717776604461531146\n\n**Пример 1:** Добавляет упомянутою роль участникам с упомянутою ролью\n**Пример 2:** Добавляет роль с указаным id участникам с ролью с указаным id\n**Пример 3:** Убирает упомянутою роль в участников с упомянутой ролью\n**Пример 4:** Убирает роль с указаным id в участников с ролью с указаным id",
 	)
 	@commands.cooldown(1, 1800, commands.BucketType.member)
 	@commands.has_permissions(administrator=True)
 	async def mass_role(
-		self, ctx, type_act:str, for_role:discord.Role, role:discord.Role
+		self, ctx, type_act: str, for_role: discord.Role, role: discord.Role
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -423,7 +425,7 @@ class Utils(commands.Cog, name="Utils"):
 		name="list-moderators",
 		description="**Показывает список ролей модераторов**",
 		usage="list-moderators",
-		help="**Примеры использования:**\n1. {Prefix}list-moderators\n\n**Пример 1:** Показывает список ролей модераторов"
+		help="**Примеры использования:**\n1. {Prefix}list-moderators\n\n**Пример 1:** Показывает список ролей модераторов",
 	)
 	@commands.check(check_role)
 	@commands.cooldown(2, 10, commands.BucketType.member)
@@ -449,7 +451,7 @@ class Utils(commands.Cog, name="Utils"):
 		name="list-mutes",
 		description="Показывает все мьюты на сервере",
 		usage="list-mutes",
-		help="**Примеры использования:**\n1. {Prefix}list-mutes\n\n**Пример 1:** Показывает все мьюты на сервере"
+		help="**Примеры использования:**\n1. {Prefix}list-mutes\n\n**Пример 1:** Показывает все мьюты на сервере",
 	)
 	@commands.check(check_role)
 	@commands.cooldown(2, 10, commands.BucketType.member)
@@ -482,7 +484,7 @@ class Utils(commands.Cog, name="Utils"):
 		hidden=True,
 		description="**Отправляет ключ API сервера**",
 		usage="api-key",
-		help="**Примеры использования:**\n1. {Prefix}api-key\n\n**Пример 1:** Отправляет ключ API сервера"
+		help="**Примеры использования:**\n1. {Prefix}api-key\n\n**Пример 1:** Отправляет ключ API сервера",
 	)
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
@@ -492,7 +494,9 @@ class Utils(commands.Cog, name="Utils"):
 
 		key = DB().sel_guild(guild=ctx.guild)["api_key"]
 
-		await ctx.author.send(f"Ключ API сервера - {ctx.guild.name}: `{key}`\n**__Никому его не передавайте. Он даёт доступ к данным сервера__**")
+		await ctx.author.send(
+			f"Ключ API сервера - {ctx.guild.name}: `{key}`\n**__Никому его не передавайте. Он даёт доступ к данным сервера__**"
+		)
 		await ctx.message.add_reaction("✅")
 
 

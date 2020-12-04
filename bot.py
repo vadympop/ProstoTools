@@ -2,8 +2,8 @@ import discord
 import traceback
 import datetime
 
-from cogs.tools import DB
-from cogs.tools import template_engine as temp_eng
+from tools import DB
+from tools import template_engine as temp_eng
 
 from loguru import logger
 from colorama import *
@@ -12,22 +12,38 @@ from configs import configs
 
 
 init()
-logger.add("data/logs/prostotoolsbot.log", format="{time} {level} {message}", level="ERROR", rotation="1 day", compression="zip")
-extensions = [
+logger.add(
+	"data/logs/prostotoolsbot.log",
+	format="{time} {level} {message}",
+	level="ERROR",
+	rotation="1 day",
+	compression="zip",
+)
+extensions = (
 	"cogs.clans",
 	"cogs.different",
 	"cogs.economy",
 	"cogs.errors",
-	"cogs.events",
 	"cogs.games",
 	"cogs.help",
-	"cogs.loops",
 	"cogs.moderate",
 	"cogs.owner",
 	"cogs.settings",
 	"cogs.utils",
 	"cogs.works",
-]
+	"tasks.message_stat",
+	"tasks.other",
+	"tasks.punishments",
+	"tasks.server_stat",
+	"events.custom_voice_channel",
+	"events.join",
+	"events.leave",
+	"events.leveling",
+	"events.logs",
+	"events.other",
+	"events.reactions_commands",
+)
+
 
 class Client(commands.AutoShardedBot):
 	def __init__(self, command_prefix, case_insensitive, intents):
@@ -39,15 +55,15 @@ class Client(commands.AutoShardedBot):
 		self.remove_command("help")
 
 	async def on_ready(self):
-		logger.info(f"[PT-SYSTEM-LOGGING]:::{self.user.name} is connected to discord server")
+		logger.info(
+			f"[PT-SYSTEM-LOGGING]:::{self.user.name} is connected to discord server"
+		)
 		await self.change_presence(
 			status=discord.Status.online, activity=discord.Game(" *help | *invite ")
 		)
 
 	def clear_commands(self, guild):
-		data = DB().sel_guild(guild=guild)
-		purge = data["purge"]
-		return purge
+		return DB().sel_guild(guild=guild)["purge"]
 
 	def txt_dump(self, filename, filecontent):
 		with open(filename, "w", encoding="utf-8") as f:
@@ -58,13 +74,11 @@ class Client(commands.AutoShardedBot):
 			return f.read()
 
 	def get_guild_prefix(self, ctx):
-		data = DB().sel_guild(guild=ctx.guild)
-		return str(data["prefix"])
+		return str(DB().sel_guild(guild=ctx.guild)["prefix"])
 
 
 def get_prefix(client, message):
-	data = DB().sel_guild(guild=message.guild)
-	return str(data["prefix"])
+	return str(DB().sel_guild(guild=message.guild)["prefix"])
 
 
 client = Client(
@@ -72,11 +86,13 @@ client = Client(
 )
 temp_eng.client = client
 
+
 @client.command()
 @commands.is_owner()
 async def load(ctx, extension):
 	client.load_extension(extension)
 	logger.info(f"[PT-SYSTEM-COG]:::{extension} - Loaded")
+
 
 @client.command()
 @commands.is_owner()
@@ -84,39 +100,42 @@ async def unload(ctx, extension):
 	client.unload_extension(extension)
 	logger.info(f"[PT-SYSTEM-COG]:::{extension} - Unloaded")
 
+
 @client.command()
 @commands.is_owner()
 async def reload(ctx, extension):
-	if extension.lower() == 'all':
+	if extension.lower() == "all":
 		for extension in extensions:
 			try:
 				client.unload_extension(extension)
 				client.load_extension(extension)
 			except:
-				logger.error(f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension}")
+				logger.error(
+					f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension}"
+				)
 			else:
 				logger.info(f"[PT-SYSTEM-COG]:::{extension} - Reloaded")
-		await ctx.message.add_reaction('✅')
+		await ctx.message.add_reaction("✅")
 		return
-	
-	try:	
+
+	try:
 		client.unload_extension(extension)
 		client.load_extension(extension)
 	except:
 		logger.error(f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension}")
 		return
 	logger.info(f"[PT-SYSTEM-COG]:::{extension} - Reloaded")
-	await ctx.message.add_reaction('✅')
+	await ctx.message.add_reaction("✅")
 
-def main():
+
+if __name__ == "__main__":
 	for extension in extensions:
 		try:
 			client.load_extension(extension)
 		except:
-			logger.error(f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension}")
+			logger.error(
+				f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension}"
+			)
 		else:
-			logger.info(f"[PT-SYSTEM-COG]:::{extension} - Reloaded")
-
-if __name__ == "__main__":
-	main()
+			logger.info(f"[PT-SYSTEM-COG]:::{extension} - Loaded")
 	client.run(configs["TOKEN"])

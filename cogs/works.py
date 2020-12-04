@@ -3,7 +3,7 @@ import os
 import random
 import mysql.connector
 
-from .tools import DB
+from tools import DB
 
 from discord.ext import commands
 from random import randint
@@ -288,7 +288,7 @@ class Works(commands.Cog, name="Works"):
 		cur_items = data["items"]
 		cur_state_pr = data["prison"]
 
-		def cleaner_func(rnum1:int, rnum2:int):
+		def cleaner_func(rnum1: int, rnum2: int):
 			rnum = randint(rnum1, rnum2)
 
 			sql = """UPDATE users SET money = money + %s WHERE user_id = %s AND guild_id = %s"""
