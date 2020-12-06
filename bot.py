@@ -35,6 +35,7 @@ extensions = (
 	"tasks.other",
 	"tasks.punishments",
 	"tasks.server_stat",
+	"tasks.send_data",
 	"events.custom_voice_channel",
 	"events.join",
 	"events.leave",
