@@ -146,6 +146,20 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
+		if role >= ctx.guild.me.top_role:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Указаная роль выше моей роли!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
 		if ctx.author.top_role <= role and ctx.author != ctx.guild.owner:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -300,7 +314,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}kick @Участник Нарушения правил сервера\n2. {Prefix}kick 660110922865704980 Нарушения правил сервера\n3. {Prefix}kick @Участник\n4. {Prefix}kick 660110922865704980\n\n**Пример 1:** Кикает с сервера упомянутого участника по причине `Нарушения правил сервера`\n**Пример 2:** Кикает с сервера участника с указаным id по причине `Нарушения правил сервера`\n**Пример 3:** Кикает с сервера упомянутого участника без причины\n**Пример 4:** Кикает с сервера участника с указаным id без причины",
 	)
 	@commands.check(check_role)
-	async def kick(self, ctx, member: discord.Member, *, reason: str = None):
+	async def kick(self, ctx, member: discord.Member, *, reason: str = "Причина не указана"):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
@@ -309,6 +323,34 @@ class Moderate(commands.Cog, name="Moderate"):
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="Вы не можете применить эту команду к себе!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member == ctx.guild.owner:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете выгнать владельца сервера!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member.top_role >= ctx.guild.me.top_role:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете выгнать этого участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -332,9 +374,6 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction("❌")
 			return
-
-		if reason is None:
-			reason = "Причина не указана"
 
 		await member.kick(reason=reason)
 
@@ -390,7 +429,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def softban(
-		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = None
+		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = "Причина не указана"
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -400,6 +439,34 @@ class Moderate(commands.Cog, name="Moderate"):
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="Вы не можете применить эту команду к себе!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member == ctx.guild.owner:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете забанить владельца сервера!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member.top_role >= ctx.guild.me.top_role:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете забанить этого участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -488,9 +555,6 @@ class Moderate(commands.Cog, name="Moderate"):
 			softban_minutes = softban_time
 
 		times = time.time() + softban_minutes
-
-		if reason is None:
-			reason = "Причина не указана"
 
 		emb = discord.Embed(
 			description=f"**{ctx.author.mention} Апаратно забанил `{member}` по причине {reason}**",
@@ -584,6 +648,34 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
+		if member == ctx.guild.owner:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете разбанить владельца сервера!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member.top_role >= ctx.guild.me.top_role:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете разбанить этого участника!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
 		emb = discord.Embed(
 			description=f"**{ctx.author.mention} Разбанил `{member}`**",
 			colour=discord.Color.green(),
@@ -637,7 +729,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.has_permissions(ban_members=True)
 	async def ban(
-		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = None
+		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = "Причина не указана"
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -646,6 +738,34 @@ class Moderate(commands.Cog, name="Moderate"):
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="Вы не можете применить эту команду к себе!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+		
+		if member == ctx.guild.owner:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете забанить владельца сервера!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member.top_role >= ctx.guild.me.top_role:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете забанить этого участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -748,9 +868,6 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		times = time.time() + ban_minutes
 
-		if reason is None:
-			reason = "Причина не указана"
-
 		await member.ban(reason=reason)
 		emb = discord.Embed(
 			description=f"**{ctx.author.mention} Забанил `{member}` по причине {reason}**",
@@ -807,6 +924,34 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
+		if member == ctx.guild.owner:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете разбанить владельца сервера!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member.top_role >= ctx.guild.me.top_role:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете разбанить этого участника!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
 		banned_users = await ctx.guild.bans()
 		for ban_entry in banned_users:
 			user = ban_entry.user
@@ -844,7 +989,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def vmute(
-		self, ctx, member: discord.Member, type_time: str = None, reason: str = None
+		self, ctx, member: discord.Member, type_time: str = None, reason: str = "Причина не указана"
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -854,6 +999,34 @@ class Moderate(commands.Cog, name="Moderate"):
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="Вы не можете применить эту команду к себе!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member == ctx.guild.owner:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете замьютить в голосовых каналах владельца сервера!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member.top_role >= ctx.guild.me.top_role:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете замьютить в голосовых каналах этого участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -877,9 +1050,6 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction("❌")
 			return
-
-		if reason is None:
-			reason = "Причина не указанна"
 
 		if type_time is not None:
 			vmute_time = int("".join(char for char in type_time if not char.isalpha()))
@@ -1031,6 +1201,34 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
+		if member == ctx.guild.owner:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете размьють в голосовых каналах владельца сервера!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member.top_role >= ctx.guild.me.top_role:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете размьютить в голосовых каналах этого участника!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
 		for vmute_role in ctx.guild.roles:
 			if vmute_role.name == self.VMUTE_ROLE:
 				DB().del_punishment(
@@ -1091,7 +1289,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def mute(
-		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = None
+		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = "Причина не указана"
 	):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
@@ -1101,6 +1299,34 @@ class Moderate(commands.Cog, name="Moderate"):
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="Вы не можете применить эту команду к себе!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member == ctx.guild.owner:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете замьютить владельца сервера!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member.top_role >= ctx.guild.me.top_role:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете замьютить этого участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -1187,9 +1413,6 @@ class Moderate(commands.Cog, name="Moderate"):
 			mute_minutes = mute_time
 
 		times = time.time() + mute_minutes
-
-		if reason is None:
-			reason = "Причина не указана"
 
 		if member in ctx.guild.members:
 			data = DB().sel_user(target=member)
@@ -1380,6 +1603,34 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
+		if member == ctx.guild.owner:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете размьютить владельца сервера!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member.top_role >= ctx.guild.me.top_role:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете размьютить этого участника!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
 		for role in ctx.guild.roles:
 			if role.name == self.MUTE_ROLE:
 				DB().del_punishment(
@@ -1509,7 +1760,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}warn @Участник Нарушения правил сервера\n2. {Prefix}warn 660110922865704980 Нарушения правил сервера\n3. {Prefix}warn @Участник\n4. {Prefix}warn 660110922865704980\n\n**Пример 1:** Даёт предупреждения упомянутого участнику по причине `Нарушения правил сервера`\n**Пример 2:** Даёт предупреждения участнику с указаным id по причине\n`Нарушения правил сервера`\n**Пример 3:** Даёт предупреждения упомянутого участнику без причины\n**Пример 4:** Даёт предупреждения участнику с указаным id без причины",
 	)
 	@commands.check(check_role)
-	async def warn(self, ctx, member: discord.Member, *, reason: str = None):
+	async def warn(self, ctx, member: discord.Member, *, reason: str = "Причина не указана"):
 		purge = self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
@@ -1518,6 +1769,34 @@ class Moderate(commands.Cog, name="Moderate"):
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="Вы не можете применить эту команду к себе!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member == ctx.guild.owner:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете дать предупреждения владельцу сервера!",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
+		if member.top_role >= ctx.guild.me.top_role:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="Вы не можете дать предупреждения этому участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -1555,9 +1834,6 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction("❌")
 			return
-
-		if reason is None:
-			reason = "Причина не указана"
 
 		if member in ctx.guild.members:
 			data = DB().sel_user(target=member)

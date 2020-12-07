@@ -371,6 +371,9 @@ class Clans(commands.Cog):
 				timestamp=datetime.utcnow(),
 			)
 			e.add_field(
+				name="Названия клана", value=f"""`{delete_clan["name"]}`""", inline=False
+			)
+			e.add_field(
 				name="Id клана", value=f"""`{delete_clan["id"]}`""", inline=False
 			)
 			e.set_author(
