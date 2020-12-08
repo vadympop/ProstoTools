@@ -26,7 +26,7 @@ class Different(commands.Cog, name="Different"):
 		self.client = client
 		self.conn = mysql.connector.connect(
 			user="root",
-			password=os.environ["DB_PASSWORD"],
+			password=os.getenv("DB_PASSWORD"),
 			host="localhost",
 			database="data",
 		)
