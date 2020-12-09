@@ -447,6 +447,11 @@ class Different(commands.Cog, name="Different"):
 			inline=False,
 		)
 		embed1.add_field(
+			name="Uptime:",
+			value=str(datetime.now()-self.client.launched_at),
+			inline=False
+		)
+		embed1.add_field(
 			name="Помощь:",
 			value="Приглашение Бота: [Тык](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)\nСервер помощьи: [Тык](https://discord.gg/CXB32Mq)",
 			inline=False,

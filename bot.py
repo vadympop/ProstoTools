@@ -62,6 +62,7 @@ class Client(commands.AutoShardedBot):
 		await self.change_presence(
 			status=discord.Status.online, activity=discord.Game(" *help | *invite ")
 		)
+		self.launched_at = datetime.datetime.now()
 
 	def clear_commands(self, guild):
 		return DB().sel_guild(guild=guild)["purge"]
