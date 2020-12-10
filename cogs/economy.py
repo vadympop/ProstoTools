@@ -16,7 +16,6 @@ from discord.ext import commands
 from discord.utils import get
 from PIL import Image, ImageFont, ImageDraw, ImageFilter, ImageEnhance, ImageOps
 from random import randint
-from configs import configs
 
 
 class Economy(commands.Cog, name="Economy"):
@@ -29,10 +28,10 @@ class Economy(commands.Cog, name="Economy"):
 			database="data",
 		)
 		self.cursor = self.conn.cursor(buffered=True)
-		self.FOOTER = configs["FOOTER_TEXT"]
-		self.BACKGROUND = configs["DEF_PROFILE_BG"]
-		self.FONT = configs["FONT"]
-		self.SAVE = configs["SAVE_IMG"]
+		self.FOOTER = self.client.config.FOOTER_TEXT
+		self.BACKGROUND = self.client.config.DEF_PROFILE_BG
+		self.FONT = self.client.config.FONT
+		self.SAVE = self.client.config.SAVE_IMG
 
 	@commands.command(
 		description="**Показывает лидеров по разных валютах**",

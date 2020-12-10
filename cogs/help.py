@@ -7,13 +7,12 @@ from discord.ext import commands
 from discord.utils import get
 from PIL import Image, ImageFont, ImageDraw, ImageFilter, ImageEnhance
 from random import randint
-from configs import configs
 
 
 class Help(commands.Cog, name="Help"):
 	def __init__(self, client):
 		self.client = client
-		self.FOOTER = configs["FOOTER_TEXT"]
+		self.FOOTER = self.client.config.FOOTER_TEXT
 		self._names = []
 		for cog in self.client.cogs:
 			for command in self.client.get_cog(cog).get_commands():

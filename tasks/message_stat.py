@@ -5,7 +5,6 @@ import mysql.connector
 
 from tools import DB
 
-from configs import configs
 from discord.ext import commands, tasks
 from discord.utils import get
 
@@ -21,7 +20,7 @@ class TasksMessageStat(commands.Cog):
 		)
 		self.cursor = self.conn.cursor(buffered=True)
 		self.message_stat_loop.start()
-		self.FOOTER = configs["FOOTER_TEXT"]
+		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@tasks.loop(minutes=5)
 	async def message_stat_loop(self):

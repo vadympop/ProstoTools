@@ -6,7 +6,7 @@ import mysql.connector
 
 from tools import DB
 
-from configs import configs
+from datetime import datetime
 from discord.ext import commands, tasks
 from discord.utils import get
 
@@ -25,7 +25,7 @@ class TasksPunishments(commands.Cog):
 		self.ban_loop.start()
 		self.temprole_loop.start()
 		self.vmute_loop.start()
-		self.FOOTER = configs["FOOTER_TEXT"]
+		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@tasks.loop(seconds=5)
 	async def mute_loop(self):
@@ -34,13 +34,14 @@ class TasksPunishments(commands.Cog):
 			guild = self.client.get_guild(int(mute[1]))
 			if mute[3] == "mute":
 				if guild is not None:
+					logs_channel_id = DB().sel_guild(guild=guild)["log_channel"]
 					member = guild.get_member(int(mute[0]))
 					if member is not None:
 						if float(mute_time) <= float(time.time()):
 							DB().del_punishment(
 								member=member, guild_id=guild.id, type_punishment="mute"
 							)
-							mute_role = await guild.get_role(int(mute[4]))
+							mute_role = guild.get_role(int(mute[4]))
 							await member.remove_roles(mute_role)
 
 							emb = discord.Embed(
@@ -58,6 +59,20 @@ class TasksPunishments(commands.Cog):
 								await member.send(embed=emb)
 							except:
 								pass
+
+							if logs_channel_id != 0:
+								e = discord.Embed(
+									description=f"Пользователь `{str(member)}` был размьючен",
+									colour=discord.Color.green(),
+									timestamp=datetime.utcnow(),
+								)
+								e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+								e.set_author(
+									name="Журнал аудита | Размьют пользователя",
+									icon_url=self.client.user.avatar_url,
+								)
+								e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+								await guild.get_channel(logs_channel_id).send(embed=e)
 
 	@tasks.loop(seconds=5)
 	async def ban_loop(self):
@@ -120,6 +135,7 @@ class TasksPunishments(commands.Cog):
 			guild = self.client.get_guild(int(vmute[1]))
 			if vmute[3] == "vmute":
 				if guild is not None:
+					logs_channel_id = DB().sel_guild(guild=guild)["log_channel"]
 					member = guild.get_member(int(vmute[0]))
 					if member is not None:
 						if float(vmute_time) <= float(time.time()):
@@ -128,7 +144,7 @@ class TasksPunishments(commands.Cog):
 								guild_id=guild.id,
 								type_punishment="vmute",
 							)
-							vmute_role = await guild.get_role(int(vmute[4]))
+							vmute_role = guild.get_role(int(vmute[4]))
 							await member.remove_roles(vmute_role)
 
 							overwrite = discord.PermissionOverwrite(connect=None)
@@ -152,6 +168,20 @@ class TasksPunishments(commands.Cog):
 								await member.send(embed=emb)
 							except:
 								pass
+
+							if logs_channel_id != 0:
+								e = discord.Embed(
+									description=f"Пользователь `{str(member)}` был размьючен в голосовых каналах",
+									colour=discord.Color.green(),
+									timestamp=datetime.utcnow(),
+								)
+								e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+								e.set_author(
+									name="Журнал аудита | Голосовой размьют пользователя",
+									icon_url=self.client.user.avatar_url,
+								)
+								e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+								await guild.get_channel(logs_channel_id).send(embed=e)
 
 
 def setup(client):

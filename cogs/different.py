@@ -18,7 +18,6 @@ from discord.ext import commands
 from discord.utils import get
 from random import randint
 from googletrans import Translator
-from configs import configs
 
 
 class Different(commands.Cog, name="Different"):
@@ -31,7 +30,7 @@ class Different(commands.Cog, name="Different"):
 			database="data",
 		)
 		self.cursor = self.conn.cursor(buffered=True)
-		self.FOOTER = configs["FOOTER_TEXT"]
+		self.FOOTER = self.client.config.FOOTER_TEXT
 		locale.setlocale(locale.LC_ALL, "ru")
 
 	@commands.command(

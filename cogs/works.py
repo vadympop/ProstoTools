@@ -7,7 +7,6 @@ from tools import DB
 
 from discord.ext import commands
 from random import randint
-from configs import configs
 
 
 class Works(commands.Cog, name="Works"):
@@ -20,7 +19,7 @@ class Works(commands.Cog, name="Works"):
 			database="data",
 		)
 		self.cursor = self.conn.cursor(buffered=True)
-		self.FOOTER = configs["FOOTER_TEXT"]
+		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.group(
 		help=f"""**Команды групы:** barman, treasurehunter, cleaner, windowasher, loader\n\n"""

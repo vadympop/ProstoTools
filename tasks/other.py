@@ -6,7 +6,6 @@ import mysql.connector
 
 from tools import DB
 
-from configs import configs
 from discord.ext import commands, tasks
 from discord.utils import get
 
@@ -25,7 +24,7 @@ class TasksOther(commands.Cog):
 		self.ping_stat_loop.start()
 		self.reminders_loop.start()
 		self.channel_loop.start()
-		self.FOOTER = configs["FOOTER_TEXT"]
+		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@tasks.loop(seconds=30)
 	async def reminders_loop(self):

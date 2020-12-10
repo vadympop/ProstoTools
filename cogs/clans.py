@@ -10,14 +10,13 @@ from tools import DB
 
 from datetime import datetime
 from string import ascii_uppercase
-from configs import configs
 from discord.ext import commands
 
 
 class Clans(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.FOOTER = configs["FOOTER_TEXT"]
+		self.FOOTER = self.client.config.FOOTER_TEXT
 		self.conn = mysql.connector.connect(
 			user="root",
 			password=os.getenv("DB_PASSWORD"),

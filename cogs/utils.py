@@ -10,7 +10,6 @@ from tools import DB
 from discord.ext import commands
 from discord.utils import get
 from random import randint
-from configs import configs
 
 
 def check_role(ctx):
@@ -36,7 +35,7 @@ class Utils(commands.Cog, name="Utils"):
 			database="data",
 		)
 		self.cursor = self.conn.cursor(buffered=True)
-		self.FOOTER = configs["FOOTER_TEXT"]
+		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.command(
 		brief="True",

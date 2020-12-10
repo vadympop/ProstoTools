@@ -1,7 +1,6 @@
 import os
 import mysql.connector
 
-
 from tools import DB
 from discord.ext import commands
 

@@ -5,7 +5,6 @@ import mysql.connector
 from tools import DB
 
 from discord.ext import commands
-from configs import configs
 
 
 class EventsLeave(commands.Cog):

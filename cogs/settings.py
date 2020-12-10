@@ -8,7 +8,7 @@ from tools import DB
 
 from discord.ext import commands
 from discord.utils import get
-from configs import configs
+from configs import Config
 
 
 def clear_commands(guild):
@@ -19,7 +19,7 @@ def clear_commands(guild):
 
 
 global Footer
-Footer = configs["FOOTER_TEXT"]
+Footer = Config.FOOTER_TEXT
 
 
 class Settings(commands.Cog, name="Settings"):

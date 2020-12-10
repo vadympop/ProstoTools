@@ -5,7 +5,6 @@ from tools import DB
 
 from discord.ext import commands
 from discord.utils import get
-from configs import configs
 from colorama import *
 
 init()
@@ -14,7 +13,7 @@ init()
 class Errors(commands.Cog, name="Errors"):
 	def __init__(self, client):
 		self.client = client
-		self.FOOTER = configs["FOOTER_TEXT"]
+		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	def dump(self, filename, filecontent):
 		with open(filename, "w", encoding="utf-8") as f:

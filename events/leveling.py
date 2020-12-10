@@ -11,7 +11,6 @@ from tools import Commands, DB
 from discord.ext import commands
 from discord.utils import get
 from random import randint
-from configs import configs
 
 
 class EventsLeveling(commands.Cog):
@@ -24,9 +23,9 @@ class EventsLeveling(commands.Cog):
 			database="data",
 		)
 		self.cursor = self.conn.cursor(buffered=True)
-		self.FOOTER = configs["FOOTER_TEXT"]
-		self.MUTE_ROLE = configs["MUTE_ROLE"]
-		self.HELP_SERVER = configs["HELP_SERVER"]
+		self.FOOTER = self.client.config.FOOTER_TEXT
+		self.MUTE_ROLE = self.client.config.MUTE_ROLE
+		self.HELP_SERVER = self.client.config.HELP_SERVER
 
 	@commands.Cog.listener()
 	async def on_message(self, message):

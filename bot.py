@@ -8,7 +8,7 @@ from tools import template_engine as temp_eng
 from loguru import logger
 from colorama import *
 from discord.ext import commands
-from configs import configs
+from configs import Config
 
 
 init()
@@ -86,6 +86,7 @@ def get_prefix(client, message):
 client = Client(
 	command_prefix=get_prefix, case_insensitive=True, intents=discord.Intents.all()
 )
+client.config = Config
 temp_eng.client = client
 
 
@@ -140,4 +141,4 @@ if __name__ == "__main__":
 			)
 		else:
 			logger.info(f"[PT-SYSTEM-COG]:::{extension} - Loaded")
-	client.run(configs["TOKEN"])
+	client.run(client.config.TOKEN)

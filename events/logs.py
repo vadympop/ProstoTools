@@ -2,15 +2,13 @@ import discord
 import datetime
 
 from tools import Commands, DB
-
 from discord.ext import commands
-from configs import configs
 
 
-class Events(commands.Cog, name="Events"):
+class Events(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.FOOTER = configs["FOOTER_TEXT"]
+		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):

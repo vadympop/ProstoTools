@@ -1,15 +1,13 @@
 import discord
 
 from tools import DB
-
 from discord.ext import commands
-from configs import configs
 
 
 class EventsJoin(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.HELP_SERVER = configs["HELP_SERVER"]
+		self.HELP_SERVER = self.client.config.HELP_SERVER
 
 	@commands.Cog.listener()
 	async def on_guild_join(self, guild):

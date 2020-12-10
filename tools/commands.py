@@ -10,7 +10,6 @@ from . import DB
 
 from datetime import datetime
 from discord.utils import get
-from configs import configs
 
 
 class Commands:
@@ -20,10 +19,10 @@ class Commands:
 			user="root", password="9fr8-PkM;M4+", host="localhost", database="data"
 		)
 		self.cursor = self.conn.cursor(buffered=True)
-		self.MUTE_ROLE = configs["MUTE_ROLE"]
-		self.VMUTE_ROLE = configs["VMUTE_ROLE"]
-		self.SOFTBAN_ROLE = configs["SOFTBAN_ROLE"]
-		self.FOOTER = configs["FOOTER_TEXT"]
+		self.MUTE_ROLE = self.client.config.MUTE_ROLE
+		self.VMUTE_ROLE = self.client.config.VMUTE_ROLE
+		self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
+		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	async def main_mute(
 		self,
@@ -238,7 +237,7 @@ class Commands:
 		cur_state_pr = data["prison"]
 		cur_reputation = data["reputation"] - 10
 
-		DB().set_warn(
+		warn_id = DB().set_warn(
 			target=member,
 			reason=reason,
 			author=str(ctx.author),
@@ -268,7 +267,10 @@ class Commands:
 			cur_reputation = -100
 
 		if len(cur_warns) >= 20:
-			DB().del_warn([warn for warn in cur_warns if not warn["state"]][0]["id"])
+			DB().del_warn(
+				guild_id=ctx.guild.id,
+				warn_id=[warn for warn in cur_warns if not warn["state"]][0]["id"]
+			)
 
 		if len(cur_warns) >= max_warns:
 			self.main_mute(

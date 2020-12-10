@@ -12,7 +12,6 @@ from tools import Commands, DB
 from datetime import datetime
 from discord.ext import commands
 from discord.utils import get
-from configs import configs
 
 
 def check_role(ctx):
@@ -38,11 +37,11 @@ class Moderate(commands.Cog, name="Moderate"):
 			database="data",
 		)
 		self.cursor = self.conn.cursor(buffered=True)
-		self.TEMP_PATH = configs["TEMP_PATH"]
-		self.MUTE_ROLE = configs["MUTE_ROLE"]
-		self.VMUTE_ROLE = configs["VMUTE_ROLE"]
-		self.SOFTBAN_ROLE = configs["SOFTBAN_ROLE"]
-		self.FOOTER = configs["FOOTER_TEXT"]
+		self.TEMP_PATH = self.client.config.TEMP_PATH
+		self.MUTE_ROLE = self.client.config.MUTE_ROLE
+		self.VMUTE_ROLE = self.client.config.VMUTE_ROLE
+		self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
+		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.command(
 		brief="True",
@@ -350,7 +349,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if member.top_role >= ctx.guild.me.top_role:
 			emb = discord.Embed(
 				title="Ошибка!",
-				description="Вы не можете выгнать этого участника!",
+				description="Я не могу выгнать этого участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -466,7 +465,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if member.top_role >= ctx.guild.me.top_role:
 			emb = discord.Embed(
 				title="Ошибка!",
-				description="Вы не можете забанить этого участника!",
+				description="Я не могу забанить этого участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -665,7 +664,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if member.top_role >= ctx.guild.me.top_role:
 			emb = discord.Embed(
 				title="Ошибка!",
-				description="Вы не можете разбанить этого участника!",
+				description="Я не могу разбанить этого участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -765,7 +764,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if member.top_role >= ctx.guild.me.top_role:
 			emb = discord.Embed(
 				title="Ошибка!",
-				description="Вы не можете забанить этого участника!",
+				description="Я не могу забанить этого участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -941,7 +940,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if member.top_role >= ctx.guild.me.top_role:
 			emb = discord.Embed(
 				title="Ошибка!",
-				description="Вы не можете разбанить этого участника!",
+				description="Я не могу разбанить этого участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -1026,7 +1025,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if member.top_role >= ctx.guild.me.top_role:
 			emb = discord.Embed(
 				title="Ошибка!",
-				description="Вы не можете замьютить в голосовых каналах этого участника!",
+				description="Я не могу замьютить этого участника в голосовых каналах!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -1218,7 +1217,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if member.top_role >= ctx.guild.me.top_role:
 			emb = discord.Embed(
 				title="Ошибка!",
-				description="Вы не можете размьютить в голосовых каналах этого участника!",
+				description="Я не могу размьютить этого участника в голосовых каналах!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -1326,7 +1325,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if member.top_role >= ctx.guild.me.top_role:
 			emb = discord.Embed(
 				title="Ошибка!",
-				description="Вы не можете замьютить этого участника!",
+				description="Я не могу замьютить этого участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -1620,7 +1619,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if member.top_role >= ctx.guild.me.top_role:
 			emb = discord.Embed(
 				title="Ошибка!",
-				description="Вы не можете размьютить этого участника!",
+				description="Я не могу размьютить этого участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -1894,7 +1893,10 @@ class Moderate(commands.Cog, name="Moderate"):
 			cur_reputation = -100
 
 		if len(cur_warns) >= 20:
-			DB().del_warn([warn for warn in cur_warns if not warn["state"]][0]["id"])
+			DB().del_warn(
+				guild_id=ctx.guild.id,
+				warn_id=[warn for warn in cur_warns if not warn["state"]][0]["id"]
+			)
 
 		if len([warn for warn in cur_warns if warn["state"]]) >= max_warns:
 			cur_coins -= 1000
@@ -1959,7 +1961,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		if logs_channel_id != 0:
 			e = discord.Embed(
-				description=f"Пользователь `{str(member)}` получил предуждения",
+				description=f"Пользователь `{str(member)}` получил предупреждения",
 				colour=discord.Color.green(),
 				timestamp=datetime.utcnow(),
 			)
@@ -2017,7 +2019,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		if logs_channel_id != 0:
 			e = discord.Embed(
-				description=f"У пользователь `{str(ctx.guild.get_member(data[0]))}` было снято предепреждения",
+				description=f"У пользователь `{str(ctx.guild.get_member(data[0]))}` было снято предупреждения",
 				colour=discord.Color.green(),
 				timestamp=datetime.utcnow(),
 			)

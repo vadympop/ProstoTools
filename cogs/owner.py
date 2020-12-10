@@ -10,7 +10,6 @@ from tools import DB, template_engine as TemplateEngine
 from discord.ext import commands
 from colorama import *
 from discord.utils import get
-from configs import configs
 from jinja2 import Template
 
 init()
@@ -34,9 +33,6 @@ def insert_returns(body):
 	if isinstance(body[-1], ast.With):
 		insert_returns(body[-1].body)
 
-
-global Footer
-Footer = configs["FOOTER_TEXT"]
 
 
 class Owner(commands.Cog, name="Owner"):
@@ -79,56 +75,6 @@ class Owner(commands.Cog, name="Owner"):
 		}
 		result = template.render(context)
 		await ctx.send(result)
-
-	@commands.command()
-	@commands.is_owner()
-	async def restart(self, ctx):
-		purge = clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
-		emb = discord.Embed(title="Перезагрузка бота", colour=discord.Color.green())
-		emb.set_image(url="https://i.gifer.com/Jx6X.gif")
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		emb.set_footer(text=Footer, icon_url=self.client.user.avatar_url)
-		msg = await ctx.send(embed=emb)
-
-		e = discord.Embed(title="Бот перезагружен", colour=discord.Color.green())
-		e.set_image(url="http://www.clipartbest.com/cliparts/9iz/6Rp/9iz6RpkGT.gif")
-		e.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		e.set_footer(text=Footer, icon_url=self.client.user.avatar_url)
-		await asyncio.sleep(2)
-
-		await msg.edit(embed=e)
-		await self.client.logout()
-		await os.system("python bot.py")
-
-	@commands.command()
-	@commands.is_owner()
-	async def cls(self, ctx):
-		emb = discord.Embed(
-			title="Ожидайте... Происходит очистка консоли...",
-			colour=discord.Color.green(),
-		)
-		emb.set_image(url="https://i.gifer.com/Jx6X.gif")
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		emb.set_footer(text=Footer, icon_url=self.client.user.avatar_url)
-		msg = await ctx.send(embed=emb)
-
-		e = discord.Embed(
-			title="Консоль успешно очищена!", colour=discord.Color.green()
-		)
-		e.set_image(url="http://www.clipartbest.com/cliparts/9iz/6Rp/9iz6RpkGT.gif")
-		e.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		e.set_footer(text=Footer, icon_url=self.client.user.avatar_url)
-
-		await asyncio.sleep(3)
-		await msg.edit(embed=e)
-		os.system("cls")
-
-	@commands.command(aliases=["print"])
-	@commands.is_owner()
-	async def p(self, ctx, *, arg):
-		print(arg)
 
 	@commands.command(aliases=["eval"])
 	@commands.is_owner()

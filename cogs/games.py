@@ -13,14 +13,13 @@ from pyzbar import pyzbar
 from discord.ext import commands
 from discord.utils import get
 from random import randint
-from configs import configs
 from bs4 import BeautifulSoup as bs
 
 
 class Games(commands.Cog, name="Games"):
 	def __init__(self, client):
 		self.client = client
-		self.FOOTER = configs["FOOTER_TEXT"]
+		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.command(
 		aliases=["cr-qr", "cr_qr", "create-qr", "create_qrcode"],
