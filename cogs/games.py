@@ -7,11 +7,8 @@ import requests
 import cv2
 import asyncio
 
-from tools import DB
-
 from pyzbar import pyzbar
 from discord.ext import commands
-from discord.utils import get
 from random import randint
 from bs4 import BeautifulSoup as bs
 

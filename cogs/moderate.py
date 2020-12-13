@@ -2,7 +2,6 @@ import discord
 import json
 import typing
 import time
-import random
 import os
 import mysql.connector
 import uuid

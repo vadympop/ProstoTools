@@ -1,6 +1,5 @@
 import discord
 import os
-import random
 import mysql.connector
 
 from tools import DB

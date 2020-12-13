@@ -1,5 +1,4 @@
 import discord
-import traceback
 import datetime
 
 from tools import DB

@@ -1,5 +1,4 @@
 import discord
-import datetime
 
 from tools import DB
 

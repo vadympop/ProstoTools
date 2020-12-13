@@ -1,5 +1,3 @@
-import json
-import random
 import os
 import time
 import locale
@@ -17,7 +15,6 @@ from Cybernator import Paginator
 from discord.ext import commands
 from discord.utils import get
 from random import randint
-from googletrans import Translator
 
 
 class Different(commands.Cog, name="Different"):

@@ -1,12 +1,9 @@
 import discord
-import random
 
 from tools import DB
 
 from discord.ext import commands
 from discord.utils import get
-from PIL import Image, ImageFont, ImageDraw, ImageFilter, ImageEnhance
-from random import randint
 
 
 class Help(commands.Cog, name="Help"):

@@ -1,7 +1,6 @@
 import discord
 import json
 import asyncio
-import time
 import os
 import mysql.connector
 
@@ -9,7 +8,6 @@ from tools import DB
 
 from discord.ext import commands
 from discord.utils import get
-from random import randint
 
 
 def check_role(ctx):
