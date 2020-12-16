@@ -34,7 +34,6 @@ def insert_returns(body):
 		insert_returns(body[-1].body)
 
 
-
 class Owner(commands.Cog, name="Owner"):
 	def __init__(self, client):
 		self.client = client

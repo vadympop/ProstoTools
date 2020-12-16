@@ -1,6 +1,5 @@
-import requests
 import os
-
+from tools import async_requests as requests
 from discord.ext import commands, tasks
 
 
@@ -39,7 +38,7 @@ class TasksSendData(commands.Cog):
 		headers = {
 			"token": os.getenv("BOT_TOKEN")
 		}
-		requests.post(url=self.api_url + "private/client", json=data, headers=headers)
+		await requests.post(url=self.api_url + "private/client", json=data, headers=headers)
 
 
 def setup(client):
