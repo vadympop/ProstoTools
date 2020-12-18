@@ -1,188 +1,274 @@
-import mysql.connector
-import os
 import uuid
 import datetime
 import json
 import typing
 import time
 import discord
+import aiomysql
+import mysql.connector
 
 
 class DB:
-	def __init__(self):
-		self.conn = mysql.connector.connect(
-			user="root",
-			password=os.getenv("DB_PASSWORD"),
-			host="localhost",
-			database="data",
-		)
-		self.cursor = self.conn.cursor(buffered=True)
+	def __init__(self, client):
+		self.client = client
+		self.DB_HOST = self.client.config.DB_HOST
+		self.DB_USER = self.client.config.DB_USER
+		self.DB_PASSWORD = self.client.config.DB_PASSWORD
+		self.DB_DATABASE = self.client.config.DB_DATABASE
 
-	def set_reminder(
+	async def set_reminder(
 		self,
 		member: discord.Member,
 		channel: discord.TextChannel,
 		time: float,
 		text: str,
 	) -> typing.Union[int, bool]:
-		self.cursor.execute(
-			("""SELECT id FROM reminders WHERE user_id = %s AND user_id = %s"""),
-			(member.id, member.id),
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
 		)
-		limit_data = len(self.cursor.fetchall()) + 1
-		if limit_data >= 25:
-			return False
-		self.cursor.execute(
-			("""SELECT id FROM reminders WHERE guild_id = %s AND guild_id = %s"""),
-			(member.guild.id, member.guild.id),
-		)
-		db_ids = self.cursor.fetchall()
-		ids = [str(reminder[0]) for reminder in db_ids]
-		ids.reverse()
-		try:
-			new_id = int(ids[0]) + 1
-		except:
-			new_id = 1
 
-		sql = """INSERT INTO reminders VALUES (%s, %s, %s, %s, %s, %s)"""
-		val = (new_id, member.id, member.guild.id, channel.id, time, text)
+		async with conn.cursor() as cur:
+			await cur.execute(
+				("""SELECT id FROM reminders WHERE user_id = %s AND user_id = %s"""),
+				(member.id, member.id),
+			)
+			limit_data = len(cur.fetchall()) + 1
+			if limit_data >= 25:
+				return False
+			await cur.execute(
+				("""SELECT id FROM reminders WHERE guild_id = %s AND guild_id = %s"""),
+				(member.guild.id, member.guild.id),
+			)
+			db_ids = cur.fetchall()
+			ids = [str(reminder[0]) for reminder in db_ids]
+			ids.reverse()
+			try:
+				new_id = int(ids[0]) + 1
+			except:
+				new_id = 1
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+			sql = """INSERT INTO reminders VALUES (%s, %s, %s, %s, %s, %s)"""
+			val = (new_id, member.id, member.guild.id, channel.id, time, text)
+
+			await cur.execute(sql, val)
+			await conn.commit()
+		conn.close()
 
 		return new_id
 
-	def get_reminder(self, target: discord.Member = None) -> list:
-		if target is not None:
-			sql = """SELECT * FROM reminders WHERE user_id = %s AND guild_id = %s"""
-			val = (target.id, target.guild.id)
-
-			self.cursor.execute(sql, val)
-			return self.cursor.fetchall()
-		elif not target:
-			self.cursor.execute("""SELECT * FROM reminders""")
-			return self.cursor.fetchall()
-
-	def del_reminder(self, member: discord.Member, reminder_id: int) -> bool:
-		self.cursor.execute(
-			f"""SELECT * FROM reminders WHERE guild_id = {member.guild.id}"""
-		)
-		reminders = self.cursor.fetchall()
-		for reminder in reminders:
-			if reminder[0] == reminder_id:
-				if reminder[1] == member.id:
-					self.cursor.execute(
-						("""DELETE FROM reminders WHERE id = %s AND guild_id = %s"""),
-						(reminder_id, member.guild.id),
-					)
-					self.conn.commit()
-					return True
-		return False
-
-	def set_warn(self, **kwargs) -> int:
-		self.cursor.execute(
-			("""SELECT id FROM warns WHERE guild_id = %s AND guild_id = %s"""),
-			(kwargs["target"].guild.id, kwargs["target"].guild.id),
-		)
-		db_ids = self.cursor.fetchall()
-		ids = [warn[0] for warn in db_ids]
-		ids.reverse()
-		try:
-			new_id = int(ids[0]) + 1
-		except:
-			new_id = 1
-
-		self.cursor.execute(
-			("""SELECT num FROM warns WHERE user_id = %s AND guild_id = %s"""),
-			(kwargs["target"].id, kwargs["target"].guild.id),
-		)
-		db_nums = self.cursor.fetchall()
-		nums = [num[0] for num in db_nums]
-		nums.reverse()
-		try:
-			new_num = nums[0] + 1
-		except:
-			new_num = 1
-
-		sql = """INSERT INTO warns VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
-		val = (
-			new_id,
-			kwargs["target"].id,
-			kwargs["target"].guild.id,
-			kwargs["reason"],
-			"True",
-			str(datetime.datetime.today()),
-			kwargs["author"],
-			new_num,
+	async def get_reminder(self, target: discord.Member = None) -> list:
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
 		)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		async with conn.cursor() as cur:
+			if target is not None:
+				sql = """SELECT * FROM reminders WHERE user_id = %s AND guild_id = %s"""
+				val = (target.id, target.guild.id)
+
+				await cur.execute(sql, val)
+				data = await cur.fetchall()
+			elif not target:
+				await cur.execute("""SELECT * FROM reminders""")
+				data = await cur.fetchall()
+		conn.close()
+		return data
+
+	async def del_reminder(self, member: discord.Member, reminder_id: int) -> bool:
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
+		)
+
+		async with conn.cursor() as cur:
+			await cur.execute(
+				f"""SELECT * FROM reminders WHERE guild_id = {member.guild.id}"""
+			)
+			reminders = await cur.fetchall()
+			for reminder in reminders:
+				if reminder[0] == reminder_id:
+					if reminder[1] == member.id:
+						await cur.execute(
+							("""DELETE FROM reminders WHERE id = %s AND guild_id = %s"""),
+							(reminder_id, member.guild.id),
+						)
+						await conn.commit()
+						state = True
+						break
+			state = False
+		conn.close()
+		return state
+
+	async def set_warn(self, **kwargs) -> int:
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
+		)
+
+		async with conn.cursor() as cur:
+			await cur.execute(
+				("""SELECT id FROM warns WHERE guild_id = %s AND guild_id = %s"""),
+				(kwargs["target"].guild.id, kwargs["target"].guild.id),
+			)
+			db_ids = await cur.fetchall()
+			ids = [warn[0] for warn in db_ids]
+			ids.reverse()
+			try:
+				new_id = int(ids[0]) + 1
+			except:
+				new_id = 1
+
+			await cur.execute(
+				("""SELECT num FROM warns WHERE user_id = %s AND guild_id = %s"""),
+				(kwargs["target"].id, kwargs["target"].guild.id),
+			)
+			db_nums = await cur.fetchall()
+			nums = [num[0] for num in db_nums]
+			nums.reverse()
+			try:
+				new_num = nums[0] + 1
+			except:
+				new_num = 1
+
+			sql = """INSERT INTO warns VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
+			val = (
+				new_id,
+				kwargs["target"].id,
+				kwargs["target"].guild.id,
+				kwargs["reason"],
+				"True",
+				str(datetime.datetime.today()),
+				kwargs["author"],
+				new_num,
+			)
+
+			await cur.execute(sql, val)
+			await conn.commit()
+		conn.close()
 
 		return new_id
 
-	def del_warn(self, guild_id: int, warn_id: int) -> typing.Union[bool, tuple]:
-		try:
-			self.cursor.execute(
-				("""UPDATE warns SET state = %s WHERE id = %s"""), ("False", warn_id)
-			)
-			self.conn.commit()
-
-			self.cursor.execute(
-				("""SELECT user_id FROM warns WHERE id = %s AND id = %s"""),
-				(warn_id, warn_id),
-			)
-			return self.cursor.fetchone()
-		except:
-			return False
-
-	def set_mute(self, **kwargs) -> None:
-		self.cursor.execute(
-			("""SELECT id FROM mutes WHERE guild_id = %s AND guild_id = %s"""),
-			(kwargs["target"].guild.id, kwargs["target"].guild.id),
-		)
-		db_ids = self.cursor.fetchall()
-		ids = [mute[0] for mute in db_ids]
-		ids.reverse()
-		try:
-			new_id = int(ids[0]) + 1
-		except:
-			new_id = 1
-
-		sql = """INSERT INTO mutes VALUES (%s, %s, %s, %s, %s, %s, %s)"""
-		val = (
-			new_id,
-			kwargs["target"].id,
-			kwargs["target"].guild.id,
-			kwargs["reason"],
-			str(datetime.datetime.fromtimestamp(kwargs["timestamp"])),
-			str(datetime.datetime.today()),
-			kwargs["author"],
+	async def del_warn(self, guild_id: int, warn_id: int) -> typing.Union[bool, tuple]:
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
 		)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		async with conn.cursor() as cur:
+			try:
+				await cur.execute(
+					("""UPDATE warns SET state = %s WHERE id = %s"""), ("False", warn_id)
+				)
+				await conn.commit()
 
-	def del_mute(self, member_id: int, guild_id: int) -> bool:
-		try:
-			self.cursor.execute(
-				("""DELETE FROM mutes WHERE user_id = %s AND guild_id = %s"""),
-				(member_id, guild_id),
-			)
-			self.conn.commit()
+				await cur.execute(
+					("""SELECT user_id FROM warns WHERE id = %s AND id = %s"""),
+					(warn_id, warn_id),
+				)
+				data = await cur.fetchone()
+			except:
+				data = False
+		conn.close()
 
-			return True
-		except:
-			return False
+		return data
 
-	def get_mutes(self, guild_id):
-		self.cursor.execute(
-			("""SELECT * FROM mutes WHERE guild_id = %s AND guild_id = %s"""),
-			(guild_id, guild_id),
+	async def set_mute(self, **kwargs) -> None:
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE
 		)
-		return self.cursor.fetchall()
 
-	def set_punishment(
+		async with conn.cursor() as cur:
+			await cur.execute(
+				("""SELECT id FROM mutes WHERE guild_id = %s AND guild_id = %s"""),
+				(kwargs["target"].guild.id, kwargs["target"].guild.id),
+			)
+			db_ids = await cur.fetchall()
+			ids = [mute[0] for mute in db_ids]
+			ids.reverse()
+			try:
+				new_id = int(ids[0]) + 1
+			except:
+				new_id = 1
+
+			sql = """INSERT INTO mutes VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+			val = (
+				new_id,
+				kwargs["target"].id,
+				kwargs["target"].guild.id,
+				kwargs["reason"],
+				str(datetime.datetime.fromtimestamp(kwargs["timestamp"])),
+				str(datetime.datetime.today()),
+				kwargs["author"],
+			)
+
+			await cur.execute(sql, val)
+			await conn.commit()
+		conn.close()
+
+	async def del_mute(self, member_id: int, guild_id: int) -> bool:
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
+		)
+
+		async with conn.cursor() as cur:
+			try:
+				await cur.execute(
+					("""DELETE FROM mutes WHERE user_id = %s AND guild_id = %s"""),
+					(member_id, guild_id),
+				)
+				await conn.commit()
+
+				state = True
+			except:
+				state = False
+		conn.close()
+
+		return state
+
+	async def get_mutes(self, guild_id):
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
+		)
+
+		async with conn.cursor() as cur:
+			await cur.execute(
+				("""SELECT * FROM mutes WHERE guild_id = %s AND guild_id = %s"""),
+				(guild_id, guild_id),
+			)
+			data = await cur.fetchall()
+		conn.close()
+
+		return data
+
+	async def set_punishment(
 		self,
 		type_punishment: str,
 		time: float,
@@ -190,63 +276,101 @@ class DB:
 		role_id: int = 0,
 		**kwargs,
 	) -> None:
-		self.cursor.execute(
-			"""SELECT * FROM punishments WHERE member_id = %s AND guild_id = %s""",
-			(member.id, member.guild.id),
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
 		)
-		data = self.cursor.fetchone()
 
-		if type_punishment == "mute":
-			self.set_mute(
-				timestamp=time,
-				target=member,
-				reason=kwargs["reason"],
-				author=kwargs["author"],
+		async with conn.cursor() as cur:
+			await cur.execute(
+				"""SELECT * FROM punishments WHERE member_id = %s AND guild_id = %s""",
+				(member.id, member.guild.id),
 			)
+			data = await cur.fetchone()
 
-		if data is None:
-			sql = """INSERT INTO punishments VALUES (%s, %s, %s, %s, %s)"""
-			val = (member.id, member.guild.id, time, type_punishment, role_id)
+			if type_punishment == "mute":
+				await self.set_mute(
+					timestamp=time,
+					target=member,
+					reason=kwargs["reason"],
+					author=kwargs["author"],
+				)
 
-			self.cursor.execute(sql, val)
-			self.conn.commit()
-		else:
-			sql = """UPDATE punishments SET time = %s WHERE member_id = %s AND guild_id = %s"""
-			val = (time, member.id, member.guild.id)
+			if data is None:
+				sql = """INSERT INTO punishments VALUES (%s, %s, %s, %s, %s)"""
+				val = (member.id, member.guild.id, time, type_punishment, role_id)
 
-			self.cursor.execute(sql, val)
-			self.conn.commit()
+				await cur.execute(sql, val)
+				await conn.commit()
+			else:
+				sql = """UPDATE punishments SET time = %s WHERE member_id = %s AND guild_id = %s"""
+				val = (time, member.id, member.guild.id)
 
-	def get_punishment(self, member: discord.Member = None) -> list:
-		if member is not None:
-			sql = """SELECT * FROM punishments WHERE member = %s AND member = %s"""
-			val = member.id
+				await cur.execute(sql, val)
+				await conn.commit()
+		conn.close()
 
-			self.cursor.execute(sql, val)
-			data = self.cursor.fetchone()
-		else:
-			self.cursor.execute(
-				f"""SELECT * FROM punishments WHERE time < {float(time.time())}"""
-			)
-			data = self.cursor.fetchall()
+	async def get_punishment(self, member: discord.Member = None) -> list:
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
+		)
+
+		async with conn.cursor() as cur:
+			if member is not None:
+				sql = """SELECT * FROM punishments WHERE member = %s AND member = %s"""
+				val = member.id
+
+				await cur.execute(sql, val)
+				data = await cur.fetchone()
+			else:
+				await cur.execute(
+					f"""SELECT * FROM punishments WHERE time < {float(time.time())}"""
+				)
+				data = await cur.fetchall()
+		conn.close()
 
 		return data
 
-	def del_punishment(
+	async def del_punishment(
 		self, member: discord.Member, guild_id: int, type_punishment: str
 	) -> None:
-		if type_punishment == "mute":
-			self.del_mute(member.id, member.guild.id)
-
-		self.cursor.execute(
-			(
-				"""DELETE FROM punishments WHERE member_id = %s AND guild_id = %s AND type = %s"""
-			),
-			(member.id, guild_id, type_punishment),
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
 		)
-		self.conn.commit()
 
-	def sel_user(self, target, check=True) -> dict:
+		async with conn.cursor() as cur:
+			if type_punishment == "mute":
+				await self.del_mute(member.id, member.guild.id)
+
+			await cur.execute(
+				(
+					"""DELETE FROM punishments WHERE member_id = %s AND guild_id = %s AND type = %s"""
+				),
+				(member.id, guild_id, type_punishment),
+			)
+			await conn.commit()
+		conn.close()
+
+	async def sel_user(self, target, check=True) -> dict:
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
+		)
+
 		sql_1 = """SELECT * FROM users WHERE user_id = %s AND guild_id = %s"""
 		val_1 = (target.id, target.guild.id)
 		sql_2 = """INSERT INTO users (user_id, guild_id, prison, profile, items, pets, clan, messages, transantions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
@@ -267,22 +391,20 @@ class DB:
 		sql_4 = """SELECT * FROM warns WHERE user_id = %s AND guild_id = %s"""
 		val_4 = (target.id, target.guild.id)
 
-		self.cursor.execute(sql_1, val_1)
-		data = self.cursor.fetchone()
-		self.cursor.execute(sql_3, val_3)
-		bio = self.cursor.fetchone()
-		self.cursor.execute(sql_4, val_4)
-		db_warns = self.cursor.fetchall()
+		async with conn.cursor() as cur:
+			await cur.execute(sql_1, val_1)
+			data = await cur.fetchone()
+			await cur.execute(sql_3, val_3)
+			bio = await cur.fetchone()
+			await cur.execute(sql_4, val_4)
+			db_warns = await cur.fetchall()
 
-		if check:
-			if data is None:
-				self.cursor.execute(sql_2, val_2)
-				self.conn.commit()
-
-		self.cursor.execute(sql_1, val_1)
-		data = self.cursor.fetchone()
-		self.cursor.execute(sql_3, val_3)
-		bio = self.cursor.fetchone()
+			if check:
+				if data is None:
+					await cur.execute(sql_2, val_2)
+					await conn.commit()
+			await cur.close()
+		conn.close()
 
 		if data is not None:
 			prison = data[9]
@@ -332,7 +454,15 @@ class DB:
 
 			return dict_data
 
-	def sel_guild(self, guild) -> dict:
+	async def sel_guild(self, guild) -> dict:
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
+		)
+
 		sql_1 = """SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s"""
 		val_1 = (guild.id, guild.id)
 		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, react_channels, welcome, auto_roles) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
@@ -359,15 +489,14 @@ class DB:
 			json.dumps({}),
 		)
 
-		self.cursor.execute(sql_1, val_1)
-		data = self.cursor.fetchone()
+		async with conn.cursor() as cur:
+			await cur.execute(sql_1, val_1)
+			data = await cur.fetchone()
 
-		if data is None:
-			self.cursor.execute(sql_2, val_2)
-			self.conn.commit()
-
-		self.cursor.execute(sql_1, val_1)
-		data = self.cursor.fetchone()
+			if data is None:
+				await cur.execute(sql_2, val_2)
+				await conn.commit()
+		conn.close()
 
 		donate = data[9]
 		if donate == "True":
@@ -402,67 +531,124 @@ class DB:
 
 		return dict_data
 
-	def query_execute(
+	def get_prefix(self, guild: discord.Guild):
+		conn = mysql.connector.connect(
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			host=self.DB_HOST,
+			database=self.DB_DATABASE,
+			port=3306
+		)
+		cursor = conn.cursor(buffered=True)
+
+		cursor.execute(f"""SELECT prefix FROM guilds WHERE guild_id = {guild.id}""")
+		data = cursor.fetchone()[0]
+		cursor.close()
+		conn.close()
+		return data
+
+	def get_moder_roles(self, guild: discord.Guild):
+		conn = mysql.connector.connect(
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			host=self.DB_HOST,
+			database=self.DB_DATABASE,
+			port=3306
+		)
+		cursor = conn.cursor(buffered=True)
+
+		cursor.execute(f"""SELECT moderators FROM guilds WHERE guild_id = {guild.id}""")
+		data = cursor.fetchone()[0]
+		cursor.close()
+		conn.close()
+		return data
+
+
+	async def execute(
 		self, query: str, val: typing.Union[tuple, list] = (), fetchone: bool = False
 	) -> list:
-		self.cursor.execute(query, val)
-		if fetchone:
-			return self.cursor.fetchone()
-		else:
-			return self.cursor.fetchall()
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
+		)
 
-	def add_amout_command(
+		async with conn.cursor() as cur:
+			await cur.execute(query, val)
+			await conn.commit()
+			if fetchone:
+				data = await cur.fetchone()
+			else:
+				data = await cur.fetchall()
+		conn.close()
+
+		return data
+
+	async def add_amout_command(
 		self, entity: str = "all commands", add_counter: typing.Union[int, float] = None
 	) -> None:
-		try:
-			self.cursor.execute(
-				f"""SELECT * FROM bot_stats WHERE entity = '{entity}'"""
-			)
-			data = self.cursor.fetchall()
-		except:
-			data = [(0, 0)]
-
-		self.cursor.execute(
-			f"""SELECT * FROM bot_stats WHERE entity = 'all commands'"""
+		conn = await aiomysql.connect(
+			host=self.DB_HOST,
+			user=self.DB_USER,
+			password=self.DB_PASSWORD,
+			db=self.DB_DATABASE,
+			port=3306
 		)
-		main_data = self.cursor.fetchall()
 
-		self.cursor.execute(f"""SELECT id FROM bot_stats""")
-		global_data = self.cursor.fetchall()
+		async with conn.cursor() as cur:
+			try:
+				await cur.execute(
+					f"""SELECT * FROM bot_stats WHERE entity = '{entity}'"""
+				)
+				data = await cur.fetchall()
+			except:
+				data = [(0, 0)]
 
-		stat_ids = [str(stat[0]) for stat in global_data]
-		stat_ids.reverse()
-		try:
-			new_id = int(stat_ids[0]) + 1
-		except:
-			new_id = 0
+			await cur.execute(
+				f"""SELECT * FROM bot_stats WHERE entity = 'all commands'"""
+			)
+			main_data = await cur.fetchall()
 
-		counter = [str(stat[1]) for stat in data]
-		counter.reverse()
-		try:
-			new_count = int(counter[0]) + 1
-		except:
-			new_count = 1
+			await cur.execute(f"""SELECT id FROM bot_stats""")
+			global_data = await cur.fetchall()
 
-		main_counter = [str(stat[1]) for stat in main_data]
-		main_counter.reverse()
-		try:
-			new_main_count = int(main_counter[0]) + 1
-		except:
-			new_main_count = 1
+			stat_ids = [str(stat[0]) for stat in global_data]
+			stat_ids.reverse()
+			try:
+				new_id = int(stat_ids[0]) + 1
+			except:
+				new_id = 0
 
-		if add_counter is not None:
-			new_count = add_counter
+			counter = [str(stat[1]) for stat in data]
+			counter.reverse()
+			try:
+				new_count = int(counter[0]) + 1
+			except:
+				new_count = 1
 
-		if add_counter is None:
+			main_counter = [str(stat[1]) for stat in main_data]
+			main_counter.reverse()
+			try:
+				new_main_count = int(main_counter[0]) + 1
+			except:
+				new_main_count = 1
+
+			if add_counter is not None:
+				new_count = add_counter
+
+			if add_counter is None:
+				sql = """INSERT INTO bot_stats(id, count, timestamp, entity) VALUES(%s, %s, %s, %s)"""
+				val = (new_id, new_main_count, datetime.datetime.now(), "all commands")
+
+				await cur.execute(sql, val)
+				await conn.commit()
+
 			sql = """INSERT INTO bot_stats(id, count, timestamp, entity) VALUES(%s, %s, %s, %s)"""
-			val = (new_id, new_main_count, datetime.datetime.now(), "all commands")
+			val = (new_id + 1, new_count, datetime.datetime.now(), entity)
 
-			self.cursor.execute(sql, val)
-			self.conn.commit()
-
-		sql = """INSERT INTO bot_stats(id, count, timestamp, entity) VALUES(%s, %s, %s, %s)"""
-		val = (new_id + 1, new_count, datetime.datetime.now(), entity)
-
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+			await cur.execute(sql, val)
+			await conn.commit()
+			await cur.close()
+		conn.close()

@@ -1,5 +1,4 @@
 import discord
-from tools import DB
 from discord.ext import commands
 
 
@@ -9,7 +8,7 @@ class EventsCustomVoice(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_voice_state_update(self, member, before, after):
-		data = DB().sel_guild(guild=member.guild)["voice_channel"]
+		data = await self.client.database.sel_guild(guild=member.guild)["voice_channel"]
 		if data != {}:
 			main_channel = data["channel_id"]
 			main_channel_obj = self.client.get_channel(int(main_channel))

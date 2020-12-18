@@ -1,30 +1,12 @@
 import discord
-import os
-import json
-import random
-import asyncio
-import math
-import datetime
-import colorama
-import mysql.connector
 
-from tools import Commands, DB
-
+from tools import Commands
 from discord.ext import commands
-from discord.utils import get
-from random import randint
 
 
 class EventsReactionsCmds(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.conn = mysql.connector.connect(
-			user="root",
-			password=os.getenv("DB_PASSWORD"),
-			host="localhost",
-			database="data",
-		)
-		self.cursor = self.conn.cursor(buffered=True)
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.Cog.listener()
@@ -36,7 +18,7 @@ class EventsReactionsCmds(commands.Cog):
 		member = message.author
 		guild = message.guild
 		if guild:
-			data = DB().sel_guild(guild=guild)
+			data = await self.client.database.sel_guild(guild=guild)
 
 			if data["auto_mod"]["react_coomands"]:
 				if not author.bot:

@@ -1,7 +1,5 @@
 import discord
 
-from tools import DB
-
 from discord.ext import commands
 from discord.utils import get
 from colorama import *
@@ -24,7 +22,7 @@ class Errors(commands.Cog, name="Errors"):
 
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, error):
-		PREFIX = DB().sel_guild(guild=ctx.guild)["prefix"]
+		PREFIX = (await self.client.database.sel_guild(guild=ctx.guild))["prefix"]
 
 		if isinstance(error, commands.errors.CommandOnCooldown):
 			await ctx.message.add_reaction("❌")

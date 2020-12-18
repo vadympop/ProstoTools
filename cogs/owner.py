@@ -1,11 +1,10 @@
 import discord
 import os
-import asyncio
 import ast
 import math
 import random
 
-from tools import DB, template_engine as TemplateEngine
+from tools import template_engine as TemplateEngine
 
 from discord.ext import commands
 from colorama import *
@@ -13,12 +12,6 @@ from discord.utils import get
 from jinja2 import Template
 
 init()
-
-
-def clear_commands(guild):
-	data = DB().sel_guild(guild=guild)
-	purge = data["purge"]
-	return purge
 
 
 def insert_returns(body):
@@ -41,8 +34,8 @@ class Owner(commands.Cog, name="Owner"):
 	@commands.command()
 	async def test(self, ctx, member: discord.Member = None, *, message: str = None):
 		template = Template(message, autoescape=False)
-		data = DB().sel_user(member)
-		multi = DB().sel_guild(ctx.guild)["exp_multi"]
+		data = await self.client.database.sel_user(member)
+		multi = (await self.client.database.sel_guild(ctx.guild))["exp_multi"]
 		data.update({"multi": multi})
 		context = {
 			"member": TemplateEngine.Member(member, data),
@@ -86,13 +79,14 @@ class Owner(commands.Cog, name="Owner"):
 		body = parsed.body[0].body
 		insert_returns(body)
 		env = {
-			"client": ctx.bot,
+			"client": self.client,
 			"discord": discord,
 			"os": os,
 			"commands": commands,
 			"ctx": ctx,
 			"get": get,
 			"__import__": __import__,
+			"database": self.client.database,
 		}
 		exec(compile(parsed, filename="<ast>", mode="exec"), env)
 
@@ -102,16 +96,14 @@ class Owner(commands.Cog, name="Owner"):
 			await ctx.send(repr(e))
 			return
 
-		if result != None:
+		if result is not None:
 			await ctx.send(result)
-		elif result == None:
+		elif result is None:
 			return
 
 	@commands.command()
 	@commands.is_owner()
 	async def rest_cd(self, ctx, *, command: str):
-		purge = clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		command = self.client.get_command(command)
 		command.reset_cooldown(ctx)
 

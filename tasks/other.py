@@ -1,25 +1,13 @@
 import discord
-import os
 import json
 import time
-import mysql.connector
-
-from tools import DB
 
 from discord.ext import commands, tasks
-from discord.utils import get
 
 
 class TasksOther(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.conn = mysql.connector.connect(
-			user="root",
-			password=os.getenv("DB_PASSWORD"),
-			host="localhost",
-			database="data",
-		)
-		self.cursor = self.conn.cursor(buffered=True)
 		self.update_messages_loop.start()
 		self.ping_stat_loop.start()
 		self.reminders_loop.start()
@@ -28,7 +16,7 @@ class TasksOther(commands.Cog):
 
 	@tasks.loop(seconds=30)
 	async def reminders_loop(self):
-		for reminder in DB().get_reminder():
+		for reminder in await self.client.database.get_reminder():
 			reminder_time = reminder[4]
 			guild = self.client.get_guild(int(reminder[2]))
 			if guild is not None:
@@ -45,7 +33,7 @@ class TasksOther(commands.Cog):
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				if member is not None:
 					if float(reminder_time) <= float(time.time()):
-						DB().del_reminder(member, reminder[0])
+						await self.client.database.del_reminder(member, reminder[0])
 						if channel in guild.channels:
 							await channel.send(embed=emb, content=member.mention)
 						else:
@@ -56,7 +44,7 @@ class TasksOther(commands.Cog):
 
 	@tasks.loop(seconds=5)
 	async def channel_loop(self):
-		for channel in DB().get_punishment():
+		for channel in await self.client.database.get_punishment():
 			channel_time = channel[2]
 			guild = self.client.get_guild(int(channel[1]))
 			if channel[3] == "text_channel":
@@ -64,7 +52,7 @@ class TasksOther(commands.Cog):
 					member = guild.get_member(int(channel[0]))
 					if member is not None:
 						if float(channel_time) <= float(time.time()):
-							DB().del_punishment(
+							await self.client.database.del_punishment(
 								member=member,
 								guild_id=guild.id,
 								type_punishment="text_channel",
@@ -77,13 +65,13 @@ class TasksOther(commands.Cog):
 		if self.client.is_ready():
 			try:
 				ping = round(self.client.latency * 1000)
-				DB().add_amout_command(entity="ping", add_counter=int(ping))
+				await self.client.database.add_amout_command(entity="ping", add_counter=int(ping))
 			except:
 				pass
 
 	@tasks.loop(seconds=86400)
 	async def update_messages_loop(self):
-		data = DB().query_execute("""SELECT user_id, guild_id, messages FROM users""")
+		data = await self.client.database.execute("""SELECT user_id, guild_id, messages FROM users""")
 
 		for profile in data:
 			if profile != []:
@@ -91,8 +79,7 @@ class TasksOther(commands.Cog):
 				sql = """UPDATE users SET messages = %s WHERE user_id = %s AND guild_id = %s"""
 				val = (json.dumps([0, all_message, None]), profile[0], profile[1])
 
-				self.cursor.execute(sql, val)
-				self.conn.commit()
+				await self.client.database.execute(sql, val)
 
 
 def setup(client):

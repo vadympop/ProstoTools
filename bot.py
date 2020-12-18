@@ -1,5 +1,6 @@
 import discord
 import datetime
+import asyncio
 
 from tools import DB
 from tools import template_engine as temp_eng
@@ -63,8 +64,8 @@ class Client(commands.AutoShardedBot):
 		)
 		self.launched_at = datetime.datetime.now()
 
-	def clear_commands(self, guild):
-		return DB().sel_guild(guild=guild)["purge"]
+	async def clear_commands(self, guild):
+		return (await self.database.sel_guild(guild=guild))["purge"]
 
 	def txt_dump(self, filename, filecontent):
 		with open(filename, "w", encoding="utf-8") as f:
@@ -74,18 +75,19 @@ class Client(commands.AutoShardedBot):
 		with open(filename, "r", encoding="utf-8") as f:
 			return f.read()
 
-	def get_guild_prefix(self, ctx):
-		return str(DB().sel_guild(guild=ctx.guild)["prefix"])
+	async def get_guild_prefix(self, ctx):
+		return self.database.get_prefix(guild=ctx.guild)
 
 
-def get_prefix(client, message):
-	return str(DB().sel_guild(guild=message.guild)["prefix"])
+async def get_prefix(client, message):
+	return client.database.get_prefix(guild=message.guild)
 
 
 client = Client(
 	command_prefix=get_prefix, case_insensitive=True, intents=discord.Intents.all()
 )
 client.config = Config
+client.database = DB(client=client)
 temp_eng.client = client
 
 
@@ -134,7 +136,8 @@ if __name__ == "__main__":
 	for extension in extensions:
 		try:
 			client.load_extension(extension)
-		except:
+		except Exception as e:
+			raise e
 			logger.error(
 				f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension}"
 			)

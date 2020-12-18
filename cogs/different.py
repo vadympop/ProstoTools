@@ -1,14 +1,10 @@
-import os
 import time
 import locale
 
 import discord
 import sanic
-import mysql.connector
 import requests
 import psutil as ps
-
-from tools import DB
 
 from datetime import datetime
 from Cybernator import Paginator
@@ -20,13 +16,6 @@ from random import randint
 class Different(commands.Cog, name="Different"):
 	def __init__(self, client):
 		self.client = client
-		self.conn = mysql.connector.connect(
-			user="root",
-			password=os.getenv("DB_PASSWORD"),
-			host="localhost",
-			database="data",
-		)
-		self.cursor = self.conn.cursor(buffered=True)
 		self.FOOTER = self.client.config.FOOTER_TEXT
 		locale.setlocale(locale.LC_ALL, "ru")
 
@@ -41,7 +30,7 @@ class Different(commands.Cog, name="Different"):
 	async def reminder(
 		self, ctx, action: str, type_time: str = None, *, text: str = None
 	):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		if action == "create":
@@ -110,7 +99,7 @@ class Different(commands.Cog, name="Different"):
 
 			times = time.time() + reminder_minutes
 
-			reminder_id = DB().set_reminder(
+			reminder_id = await self.client.database.set_reminder(
 				member=ctx.author, channel=ctx.channel, time=times, text=text
 			)
 			if reminder_id:
@@ -132,7 +121,7 @@ class Different(commands.Cog, name="Different"):
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
 		elif action == "list":
-			data = DB().get_reminder(target=ctx.author)
+			data = await self.client.database.get_reminder(target=ctx.author)
 			if data != []:
 				reminders = "\n\n".join(
 					f"**Id - {reminder[0]}**\n**Текст:** `{reminder[5]}`, **Действует до:** `{str(datetime.fromtimestamp(float(reminder[4])))}`"
@@ -154,7 +143,7 @@ class Different(commands.Cog, name="Different"):
 		elif action == "delete":
 			if type_time is not None:
 				if type_time.isdigit():
-					state = DB().del_reminder(ctx.author, int(type_time))
+					state = await self.client.database.del_reminder(ctx.author, int(type_time))
 					if state:
 						emb = discord.Embed(
 							description=f"**Напоминания #{type_time} было успешно удалено**",
@@ -193,10 +182,10 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 60, commands.BucketType.member)
 	async def send(self, ctx, member: discord.Member, *, message: str):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
-		data = DB().sel_user(target=ctx.author)
+		data = await self.client.database.sel_user(target=ctx.author)
 		coins_member = data["coins"]
 		cur_items = data["items"]
 
@@ -205,8 +194,7 @@ class Different(commands.Cog, name="Different"):
 
 		if cur_items != []:
 			if "sim" in cur_items and "tel" in cur_items and coins_member > 50:
-				self.cursor.execute(sql, val)
-				self.conn.commit()
+				await self.client.database.execute(sql, val)
 
 				emb = discord.Embed(
 					title=f"Новое сообщения от {ctx.author.name}",
@@ -250,7 +238,7 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(1, 7200, commands.BucketType.member)
 	async def devs(self, ctx, typef: str, *, msg: str):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		prch = get(self.client.users, id=660110922865704980)
@@ -298,7 +286,7 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def userinfo(self, ctx, member: discord.Member = None):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		if member is None:
@@ -318,7 +306,7 @@ class Different(commands.Cog, name="Different"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		data = DB().sel_user(target=member)
+		data = await self.client.database.sel_user(target=member)
 		all_message = data["messages"][1]
 		joined_at = datetime.strftime(member.joined_at, "%d %B %Y %X")
 		created_at = datetime.strftime(member.created_at, "%d %B %Y %X")
@@ -375,7 +363,7 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def avatar(self, ctx, member: discord.Member = None):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		if member is None:
@@ -400,7 +388,7 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bot(self, ctx):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		def bytes2human(number, typer=None):
@@ -420,10 +408,10 @@ class Different(commands.Cog, name="Different"):
 
 			return f"{number}B"
 
-		commands_count = DB().query_execute(
+		commands_count = (await self.client.database.execute(
 			query="""SELECT count FROM bot_stats WHERE entity = 'all commands' ORDER BY count DESC LIMIT 1""",
 			fetchone=True,
-		)[0]
+		))[0]
 		embed1 = discord.Embed(
 			title=f"{self.client.user.name}#{self.client.user.discriminator}",
 			description=f"Информация о боте **{self.client.user.name}**.\nМного-функциональный бот со своей экономикой, кланами и системой модерации!",
@@ -533,10 +521,10 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def serverinfo(self, ctx):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
-		data = DB().sel_guild(guild=ctx.guild)
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		created_at = datetime.strftime(ctx.guild.created_at, "%d %B %Y %X")
 		time = data["timedelete_textchannel"]
 		max_warns = data["max_warns"]
@@ -653,10 +641,10 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(1, 7200, commands.BucketType.member)
 	async def idea(self, ctx, *, text: str):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
-		data = DB().sel_guild(guild=ctx.guild)
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		idea_channel_id = data["idea_channel"]
 
 		if idea_channel_id is None:
@@ -707,7 +695,7 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def invite(self, ctx):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		emb = discord.Embed(
@@ -729,7 +717,7 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(1, 120, commands.BucketType.member)
 	async def msgforw(self, ctx, channel: discord.TextChannel, *, msg: str):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		if ctx.author.permissions_in(channel).send_messages:
@@ -774,7 +762,7 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def rnum(self, ctx, rnum1: int, rnum2: int):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		if len(str(rnum1)) > 64 or len(str(rnum2)) > 64:
@@ -805,17 +793,16 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bio(self, ctx, *, text: str = None):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		cur_bio = DB().sel_user(target=ctx.author)["bio"]
+		cur_bio = (await self.client.database.sel_user(target=ctx.author))["bio"]
 
 		clears = ["clear", "-", "delete", "очистить", "удалить"]
 		if text in clears:
 			sql = """UPDATE users SET bio = %s WHERE user_id = %s"""
 			val = ("", ctx.author.id)
 
-			self.cursor.execute(sql, val)
-			self.conn.commit()
+			await self.client.database.execute(sql, val)
 
 			await ctx.message.add_reaction("✅")
 			return
@@ -838,8 +825,7 @@ class Different(commands.Cog, name="Different"):
 		sql = """UPDATE users SET bio = %s WHERE user_id = %s"""
 		val = (text, ctx.author.id)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 		await ctx.message.add_reaction("✅")
 

@@ -27,7 +27,7 @@ class Games(commands.Cog, name="Games"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def cr_qr(self, ctx, *, code_text: str):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		if len(code_text) > 6000:
@@ -70,7 +70,7 @@ class Games(commands.Cog, name="Games"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def scan_url(self, ctx, url: str):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		ddd = requests.get(url)
@@ -98,7 +98,7 @@ class Games(commands.Cog, name="Games"):
 	)
 	@commands.cooldown(1, 43200, commands.BucketType.member)
 	async def flags(self, ctx):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		filename = "./Data/TempFiles/flags.json"
@@ -224,7 +224,7 @@ class Games(commands.Cog, name="Games"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def wiki(self, ctx, *, text: str):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		try:
@@ -261,7 +261,7 @@ class Games(commands.Cog, name="Games"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def magic_ball(self, ctx, *, msg: str):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		rand_num = randint(1, 3)

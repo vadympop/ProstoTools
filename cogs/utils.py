@@ -1,17 +1,13 @@
 import discord
 import json
 import asyncio
-import os
-import mysql.connector
-
-from tools import DB
 
 from discord.ext import commands
 from discord.utils import get
 
 
 def check_role(ctx):
-	data = DB().sel_guild(guild=ctx.guild)["moder_roles"]
+	data = ctx.bot.database.get_moder_roles(guild=ctx.guild)
 	roles = ctx.guild.roles[::-1]
 	data.append(roles[0].id)
 
@@ -26,13 +22,6 @@ def check_role(ctx):
 class Utils(commands.Cog, name="Utils"):
 	def __init__(self, client):
 		self.client = client
-		self.conn = mysql.connector.connect(
-			user="root",
-			password=os.getenv("DB_PASSWORD"),
-			host="localhost",
-			database="data",
-		)
-		self.cursor = self.conn.cursor(buffered=True)
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.command(
@@ -43,7 +32,7 @@ class Utils(commands.Cog, name="Utils"):
 	)
 	@commands.check(check_role)
 	async def antirade(self, ctx, time: int, mode: int):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		first_verfLevel = ctx.guild.verification_level
@@ -120,7 +109,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(check_role)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bannedusers(self, ctx):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		banned_users = await ctx.guild.bans()
@@ -163,7 +152,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def voicechannel(self, ctx, state: str):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		channel_category = await ctx.guild.create_category("Голосовые комнаты")
@@ -173,7 +162,7 @@ class Utils(commands.Cog, name="Utils"):
 		off_answers = ["off", "выкл", "выключить", "false"]
 
 		if state.lower() in on_answers:
-			data = DB().sel_guild(guild=ctx.guild)["voice_channel"]
+			data = (await self.client.database.sel_guild(guild=ctx.guild))["voice_channel"]
 
 			if "channel_id" not in data:
 				voice_channel = await ctx.guild.create_voice_channel(
@@ -185,8 +174,7 @@ class Utils(commands.Cog, name="Utils"):
 				sql = """UPDATE guilds SET voice_channel = %s WHERE guild_id = %s AND guild_id = %s"""
 				val = (json.dumps(data), ctx.guild.id, ctx.guild.id)
 
-				self.cursor.execute(sql, val)
-				self.conn.commit()
+				await self.client.database.execute(sql, val)
 			else:
 				emb = discord.Embed(
 					desciption="**На этом сервере приватные голосовые комнаты уже включены**",
@@ -204,8 +192,7 @@ class Utils(commands.Cog, name="Utils"):
 			sql = """UPDATE guilds SET voice_channel = %s WHERE guild_id = %s AND guild_id = %s"""
 			val = (json.dumps({}), ctx.guild.id, ctx.guild.id)
 
-			self.cursor.execute(sql, val)
-			self.conn.commit()
+			await self.client.database.execute(sql, val)
 		else:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -229,7 +216,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def serverstats(self, ctx, stats_count: str):
-		data = DB().sel_guild(guild=ctx.guild)["server_stats"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
 		members_count = len(
 			[
 				member.id
@@ -254,8 +241,8 @@ class Utils(commands.Cog, name="Utils"):
 			sql_1 = """SELECT user_id, exp, money, reputation, messages FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 20"""
 			sql_2 = """SELECT exp FROM users WHERE guild_id = %s AND guild_id = %s"""
 
-			data = DB().query_execute(sql_1, val)
-			all_exp = sum([i[0] for i in DB().query_execute(sql_2, val)])
+			data = await self.client.database.execute(sql_1, val)
+			all_exp = sum([i[0] for i in await self.client.database.execute(sql_2, val)])
 			dnd = len(
 				[
 					str(member.id)
@@ -311,17 +298,16 @@ class Utils(commands.Cog, name="Utils"):
 			message = await ctx.send(embed=emb)
 			await ctx.message.add_reaction("✅")
 
-			data = DB().sel_guild(guild=ctx.guild)["server_stats"]
+			data = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
 			data.update({"message": [message.id, ctx.channel.id]})
 
 			sql = """UPDATE guilds SET server_stats = %s WHERE guild_id = %s AND guild_id = %s"""
 			val = (json.dumps(data), ctx.guild.id, ctx.guild.id)
 
-			self.cursor.execute(sql, val)
-			self.conn.commit()
+			await self.client.database.execute(sql, val)
 			return
 
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		if stats_count.lower() not in counters.keys():
@@ -351,14 +337,13 @@ class Utils(commands.Cog, name="Utils"):
 		await stats_category.edit(position=0)
 		await ctx.message.add_reaction("✅")
 
-		data = DB().sel_guild(guild=ctx.guild)["server_stats"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
 		data.update({stats_count.lower(): stats_channel.id})
 
 		sql = """UPDATE guilds SET server_stats = %s WHERE guild_id = %s AND guild_id = %s"""
 		val = (json.dumps(data), ctx.guild.id, ctx.guild.id)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 	@commands.command(
 		aliases=["massrole"],
@@ -373,7 +358,7 @@ class Utils(commands.Cog, name="Utils"):
 	async def mass_role(
 		self, ctx, type_act: str, for_role: discord.Role, role: discord.Role
 	):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		if type_act == "add":
@@ -427,10 +412,10 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(check_role)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def list_moderators(self, ctx):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
-		data = DB().sel_guild(guild=ctx.guild)["moder_roles"]
+		data = await self.client.database.sel_guild(guild=ctx.guild)["moder_roles"]
 		if data != []:
 			roles = "\n".join(f"`{get(ctx.guild.roles, id=i).name}`" for i in data)
 		else:
@@ -453,10 +438,10 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(check_role)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def mutes(self, ctx):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
-		data = DB().get_mutes(ctx.guild.id)
+		data = await self.client.database.get_mutes(ctx.guild.id)
 
 		if data != []:
 			mutes = "\n\n".join(
@@ -486,10 +471,10 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def api_key(self, ctx):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
-		key = DB().sel_guild(guild=ctx.guild)["api_key"]
+		key = (await self.client.database.sel_guild(guild=ctx.guild))["api_key"]
 
 		await ctx.author.send(
 			f"Ключ API сервера - {ctx.guild.name}: `{key}`\n**__Никому его не передавайте. Он даёт доступ к данным сервера__**"

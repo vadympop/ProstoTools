@@ -1,7 +1,6 @@
 import discord
 import datetime
 
-from tools import Commands, DB
 from discord.ext import commands
 
 
@@ -12,7 +11,7 @@ class Events(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
-		channel_id = DB().sel_guild(guild=before.guild)["log_channel"]
+		channel_id = (await self.client.database.sel_guild(guild=before.guild))["log_channel"]
 		if channel_id == 0:
 			return
 		channel = self.client.get_channel(channel_id)
@@ -70,7 +69,7 @@ class Events(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_member_ban(self, guild, user):
-		channel_id = DB().sel_guild(guild=guild)["log_channel"]
+		channel_id = (await self.client.database.sel_guild(guild=guild))["log_channel"]
 		if channel_id == 0:
 			return
 		channel = self.client.get_channel(channel_id)
@@ -95,7 +94,7 @@ class Events(commands.Cog):
 		if user.bot:
 			return
 
-		channel_id = DB().sel_guild(guild=guild)["log_channel"]
+		channel_id = (await self.client.database.sel_guild(guild=guild))["log_channel"]
 		if channel_id == 0:
 			return
 		channel = self.client.get_channel(channel_id)
@@ -116,7 +115,7 @@ class Events(commands.Cog):
 		if message.author.bot:
 			return
 
-		channel_id = DB().sel_guild(guild=message.guild)["log_channel"]
+		channel_id = (await self.client.database.sel_guild(guild=message.guild))["log_channel"]
 		if channel_id == 0:
 			return
 		channel = self.client.get_channel(channel_id)
@@ -150,7 +149,7 @@ class Events(commands.Cog):
 		if before.author.bot:
 			return
 
-		channel_id = DB().sel_guild(guild=before.guild)["log_channel"]
+		channel_id = (await self.client.database.sel_guild(guild=before.guild))["log_channel"]
 		if channel_id == 0:
 			return
 		channel = self.client.get_channel(channel_id)

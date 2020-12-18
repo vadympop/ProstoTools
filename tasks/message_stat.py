@@ -1,31 +1,21 @@
 import discord
-import os
 import json
-import mysql.connector
 
 from tools import DB
 
 from discord.ext import commands, tasks
-from discord.utils import get
 
 
 class TasksMessageStat(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.conn = mysql.connector.connect(
-			user="root",
-			password=os.getenv("DB_PASSWORD"),
-			host="localhost",
-			database="data",
-		)
-		self.cursor = self.conn.cursor(buffered=True)
 		self.message_stat_loop.start()
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@tasks.loop(minutes=5)
 	async def message_stat_loop(self):
 		for guild in self.client.guilds:
-			data_guild = DB().sel_guild(guild=guild)
+			data_guild = await self.client.database.sel_guild(guild=guild)
 			if "message" in data_guild["server_stats"].keys():
 				message = await guild.get_channel(
 					data_guild["server_stats"]["message"][1]
@@ -35,8 +25,8 @@ class TasksMessageStat(commands.Cog):
 					sql_1 = """SELECT user_id, exp, money, reputation, messages FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 20"""
 					sql_2 = """SELECT exp FROM users WHERE guild_id = %s AND guild_id = %s"""
 
-					data = DB().query_execute(sql_1, val)
-					all_exp = sum([i[0] for i in DB().query_execute(sql_2, val)])
+					data = await self.client.database.execute(sql_1, val)
+					all_exp = sum([i[0] for i in await self.client.database.execute(sql_2, val)])
 					dnd = len(
 						[
 							str(member.id)

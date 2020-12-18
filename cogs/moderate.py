@@ -3,10 +3,9 @@ import json
 import typing
 import time
 import os
-import mysql.connector
 import uuid
 
-from tools import Commands, DB
+from tools import Commands
 
 from datetime import datetime
 from discord.ext import commands
@@ -14,7 +13,7 @@ from discord.utils import get
 
 
 def check_role(ctx):
-	data = DB().sel_guild(guild=ctx.guild)["moder_roles"]
+	data = ctx.bot.database.get_moder_roles(guild=ctx.guild)
 	roles = ctx.guild.roles[::-1]
 	data.append(roles[0].id)
 
@@ -29,13 +28,6 @@ def check_role(ctx):
 class Moderate(commands.Cog, name="Moderate"):
 	def __init__(self, client):
 		self.client = client
-		self.conn = mysql.connector.connect(
-			user="root",
-			password=os.getenv("DB_PASSWORD"),
-			host="localhost",
-			database="data",
-		)
-		self.cursor = self.conn.cursor(buffered=True)
 		self.TEMP_PATH = self.client.config.TEMP_PATH
 		self.MUTE_ROLE = self.client.config.MUTE_ROLE
 		self.VMUTE_ROLE = self.client.config.VMUTE_ROLE
@@ -53,7 +45,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		amount += 1
 		number = 0
 		delete_messages = ""
-		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
+		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 		if member is None:
 			delete_messages_fp = self.TEMP_PATH + str(uuid.uuid4()) + ".txt"
 			async for msg in ctx.channel.history():
@@ -127,7 +119,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def temprole(
 		self, ctx, member: discord.Member, role: discord.Role, type_time: str
 	):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		if member == ctx.author:
@@ -241,7 +233,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		await ctx.send(embed=emb)
 
 		if role_minutes > 0:
-			DB().set_punishment(
+			await self.client.database.set_punishment(
 				type_punishment="temprole",
 				time=times,
 				member=member,
@@ -258,7 +250,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def slowmode(self, ctx, delay: int, channel: discord.TextChannel):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		if channel is None:
@@ -313,9 +305,9 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def kick(self, ctx, member: discord.Member, *, reason: str = "Причина не указана"):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
+		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -429,9 +421,9 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def softban(
 		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = "Причина не указана"
 	):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
+		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -588,7 +580,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		await member.add_roles(role)
 
 		if softban_time > 0:
-			DB().set_punishment(
+			await self.client.database.set_punishment(
 				type_punishment="temprole", time=times, member=member, role=role.id
 			)
 
@@ -628,9 +620,9 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def unsoftban(self, ctx, member: discord.Member):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
+		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -729,7 +721,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def ban(
 		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = "Причина не указана"
 	):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		if member == ctx.author:
@@ -789,7 +781,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			return
 
 		if member in ctx.guild.members:
-			DB().sel_user(target=member)
+			await self.client.database.sel_user(target=member)
 		else:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -890,10 +882,9 @@ class Moderate(commands.Cog, name="Moderate"):
 			sql = """UPDATE users SET clans = %s, items = %s, money = %s, coins = %s, reputation = %s WHERE user_id = %s AND guild_id = %s"""
 			val = (json.dumps([]), json.dumps([]), 0, 0, -100, member.id, ctx.guild.id)
 
-			self.cursor.execute(sql, val)
-			self.conn.commit()
+			await self.client.database.execute(sql, val)
 
-			DB().set_punishment(type_punishment="ban", time=times, member=member)
+			await self.client.database.set_punishment(type_punishment="ban", time=times, member=member)
 
 	@commands.command(
 		aliases=["unban"],
@@ -905,7 +896,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.has_permissions(ban_members=True)
 	async def unban(self, ctx, *, member: discord.User):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		if member == ctx.author:
@@ -956,7 +947,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 			if user.id == member.id:
 				await ctx.guild.unban(user)
-				DB().del_punishment(
+				await self.client.database.del_punishment(
 					member=member, guild_id=ctx.guild.id, type_punishment="ban"
 				)
 
@@ -989,9 +980,9 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def vmute(
 		self, ctx, member: discord.Member, type_time: str = None, reason: str = "Причина не указана"
 	):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
+		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -1132,7 +1123,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			DB().set_punishment(
+			await self.client.database.set_punishment(
 				type_punishment="vmute", time=times, member=member, role_id=int(role.id)
 			)
 
@@ -1181,9 +1172,9 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def unvmute(self, ctx, member: discord.Member):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
+		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -1229,7 +1220,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		for vmute_role in ctx.guild.roles:
 			if vmute_role.name == self.VMUTE_ROLE:
-				DB().del_punishment(
+				await self.client.database.del_punishment(
 					member=member, guild_id=ctx.guild.id, type_punishment="vmute"
 				)
 				await member.remove_roles(vmute_role)
@@ -1289,9 +1280,9 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def mute(
 		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = "Причина не указана"
 	):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
+		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -1413,7 +1404,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		times = time.time() + mute_minutes
 
 		if member in ctx.guild.members:
-			data = DB().sel_user(target=member)
+			data = await self.client.database.sel_user(target=member)
 		else:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -1498,8 +1489,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			ctx.guild.id,
 		)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 		if mute_minutes <= 0:
 			emb = discord.Embed(
@@ -1521,7 +1511,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			except:
 				pass
 		elif mute_minutes > 0:
-			DB().set_punishment(
+			await self.client.database.set_punishment(
 				type_punishment="mute",
 				time=times,
 				member=member,
@@ -1583,9 +1573,9 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def unmute(self, ctx, member: discord.Member):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
+		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -1631,7 +1621,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		for role in ctx.guild.roles:
 			if role.name == self.MUTE_ROLE:
-				DB().del_punishment(
+				await self.client.database.del_punishment(
 					member=member, guild_id=ctx.guild.id, type_punishment="mute"
 				)
 				await member.remove_roles(role)
@@ -1684,9 +1674,9 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def clearwarn(self, ctx, member: discord.Member):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
+		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -1703,7 +1693,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			return
 
 		if member in ctx.guild.members:
-			DB().sel_user(target=member)
+			await self.client.database.sel_user(target=member)
 		else:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -1721,8 +1711,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		sql = """UPDATE users SET warns = %s WHERE user_id = %s AND guild_id = %s"""
 		val = (json.dumps([]), member.id, ctx.guild.id)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 		emb = discord.Embed(
 			description=f"**У пользователя `{member}` были сняты предупреждения**",
@@ -1759,9 +1748,9 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def warn(self, ctx, member: discord.Member, *, reason: str = "Причина не указана"):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
+		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -1834,7 +1823,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			return
 
 		if member in ctx.guild.members:
-			data = DB().sel_user(target=member)
+			data = await self.client.database.sel_user(target=member)
 		else:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -1849,7 +1838,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		info = DB().sel_guild(guild=ctx.guild)
+		info = await self.client.database.sel_guild(guild=ctx.guild)
 		max_warns = int(info["max_warns"])
 
 		cur_lvl = data["lvl"]
@@ -1859,7 +1848,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		cur_state_pr = data["prison"]
 		cur_reputation = data["reputation"] - 10
 
-		warn_id = DB().set_warn(
+		warn_id = await self.client.database.set_warn(
 			target=member,
 			reason=reason,
 			author=str(ctx.author),
@@ -1892,7 +1881,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			cur_reputation = -100
 
 		if len(cur_warns) >= 20:
-			DB().del_warn(
+			await self.client.database.del_warn(
 				guild_id=ctx.guild.id,
 				warn_id=[warn for warn in cur_warns if not warn["state"]][0]["id"]
 			)
@@ -1955,8 +1944,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			ctx.guild.id,
 		)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 		if logs_channel_id != 0:
 			e = discord.Embed(
@@ -1992,10 +1980,10 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def rem_warn(self, ctx, warn_id: int):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		data = DB().del_warn(ctx.guild.id, warn_id)
-		logs_channel_id = DB().sel_guild(guild=ctx.guild)["log_channel"]
+		data = await self.client.database.del_warn(ctx.guild.id, warn_id)
+		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if data is None:
 			emb = discord.Embed(
@@ -2045,7 +2033,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}warns @Участник\n2. {Prefix}warns 660110922865704980\n\n**Пример 1:** Показывает предупреждения указаного участника\n**Пример 2:** Показывает предупреждения участника с указаным id",
 	)
 	async def warns(self, ctx, member: discord.Member = None):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 		if member is None:
@@ -2065,7 +2053,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		data = DB().sel_user(target=member)
+		data = await self.client.database.sel_user(target=member)
 		warns = data["warns"]
 
 		if warns == []:

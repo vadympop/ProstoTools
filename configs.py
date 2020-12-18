@@ -2,6 +2,7 @@ import os
 
 
 class Config:
+	# Client config
 	DEF_PREFIX = '*'
 	OWNERS = [660110922865704980, 404224656598499348]
 	SHOPLIST_COSTS = [500, 1000, 100, 1100, 100, 600]
@@ -18,3 +19,9 @@ class Config:
 	VMUTE_ROLE = 'PT-VMUTED'
 	SOFTBAN_ROLE = 'PT-SOFT-BANNED'
 	TOKEN = os.getenv('BOT_TOKEN')
+
+	# Database config
+	DB_PASSWORD = os.getenv('DB_PASSWORD')
+	DB_HOST = os.getenv('DB_HOST')
+	DB_USER = os.getenv('DB_USER')
+	DB_DATABASE = os.getenv('DB_DATABASE')

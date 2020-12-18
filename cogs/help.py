@@ -1,7 +1,5 @@
 import discord
 
-from tools import DB
-
 from discord.ext import commands
 from discord.utils import get
 
@@ -66,11 +64,11 @@ class Help(commands.Cog, name="Help"):
 		help="**Примеры использования:**\n1. {Prefix}help\n2. {Prefix}help moderate\n2. {Prefix}help ban\n\n**Пример 1:** Показывает список всех команд бота\n**Пример 2:** Показывает список всех указаной групы\n**Пример 3:** Показывает документацию по указаной команде"
 	)
 	async def help(self, ctx, cog_name: str = None):
-		purge = self.client.clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		exceptions = ["Help", "Loops", "Events", "Owner", "Errors"]
 		groups = ["settings", "works", "clans"]
-		moder_roles = DB().sel_guild(guild=ctx.guild)["moder_roles"]
+		moder_roles = (await self.client.database.sel_guild(guild=ctx.guild))["moder_roles"]
 		state = False
 		group_name = ""
 		locks = {
@@ -83,7 +81,7 @@ class Help(commands.Cog, name="Help"):
 			"Works": 7,
 			"Clans": 3,
 		}
-		PREFIX = self.client.get_guild_prefix(ctx)
+		PREFIX = self.client.database.get_prefix(guild=ctx.guild)
 
 		def add_command_loop(command, commands, count, group_name):
 			try:

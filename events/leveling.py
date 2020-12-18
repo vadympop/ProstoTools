@@ -1,12 +1,10 @@
 import discord
-import os
 import json
 import asyncio
 import math
 import datetime
-import mysql.connector
 
-from tools import Commands, DB
+from tools import Commands
 
 from discord.ext import commands
 from discord.utils import get
@@ -16,13 +14,6 @@ from random import randint
 class EventsLeveling(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.conn = mysql.connector.connect(
-			user="root",
-			password=os.getenv("DB_PASSWORD"),
-			host="localhost",
-			database="data",
-		)
-		self.cursor = self.conn.cursor(buffered=True)
 		self.FOOTER = self.client.config.FOOTER_TEXT
 		self.MUTE_ROLE = self.client.config.MUTE_ROLE
 		self.HELP_SERVER = self.client.config.HELP_SERVER
@@ -38,8 +29,8 @@ class EventsLeveling(commands.Cog):
 			if role in message.author.roles:
 				await message.delete()
 
-			guild_data = DB().sel_guild(guild=message.guild)
-			data = DB().sel_user(target=message.author)
+			guild_data = await self.client.database.sel_guild(guild=message.guild)
+			data = await self.client.database.sel_user(target=message.author)
 
 			if message.channel.id in guild_data["react_channels"]:
 				await message.add_reaction("👍")
@@ -54,8 +45,7 @@ class EventsLeveling(commands.Cog):
 			scr = """UPDATE guilds SET all_message = %s WHERE guild_id = %s AND guild_id = %s"""
 			val_1 = (all_message, message.guild.id, message.guild.id)
 
-			self.cursor.execute(scr, val_1)
-			self.conn.commit()
+			await self.client.database.execute(scr, val_1)
 
 			if ignored_channels != []:
 				if message.channel.id in ignored_channels:
@@ -116,8 +106,7 @@ class EventsLeveling(commands.Cog):
 				message.guild.id,
 			)
 
-			self.cursor.execute(sql, val)
-			self.conn.commit()
+			await self.client.database.execute(sql, val)
 
 			try:
 				await self.client.wait_for(

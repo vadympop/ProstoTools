@@ -1,26 +1,14 @@
 import discord
-import os
-import mysql.connector
-
-from tools import DB
-
 from discord.ext import commands
 
 
 class EventsLeave(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.conn = mysql.connector.connect(
-			user="root",
-			password=os.getenv("DB_PASSWORD"),
-			host="localhost",
-			database="data",
-		)
-		self.cursor = self.conn.cursor(buffered=True)
 
 	@commands.Cog.listener()
 	async def on_guild_remove(self, guild):
-		DB().add_amout_command(entity="guilds", add_counter=len(self.client.guilds))
+		await self.client.database.add_amout_command(entity="guilds", add_counter=len(self.client.guilds))
 
 		val = (guild.id, guild.id)
 		sql_1 = """DELETE FROM guilds WHERE guild_id = %s AND guild_id = %s"""
@@ -29,19 +17,17 @@ class EventsLeave(commands.Cog):
 		sql_4 = """DELETE FROM reminders WHERE guild_id = %s AND guild_id = %s"""
 		sql_5 = """DELETE FROM warns WHERE guild_id = %s AND guild_id = %s"""
 
-		self.cursor.execute(sql_1, val)
-		self.cursor.execute(sql_2, val)
-		self.cursor.execute(sql_3, val)
-		self.cursor.execute(sql_4, val)
-		self.cursor.execute(sql_5, val)
-		self.conn.commit()
+		await self.client.database.execute(sql_1, val)
+		await self.client.database.execute(sql_2, val)
+		await self.client.database.execute(sql_3, val)
+		await self.client.database.execute(sql_4, val)
+		await self.client.database.execute(sql_5, val)
 
 		for member in guild.members:
 			sql_2 = """DELETE FROM users WHERE user_id = %s AND guild_id = %s"""
 			val_2 = (member.id, guild.id)
 
-			self.cursor.execute(sql_2, val_2)
-			self.conn.commit()
+			await self.client.database.execute(sql_2, val_2)
 
 		guild_owner_bot = self.client.get_guild(717776571406090310)
 		channel = guild_owner_bot.text_channels[3]
@@ -62,11 +48,10 @@ class EventsLeave(commands.Cog):
 		sql_3 = """DELETE FROM reminders WHERE user_id = %s AND user_id = %s"""
 		sql_4 = """DELETE FROM warns WHERE user_id = %s AND user_id = %s"""
 
-		self.cursor.execute(sql_1, val)
-		self.cursor.execute(sql_2, val)
-		self.cursor.execute(sql_3, val)
-		self.cursor.execute(sql_4, val)
-		self.conn.commit()
+		await self.client.database.execute(sql_1, val)
+		await self.client.database.execute(sql_2, val)
+		await self.client.database.execute(sql_3, val)
+		await self.client.database.execute(sql_4, val)
 
 
 def setup(client):

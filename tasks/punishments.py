@@ -1,10 +1,5 @@
 import discord
-import os
-import json
 import time
-import mysql.connector
-
-from tools import DB
 
 from datetime import datetime
 from discord.ext import commands, tasks
@@ -14,13 +9,6 @@ from discord.utils import get
 class TasksPunishments(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.conn = mysql.connector.connect(
-			user="root",
-			password=os.getenv("DB_PASSWORD"),
-			host="localhost",
-			database="data",
-		)
-		self.cursor = self.conn.cursor(buffered=True)
 		self.mute_loop.start()
 		self.ban_loop.start()
 		self.temprole_loop.start()
@@ -29,16 +17,16 @@ class TasksPunishments(commands.Cog):
 
 	@tasks.loop(seconds=5)
 	async def mute_loop(self):
-		for mute in DB().get_punishment():
+		for mute in await self.client.database.get_punishment():
 			mute_time = mute[2]
 			guild = self.client.get_guild(int(mute[1]))
 			if mute[3] == "mute":
 				if guild is not None:
-					logs_channel_id = DB().sel_guild(guild=guild)["log_channel"]
+					logs_channel_id = await self.client.database.sel_guild(guild=guild)["log_channel"]
 					member = guild.get_member(int(mute[0]))
 					if member is not None:
 						if float(mute_time) <= float(time.time()):
-							DB().del_punishment(
+							await self.client.database.del_punishment(
 								member=member, guild_id=guild.id, type_punishment="mute"
 							)
 							mute_role = guild.get_role(int(mute[4]))
@@ -76,7 +64,7 @@ class TasksPunishments(commands.Cog):
 
 	@tasks.loop(seconds=5)
 	async def ban_loop(self):
-		for ban in DB().get_punishment():
+		for ban in await self.client.database.get_punishment():
 			ban_time = ban[2]
 			guild = self.client.get_guild(int(ban[1]))
 			if ban[3] == "ban":
@@ -86,7 +74,7 @@ class TasksPunishments(commands.Cog):
 						user = ban_entry.user
 						if user.id == ban[0]:
 							if float(ban_time) <= float(time.time()):
-								DB().del_punishment(
+								await self.client.database.del_punishment(
 									member=user,
 									guild_id=guild.id,
 									type_punishment="ban",
@@ -112,7 +100,7 @@ class TasksPunishments(commands.Cog):
 
 	@tasks.loop(seconds=5)
 	async def temprole_loop(self):
-		for temprole in DB().get_punishment():
+		for temprole in await self.client.database.get_punishment():
 			temprole_time = temprole[2]
 			guild = self.client.get_guild(int(temprole[1]))
 			if temprole[3] == "temprole":
@@ -120,7 +108,7 @@ class TasksPunishments(commands.Cog):
 					member = guild.get_member(int(temprole[0]))
 					if member is not None:
 						if float(temprole_time) <= float(time.time()):
-							DB().del_punishment(
+							await self.client.database.del_punishment(
 								member=member,
 								guild_id=guild.id,
 								type_punishment="temprole",
@@ -130,16 +118,16 @@ class TasksPunishments(commands.Cog):
 
 	@tasks.loop(seconds=5)
 	async def vmute_loop(self):
-		for vmute in DB().get_punishment():
+		for vmute in await self.client.database.get_punishment():
 			vmute_time = vmute[2]
 			guild = self.client.get_guild(int(vmute[1]))
 			if vmute[3] == "vmute":
 				if guild is not None:
-					logs_channel_id = DB().sel_guild(guild=guild)["log_channel"]
+					logs_channel_id = await self.client.database.sel_guild(guild=guild)["log_channel"]
 					member = guild.get_member(int(vmute[0]))
 					if member is not None:
 						if float(vmute_time) <= float(time.time()):
-							DB().del_punishment(
+							await self.client.database.del_punishment(
 								member=member,
 								guild_id=guild.id,
 								type_punishment="vmute",

@@ -1,6 +1,4 @@
 import discord
-
-from tools import DB
 from discord.ext import commands
 
 
@@ -23,12 +21,12 @@ class EventsJoin(commands.Cog):
 		)
 		await guild.text_channels[0].send(embed=emb)
 
-		DB().sel_guild(guild=guild)
-		DB().add_amout_command(entity="guilds", add_counter=len(self.client.guilds))
+		await self.client.database.sel_guild(guild=guild)
+		await self.client.database.add_amout_command(entity="guilds", add_counter=len(self.client.guilds))
 
 		for member in guild.members:
 			if not member.bot:
-				DB().sel_user(target=member)
+				await self.client.database.sel_user(target=member)
 
 		guild_owner_bot = self.client.get_guild(717776571406090310)
 		channel = guild_owner_bot.text_channels[3]

@@ -1,42 +1,20 @@
 import discord
-import mysql.connector
 import json
 import typing
-import os
-
-from tools import DB
 
 from discord.ext import commands
 from discord.utils import get
-from configs import Config
-
-
-def clear_commands(guild):
-
-	data = DB().sel_guild(guild=guild)
-	purge = data["purge"]
-	return purge
-
-
-global Footer
-Footer = Config.FOOTER_TEXT
 
 
 class Settings(commands.Cog, name="Settings"):
 	def __init__(self, client):
 		self.client = client
-		self.conn = mysql.connector.connect(
-			user="root",
-			password=os.getenv("DB_PASSWORD"),
-			host="localhost",
-			database="data",
-		)
-		self.cursor = self.conn.cursor(buffered=True)
+		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.group()
 	@commands.has_permissions(administrator=True)
 	async def setting(self, ctx):
-		purge = clear_commands(ctx.guild)
+		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
 	@setting.command(
@@ -53,22 +31,21 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 			return
 
 		sql = """UPDATE guilds SET prefix = %s WHERE guild_id = %s AND guild_id = %s"""
 		val = (prefix, ctx.guild.id, ctx.guild.id)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 		emb = discord.Embed(
 			description=f"**Вы успешно изменили префикс бота на этом сервере. Новый префикс {prefix}**",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-		emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 		await ctx.send(embed=emb)
 
 	@setting.command(
@@ -79,7 +56,7 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	async def moder_role(self, ctx, type_act: str, role: discord.Role = None):
 		client = self.client
-		data = DB().sel_guild(guild=ctx.guild)
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		cur_roles = data["moder_roles"]
 
 		if type_act == "add":
@@ -89,7 +66,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif type_act == "clear":
 			cur_roles = []
@@ -98,7 +75,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif type_act == "delete":
 			try:
@@ -110,7 +87,7 @@ class Settings(commands.Cog, name="Settings"):
 					colour=discord.Color.green(),
 				)
 				emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-				emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 				await ctx.send(embed=emb)
 				return
 
@@ -119,7 +96,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif type_act != "clear" and type_act != "add":
 			emb = discord.Embed(
@@ -128,15 +105,14 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 			return
 
 		sql = """UPDATE guilds SET moderators = %s WHERE guild_id = %s AND guild_id = %s"""
 		val = (json.dumps(cur_roles), ctx.guild.id, ctx.guild.id)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 	@setting.command(
 		hidden=True,
@@ -146,7 +122,7 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	async def ignoredchannels(self, ctx, typech: str, channel: int = 0):
 		client = self.client
-		data = DB().sel_guild(guild=ctx.guild)
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		channel_obg = get(ctx.guild.text_channels, id=channel)
 		cur_ignchannel = data["ignored_channels"]
 
@@ -157,7 +133,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif typech == "clear":
 			cur_ignchannel = []
@@ -166,7 +142,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif typech == "delete":
 			try:
@@ -178,7 +154,7 @@ class Settings(commands.Cog, name="Settings"):
 					colour=discord.Color.green(),
 				)
 				emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-				emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 				await ctx.send(embed=emb)
 				return
 
@@ -187,7 +163,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif typech != "clear" and typech != "add":
 			emb = discord.Embed(
@@ -196,15 +172,14 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 			return
 
 		sql = """UPDATE guilds SET ignored_channels = %s WHERE guild_id = %s AND guild_id = %s"""
 		val = (json.dumps(cur_ignchannel), ctx.guild.id, ctx.guild.id)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 	@setting.command(
 		hidden=True,
@@ -220,22 +195,21 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 			return
 		elif purge_num == 1 or purge_num == 0:
 			sql = """UPDATE guilds SET `purge` = %s WHERE guild_id = %s AND guild_id = %s"""
 			val = (purge_num, ctx.guild.id, ctx.guild.id)
 
-			self.cursor.execute(sql, val)
-			self.conn.commit()
+			await self.client.database.execute(sql, val)
 
 			emb = discord.Embed(
 				description=f"**Вы успешно изменили значения! Новое значения - {purge_num}**",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 
 	@setting.command(
@@ -248,7 +222,7 @@ class Settings(commands.Cog, name="Settings"):
 		self, ctx, cl_add: typing.Optional[str], role: discord.Role, cost: int
 	):
 		client = self.client
-		data = DB().sel_guild(guild=ctx.guild)
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		shoplist = data["shop_list"]
 
 		if cl_add == "add":
@@ -258,7 +232,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif cl_add == "clear":
 			shoplist = []
@@ -267,7 +241,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif cl_add == "delete" or cl_add == "remove" or cl_add == "del":
 			try:
@@ -281,7 +255,7 @@ class Settings(commands.Cog, name="Settings"):
 					colour=discord.Color.green(),
 				)
 				emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-				emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 				await ctx.send(embed=emb)
 				return
 
@@ -290,7 +264,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif cl_add != "clear" and cl_add != "add":
 			emb = discord.Embed(
@@ -299,7 +273,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction("❌")
 			return
@@ -309,8 +283,7 @@ class Settings(commands.Cog, name="Settings"):
 		)
 		val = (json.dumps(shoplist), ctx.guild.id, ctx.guild.id)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 	@setting.command(
 		hidden=True,
@@ -325,15 +298,14 @@ class Settings(commands.Cog, name="Settings"):
 			sql = """UPDATE guilds SET textchannels_category = %s WHERE guild_id = %s AND guild_id = %s"""
 			val = (category.id, ctx.guild.id, ctx.guild.id)
 
-			self.cursor.execute(sql, val)
-			self.conn.commit()
+			await self.client.database.execute(sql, val)
 
 			emb = discord.Embed(
 				description=f"**Вы успешно настроили категорию для приватних текстовых каналов! Новая категория - {category.name}**",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 		else:
 			emb = discord.Embed(
@@ -342,7 +314,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction("❌")
 			return
@@ -362,7 +334,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction("❌")
 			return
@@ -372,15 +344,14 @@ class Settings(commands.Cog, name="Settings"):
 		)
 		val = (number, ctx.guild.id, ctx.guild.id)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 		emb = discord.Embed(
 			description=f"**Вы успешно настроили максимальное количество предупрежденний! Новое значения - `{number}`**",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-		emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 		await ctx.send(embed=emb)
 
 	@setting.command(
@@ -399,18 +370,18 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction("❌")
 			return
 
-		data = DB().sel_guild(guild=ctx.guild)
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		emb = discord.Embed(
 			description=f"**Настройки анти-флуда успешно обновленны!**",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-		emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 		await ctx.send(embed=emb)
 
 		if action.lower() == "on" or action.lower() == "true" or action.lower() == "1":
@@ -430,8 +401,7 @@ class Settings(commands.Cog, name="Settings"):
 		)
 		val = (json.dumps(settings), ctx.guild.id, ctx.guild.id)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 	@setting.command(
 		hidden=True,
@@ -449,18 +419,18 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction("❌")
 			return
 
-		data = DB().sel_guild(guild=ctx.guild)
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		emb = discord.Embed(
 			description=f"**Настройки анти-рейд-режима успешно обновленны!**",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-		emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 		await ctx.send(embed=emb)
 
 		if action.lower() == "on" or action.lower() == "true" or action.lower() == "1":
@@ -480,8 +450,7 @@ class Settings(commands.Cog, name="Settings"):
 		)
 		val = (json.dumps(settings), ctx.guild.id, ctx.guild.id)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 	@setting.command(
 		hidden=True,
@@ -499,18 +468,18 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction("❌")
 			return
 
-		data = DB().sel_guild(guild=ctx.guild)
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		emb = discord.Embed(
 			description=f"**Настройки команд по реакциям успешно обновленны!**",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-		emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 		await ctx.send(embed=emb)
 
 		if action.lower() == "on" or action.lower() == "true" or action.lower() == "1":
@@ -530,8 +499,7 @@ class Settings(commands.Cog, name="Settings"):
 		)
 		val = (json.dumps(settings), ctx.guild.id, ctx.guild.id)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 	@setting.command(
 		hidden=True,
@@ -546,15 +514,14 @@ class Settings(commands.Cog, name="Settings"):
 			sql = """UPDATE guilds SET idea_channel = %s WHERE guild_id = %s AND guild_id = %s"""
 			val = (channel, ctx.guild.id, ctx.guild.id)
 
-			self.cursor.execute(sql, val)
-			self.conn.commit()
+			await self.client.database.execute(sql, val)
 
 			emb = discord.Embed(
 				description=f"**Вы успешно настроили канал идей! Новий канал - {ideachannel.name}**",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 		else:
 			emb = discord.Embed(
@@ -563,7 +530,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction("❌")
 			return
@@ -579,15 +546,14 @@ class Settings(commands.Cog, name="Settings"):
 		sql = """UPDATE guilds SET timedelete_textchannel = %s WHERE guild_id = %s AND guild_id = %s"""
 		val = (time, ctx.guild.id, ctx.guild.id)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 		emb = discord.Embed(
 			description=f"**Вы успешно изменили значения! Новая длительность на удаления приватного текстового - {time}**",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-		emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 		await ctx.send(embed=emb)
 
 	@setting.command(
@@ -607,7 +573,7 @@ class Settings(commands.Cog, name="Settings"):
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction("❌")
 			return
@@ -618,15 +584,14 @@ class Settings(commands.Cog, name="Settings"):
 		)
 		val = (form, ctx.guild.id, ctx.guild.id)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 		emb = discord.Embed(
 			description=f"**Вы успешно настроили множитель опыта, {multiplier}**",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-		emb.set_footer(text=Footer, icon_url=client.user.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 		await ctx.send(embed=emb)
 
 	@setting.command(
@@ -645,8 +610,7 @@ class Settings(commands.Cog, name="Settings"):
 
 		sql = """UPDATE guilds SET log_channel = %s WHERE guild_id = %s"""
 		val = (channel_id, ctx.guild.id)
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 
 def setup(client):

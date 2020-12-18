@@ -1,24 +1,10 @@
-import discord
-import os
 import json
-import mysql.connector
-
-from tools import DB
-
 from discord.ext import commands, tasks
-from discord.utils import get
 
 
 class TasksServerStat(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.conn = mysql.connector.connect(
-			user="root",
-			password=os.getenv("DB_PASSWORD"),
-			host="localhost",
-			database="data",
-		)
-		self.cursor = self.conn.cursor(buffered=True)
 		self.server_stat_loop.start()
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
@@ -26,7 +12,7 @@ class TasksServerStat(commands.Cog):
 	async def server_stat_loop(self):
 		data = [
 			(stat[0], json.loads(stat[1]))
-			for stat in DB().query_execute(
+			for stat in await self.client.database.execute(
 				"""SELECT guild_id, server_stats FROM guilds"""
 			)
 		]
