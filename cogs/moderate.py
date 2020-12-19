@@ -164,75 +164,19 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		role_time = int("".join(char for char in type_time if not char.isalpha()))
-		role_typetime = str(type_time.replace(str(role_time), ""))
-
-		minutes = [
-			"m",
-			"min",
-			"mins",
-			"minute",
-			"minutes",
-			"м",
-			"мин",
-			"минута",
-			"минуту",
-			"минуты",
-			"минут",
-		]
-		hours = ["h", "hour", "hours", "ч", "час", "часа", "часов"]
-		days = ["d", "day", "days", "д", "день", "дня", "дней"]
-		weeks = [
-			"w",
-			"week",
-			"weeks",
-			"н",
-			"нед",
-			"неделя",
-			"недели",
-			"недель",
-			"неделю",
-		]
-		monthes = [
-			"m",
-			"month",
-			"monthes",
-			"mo",
-			"mos",
-			"months",
-			"мес",
-			"месяц",
-			"месяца",
-			"месяцев",
-		]
-		years = ["y", "year", "years", "г", "год", "года", "лет"]
-		if role_typetime in minutes:
-			role_minutes = role_time * 60
-		elif role_typetime in hours:
-			role_minutes = role_time * 60 * 60
-		elif role_typetime in days:
-			role_minutes = role_time * 60 * 60 * 12
-		elif role_typetime in weeks:
-			role_minutes = role_time * 60 * 60 * 12 * 7
-		elif role_typetime in monthes:
-			role_minutes = role_time * 60 * 60 * 12 * 7 * 31
-		elif role_typetime in years:
-			role_minutes = role_time * 60 * 60 * 12 * 7 * 31 * 12
-		else:
-			role_minutes = role_time
-
-		times = time.time() + role_minutes
+		role_time = self.client.utils.time_to_num(type_time)
+		times = time.time() + role_time[0]
 
 		await member.add_roles(role)
 		emb = discord.Embed(
-			description=f"**`{member}` Была виданно новая роль {role.name} на {role_time}{role_typetime}**",
+			description=f"**`{member}` Была виданно новая роль {role.name} на {role_time[1]}{role_time[2]}**",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
 
-		if role_minutes > 0:
+		if role_time[0] > 0:
 			await self.client.database.set_punishment(
 				type_punishment="temprole",
 				time=times,
@@ -481,70 +425,8 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		if type_time is not None:
-			softban_time = int(
-				"".join(char for char in type_time if not char.isalpha())
-			)
-			softban_typetime = str(type_time.replace(str(softban_time), ""))
-		else:
-			softban_typetime = None
-			softban_time = 0
-
-		minutes = [
-			"m",
-			"min",
-			"mins",
-			"minute",
-			"minutes",
-			"м",
-			"мин",
-			"минута",
-			"минуту",
-			"минуты",
-			"минут",
-		]
-		hours = ["h", "hour", "hours", "ч", "час", "часа", "часов"]
-		days = ["d", "day", "days", "д", "день", "дня", "дней"]
-		weeks = [
-			"w",
-			"week",
-			"weeks",
-			"н",
-			"нед",
-			"неделя",
-			"недели",
-			"недель",
-			"неделю",
-		]
-		monthes = [
-			"m",
-			"month",
-			"monthes",
-			"mo",
-			"mos",
-			"months",
-			"мес",
-			"месяц",
-			"месяца",
-			"месяцев",
-		]
-		years = ["y", "year", "years", "г", "год", "года", "лет"]
-		if softban_typetime in minutes:
-			softban_minutes = softban_time * 60
-		elif softban_typetime in hours:
-			softban_minutes = softban_time * 60 * 60
-		elif softban_typetime in days:
-			softban_minutes = softban_time * 60 * 60 * 12
-		elif softban_typetime in weeks:
-			softban_minutes = softban_time * 60 * 60 * 12 * 7
-		elif softban_typetime in monthes:
-			softban_minutes = softban_time * 60 * 60 * 12 * 7 * 31
-		elif softban_typetime in years:
-			softban_minutes = softban_time * 60 * 60 * 12 * 7 * 31 * 12
-		else:
-			softban_minutes = softban_time
-
-		times = time.time() + softban_minutes
+		softban_time = self.client.utils.time_to_num(type_time)
+		times = time.time() + softban_time[0]
 
 		emb = discord.Embed(
 			description=f"**{ctx.author.mention} Апаратно забанил `{member}` по причине {reason}**",
@@ -579,7 +461,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		await member.add_roles(role)
 
-		if softban_time > 0:
+		if softban_time[0] > 0:
 			await self.client.database.set_punishment(
 				type_punishment="temprole", time=times, member=member, role=role.id
 			)
@@ -592,8 +474,8 @@ class Moderate(commands.Cog, name="Moderate"):
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}",
-				value=f"На {softban_time} {softban_typetime}"
-				if softban_minutes != 0
+				value=f"На {softban_time[1]} {softban_time[2]}"
+				if softban_time[1] != 0
 				else "Перманентно",
 				inline=False,
 			)
@@ -795,68 +677,8 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.send(embed=emb)
 			return
 
-		if type_time is not None:
-			ban_time = int("".join(char for char in type_time if not char.isalpha()))
-			ban_typetime = str(type_time.replace(str(ban_time), ""))
-		else:
-			ban_typetime = None
-			ban_time = 0
-
-		minutes = [
-			"m",
-			"min",
-			"mins",
-			"minute",
-			"minutes",
-			"м",
-			"мин",
-			"минута",
-			"минуту",
-			"минуты",
-			"минут",
-		]
-		hours = ["h", "hour", "hours", "ч", "час", "часа", "часов"]
-		days = ["d", "day", "days", "д", "день", "дня", "дней"]
-		weeks = [
-			"w",
-			"week",
-			"weeks",
-			"н",
-			"нед",
-			"неделя",
-			"недели",
-			"недель",
-			"неделю",
-		]
-		monthes = [
-			"m",
-			"month",
-			"monthes",
-			"mo",
-			"mos",
-			"months",
-			"мес",
-			"месяц",
-			"месяца",
-			"месяцев",
-		]
-		years = ["y", "year", "years", "г", "год", "года", "лет"]
-		if ban_typetime in minutes:
-			ban_minutes = ban_time * 60
-		elif ban_typetime in hours:
-			ban_minutes = ban_time * 60 * 60
-		elif ban_typetime in days:
-			ban_minutes = ban_time * 60 * 60 * 12
-		elif ban_typetime in weeks:
-			ban_minutes = ban_time * 60 * 60 * 12 * 7
-		elif ban_typetime in monthes:
-			ban_minutes = ban_time * 60 * 60 * 12 * 7 * 31
-		elif ban_typetime in years:
-			ban_minutes = ban_time * 60 * 60 * 12 * 7 * 31 * 12
-		else:
-			ban_minutes = ban_time
-
-		times = time.time() + ban_minutes
+		ban_time = self.client.utils.time_to_num(type_time)
+		times = time.time() + ban_time[0]
 
 		await member.ban(reason=reason)
 		emb = discord.Embed(
@@ -917,20 +739,6 @@ class Moderate(commands.Cog, name="Moderate"):
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="Вы не можете разбанить владельца сервера!",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
-			return
-
-		if member.top_role >= ctx.guild.me.top_role:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="Я не могу разбанить этого участника!",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -1040,70 +848,9 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		if type_time is not None:
-			vmute_time = int("".join(char for char in type_time if not char.isalpha()))
-			vmute_typetime = str(type_time.replace(str(vmute_time), ""))
-		else:
-			vmute_typetime = None
-			vmute_time = 0
+		vmute_time = self.client.utils.time_to_num(type_time)
+		times = time.time() + vmute_time[0]
 
-		minutes = [
-			"m",
-			"min",
-			"mins",
-			"minute",
-			"minutes",
-			"м",
-			"мин",
-			"минута",
-			"минуту",
-			"минуты",
-			"минут",
-		]
-		hours = ["h", "hour", "hours", "ч", "час", "часа", "часов"]
-		days = ["d", "day", "days", "д", "день", "дня", "дней"]
-		weeks = [
-			"w",
-			"week",
-			"weeks",
-			"н",
-			"нед",
-			"неделя",
-			"недели",
-			"недель",
-			"неделю",
-		]
-		monthes = [
-			"m",
-			"month",
-			"monthes",
-			"mo",
-			"mos",
-			"months",
-			"мес",
-			"месяц",
-			"месяца",
-			"месяцев",
-		]
-		years = ["y", "year", "years", "г", "год", "года", "лет"]
-		if vmute_typetime in minutes:
-			vmute_minutes = vmute_time * 60
-		elif vmute_typetime in hours:
-			vmute_minutes = vmute_time * 60 * 60
-		elif vmute_typetime in days:
-			vmute_minutes = vmute_time * 60 * 60 * 12
-		elif vmute_typetime in weeks:
-			vmute_minutes = vmute_time * 60 * 60 * 12 * 7
-		elif vmute_typetime in monthes:
-			vmute_minutes = vmute_time * 60 * 60 * 12 * 7 * 31
-		elif vmute_typetime in years:
-			vmute_minutes = vmute_time * 60 * 60 * 12 * 7 * 31 * 12
-		else:
-			vmute_minutes = vmute_time
-
-		times = time.time() + vmute_minutes
-
-		vmute_minutes = vmute_time * 60
 		overwrite = discord.PermissionOverwrite(connect=False)
 		role = get(ctx.guild.roles, name=self.VMUTE_ROLE)
 
@@ -1115,9 +862,9 @@ class Moderate(commands.Cog, name="Moderate"):
 		await member.add_roles(role)
 		await member.edit(voice_channel=None)
 
-		if vmute_minutes > 0:
+		if vmute_time[0] > 0:
 			emb = discord.Embed(
-				description=f"**{ctx.author.mention} Замьютил `{member}` в голосовых каналах на {vmute_time}{vmute_typetime} по причине {reason}**",
+				description=f"**{ctx.author.mention} Замьютил `{member}` в голосовых каналах на {vmute_time[1]}{vmute_time[2]} по причине {reason}**",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -1127,7 +874,7 @@ class Moderate(commands.Cog, name="Moderate"):
 				type_punishment="vmute", time=times, member=member, role_id=int(role.id)
 			)
 
-		elif vmute_minutes <= 0:
+		elif vmute_time[0] <= 0:
 			emb = discord.Embed(
 				description=f"**{ctx.author.mention} Перманентно замьютил `{member}` в голосовых каналах по причине {reason}**",
 				colour=discord.Color.green(),
@@ -1144,8 +891,8 @@ class Moderate(commands.Cog, name="Moderate"):
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}",
-				value=f"На {vmute_time} {vmute_typetime}"
-				if vmute_minutes != 0
+				value=f"На {vmute_time[1]} {vmute_time[2]}"
+				if vmute_time[0] != 0
 				else "Перманентно",
 				inline=False,
 			)
@@ -1340,68 +1087,8 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		if type_time is not None:
-			mute_time = int("".join(char for char in type_time if not char.isalpha()))
-			mute_typetime = str(type_time.replace(str(mute_time), ""))
-		else:
-			mute_typetime = None
-			mute_time = 0
-
-		minutes = [
-			"m",
-			"min",
-			"mins",
-			"minute",
-			"minutes",
-			"м",
-			"мин",
-			"минута",
-			"минуту",
-			"минуты",
-			"минут",
-		]
-		hours = ["h", "hour", "hours", "ч", "час", "часа", "часов"]
-		days = ["d", "day", "days", "д", "день", "дня", "дней"]
-		weeks = [
-			"w",
-			"week",
-			"weeks",
-			"н",
-			"нед",
-			"неделя",
-			"недели",
-			"недель",
-			"неделю",
-		]
-		monthes = [
-			"m",
-			"month",
-			"monthes",
-			"mo",
-			"mos",
-			"months",
-			"мес",
-			"месяц",
-			"месяца",
-			"месяцев",
-		]
-		years = ["y", "year", "years", "г", "год", "года", "лет"]
-		if mute_typetime in minutes:
-			mute_minutes = mute_time * 60
-		elif mute_typetime in hours:
-			mute_minutes = mute_time * 60 * 60
-		elif mute_typetime in days:
-			mute_minutes = mute_time * 60 * 60 * 12
-		elif mute_typetime in weeks:
-			mute_minutes = mute_time * 60 * 60 * 12 * 7
-		elif mute_typetime in monthes:
-			mute_minutes = mute_time * 60 * 60 * 12 * 7 * 31
-		elif mute_typetime in years:
-			mute_minutes = mute_time * 60 * 60 * 12 * 7 * 31 * 12
-		else:
-			mute_minutes = mute_time
-
-		times = time.time() + mute_minutes
+		mute_time = self.client.utils.time_to_num(type_time)
+		times = time.time() + mute_time[0]
 
 		if member in ctx.guild.members:
 			data = await self.client.database.sel_user(target=member)
@@ -1491,7 +1178,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		await self.client.database.execute(sql, val)
 
-		if mute_minutes <= 0:
+		if mute_time[0] <= 0:
 			emb = discord.Embed(
 				description=f"**{ctx.author.mention} Перманентно замутил `{member}` по причине {reason}**",
 				colour=discord.Color.green(),
@@ -1510,17 +1197,17 @@ class Moderate(commands.Cog, name="Moderate"):
 				await member.send(embed=emb)
 			except:
 				pass
-		elif mute_minutes > 0:
+		elif mute_time[0] > 0:
 			await self.client.database.set_punishment(
 				type_punishment="mute",
 				time=times,
 				member=member,
 				role_id=int(role.id),
 				reason=reason,
-				author=str(ctx.author),
+				author=ctx.author.id,
 			)
 			emb = discord.Embed(
-				description=f"**{ctx.author.mention} Замутил `{member}` по причине {reason} на {mute_time}{mute_typetime}**",
+				description=f"**{ctx.author.mention} Замутил `{member}` по причине {reason} на {mute_time[1]}{mute_time[2]}**",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -1528,7 +1215,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.send(embed=emb)
 
 			emb = discord.Embed(
-				description=f"**Вы были замьючены модератором `{member}` по причине {reason} на {mute_time}{mute_typetime}**",
+				description=f"**Вы были замьючены модератором `{member}` по причине {reason} на {mute_time[1]}{mute_time[2]}**",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -1546,8 +1233,8 @@ class Moderate(commands.Cog, name="Moderate"):
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}",
-				value=f"На {mute_time} {mute_typetime}"
-				if mute_minutes != 0
+				value=f"На {mute_time[1]} {mute_time[2]}"
+				if mute_time[0] != 0
 				else "Перманентно",
 				inline=False,
 			)

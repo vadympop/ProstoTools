@@ -34,70 +34,8 @@ class Different(commands.Cog, name="Different"):
 		await ctx.channel.purge(limit=purge)
 
 		if action == "create":
-			if type_time is not None:
-				reminder_time = int(
-					"".join(char for char in type_time if not char.isalpha())
-				)
-				reminder_typetime = str(type_time.replace(str(reminder_time), ""))
-			else:
-				reminder_typetime = None
-				reminder_time = 0
-
-			minutes = [
-				"m",
-				"min",
-				"mins",
-				"minute",
-				"minutes",
-				"м",
-				"мин",
-				"минута",
-				"минуту",
-				"минуты",
-				"минут",
-			]
-			hours = ["h", "hour", "hours", "ч", "час", "часа", "часов"]
-			days = ["d", "day", "days", "д", "день", "дня", "дней"]
-			weeks = [
-				"w",
-				"week",
-				"weeks",
-				"н",
-				"нед",
-				"неделя",
-				"недели",
-				"недель",
-				"неделю",
-			]
-			monthes = [
-				"m",
-				"month",
-				"monthes",
-				"mo",
-				"mos",
-				"months",
-				"мес",
-				"месяц",
-				"месяца",
-				"месяцев",
-			]
-			years = ["y", "year", "years", "г", "год", "года", "лет"]
-			if reminder_typetime in minutes:
-				reminder_minutes = reminder_time * 60
-			elif reminder_typetime in hours:
-				reminder_minutes = reminder_time * 60 * 60
-			elif reminder_typetime in days:
-				reminder_minutes = reminder_time * 60 * 60 * 12
-			elif reminder_typetime in weeks:
-				reminder_minutes = reminder_time * 60 * 60 * 12 * 7
-			elif reminder_typetime in monthes:
-				reminder_minutes = reminder_time * 60 * 60 * 12 * 7 * 31
-			elif reminder_typetime in years:
-				reminder_minutes = reminder_time * 60 * 60 * 12 * 7 * 31 * 12
-			else:
-				reminder_minutes = reminder_time
-
-			times = time.time() + reminder_minutes
+			reminder_time = self.client.utils.time_to_num(type_time)
+			times = time.time() + reminder_time[0]
 
 			reminder_id = await self.client.database.set_reminder(
 				member=ctx.author, channel=ctx.channel, time=times, text=text

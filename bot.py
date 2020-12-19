@@ -1,8 +1,7 @@
 import discord
 import datetime
-import asyncio
 
-from tools import DB
+from tools import DB, Utils
 from tools import template_engine as temp_eng
 
 from loguru import logger
@@ -63,6 +62,10 @@ class Client(commands.AutoShardedBot):
 			status=discord.Status.online, activity=discord.Game(" *help | *invite ")
 		)
 		self.launched_at = datetime.datetime.now()
+		await self.database.prepare()
+
+	async def on_disconnect(self):
+		await self.database.close()
 
 	async def clear_commands(self, guild):
 		return (await self.database.sel_guild(guild=guild))["purge"]
@@ -88,6 +91,7 @@ client = Client(
 )
 client.config = Config
 client.database = DB(client=client)
+client.utils = Utils()
 temp_eng.client = client
 
 

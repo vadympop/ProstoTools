@@ -11,61 +11,62 @@ class Events(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
-		channel_id = (await self.client.database.sel_guild(guild=before.guild))["log_channel"]
-		if channel_id == 0:
-			return
-		channel = self.client.get_channel(channel_id)
+		if self.client.is_ready():
+			channel_id = (await self.client.database.sel_guild(guild=before.guild))["log_channel"]
+			if channel_id == 0:
+				return
+			channel = self.client.get_channel(channel_id)
 
-		if not len(before.roles) == len(after.roles):
-			roles = []
-			if len(before.roles) > len(after.roles):
-				for i in before.roles:
-					if not i in after.roles:
-						roles.append(f"➖ Была убрана роль {i.name}(<@&{i.id}>)\n")
-			elif len(before.roles) < len(after.roles):
-				for i in after.roles:
-					if not i in before.roles:
-						roles.append(f"➕ Была добавлена роль {i.name}(<@&{i.id}>)\n")
+			if not len(before.roles) == len(after.roles):
+				roles = []
+				if len(before.roles) > len(after.roles):
+					for i in before.roles:
+						if not i in after.roles:
+							roles.append(f"➖ Была убрана роль {i.name}(<@&{i.id}>)\n")
+				elif len(before.roles) < len(after.roles):
+					for i in after.roles:
+						if not i in before.roles:
+							roles.append(f"➕ Была добавлена роль {i.name}(<@&{i.id}>)\n")
 
-			e = discord.Embed(
-				description=f"У пользователя `{str(after)}` были изменены роли",
-				colour=discord.Color.green(),
-				timestamp=datetime.datetime.utcnow(),
-			)
-			e.add_field(
-				name="Было сделано", value=f"**{''.join(roles)}**", inline=False
-			)
-			e.add_field(name="Id Участника", value=f"`{after.id}`", inline=False)
-			e.set_author(
-				name="Журнал аудита | Изменение ролей участника",
-				icon_url=before.avatar_url,
-			)
-			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await channel.send(embed=e)
+				e = discord.Embed(
+					description=f"У пользователя `{str(after)}` были изменены роли",
+					colour=discord.Color.green(),
+					timestamp=datetime.datetime.utcnow(),
+				)
+				e.add_field(
+					name="Было сделано", value=f"**{''.join(roles)}**", inline=False
+				)
+				e.add_field(name="Id Участника", value=f"`{after.id}`", inline=False)
+				e.set_author(
+					name="Журнал аудита | Изменение ролей участника",
+					icon_url=before.avatar_url,
+				)
+				e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await channel.send(embed=e)
 
-		if not before.display_name == after.display_name:
-			e = discord.Embed(
-				description=f"Пользователь `{str(before)}` изменил ник",
-				colour=discord.Color.green(),
-				timestamp=datetime.datetime.utcnow(),
-			)
-			e.add_field(
-				name="Действующее имя",
-				value=f"`{after.display_name+'#'+after.discriminator}`",
-				inline=False,
-			)
-			e.add_field(
-				name="Предыдущее имя",
-				value=f"`{before.display_name+'#'+before.discriminator}`",
-				inline=False,
-			)
-			e.add_field(name="Id Участника", value=f"`{after.id}`", inline=False)
-			e.set_author(
-				name="Журнал аудита | Изменение ника участника",
-				icon_url=before.avatar_url,
-			)
-			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await channel.send(embed=e)
+			if not before.display_name == after.display_name:
+				e = discord.Embed(
+					description=f"Пользователь `{str(before)}` изменил ник",
+					colour=discord.Color.green(),
+					timestamp=datetime.datetime.utcnow(),
+				)
+				e.add_field(
+					name="Действующее имя",
+					value=f"`{after.display_name+'#'+after.discriminator}`",
+					inline=False,
+				)
+				e.add_field(
+					name="Предыдущее имя",
+					value=f"`{before.display_name+'#'+before.discriminator}`",
+					inline=False,
+				)
+				e.add_field(name="Id Участника", value=f"`{after.id}`", inline=False)
+				e.set_author(
+					name="Журнал аудита | Изменение ника участника",
+					icon_url=before.avatar_url,
+				)
+				e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await channel.send(embed=e)
 
 	@commands.Cog.listener()
 	async def on_member_ban(self, guild, user):
