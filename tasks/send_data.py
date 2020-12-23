@@ -1,12 +1,12 @@
 import os
-from tools import async_requests as requests
+from tools.http import async_requests as requests
 from discord.ext import commands, tasks
 
 
 class TasksSendData(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.api_url = "https://prosto-tools-api.herokuapp.com/api/"
+		self.api_url = "https://prosto-tools.ml/api/"
 		self.send_data_loop.start()
 
 	@tasks.loop(hours=12)

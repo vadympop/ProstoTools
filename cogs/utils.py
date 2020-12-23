@@ -25,123 +25,6 @@ class Utils(commands.Cog, name="Utils"):
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.command(
-		brief="True",
-		description="**Устанавливает анти-рейд режим. Есть не сколько режимов, 1 - Слабый 5сек задержка в текстовых каналах и средний уровень модерации, 2 - Сильний 10сек задержка в текстовых каналах и високий уровень модерации, 3 - Найвисшый 15сек задержка в текстовых каналах и найвисшый уровень модерации**",
-		usage="anti-rade [Время действия] [Уровень защиты]",
-		help="**Примеры использования:**\n1. {Prefix}anti-rade 10 2\n\n**Пример 1:** Ставит анти-рейд режим второго уровня на 10 минут",
-	)
-	@commands.check(check_role)
-	async def antirade(self, ctx, time: int, mode: int):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
-		first_verfLevel = ctx.guild.verification_level
-
-		if mode == 1:
-			emb = discord.Embed(
-				title=f"**Уставлен анти-рейд режим 1-го уровня на {time}мин**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-
-			await ctx.guild.edit(verification_level=discord.VerificationLevel.medium)
-			for i in ctx.guild.text_channels:
-				await i.edit(slowmode_delay=5)
-
-			await asyncio.sleep(time * 60)
-			await ctx.guild.edit(verification_level=first_verfLevel)
-
-			for k in ctx.guild.text_channels:
-				await k.edit(slowmode_delay=0)
-		elif mode == 2:
-			emb = discord.Embed(
-				title=f"**Уставлен анти-рейд режим 2-го уровня на {time}мин**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-
-			await ctx.guild.edit(verification_level=discord.VerificationLevel.high)
-			for i in ctx.guild.text_channels:
-				await i.edit(slowmode_delay=10)
-
-			await asyncio.sleep(time * 60)
-			await ctx.guild.edit(verification_level=first_verfLevel)
-
-			for k in ctx.guild.text_channels:
-				await k.edit(slowmode_delay=0)
-		elif mode == 3:
-			emb = discord.Embed(
-				title=f"**Уставлен анти-рейд режим 3-го уровня на {time}мин**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-
-			await ctx.guild.edit(verification_level=discord.VerificationLevel.extreme)
-			for i in ctx.guild.text_channels:
-				await i.edit(slowmode_delay=15)
-
-			await asyncio.sleep(time * 60)
-			await ctx.guild.edit(verification_level=first_verfLevel)
-
-			for k in ctx.guild.text_channels:
-				await k.edit(slowmode_delay=0)
-
-	@commands.command(
-		aliases=["banlist"],
-		brief="True",
-		name="ban-list",
-		description="**Показывает заблокированных пользователей**",
-		usage="ban-list",
-		help="**Примеры использования:**\n1. {Prefix}ban-list\n\n**Пример 1:** Показывает все баны сервера",
-	)
-	@commands.check(check_role)
-	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def bannedusers(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
-		banned_users = await ctx.guild.bans()
-
-		if banned_users == []:
-			emb = discord.Embed(
-				title="На этом сервере нету заблокированых участников",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-		else:
-			emb = discord.Embed(
-				title="Список заблокированных участников", colour=discord.Color.green()
-			)
-			for user in banned_users:
-				emb.add_field(
-					name=f"Участник: {user.user}",
-					value=f"**Причина бана: {user.reason}**"
-					if user.reason
-					else "**Причина бана: Причина не указана**",
-				)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-
-	@commands.command(
 		aliases=["voicerooms"],
 		name="voice-rooms",
 		hidden=True,
@@ -216,7 +99,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def serverstats(self, ctx, stats_count: str):
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
+		server_stats = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
 		members_count = len(
 			[
 				member.id
@@ -241,7 +124,6 @@ class Utils(commands.Cog, name="Utils"):
 			sql_1 = """SELECT user_id, exp, money, reputation, messages FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 20"""
 			sql_2 = """SELECT exp FROM users WHERE guild_id = %s AND guild_id = %s"""
 
-			data = await self.client.database.execute(sql_1, val)
 			all_exp = sum([i[0] for i in await self.client.database.execute(sql_2, val)])
 			dnd = len(
 				[
@@ -298,11 +180,11 @@ class Utils(commands.Cog, name="Utils"):
 			message = await ctx.send(embed=emb)
 			await ctx.message.add_reaction("✅")
 
-			data = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
-			data.update({"message": [message.id, ctx.channel.id]})
+			server_stats = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
+			server_stats.update({"message": [message.id, ctx.channel.id]})
 
 			sql = """UPDATE guilds SET server_stats = %s WHERE guild_id = %s AND guild_id = %s"""
-			val = (json.dumps(data), ctx.guild.id, ctx.guild.id)
+			val = (json.dumps(server_stats), ctx.guild.id, ctx.guild.id)
 
 			await self.client.database.execute(sql, val)
 			return

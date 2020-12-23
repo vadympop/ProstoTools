@@ -465,7 +465,6 @@ class DB:
 		cursor.close()
 		return data
 
-
 	async def execute(
 		self, query: str, val: typing.Union[tuple, list] = (), fetchone: bool = False
 	) -> list:
