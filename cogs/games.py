@@ -184,12 +184,8 @@ class Games(commands.Cog, name="Games"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def dog(self, ctx):
-		response = requests.get("https://some-random-api.ml/img/dog")
-		json_data = json.loads(response.text)
-		url = json_data["link"]
-
 		emb = discord.Embed(color=discord.Color.green())
-		emb.set_image(url=url)
+		emb.set_image(url=(await self.client.random_api.get_dog()))
 		emb.set_author(name="Собачка", icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
@@ -201,12 +197,8 @@ class Games(commands.Cog, name="Games"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def cat(self, ctx):
-		response = requests.get("https://some-random-api.ml/img/cat")
-		json_data = json.loads(response.text)
-		url = json_data["link"]
-
 		emb = discord.Embed(color=discord.Color.green())
-		emb.set_image(url=url)
+		emb.set_image(url=(await self.client.random_api.get_cat()))
 		emb.set_author(name="Кошечка :3", icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
@@ -218,12 +210,8 @@ class Games(commands.Cog, name="Games"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def fox(self, ctx):
-		response = requests.get("https://some-random-api.ml/img/fox")
-		json_data = json.loads(response.text)
-		url = json_data["link"]
-
 		emb = discord.Embed(color=discord.Color.green())
-		emb.set_image(url=url)
+		emb.set_image(url=(await self.client.random_api.get_fox()))
 		emb.set_author(name="Лиса", icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
@@ -235,12 +223,8 @@ class Games(commands.Cog, name="Games"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bird(self, ctx):
-		response = requests.get("https://some-random-api.ml/img/birb")
-		json_data = json.loads(response.text)
-		url = json_data["link"]
-
 		emb = discord.Embed(color=discord.Color.green())
-		emb.set_image(url=url)
+		emb.set_image(url=(await self.client.random_api.get_bird()))
 		emb.set_author(name="Птичка", icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
@@ -252,12 +236,8 @@ class Games(commands.Cog, name="Games"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def koala(self, ctx):
-		response = requests.get("https://some-random-api.ml/img/koala")
-		json_data = json.loads(response.text)
-		url = json_data["link"]
-
 		emb = discord.Embed(color=discord.Color.green())
-		emb.set_image(url=url)
+		emb.set_image(url=(await self.client.random_api.get_koala()))
 		emb.set_author(name="Коала", icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)

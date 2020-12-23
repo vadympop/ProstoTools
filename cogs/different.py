@@ -111,6 +111,11 @@ class Different(commands.Cog, name="Different"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
+	@commands.command()
+	@commands.cooldown(1, 300, commands.BucketType.member)
+	async def color(self, ctx, color: str):
+		pass
+
 	@commands.command(
 		aliases=["usersend"],
 		name="user-send",

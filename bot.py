@@ -1,6 +1,7 @@
 import discord
 import datetime
 
+from tools.http import RandomAPI
 from tools import DB, Utils
 from tools import template_engine as temp_eng
 
@@ -53,6 +54,10 @@ class Client(commands.AutoShardedBot):
 			intents=intents,
 		)
 		self.remove_command("help")
+		self.config = Config
+		self.database = DB(client=self)
+		self.utils = Utils()
+		self.random_api = RandomAPI()
 
 	async def on_ready(self):
 		logger.info(
@@ -89,9 +94,6 @@ async def get_prefix(client, message):
 client = Client(
 	command_prefix=get_prefix, case_insensitive=True, intents=discord.Intents.all()
 )
-client.config = Config
-client.database = DB(client=client)
-client.utils = Utils()
 temp_eng.client = client
 
 
