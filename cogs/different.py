@@ -111,12 +111,57 @@ class Different(commands.Cog, name="Different"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
-	@commands.command()
+	@commands.command(
+		usage="color [Цвет]",
+		description="**Устанавливает роль с указаным цветом**",
+		help="**Примеры использования:**\n1. {Prefix}color #444444\n2. {Prefix}color remove\n\n**Пример 1:** Установит вам роль с указаным цветом в HEX формате(Поддерживаеться только HEX)\n**Пример 2:** Удалить у вас роль с цветом",
+	)
 	@commands.cooldown(1, 300, commands.BucketType.member)
 	async def color(self, ctx, color: str):
+		remove_words = ["del", "delete", "rem", "remove"]
+		state = False
+		if color.lower() in remove_words:
+			for role in ctx.author.roles:
+				if role.name.startswith(self.client.config.COLOR_ROLE):
+					await role.delete()
+					state = True
+					break
+
+			if not state:
+				emb = discord.Embed(
+					title="Ошибка!",
+					description=f"**У вас нет роли цвета!**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
+				await ctx.message.add_reaction("❌")
+				return
+
+			await ctx.message.add_reaction("✅")
+			return
+
 		if color.startswith("#"):
 			hex = color[1:]
 			if len(hex) == 6:
+				if (ctx.author.top_role.position + 1) >= ctx.guild.me.top_role.position:
+					emb = discord.Embed(
+						title="Ошибка!",
+						description=f"**У меня не хватает прав на добавления роли к вам!**",
+						colour=discord.Color.green(),
+					)
+					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await ctx.send(embed=emb)
+					await ctx.message.add_reaction("❌")
+					return
+
+				for r in ctx.author.roles:
+					if r.name.startswith(self.client.config.COLOR_ROLE):
+						await r.delete()
+						break
+
 				name = self.client.config.COLOR_ROLE+hex
 				roles = {role.name: role.id for role in ctx.guild.roles}
 				if name in roles.keys():
@@ -126,12 +171,9 @@ class Different(commands.Cog, name="Different"):
 						name=name,
 						color=discord.Colour(int(hex, 16))
 					)
-					print(ctx.guild.me.top_role.name)
-					print(ctx.guild.me.top_role.position)
-					print(len(ctx.guild.roles))
-					print(len(ctx.guild.roles)-(ctx.guild.me.top_role.position-1))
-					await role.edit(position=len(ctx.guild.roles)-(ctx.guild.me.top_role.position-1))
+					await role.edit(position=ctx.author.top_role.position+1)
 				await ctx.author.add_roles(role)
+				await ctx.message.add_reaction("✅")
 			else:
 				emb = discord.Embed(
 					title="Ошибка!",
