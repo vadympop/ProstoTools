@@ -271,6 +271,49 @@ class Games(commands.Cog, name="Games"):
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
 
+	@commands.command(
+		name="color-view",
+		aliases=["colorview"],
+		usage="color-view [Цвет]",
+		description="**Цвет в изображении**",
+		help="**Примеры использования:**\n1. {Prefix}color-view #444444\n\n**Пример 1:** Покажет изображении в указаном цвете"
+	)
+	@commands.cooldown(1, 30, commands.BucketType.member)
+	async def colorview(self, ctx, color: str):
+		if color.startswith("#"):
+			hex = color[1:]
+			if len(hex) == 6:
+				emb = discord.Embed(
+					description=f"Цвет `{color}` в изображении",
+					colour=discord.Color.green()
+				)
+				emb.set_image(url=f"https://some-random-api.ml/canvas/colorviewer?hex={hex}")
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
+			else:
+				emb = discord.Embed(
+					title="Ошибка!",
+					description=f"**Указан не правильный формат цвета!**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
+				await ctx.message.add_reaction("❌")
+				return
+		else:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description=f"**Указан не правильный формат цвета!**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
+
 
 def setup(client):
 	client.add_cog(Games(client))

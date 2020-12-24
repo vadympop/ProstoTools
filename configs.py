@@ -18,6 +18,7 @@ class Config:
 	MUTE_ROLE = 'PT-MUTED'
 	VMUTE_ROLE = 'PT-VMUTED'
 	SOFTBAN_ROLE = 'PT-SOFT-BANNED'
+	COLOR_ROLE = 'PT-COLOR-'
 	TOKEN = os.getenv('BOT_TOKEN')
 
 	# Database config

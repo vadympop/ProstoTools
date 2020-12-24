@@ -22,7 +22,8 @@ class DB:
 			user=self.DB_USER,
 			password=self.DB_PASSWORD,
 			db=self.DB_DATABASE,
-			port=3306
+			port=3306,
+			autocommit=True
 		)
 
 	async def close(self):

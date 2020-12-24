@@ -114,7 +114,46 @@ class Different(commands.Cog, name="Different"):
 	@commands.command()
 	@commands.cooldown(1, 300, commands.BucketType.member)
 	async def color(self, ctx, color: str):
-		pass
+		if color.startswith("#"):
+			hex = color[1:]
+			if len(hex) == 6:
+				name = self.client.config.COLOR_ROLE+hex
+				roles = {role.name: role.id for role in ctx.guild.roles}
+				if name in roles.keys():
+					role = ctx.guild.get_role(roles[name])
+				else:
+					role = await ctx.guild.create_role(
+						name=name,
+						color=discord.Colour(int(hex, 16))
+					)
+					print(ctx.guild.me.top_role.name)
+					print(ctx.guild.me.top_role.position)
+					print(len(ctx.guild.roles))
+					print(len(ctx.guild.roles)-(ctx.guild.me.top_role.position-1))
+					await role.edit(position=len(ctx.guild.roles)-(ctx.guild.me.top_role.position-1))
+				await ctx.author.add_roles(role)
+			else:
+				emb = discord.Embed(
+					title="Ошибка!",
+					description=f"**Указан не правильный формат цвета!**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
+				await ctx.message.add_reaction("❌")
+				return
+		else:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description=f"**Указан не правильный формат цвета!**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			return
 
 	@commands.command(
 		aliases=["usersend"],

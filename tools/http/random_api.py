@@ -34,10 +34,3 @@ class RandomAPI:
             url=self.url+"img/koala"
         )
         return (await data.json())["link"]
-
-    async def hex_to_rgb(self, color: str):
-        data = await requests.get(
-            url=self.url+f"canvas/rgb?hex={color}"
-        )
-        data_json = await data.json()
-        return tuple([value for value in data_json.values()])

@@ -2454,117 +2454,118 @@ class Economy(commands.Cog, name="Economy"):
 			"offline": "offline",
 			"idle": "sleep",
 		}
-		users_rank = await self.client.database.execute(
-			query="""SELECT user_id FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC""",
-			val=(ctx.guild.id, ctx.guild.id),
-		)
-		for user in users_rank:
-			if user[0] == member.id:
-				user_rank = users_rank.index(user) + 1
-				break
+		async with ctx.typing():
+			users_rank = await self.client.database.execute(
+				query="""SELECT user_id FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC""",
+				val=(ctx.guild.id, ctx.guild.id),
+			)
+			for user in users_rank:
+				if user[0] == member.id:
+					user_rank = users_rank.index(user) + 1
+					break
 
-		user_data = await self.client.database.sel_user(target=member)
-		multi = (await self.client.database.sel_guild(guild=ctx.guild))["exp_multi"]
-		user = str(member.name)
-		user_exp = int(user_data["exp"])
-		user_level = int(user_data["lvl"])
-		user_warns = len(user_data["warns"])
-		user_coins = int(user_data["coins"])
-		user_money = int(user_data["money"])
-		user_reputation = int(user_data["reputation"])
-		user_state_prison = user_data["prison"]
-		user_profile = user_data["profile"]
-		level_exp = math.floor(9 * (user_level ** 2) + 50 * user_level + 125 * multi)
-		previus_level_exp = math.floor(
-			9 * ((user_level - 1) ** 2) + 50 * (user_level - 1) + 125 * multi
-		)
-		progress_bar_percent = round(
-			((level_exp - user_exp) / (level_exp - previus_level_exp)) * 100
-		)
-		user_image_status = Image.open(
-			self.BACKGROUND[:-8] + statuses[member.status.name] + ".png"
-		).convert("RGBA")
+			user_data = await self.client.database.sel_user(target=member)
+			multi = (await self.client.database.sel_guild(guild=ctx.guild))["exp_multi"]
+			user = str(member.name)
+			user_exp = int(user_data["exp"])
+			user_level = int(user_data["lvl"])
+			user_warns = len(user_data["warns"])
+			user_coins = int(user_data["coins"])
+			user_money = int(user_data["money"])
+			user_reputation = int(user_data["reputation"])
+			user_state_prison = user_data["prison"]
+			user_profile = user_data["profile"]
+			level_exp = math.floor(9 * (user_level ** 2) + 50 * user_level + 125 * multi)
+			previus_level_exp = math.floor(
+				9 * ((user_level - 1) ** 2) + 50 * (user_level - 1) + 125 * multi
+			)
+			progress_bar_percent = round(
+				((level_exp - user_exp) / (level_exp - previus_level_exp)) * 100
+			)
+			user_image_status = Image.open(
+				self.BACKGROUND[:-8] + statuses[member.status.name] + ".png"
+			).convert("RGBA")
 
-		if user_state_prison:
-			user_state_prison = "Сейчас в тюрме"
-		elif not user_state_prison:
-			user_state_prison = "На свободе"
+			if user_state_prison:
+				user_state_prison = "Сейчас в тюрме"
+			elif not user_state_prison:
+				user_state_prison = "На свободе"
 
-		if user_profile is None:
-			img = Image.open(self.BACKGROUND)
-		elif user_profile is not None:
-			img = Image.open(self.BACKGROUND[:-8] + f"{user_profile}.png")
+			if user_profile is None:
+				img = Image.open(self.BACKGROUND)
+			elif user_profile is not None:
+				img = Image.open(self.BACKGROUND[:-8] + f"{user_profile}.png")
 
-		user_image_status.thumbnail((40, 40), Image.ANTIALIAS)
-		responce = (
-			Image.open(io.BytesIO(await member.avatar_url.read()))
-			.convert("RGBA")
-			.resize((160, 160), Image.ANTIALIAS)
-		)
-		responce = ImageOps.expand(responce, border=10, fill="white")
-		img.paste(responce, (10, 10))
-		img.paste(user_image_status, (160, 160), user_image_status)
-		idraw = ImageDraw.Draw(img)
-		bigtext = ImageFont.truetype(self.FONT, size=56)
-		midletext = ImageFont.truetype(self.FONT, size=40)
-		smalltext = ImageFont.truetype(self.FONT, size=32)
+			user_image_status.thumbnail((40, 40), Image.ANTIALIAS)
+			responce = (
+				Image.open(io.BytesIO(await member.avatar_url.read()))
+				.convert("RGBA")
+				.resize((160, 160), Image.ANTIALIAS)
+			)
+			responce = ImageOps.expand(responce, border=10, fill="white")
+			img.paste(responce, (10, 10))
+			img.paste(user_image_status, (160, 160), user_image_status)
+			idraw = ImageDraw.Draw(img)
+			bigtext = ImageFont.truetype(self.FONT, size=56)
+			midletext = ImageFont.truetype(self.FONT, size=40)
+			smalltext = ImageFont.truetype(self.FONT, size=32)
 
-		idraw.text((230, 10), "Профиль {}".format(user), font=bigtext, fill="#606060")
-		idraw.text(
-			(230, 60), f"Репутация: {user_reputation}", font=bigtext, fill="#606060"
-		)
-		idraw.text(
-			(10, 200), f"Exp: {user_exp}", font=midletext, fill=colours[user_profile][0]
-		)
-		idraw.text(
-			(10, 230),
-			f"Уровень: {user_level}",
-			font=midletext,
-			fill=colours[user_profile][0],
-		)
-		idraw.text(
-			(230, 113),
-			f"Предупрежденний: {user_warns}",
-			font=midletext,
-			fill=colours[user_profile][0],
-		)
-		idraw.text(
-			(230, 147),
-			f"Тюрьма: {user_state_prison}",
-			font=midletext,
-			fill=colours[user_profile][0],
-		)
-		idraw.text(
-			(230, 181),
-			f"Монет: {user_coins}",
-			font=midletext,
-			fill=colours[user_profile][0],
-		)
-		idraw.text(
-			(230, 215),
-			f"Денег: {user_money}$",
-			font=midletext,
-			fill=colours[user_profile][0],
-		)
-		idraw.rectangle((230, 285, 855, 340), fill="#909090")
-		draw_progress(img, progress_bar_percent)
-		idraw.text(
-			(get_width_info_exp(round(level_exp - previus_level_exp)), 250),
-			f"{round(level_exp - previus_level_exp)}/{round(level_exp - user_exp)} exp",
-			font=midletext,
-			fill="#444",
-		)
-		idraw.text(
-			(get_width_progress_bar(100 - progress_bar_percent), 300),
-			f"{100 - progress_bar_percent}%",
-			font=midletext,
-			fill="#444",
-		)
-		idraw.text((230, 258), f"#{user_rank}", font=smalltext, fill="#444")
-		idraw.text((15, 355), self.FOOTER, font=midletext)
+			idraw.text((230, 10), "Профиль {}".format(user), font=bigtext, fill="#606060")
+			idraw.text(
+				(230, 60), f"Репутация: {user_reputation}", font=bigtext, fill="#606060"
+			)
+			idraw.text(
+				(10, 200), f"Exp: {user_exp}", font=midletext, fill=colours[user_profile][0]
+			)
+			idraw.text(
+				(10, 230),
+				f"Уровень: {user_level}",
+				font=midletext,
+				fill=colours[user_profile][0],
+			)
+			idraw.text(
+				(230, 113),
+				f"Предупрежденний: {user_warns}",
+				font=midletext,
+				fill=colours[user_profile][0],
+			)
+			idraw.text(
+				(230, 147),
+				f"Тюрьма: {user_state_prison}",
+				font=midletext,
+				fill=colours[user_profile][0],
+			)
+			idraw.text(
+				(230, 181),
+				f"Монет: {user_coins}",
+				font=midletext,
+				fill=colours[user_profile][0],
+			)
+			idraw.text(
+				(230, 215),
+				f"Денег: {user_money}$",
+				font=midletext,
+				fill=colours[user_profile][0],
+			)
+			idraw.rectangle((230, 285, 855, 340), fill="#909090")
+			draw_progress(img, progress_bar_percent)
+			idraw.text(
+				(get_width_info_exp(round(level_exp - previus_level_exp)), 250),
+				f"{round(level_exp - previus_level_exp)}/{round(level_exp - user_exp)} exp",
+				font=midletext,
+				fill="#444",
+			)
+			idraw.text(
+				(get_width_progress_bar(100 - progress_bar_percent), 300),
+				f"{100 - progress_bar_percent}%",
+				font=midletext,
+				fill="#444",
+			)
+			idraw.text((230, 258), f"#{user_rank}", font=smalltext, fill="#444")
+			idraw.text((15, 355), self.FOOTER, font=midletext)
 
-		img.save(self.SAVE)
-		await ctx.send(file=discord.File(fp=self.SAVE))
+			img.save(self.SAVE)
+			await ctx.send(file=discord.File(fp=self.SAVE))
 
 
 def setup(client):
