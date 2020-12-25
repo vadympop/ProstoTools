@@ -38,6 +38,7 @@ extensions = (
 	"tasks.punishments",
 	"tasks.server_stat",
 	"tasks.send_data",
+	"tasks.bot_stat",
 	"events.errors",
 	"events.custom_voice_channel",
 	"events.join",

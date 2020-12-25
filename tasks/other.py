@@ -9,7 +9,6 @@ class TasksOther(commands.Cog):
 	def __init__(self, client):
 		self.client = client
 		self.update_messages_loop.start()
-		self.ping_stat_loop.start()
 		self.reminders_loop.start()
 		self.channel_loop.start()
 		self.FOOTER = self.client.config.FOOTER_TEXT
@@ -62,15 +61,6 @@ class TasksOther(commands.Cog):
 								delete_channel = guild.get_channel(int(channel[4]))
 								if delete_channel is not None:
 									await delete_channel.delete()
-
-	@tasks.loop(minutes=30)
-	async def ping_stat_loop(self):
-		if self.client.is_ready():
-			try:
-				ping = round(self.client.latency * 1000)
-				await self.client.database.add_amout_command(entity="ping", add_counter=int(ping))
-			except:
-				pass
 
 	@tasks.loop(seconds=86400)
 	async def update_messages_loop(self):
