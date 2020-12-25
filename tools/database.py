@@ -497,14 +497,10 @@ class DB:
 					f"""SELECT * FROM bot_stats WHERE entity = 'all commands'"""
 				)
 				main_data = await cur.fetchall()
-
-				await cur.execute(f"""SELECT id FROM bot_stats""")
-				global_data = await cur.fetchall()
-
-				stat_ids = [str(stat[0]) for stat in global_data]
-				stat_ids.reverse()
+				await cur.execute(f"""SELECT id FROM bot_stats ORDER BY id DESC""")
+				last_id = (await cur.fetchall())[0][0]
 				try:
-					new_id = int(stat_ids[0]) + 1
+					new_id = int(last_id) + 1
 				except:
 					new_id = 0
 
