@@ -313,7 +313,7 @@ class Utils(commands.Cog, name="Utils"):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		aliases=["mutes-list", "listmutes", "muteslist"],
+		aliases=["mutes-list", "listmutes", "muteslist", "mutes"],
 		name="list-mutes",
 		description="Показывает все мьюты на сервере",
 		usage="list-mutes",
@@ -329,7 +329,7 @@ class Utils(commands.Cog, name="Utils"):
 
 		if data != []:
 			mutes = "\n\n".join(
-				f"**Пользователь:** `{ctx.guild.get_member(mute[1])}`, **Причина:** `{mute[3]}`\n**Автор:** {mute[6]}, **Время мьюта:** `{mute[5]}`\n**Активный до**: `{mute[4]}`"
+				f"**Пользователь:** `{ctx.guild.get_member(mute[1])}`, **Причина:** `{mute[3]}`\n**Автор:** {str(ctx.guild.get_member(mute[6]))}, **Время мьюта:** `{mute[5]}`\n**Активный до**: `{mute[4]}`"
 				for mute in data
 			)
 		else:

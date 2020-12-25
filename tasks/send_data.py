@@ -6,7 +6,7 @@ from discord.ext import commands, tasks
 class TasksSendData(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.api_url = "https://prosto-tools.ml/api/"
+		self.api_url = "http://api.prosto-tools.ml/api/"
 		self.send_data_loop.start()
 
 	@tasks.loop(hours=12)

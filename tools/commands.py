@@ -105,7 +105,7 @@ class Commands:
 			reason = mute_typetime
 
 		if member in ctx.guild.members:
-			data = DB().sel_user(target=member)
+			data = await self.client.database.sel_user(target=member)
 
 		role = get(ctx.guild.roles, name=self.MUTE_ROLE)
 		if not role:
@@ -167,8 +167,7 @@ class Commands:
 			ctx.guild.id,
 		)
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
+		await self.client.database.execute(sql, val)
 
 		if mute_minutes <= 0:
 			if message:
@@ -204,13 +203,13 @@ class Commands:
 					emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 
 		if mute_minutes > 0:
-			DB().set_punishment(
+			await self.client.database.set_punishment(
 				type_punishment="mute",
 				time=times,
 				member=member,
 				role_id=role.id,
 				reason=reason,
-				author=str(ctx.author),
+				author=author.id,
 			)
 
 		if message:
@@ -224,11 +223,11 @@ class Commands:
 		client = self.client
 
 		if member in ctx.guild.members:
-			data = DB().sel_user(target=member)
+			data = await self.client.database.sel_user(target=member)
 		else:
 			raise "The guild hasn`t that member {}".format(member.name)
 
-		info = DB().sel_guild(guild=ctx.guild)
+		info = await self.client.database.sel_guild(guild=ctx.guild)
 		max_warns = int(info["max_warns"])
 		cur_lvl = data["lvl"]
 		cur_coins = data["coins"]
@@ -237,10 +236,10 @@ class Commands:
 		cur_state_pr = data["prison"]
 		cur_reputation = data["reputation"] - 10
 
-		warn_id = DB().set_warn(
+		warn_id = await self.client.database.set_warn(
 			target=member,
 			reason=reason,
-			author=str(ctx.author),
+			author=author.id,
 			time=str(datetime.today()),
 		)
 
@@ -267,16 +266,16 @@ class Commands:
 			cur_reputation = -100
 
 		if len(cur_warns) >= 20:
-			DB().del_warn(
+			await self.client.database.del_warn(
 				guild_id=ctx.guild.id,
 				warn_id=[warn for warn in cur_warns if not warn["state"]][0]["id"]
 			)
 
 		if len(cur_warns) >= max_warns:
-			self.main_mute(
+			await self.main_mute(
 				ctx,
 				member=member,
-				author=ctx.author,
+				author=author,
 				mute_time=2,
 				mute_typetime="h",
 				check_role=False,

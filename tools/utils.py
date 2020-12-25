@@ -69,54 +69,11 @@ class Utils:
             
         return minutes, time, typetime
 
-    def create_embed(self, **kwargs):
-        main_options_list = ("title", "description", "timestamp", "color", "colour")
-        author_options_list = ("name", "icon_url_a")
-        footer_options_list = ("text", "icon_url_f")
-        main_options = {
-            item[0]: item[1]
-            for item in kwargs.items()
-            if item[0] in main_options_list
-        }
-        author_options = {
-            item[0]: item[1]
-            for item in kwargs.items()
-            if item[0] in author_options_list
-        }
-        footer_options = {
-            item[0]: item[1]
-            for item in kwargs.items()
-            if item[0] in footer_options_list
-        }
-        for key, value in footer_options.items():
-            if key == "icon_url_f":
-                footer_options["icon_url"] = value
-                footer_options.pop("icon_url_f")
-                break
-
-        for key, value in author_options.items():
-            if key == "icon_url_a":
-                author_options["icon_url"] = value
-                author_options.pop("icon_url_a")
-                break
-
-        emb = discord.Embed(**main_options)
-        if author_options != {}:
-            emb.set_author(**author_options)
-        elif footer_options != {}:
-            emb.set_footer(**footer_options)
-        return emb
-
-    def create_error_embed(self, ctx, error_msg: str):
-        emb = self.create_embed(
-            title="Ошибка!",
-            description=f"**{error_msg}**",
-            colour=discord.Color.green(),
-            name=ctx.author.name,
-            icon_url_a=ctx.author.avatar_url,
-            text=self.FOOTER,
-            icon_url_f=self.client.user.avatar_url
-        )
+    async def create_error_embed(self, ctx, error_msg: str):
+        emb = discord.Embed(title="Ошибка!", description=f"**{error_msg}**", colour=discord.Color.green())
+        emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+        emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+        await ctx.message.add_reaction("❌")
         return emb
 
     async def build_help(self, ctx, prefix, groups):
@@ -176,14 +133,10 @@ class Utils:
 
             return [commands, count, group_name]
 
-        emb = self.create_embed(
+        emb = discord.Embed(
             title="**Доступние команды:**",
             description=f'**Префикс на этом сервере - **`{prefix}`**, если команды после двое-точия значит их надо использовать как групу, пример: "В хелп - група: команда, надо писать - `[Префикс на сервере]група команда`", если надо ввести названия чего-либо с пробелом, укажите его в двойных кавычках**',
-            colour=discord.Color.green(),
-            name=self.client.user.name,
-            icon_url_a=self.client.user.avatar_url,
-            text=f"Вызвал: {ctx.author.name}",
-            icon_url_f=ctx.author.avatar_url
+            colour=discord.Color.green()
         )
         for soft_cog_name in self.client.cogs:
             if soft_cog_name in exceptions:
@@ -241,5 +194,6 @@ class Utils:
                         value=value,
                         inline=False,
                     )
-
+        emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+        emb.set_footer(text=f"Вызвал: {ctx.author.name}", icon_url=ctx.author.avatar_url)
         return emb

@@ -47,65 +47,67 @@ class Moderate(commands.Cog, name="Moderate"):
 		delete_messages = ""
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 		if member is None:
-			delete_messages_fp = self.TEMP_PATH + str(uuid.uuid4()) + ".txt"
-			async for msg in ctx.channel.history():
-				if logs_channel_id != 0:
-					delete_messages += f"""\n{msg.created_at.strftime("%H:%M:%S %d-%m-%Y")} -- {str(msg.author)}\n{msg.content}\n\n"""
-				await msg.delete()
-				number += 1
-				if number >= amount:
+			async with ctx.typing():
+				delete_messages_fp = self.TEMP_PATH + str(uuid.uuid4()) + ".txt"
+				async for msg in ctx.channel.history():
 					if logs_channel_id != 0:
-						self.client.txt_dump(delete_messages_fp, delete_messages)
-					emb = discord.Embed(
-						description=f"** :white_check_mark: Удаленно {number - 1} сообщений**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
-					)
-					await ctx.send(embed=emb)
-
-					if logs_channel_id != 0:
-						e = discord.Embed(
-							colour=discord.Color.green(), timestamp=datetime.utcnow()
+						delete_messages += f"""\n{msg.created_at.strftime("%H:%M:%S %d-%m-%Y")} -- {str(msg.author)}\n{msg.content}\n\n"""
+					await msg.delete()
+					number += 1
+					if number >= amount:
+						if logs_channel_id != 0:
+							self.client.txt_dump(delete_messages_fp, delete_messages)
+						emb = discord.Embed(
+							description=f"** :white_check_mark: Удаленно {number - 1} сообщений**",
+							colour=discord.Color.green(),
 						)
-						e.add_field(
-							name=f"Модератор {str(ctx.author)}",
-							value=f"Удалил {number} сообщений",
-							inline=False,
-						)
-						e.set_author(
-							name="Журнал аудита | Модерация",
-							icon_url=ctx.author.avatar_url,
-						)
-						e.set_footer(
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(
 							text=self.FOOTER, icon_url=self.client.user.avatar_url
 						)
-						await ctx.guild.get_channel(logs_channel_id).send(
-							embed=e, file=discord.File(fp=delete_messages_fp)
-						)
-						os.remove(
-							"e:\\PyProg\\ProstoTools"
-							+ delete_messages_fp.replace("/", "\\")[1:]
-						)
-					break
+						await ctx.send(embed=emb)
+
+						if logs_channel_id != 0:
+							e = discord.Embed(
+								colour=discord.Color.green(), timestamp=datetime.utcnow()
+							)
+							e.add_field(
+								name=f"Модератор {str(ctx.author)}",
+								value=f"Удалил {number} сообщений",
+								inline=False,
+							)
+							e.set_author(
+								name="Журнал аудита | Модерация",
+								icon_url=ctx.author.avatar_url,
+							)
+							e.set_footer(
+								text=self.FOOTER, icon_url=self.client.user.avatar_url
+							)
+							await ctx.guild.get_channel(logs_channel_id).send(
+								embed=e, file=discord.File(fp=delete_messages_fp)
+							)
+							os.remove(
+								"e:\\PyProg\\ProstoTools"
+								+ delete_messages_fp.replace("/", "\\")[1:]
+							)
+						break
 
 		elif member is not None and member in ctx.guild.members:
-			async for msg in ctx.channel.history().filter(lambda m: m.author == member):
-				await msg.delete()
-				number += 1
-				if number >= amount:
-					emb = discord.Embed(
-						description=f"** :white_check_mark: Удаленно {number} сообщений от пользователя {member.mention}**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
-					)
-					await ctx.send(embed=emb)
-					break
+			async with ctx.typing():
+				async for msg in ctx.channel.history().filter(lambda m: m.author == member):
+					await msg.delete()
+					number += 1
+					if number >= amount:
+						emb = discord.Embed(
+							description=f"** :white_check_mark: Удаленно {number} сообщений от пользователя {member.mention}**",
+							colour=discord.Color.green(),
+						)
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(
+							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						)
+						await ctx.send(embed=emb)
+						break
 
 	@commands.command(
 		aliases=["temprole"],
@@ -1526,111 +1528,112 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		info = await self.client.database.sel_guild(guild=ctx.guild)
-		max_warns = int(info["max_warns"])
+		async with ctx.typing():
+			info = await self.client.database.sel_guild(guild=ctx.guild)
+			max_warns = int(info["max_warns"])
 
-		cur_lvl = data["lvl"]
-		cur_coins = data["coins"]
-		cur_money = data["money"]
-		cur_warns = data["warns"]
-		cur_state_pr = data["prison"]
-		cur_reputation = data["reputation"] - 10
+			cur_lvl = data["lvl"]
+			cur_coins = data["coins"]
+			cur_money = data["money"]
+			cur_warns = data["warns"]
+			cur_state_pr = data["prison"]
+			cur_reputation = data["reputation"] - 10
 
-		warn_id = await self.client.database.set_warn(
-			target=member,
-			reason=reason,
-			author=str(ctx.author),
-			time=str(datetime.today()),
-		)
-
-		if cur_lvl <= 3:
-			cur_money -= 250
-		elif cur_lvl > 3 and cur_lvl <= 5:
-			cur_money -= 500
-		elif cur_lvl > 5:
-			cur_money -= 1000
-
-		if cur_money <= -5000:
-			cur_state_pr = True
-			emb = discord.Embed(
-				description=f"**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Текущий баланс - {cur_money}**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			try:
-				await member.send(embed=emb)
-			except:
-				pass
-
-		if cur_reputation < -100:
-			cur_reputation = -100
-
-		if len(cur_warns) >= 20:
-			await self.client.database.del_warn(
-				guild_id=ctx.guild.id,
-				warn_id=[warn for warn in cur_warns if not warn["state"]][0]["id"]
+			warn_id = await self.client.database.set_warn(
+				target=member,
+				reason=reason,
+				author=ctx.author.id,
+				time=str(datetime.today()),
 			)
 
-		if len([warn for warn in cur_warns if warn["state"]]) >= max_warns:
-			cur_coins -= 1000
+			if cur_lvl <= 3:
+				cur_money -= 250
+			elif cur_lvl > 3 and cur_lvl <= 5:
+				cur_money -= 500
+			elif cur_lvl > 5:
+				cur_money -= 1000
+
+			if cur_money <= -5000:
+				cur_state_pr = True
+				emb = discord.Embed(
+					description=f"**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Текущий баланс - {cur_money}**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(
+					name=self.client.user.name, icon_url=self.client.user.avatar_url
+				)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				try:
+					await member.send(embed=emb)
+				except:
+					pass
 
 			if cur_reputation < -100:
 				cur_reputation = -100
 
-			if cur_coins < 0:
-				cur_coins = 0
+			if len(cur_warns) >= 20:
+				await self.client.database.del_warn(
+					guild_id=ctx.guild.id,
+					warn_id=[warn for warn in cur_warns if not warn["state"]][0]["id"]
+				)
 
-			await Commands(self.client).main_mute(
-				ctx=ctx.message,
-				member=member,
-				reason=reason,
-				check_role=False,
-				mute_typetime="h",
-				mute_time=2,
-			)
-			emb = discord.Embed(
-				description=f"**`{member}` Достиг максимального значения предупреждения и был замючен на 2 часа.**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-		else:
-			emb = discord.Embed(
-				description=f"**Вы были предупреждены {ctx.author.mention} по причине {reason}. Количество предупрежденний - `{len(cur_warns)+1}`, id - `{warn_id}`**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			try:
-				await member.send(embed=emb)
-			except:
-				pass
+			if len([warn for warn in cur_warns if warn["state"]]) >= max_warns:
+				cur_coins -= 1000
 
-			emb = discord.Embed(
-				description=f"**Пользователь `{member}` получил предупреждения по причине {reason}. Количество предупрежденний - `{len(cur_warns)+1}`, id - `{warn_id}`**",
-				colour=discord.Color.green(),
+				if cur_reputation < -100:
+					cur_reputation = -100
+
+				if cur_coins < 0:
+					cur_coins = 0
+
+				await Commands(self.client).main_mute(
+					ctx=ctx.message,
+					member=member,
+					reason=reason,
+					check_role=False,
+					mute_typetime="h",
+					mute_time=2,
+				)
+				emb = discord.Embed(
+					description=f"**`{member}` Достиг максимального значения предупреждения и был замючен на 2 часа.**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(
+					name=self.client.user.name, icon_url=self.client.user.avatar_url
+				)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
+			else:
+				emb = discord.Embed(
+					description=f"**Вы были предупреждены {ctx.author.mention} по причине {reason}. Количество предупрежденний - `{len(cur_warns)+1}`, id - `{warn_id}`**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				try:
+					await member.send(embed=emb)
+				except:
+					pass
+
+				emb = discord.Embed(
+					description=f"**Пользователь `{member}` получил предупреждения по причине {reason}. Количество предупрежденний - `{len(cur_warns)+1}`, id - `{warn_id}`**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
+
+			sql = """UPDATE users SET money = %s, coins = %s, reputation = %s, prison = %s WHERE user_id = %s AND guild_id = %s"""
+			val = (
+				cur_money,
+				cur_coins,
+				cur_reputation,
+				str(cur_state_pr),
+				member.id,
+				ctx.guild.id,
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
 
-		sql = """UPDATE users SET money = %s, coins = %s, reputation = %s, prison = %s WHERE user_id = %s AND guild_id = %s"""
-		val = (
-			cur_money,
-			cur_coins,
-			cur_reputation,
-			str(cur_state_pr),
-			member.id,
-			ctx.guild.id,
-		)
-
-		await self.client.database.execute(sql, val)
+			await self.client.database.execute(sql, val)
 
 		if logs_channel_id != 0:
 			e = discord.Embed(
@@ -1757,7 +1760,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		for warn in warns:
 			id_warn = warn["id"]
 			time_warn = warn["time"]
-			author_warn = warn["author"]
+			author_warn = str(ctx.guild.get_member(warn["author"]))
 			reason = warn["reason"]
 			state = warn["state"]
 
