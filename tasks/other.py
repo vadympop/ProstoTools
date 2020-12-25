@@ -32,9 +32,9 @@ class TasksOther(commands.Cog):
 						name=self.client.user.name, icon_url=self.client.user.avatar_url
 					)
 					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-					if member is not None:
-						if float(reminder_time) <= float(time.time()):
-							await self.client.database.del_reminder(member, reminder[0])
+					if float(reminder_time) <= float(time.time()):
+						await self.client.database.del_reminder(member, reminder[0])
+						if member is not None and channel is not None:
 							if channel in guild.channels:
 								await channel.send(embed=emb, content=member.mention)
 							else:

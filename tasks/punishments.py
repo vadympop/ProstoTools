@@ -25,12 +25,12 @@ class TasksPunishments(commands.Cog):
 					if guild is not None:
 						logs_channel_id = (await self.client.database.sel_guild(guild=guild))["log_channel"]
 						member = guild.get_member(int(mute[0]))
-						if member is not None:
-							if float(mute_time) <= float(time.time()):
-								await self.client.database.del_punishment(
-									member=member, guild_id=guild.id, type_punishment="mute"
-								)
-								mute_role = guild.get_role(int(mute[4]))
+						if float(mute_time) <= float(time.time()):
+							await self.client.database.del_punishment(
+								member=member, guild_id=guild.id, type_punishment="mute"
+							)
+							mute_role = guild.get_role(int(mute[4]))
+							if member is not None and mute_role is not None:
 								await member.remove_roles(mute_role)
 
 								emb = discord.Embed(
@@ -109,14 +109,14 @@ class TasksPunishments(commands.Cog):
 				if temprole[3] == "temprole":
 					if guild is not None:
 						member = guild.get_member(int(temprole[0]))
-						if member is not None:
-							if float(temprole_time) <= float(time.time()):
-								await self.client.database.del_punishment(
-									member=member,
-									guild_id=guild.id,
-									type_punishment="temprole",
-								)
-								temprole_role = get(guild.roles, id=int(temprole[4]))
+						if float(temprole_time) <= float(time.time()):
+							await self.client.database.del_punishment(
+								member=member,
+								guild_id=guild.id,
+								type_punishment="temprole",
+							)
+							temprole_role = guild.get_role(int(temprole[4]))
+							if member is not None and temprole_role is not None:
 								await member.remove_roles(temprole_role)
 
 	@tasks.loop(seconds=5)
@@ -129,14 +129,14 @@ class TasksPunishments(commands.Cog):
 					if guild is not None:
 						logs_channel_id = (await self.client.database.sel_guild(guild=guild))["log_channel"]
 						member = guild.get_member(int(vmute[0]))
-						if member is not None:
-							if float(vmute_time) <= float(time.time()):
-								await self.client.database.del_punishment(
-									member=member,
-									guild_id=guild.id,
-									type_punishment="vmute",
-								)
-								vmute_role = guild.get_role(int(vmute[4]))
+						if float(vmute_time) <= float(time.time()):
+							await self.client.database.del_punishment(
+								member=member,
+								guild_id=guild.id,
+								type_punishment="vmute",
+							)
+							vmute_role = guild.get_role(int(vmute[4]))
+							if member is not None and vmute_role is not None:
 								await member.remove_roles(vmute_role)
 
 								overwrite = discord.PermissionOverwrite(connect=None)

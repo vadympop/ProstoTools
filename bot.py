@@ -22,7 +22,8 @@ logger.add(
 extensions = (
 	"cogs.clans",
 	"cogs.different",
-	"cogs.economy",
+	"cogs.economy.main",
+	"cogs.economy.buy_cmd",
 	"cogs.games",
 	"cogs.moderate",
 	"cogs.owner",
@@ -56,7 +57,7 @@ class Client(commands.AutoShardedBot):
 		self.remove_command("help")
 		self.config = Config
 		self.database = DB(client=self)
-		self.utils = Utils()
+		self.utils = Utils(client=self)
 		self.random_api = RandomAPI()
 
 	async def on_ready(self):

@@ -1,7 +1,7 @@
 import discord
 import json
 import asyncio
-
+import uuid
 from discord.ext import commands
 from discord.utils import get
 
@@ -346,7 +346,7 @@ class Utils(commands.Cog, name="Utils"):
 		aliases=["apikey", "api_key"],
 		name="api-key",
 		hidden=True,
-		description="**Отправляет ключ API сервера**",
+		description="**Отправляет ключ API для сервера**",
 		usage="api-key",
 		help="**Примеры использования:**\n1. {Prefix}api-key\n\n**Пример 1:** Отправляет ключ API сервера",
 	)
@@ -360,6 +360,26 @@ class Utils(commands.Cog, name="Utils"):
 
 		await ctx.author.send(
 			f"Ключ API сервера - {ctx.guild.name}: `{key}`\n**__Никому его не передавайте. Он даёт доступ к данным сервера__**"
+		)
+		await ctx.message.add_reaction("✅")
+
+	@commands.command(
+		aliases=["regenerateapikey"],
+		name="regenerate-api-key",
+		hidden=True,
+		description="**Перегенерирует ключ API для сервера**",
+		usage="regenerate-api-key",
+		help="**Примеры использования:**\n1. {Prefix}regenerate-api-key\n\n**Пример 1:** Перегенерирует ключ API для сервера",
+	)
+	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
+	@commands.cooldown(1, 43200, commands.BucketType.member)
+	async def regenerate_api_key(self, ctx):
+		purge = await self.client.clear_commands(ctx.guild)
+		await ctx.channel.purge(limit=purge)
+
+		await self.client.database.execute(
+			"""UPDATE guilds SET api_key = %s WHERE guild_id = %s""",
+			(str(uuid.uuid4()), ctx.guild.id)
 		)
 		await ctx.message.add_reaction("✅")
 
