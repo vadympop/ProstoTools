@@ -24,7 +24,9 @@ extensions = (
 	"cogs.different",
 	"cogs.economy.main",
 	"cogs.economy.buy_cmd",
-	"cogs.games",
+	"cogs.fun.other",
+	"cogs.fun.edit_image",
+	"cogs.fun.random_image",
 	"cogs.moderate",
 	"cogs.owner",
 	"cogs.settings",
@@ -71,6 +73,9 @@ class Client(commands.AutoShardedBot):
 		await self.database.prepare()
 
 	async def on_disconnect(self):
+		logger.info(
+			f"[PT-SYSTEM-LOGGING]:::{self.user.name} is disconnected from discord server"
+		)
 		await self.database.close()
 
 	async def clear_commands(self, guild):

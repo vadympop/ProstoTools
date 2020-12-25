@@ -34,7 +34,49 @@ class Different(commands.Cog, name="Different"):
 		await ctx.channel.purge(limit=purge)
 
 		if action == "create":
+			if type_time is None:
+				emb = discord.Embed(
+					title="Ошибка!",
+					description="**Укажите время напоминая!**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(
+					name=self.client.user.name, icon_url=self.client.user.avatar_url
+				)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.message.add_reaction("❌")
+				await ctx.send(embed=emb)
+				return
+
+			if text is None:
+				emb = discord.Embed(
+					title="Ошибка!",
+					description="**Укажите текст напоминания!**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(
+					name=self.client.user.name, icon_url=self.client.user.avatar_url
+				)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.message.add_reaction("❌")
+				await ctx.send(embed=emb)
+				return
+
 			reminder_time = self.client.utils.time_to_num(type_time)
+			if reminder_time[0] <= 0:
+				emb = discord.Embed(
+					title="Ошибка!",
+					description="**Укажите время больше 0!**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(
+					name=self.client.user.name, icon_url=self.client.user.avatar_url
+				)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.message.add_reaction("❌")
+				await ctx.send(embed=emb)
+				return
+
 			times = time.time() + reminder_time[0]
 
 			reminder_id = await self.client.database.set_reminder(
@@ -96,19 +138,32 @@ class Different(commands.Cog, name="Different"):
 				else:
 					emb = discord.Embed(
 						title="Ошибка!",
-						description="**Указаное id - сторока!**",
+						description="**Указаное id - строка!**",
 						colour=discord.Color.green(),
 					)
 			elif type_time is None:
 				emb = discord.Embed(
 					title="Ошибка!",
-					description="**Вы не указали id напоминания!**",
+					description="**Укажите id напоминания!**",
 					colour=discord.Color.green(),
 				)
 			emb.set_author(
 				name=self.client.user.name, icon_url=self.client.user.avatar_url
 			)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.message.add_reaction("❌")
+			await ctx.send(embed=emb)
+		else:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="**Укажите одно из этих действий: create, list, delete!**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.message.add_reaction("❌")
 			await ctx.send(embed=emb)
 
 	@commands.command(

@@ -60,7 +60,8 @@ class TasksOther(commands.Cog):
 									type_punishment="text_channel",
 								)
 								delete_channel = guild.get_channel(int(channel[4]))
-								await delete_channel.delete()
+								if delete_channel is not None:
+									await delete_channel.delete()
 
 	@tasks.loop(minutes=30)
 	async def ping_stat_loop(self):

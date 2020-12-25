@@ -61,6 +61,7 @@ class Errors(commands.Cog, name="Errors"):
 		elif isinstance(error, commands.errors.CommandNotFound):
 			pass
 		elif isinstance(error, commands.errors.NotOwner):
+			await ctx.message.add_reaction("❌")
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="**Вы неявляетесь создателем бота! Эта команда только для создателей!**",
@@ -70,6 +71,7 @@ class Errors(commands.Cog, name="Errors"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.MissingPermissions):
+			await ctx.message.add_reaction("❌")
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="**У вас не достаточно прав! Для этой команды нужны права администратора**",
@@ -79,6 +81,7 @@ class Errors(commands.Cog, name="Errors"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.BadArgument):
+			await ctx.message.add_reaction("❌")
 			emb = discord.Embed(
 				title="Ошибка!",
 				description=f"**Указан не правильный аргумент!**\n\n{ctx.command.help.format(Prefix=PREFIX)}",
@@ -88,6 +91,7 @@ class Errors(commands.Cog, name="Errors"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.BotMissingPermissions):
+			await ctx.message.add_reaction("❌")
 			owner = get(ctx.guild.members, id=ctx.guild.owner_id)
 			emb_err = discord.Embed(
 				title="Ошибка!",
@@ -98,6 +102,7 @@ class Errors(commands.Cog, name="Errors"):
 			emb_err.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await owner.send(embed=emb_err)
 		elif isinstance(error, commands.errors.MemberNotFound):
+			await ctx.message.add_reaction("❌")
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="**Указаный пользователь не найден!**",

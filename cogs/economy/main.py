@@ -261,6 +261,21 @@ class Economy(commands.Cog):
 		time_channel = guild_data["timedelete_textchannel"]
 		num_textchannels = data["text_channels"]
 
+		if len(name) > 32:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description="**Укажите названия канала меньше 32 символов!**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+			await ctx.message.add_reaction("❌")
+			self.textchannel.reset_cooldown(ctx)
+			return
+
 		if category_id == 0:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -564,15 +579,9 @@ class Economy(commands.Cog):
 		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
-		box = box[:-2].lower() + f"-{box[-1:].upper()}"
-		boxes = ["box-C", "box-R", "box-E", "box-L", "box-I"]
-		dict_boxes = {
-			"box-C": ["Обычный бокс", 4000],
-			"box-R": ["Редкий бокс", 6000],
-			"box-E": ["Эпический бокс", 9000],
-			"box-L": ["Легендарный бокс", 12000],
-			"box-I": ["Невероятный бокс", 16000],
-		}
+		if box is not None:
+			boxes = ["box-C", "box-R", "box-E", "box-L", "box-I"]
+			box = box[:-2].lower() + f"-{box[-1:].upper()}"
 
 		if box is None:
 			emb = discord.Embed(
@@ -599,6 +608,13 @@ class Economy(commands.Cog):
 			await ctx.send(embed=emb)
 			return
 
+		dict_boxes = {
+			"box-C": ["Обычный бокс", 4000],
+			"box-R": ["Редкий бокс", 6000],
+			"box-E": ["Эпический бокс", 9000],
+			"box-L": ["Легендарный бокс", 12000],
+			"box-I": ["Невероятный бокс", 16000],
+		}
 		data = await self.client.database.sel_user(target=ctx.author)
 		items = data["items"]
 		pets = data["pets"]

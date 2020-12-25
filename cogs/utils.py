@@ -244,33 +244,35 @@ class Utils(commands.Cog, name="Utils"):
 		await ctx.channel.purge(limit=purge)
 
 		if type_act == "add":
-			for member in ctx.guild.members:
-				if for_role in member.roles:
-					if role not in member.roles:
-						await member.add_roles(role)
+			async with ctx.typing():
+				for member in ctx.guild.members:
+					if for_role in member.roles:
+						if role not in member.roles:
+							await member.add_roles(role)
 
-			emb = discord.Embed(
-				title="Операция добавления роли проведенна успешно",
-				description=f"У пользователей с ролью `{for_role.name}` была добавленна роль - `{role.name}`",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
+				emb = discord.Embed(
+					title="Операция добавления роли проведенна успешно",
+					description=f"У пользователей с ролью `{for_role.name}` была добавленна роль - `{role.name}`",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
 		elif type_act == "remove" or type_act == "del":
-			for member in ctx.guild.members:
-				if for_role in member.roles:
-					if role in member.roles:
-						await member.remove_roles(role)
+			async with ctx.typing():
+				for member in ctx.guild.members:
+					if for_role in member.roles:
+						if role in member.roles:
+							await member.remove_roles(role)
 
-			emb = discord.Embed(
-				title="Операция снятия роли проведенна успешно",
-				description=f"У пользователей с ролью `{for_role.name}` была снята роль - `{role.name}`",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
+				emb = discord.Embed(
+					title="Операция снятия роли проведенна успешно",
+					description=f"У пользователей с ролью `{for_role.name}` была снята роль - `{role.name}`",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
 		else:
 			emb = discord.Embed(
 				title="Ошибка!",

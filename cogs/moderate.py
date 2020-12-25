@@ -1124,106 +1124,107 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		overwrite = discord.PermissionOverwrite(send_messages=False)
-		await member.add_roles(role)
-		for channel in ctx.guild.text_channels:
-			await channel.set_permissions(role, overwrite=overwrite)
+		async with ctx.typing():
+			overwrite = discord.PermissionOverwrite(send_messages=False)
+			await member.add_roles(role)
+			for channel in ctx.guild.text_channels:
+				await channel.set_permissions(role, overwrite=overwrite)
 
-		cur_lvl = data["lvl"]
-		cur_coins = data["coins"] - 1500
-		cur_money = data["money"]
-		cur_reputation = data["reputation"] - 15
-		cur_items = data["items"]
-		prison = data["prison"]
+			cur_lvl = data["lvl"]
+			cur_coins = data["coins"] - 1500
+			cur_money = data["money"]
+			cur_reputation = data["reputation"] - 15
+			cur_items = data["items"]
+			prison = data["prison"]
 
-		if cur_reputation < -100:
-			cur_reputation = -100
+			if cur_reputation < -100:
+				cur_reputation = -100
 
-		if cur_lvl <= 3:
-			cur_money -= 250
-		elif cur_lvl > 3 and cur_lvl <= 5:
-			cur_money -= 500
-		elif cur_lvl > 5:
-			cur_money -= 1000
+			if cur_lvl <= 3:
+				cur_money -= 250
+			elif cur_lvl > 3 and cur_lvl <= 5:
+				cur_money -= 500
+			elif cur_lvl > 5:
+				cur_money -= 1000
 
-		if cur_coins <= 0:
-			cur_coins = 0
+			if cur_coins <= 0:
+				cur_coins = 0
 
-		if cur_money <= -5000:
-			prison = True
-			cur_items = []
-			emb = discord.Embed(
-				description=f"**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Текущий баланс - `{cur_money}`**",
-				colour=discord.Color.green(),
+			if cur_money <= -5000:
+				prison = True
+				cur_items = []
+				emb = discord.Embed(
+					description=f"**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Текущий баланс - `{cur_money}`**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(
+					name=self.client.user.name, icon_url=self.client.user.avatar_url
+				)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				try:
+					await member.send(embed=emb)
+				except:
+					pass
+
+			sql = """UPDATE users SET money = %s, coins = %s, reputation = %s, items = %s, prison = %s WHERE user_id = %s AND guild_id = %s"""
+			val = (
+				cur_money,
+				cur_coins,
+				cur_reputation,
+				json.dumps(cur_items),
+				str(prison),
+				member.id,
+				ctx.guild.id,
 			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			try:
-				await member.send(embed=emb)
-			except:
-				pass
 
-		sql = """UPDATE users SET money = %s, coins = %s, reputation = %s, items = %s, prison = %s WHERE user_id = %s AND guild_id = %s"""
-		val = (
-			cur_money,
-			cur_coins,
-			cur_reputation,
-			json.dumps(cur_items),
-			str(prison),
-			member.id,
-			ctx.guild.id,
-		)
+			await self.client.database.execute(sql, val)
 
-		await self.client.database.execute(sql, val)
+			if mute_time[0] <= 0:
+				emb = discord.Embed(
+					description=f"**{ctx.author.mention} Перманентно замутил `{member}` по причине {reason}**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
 
-		if mute_time[0] <= 0:
-			emb = discord.Embed(
-				description=f"**{ctx.author.mention} Перманентно замутил `{member}` по причине {reason}**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
+				emb = discord.Embed(
+					description=f"**Вы были перманентно замьючены модератором `{member}` по причине {reason}**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				try:
+					await member.send(embed=emb)
+				except:
+					pass
+			elif mute_time[0] > 0:
+				await self.client.database.set_punishment(
+					type_punishment="mute",
+					time=times,
+					member=member,
+					role_id=int(role.id),
+					reason=reason,
+					author=ctx.author.id,
+				)
+				emb = discord.Embed(
+					description=f"**{ctx.author.mention} Замутил `{member}` по причине {reason} на {mute_time[1]}{mute_time[2]}**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
 
-			emb = discord.Embed(
-				description=f"**Вы были перманентно замьючены модератором `{member}` по причине {reason}**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			try:
-				await member.send(embed=emb)
-			except:
-				pass
-		elif mute_time[0] > 0:
-			await self.client.database.set_punishment(
-				type_punishment="mute",
-				time=times,
-				member=member,
-				role_id=int(role.id),
-				reason=reason,
-				author=ctx.author.id,
-			)
-			emb = discord.Embed(
-				description=f"**{ctx.author.mention} Замутил `{member}` по причине {reason} на {mute_time[1]}{mute_time[2]}**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-
-			emb = discord.Embed(
-				description=f"**Вы были замьючены модератором `{member}` по причине {reason} на {mute_time[1]}{mute_time[2]}**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			try:
-				await member.send(embed=emb)
-			except:
-				pass
+				emb = discord.Embed(
+					description=f"**Вы были замьючены модератором `{member}` по причине {reason} на {mute_time[1]}{mute_time[2]}**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				try:
+					await member.send(embed=emb)
+				except:
+					pass
 
 		if logs_channel_id != 0:
 			e = discord.Embed(
@@ -1575,7 +1576,6 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		if len([warn for warn in cur_warns if warn["state"]]) >= max_warns:
 			cur_coins -= 1000
-			cur_warns = []
 
 			if cur_reputation < -100:
 				cur_reputation = -100
@@ -1600,7 +1600,6 @@ class Moderate(commands.Cog, name="Moderate"):
 			)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			return
 		else:
 			emb = discord.Embed(
 				description=f"**Вы были предупреждены {ctx.author.mention} по причине {reason}. Количество предупрежденний - `{len(cur_warns)+1}`, id - `{warn_id}`**",

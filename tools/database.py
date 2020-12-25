@@ -44,14 +44,15 @@ class DB:
 					("""SELECT id FROM reminders WHERE user_id = %s AND user_id = %s"""),
 					(member.id, member.id),
 				)
-				limit_data = len(cur.fetchall()) + 1
+				data = await cur.fetchall()
+				limit_data = len(data) + 1
 				if limit_data >= 25:
 					return False
 				await cur.execute(
 					("""SELECT id FROM reminders WHERE guild_id = %s AND guild_id = %s"""),
 					(member.guild.id, member.guild.id),
 				)
-				db_ids = cur.fetchall()
+				db_ids = await cur.fetchall()
 				ids = [str(reminder[0]) for reminder in db_ids]
 				ids.reverse()
 				try:

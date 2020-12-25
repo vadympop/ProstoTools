@@ -133,6 +133,9 @@ class Utils:
             "Works": 7,
             "Clans": 3,
             "EconomyBuyCmd": 3,
+            "FunOther": 5,
+            "FunEditImage": 6,
+            "FunRandomImage": 7
         }
         exceptions = ["Help", "Loops", "Events", "Owner", "Errors"]
 
