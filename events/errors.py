@@ -82,7 +82,7 @@ class Errors(commands.Cog, name="Errors"):
 			await ctx.send(embed=emb)
 		else:
 			error_id = str(uuid.uuid4())
-			await self.client.database.set_error(error_id, repr(error))
+			await self.client.database.set_error(error_id, repr(error), ctx.command.name)
 			await ctx.message.add_reaction("❌")
 			emb = discord.Embed(
 				title="Ошибка!",

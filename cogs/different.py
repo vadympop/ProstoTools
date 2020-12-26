@@ -32,6 +32,7 @@ class Different(commands.Cog, name="Different"):
 	):
 		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+		print(type_time.split("/"))
 
 		if action == "create":
 			if type_time is None:

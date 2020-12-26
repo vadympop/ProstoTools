@@ -535,10 +535,10 @@ class DB:
 				await cur.execute(sql, val)
 				await conn.commit()
 
-	async def set_error(self, error_id: str, traceback: str):
+	async def set_error(self, error_id: str, traceback: str, command: str):
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
-				sql = """INSERT INTO errors(error_id, traceback) VALUES(%s, %s)"""
-				val = (error_id, traceback)
+				sql = """INSERT INTO errors(error_id, traceback, command) VALUES(%s, %s, %s)"""
+				val = (error_id, traceback, command)
 				await cur.execute(sql, val)
 				await conn.commit()
