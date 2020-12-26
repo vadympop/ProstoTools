@@ -225,6 +225,11 @@ class Settings(commands.Cog, name="Settings"):
 		data = await self.client.database.sel_guild(guild=ctx.guild)
 		shoplist = data["shop_list"]
 
+		if cost <= 0:
+			emb = await self.client.create_error_embed(ctx, "Укажите стоимость предмета больше 0!")
+			await ctx.send(embed=emb)
+			return
+
 		if cl_add == "add":
 			shoplist.append([role.id, cost])
 			emb = discord.Embed(
@@ -327,6 +332,12 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	async def maxwarns(self, ctx, number: int):
 		client = self.client
+
+		if number <= 0:
+			emb = await self.client.create_error_embed(ctx, "Укажите максимальное количество предупреждений больше 0!")
+			await ctx.send(embed=emb)
+			return
+
 		if number >= 25:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -543,6 +554,12 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	async def timetextchannel(self, ctx, time: int):
 		client = self.client
+
+		if time <= 0:
+			emb = await self.client.create_error_embed(ctx, "Укажите время удаления приватных текстовых каналов больше 0!")
+			await ctx.send(embed=emb)
+			return
+
 		sql = """UPDATE guilds SET timedelete_textchannel = %s WHERE guild_id = %s AND guild_id = %s"""
 		val = (time, ctx.guild.id, ctx.guild.id)
 
@@ -601,16 +618,11 @@ class Settings(commands.Cog, name="Settings"):
 		description="**Настройка канала аудита**",
 		usage="setting log-channel [Id канала]",
 	)
-	async def set_log_channel(self, ctx, channel_id: int):
-		if channel_id not in [channel.id for channel in ctx.guild.channels]:
-			return
-
-		if isinstance(ctx.guild.get_channel(channel_id), discord.VoiceChannel):
-			return
-
+	async def set_log_channel(self, ctx, channel: discord.TextChannel):
 		sql = """UPDATE guilds SET log_channel = %s WHERE guild_id = %s"""
-		val = (channel_id, ctx.guild.id)
+		val = (channel.id, ctx.guild.id)
 		await self.client.database.execute(sql, val)
+		await ctx.message.add_reaction("✅")
 
 
 def setup(client):

@@ -491,7 +491,7 @@ class DB:
 					)
 					data = await cur.fetchall()
 				except:
-					data = [(0, 0)]
+					data = [(0, 0,)]
 
 				await cur.execute(
 					f"""SELECT * FROM bot_stats WHERE entity = 'all commands'"""
@@ -527,9 +527,18 @@ class DB:
 
 					await cur.execute(sql, val)
 					await conn.commit()
+					return
 
 				sql = """INSERT INTO bot_stats(id, count, timestamp, entity) VALUES(%s, %s, %s, %s)"""
-				val = (new_id + 1, new_count, datetime.datetime.now(), entity)
+				val = (new_id+1, new_count, datetime.datetime.now(), entity)
 
+				await cur.execute(sql, val)
+				await conn.commit()
+
+	async def set_error(self, error_id: str, traceback: str):
+		async with self.pool.acquire() as conn:
+			async with conn.cursor() as cur:
+				sql = """INSERT INTO errors(error_id, traceback) VALUES(%s, %s)"""
+				val = (error_id, traceback)
 				await cur.execute(sql, val)
 				await conn.commit()

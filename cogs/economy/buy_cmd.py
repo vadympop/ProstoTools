@@ -64,7 +64,7 @@ class EconomyBuyCmd(commands.Cog):
                 if cur_money <= -5000:
                     prison = "True"
                     cur_items = []
-                    return True
+                    yield True
 
                 info_transantion = {
                     "to": "Магазин",
@@ -113,7 +113,7 @@ class EconomyBuyCmd(commands.Cog):
                 if cur_money <= -5000:
                     prison = "True"
                     cur_items = []
-                    return True
+                    yield True
 
                 info_transantion = {
                     "to": "Магазин",
@@ -447,7 +447,7 @@ class EconomyBuyCmd(commands.Cog):
                             return
 
                         emb = discord.Embed(
-                            description=f"**Вы успешно приобрели новую роль - <@&{role.id}>**",
+                            description=f"**Вы успешно приобрели новую роль - `{role.name}`>**",
                             colour=discord.Color.green(),
                         )
                         emb.set_author(
@@ -686,7 +686,15 @@ class EconomyBuyCmd(commands.Cog):
                     or item == "text-channel"
                     or item == "text_channel"
             ):
-                if num:
+                if num is not None:
+                    if num <= 0:
+                        emb = await self.client.utils.create_error_embed(
+                            ctx,
+                            "Укажите число покупаемых каналов больше 0!"
+                        )
+                        await ctx.send(embed=emb)
+                        return
+
                     state = await buy_text_channel(costs[4], num)
                     if state:
                         emb = discord.Embed(

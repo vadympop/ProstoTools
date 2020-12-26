@@ -395,8 +395,6 @@ class Economy(commands.Cog):
 		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
-		data1 = await self.client.database.sel_user(target=ctx.author)
-
 		if member.bot:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -411,21 +409,13 @@ class Economy(commands.Cog):
 			await ctx.message.add_reaction("❌")
 			return
 
-		if member in ctx.guild.members:
-			data2 = await self.client.database.sel_user(target=member)
-		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**На сервере не существует такого пользователя!**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		if num <= 0:
+			emb = await self.client.create_error_embed(ctx, "Укажите число пересылаемых денег больше 0!")
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
+
+		data1 = await self.client.database.sel_user(target=ctx.author)
+		data2 = await self.client.database.sel_user(target=member)
 
 		cur_state_pr1 = data1["prison"]
 		cur_state_pr2 = data2["prison"]
@@ -460,7 +450,6 @@ class Economy(commands.Cog):
 			val_2 = (num, json.dumps(cur_transantions2), member.id, member.guild.id)
 
 			await self.client.database.execute(sql_1, val_1)
-
 			await self.client.database.execute(sql_2, val_2)
 
 			emb = discord.Embed(
@@ -1033,21 +1022,9 @@ class Economy(commands.Cog):
 			await ctx.message.add_reaction("❌")
 			return
 
-		if member in ctx.guild.members:
-			data = await self.client.database.sel_user(target=member)
-		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**На сервере не существует такого пользователя!**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		if num <= 0:
+			emb = await self.client.create_error_embed(ctx, "Укажите число добавляемых денег больше 0!")
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
-			self.add_cash.reset_cooldown(ctx)
 			return
 
 		if num >= 1000000000:
@@ -1065,6 +1042,7 @@ class Economy(commands.Cog):
 			self.add_cash.reset_cooldown(ctx)
 			return
 
+		data = await self.client.database.sel_user(target=member)
 		coins_member = data["coins"]
 		cur_money = data["money"]
 
@@ -1158,23 +1136,12 @@ class Economy(commands.Cog):
 			await ctx.message.add_reaction("❌")
 			return
 
-		if member in ctx.guild.members:
-			data = await self.client.database.sel_user(target=member)
-		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**На сервере не существует такого пользователя!**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		if num <= 0:
+			emb = await self.client.create_error_embed(ctx, "Укажите число отнимаемых денег больше 0!")
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
-			self.remove_cash.reset_cooldown(ctx)
 			return
 
+		data = await self.client.database.sel_user(target=member)
 		coins_member = data["coins"]
 		cur_money = data["money"]
 

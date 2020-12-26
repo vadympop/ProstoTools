@@ -1,5 +1,5 @@
 import discord
-
+import uuid
 from discord.ext import commands
 from discord.utils import get
 from colorama import *
@@ -12,17 +12,9 @@ class Errors(commands.Cog, name="Errors"):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
-	def dump(self, filename, filecontent):
-		with open(filename, "w", encoding="utf-8") as f:
-			f.writelines(filecontent)
-
-	def load(self, filename):
-		with open(filename, "r", encoding="utf-8") as f:
-			return f.read()
-
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, error):
-		PREFIX = (await self.client.database.sel_guild(guild=ctx.guild))["prefix"]
+		PREFIX = self.client.database.get_prefix(guild=ctx.guild)
 
 		if isinstance(error, commands.errors.CommandOnCooldown):
 			await ctx.message.add_reaction("❌")
@@ -49,14 +41,10 @@ class Errors(commands.Cog, name="Errors"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.MissingRequiredArgument):
-			await ctx.message.add_reaction("❌")
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указаной команде!**\n\n{ctx.command.help.format(Prefix=PREFIX)}",
-				colour=discord.Color.green(),
+			emb = self.client.utils.create_error_embed(
+				ctx,
+				f"**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указаной команде!**\n\n{ctx.command.help.format(Prefix=PREFIX)}"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.CommandNotFound):
 			pass
@@ -71,49 +59,39 @@ class Errors(commands.Cog, name="Errors"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.MissingPermissions):
-			await ctx.message.add_reaction("❌")
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**У вас не достаточно прав! Для этой команды нужны права администратора**",
-				colour=discord.Color.green(),
+			emb = self.client.utils.create_error_embed(
+				ctx,
+				"**У вас не достаточно прав! Для этой команды нужны права администратора**"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.BadArgument):
-			await ctx.message.add_reaction("❌")
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Указан не правильный аргумент!**\n\n{ctx.command.help.format(Prefix=PREFIX)}",
-				colour=discord.Color.green(),
+			emb = self.client.utils.create_error_embed(
+				ctx,
+				f"**Указан не правильный аргумент!**\n\n{ctx.command.help.format(Prefix=PREFIX)}"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.BotMissingPermissions):
-			await ctx.message.add_reaction("❌")
 			owner = get(ctx.guild.members, id=ctx.guild.owner_id)
-			emb_err = discord.Embed(
-				title="Ошибка!",
-				description=f"У бота отсутствуют права: {' '.join(error.missing_perms)}\nВыдайте их ему для полного функционирования бота",
-				colour=discord.Color.green(),
+			emb_err = self.client.utils.create_error_embed(
+				ctx,
+				f"У бота отсутствуют права: {' '.join(error.missing_perms)}\nВыдайте их ему для полного функционирования бота"
 			)
-			emb_err.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb_err.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await owner.send(embed=emb_err)
 		elif isinstance(error, commands.errors.MemberNotFound):
+			emb = self.client.utils.create_error_embed(ctx, "**Указаный пользователь не найден!**")
+			await ctx.send(embed=emb)
+		else:
+			error_id = str(uuid.uuid4())
+			await self.client.database.set_error(error_id, repr(error))
 			await ctx.message.add_reaction("❌")
 			emb = discord.Embed(
 				title="Ошибка!",
-				description="**Указаный пользователь не найден!**",
-				colour=discord.Color.green(),
+				description="**Произошла неизвестная ошибка, обратитесь к моему создателю!!**",
+				colour=discord.Color.red(),
 			)
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=f"Id ошибки: {error_id}", icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-		# elif isinstance(error, commands.errors.CommandInvokeError):
-		# 	pass
-		else:
 			raise error
 
 

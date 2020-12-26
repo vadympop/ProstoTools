@@ -3,6 +3,7 @@ import qrcode
 import wikipedia
 import cv2
 import random
+from aiohttp import client_exceptions
 from tools.http import async_requests as requests
 from pyzbar import pyzbar
 from discord.ext import commands
@@ -41,7 +42,6 @@ class FunOther(commands.Cog):
 
         img = qrcode.make(code_text)
         img.save("././data/images/myqr.jpg")
-        code_text = f"*{code_text}*"
 
         emb = discord.Embed(
             title="Функция создания qr-кодов",
@@ -68,13 +68,25 @@ class FunOther(commands.Cog):
         purge = await self.client.clear_commands(ctx.guild)
         await ctx.channel.purge(limit=purge)
 
-        ddd = await requests.get_raw_data(url)
+        try:
+            ddd = await requests.get_raw_data(url)
+        except client_exceptions.InvalidURL:
+            emb = await self.client.utils.create_error_embed(ctx, "Указан неверный формат ссылки!")
+            await ctx.send(embed=emb)
+            return
+
         img_file = open("././data/images/qr_url.png", "wb")
         img_file.write(ddd)
         img_file.close()
 
         img = cv2.imread("././data/images/qr_url.png")
-        bs = pyzbar.decode(img)
+        try:
+            bs = pyzbar.decode(img)
+        except TypeError:
+            emb = await self.client.utils.create_error_embed(ctx, "Указана неверная ссылка!")
+            await ctx.send(embed=emb)
+            return
+
         for barcode in bs:
             bd = barcode.data.decode("utf-8")
             emb = discord.Embed(

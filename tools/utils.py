@@ -85,7 +85,7 @@ class Utils:
             "Economy": 5,
             "Games": 7,
             "Moderate": 6,
-            "Settings": 4,
+            "Settings": 3,
             "Utils": 5,
             "Works": 7,
             "Clans": 3,

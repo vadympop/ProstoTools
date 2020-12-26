@@ -4,10 +4,8 @@ import typing
 import time
 import os
 import uuid
-
+import datetime
 from tools import Commands
-
-from datetime import datetime
 from discord.ext import commands
 from discord.utils import get
 
@@ -42,19 +40,34 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def clear(self, ctx, member: typing.Optional[discord.Member], amount: int):
+		if amount <= 0:
+			emb = await self.client.utils.create_error_embed(ctx, "Укажите число удаляемых сообщения больше 0!")
+			await ctx.send(embed=emb)
+			return
+
 		amount += 1
 		number = 0
 		delete_messages = ""
+		delete_messages_objs = []
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 		if member is None:
 			async with ctx.typing():
 				delete_messages_fp = self.TEMP_PATH + str(uuid.uuid4()) + ".txt"
 				async for msg in ctx.channel.history():
+					if (datetime.datetime.now()-msg.created_at) >= datetime.timedelta(weeks=2):
+						emb = await self.client.utils.create_error_embed(
+							ctx,
+							"Я не могу удалить сообщения старше 14 дней!"
+						)
+						await ctx.send(embed=emb)
+						return
+
 					if logs_channel_id != 0:
 						delete_messages += f"""\n{msg.created_at.strftime("%H:%M:%S %d-%m-%Y")} -- {str(msg.author)}\n{msg.content}\n\n"""
-					await msg.delete()
+					delete_messages_objs.append(msg)
 					number += 1
 					if number >= amount:
+						await ctx.channel.delete_messages(delete_messages_objs)
 						if logs_channel_id != 0:
 							self.client.txt_dump(delete_messages_fp, delete_messages)
 						emb = discord.Embed(
@@ -69,7 +82,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 						if logs_channel_id != 0:
 							e = discord.Embed(
-								colour=discord.Color.green(), timestamp=datetime.utcnow()
+								colour=discord.Color.green(), timestamp=datetime.datetime.utcnow()
 							)
 							e.add_field(
 								name=f"Модератор {str(ctx.author)}",
@@ -336,7 +349,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был кикнут",
 				colour=discord.Color.green(),
-				timestamp=datetime.utcnow(),
+				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
 				name="Модератором",
@@ -472,7 +485,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был апаратно забанен",
 				colour=discord.Color.green(),
-				timestamp=datetime.utcnow(),
+				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}",
@@ -580,7 +593,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был апаратно разбанен",
 				colour=discord.Color.green(),
-				timestamp=datetime.utcnow(),
+				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
 				name="Модератором",
@@ -751,34 +764,44 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		banned_users = await ctx.guild.bans()
-		for ban_entry in banned_users:
-			user = ban_entry.user
+		async with ctx.typing():
+			banned_users = await ctx.guild.bans()
+			state = False
+			for ban_entry in banned_users:
+				user = ban_entry.user
 
-			if user.id == member.id:
-				await ctx.guild.unban(user)
-				await self.client.database.del_punishment(
-					member=member, guild_id=ctx.guild.id, type_punishment="ban"
-				)
+				if user.id == member.id:
+					state = True
+					await ctx.guild.unban(user)
+					await self.client.database.del_punishment(
+						member=member, guild_id=ctx.guild.id, type_punishment="ban"
+					)
 
-				emb = discord.Embed(
-					description=f"**{ctx.author.mention} Разбанил `{member}`**",
-					colour=discord.Color.green(),
-				)
-				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					emb = discord.Embed(
+						description=f"**{ctx.author.mention} Разбанил `{member}`**",
+						colour=discord.Color.green(),
+					)
+					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await ctx.send(embed=emb)
+
+					emb = discord.Embed(
+						description=f"**Вы были разбанены на сервере `{ctx.guild.name}`**",
+						colour=discord.Color.green(),
+					)
+					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					try:
+						await member.send(embed=emb)
+					except:
+						pass
+					break
+
+			if not state:
+				emb = await self.client.utils.create_error_embed(ctx, "Указаный пользователь не забанен!")
 				await ctx.send(embed=emb)
+				return
 
-				emb = discord.Embed(
-					description=f"**Вы были разбанены на сервере `{ctx.guild.name}`**",
-					colour=discord.Color.green(),
-				)
-				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				try:
-					await member.send(embed=emb)
-				except:
-					pass
 
 	@commands.command(
 		brief="True",
@@ -889,7 +912,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был замьючен в голосовых каналах",
 				colour=discord.Color.green(),
-				timestamp=datetime.utcnow(),
+				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}",
@@ -1001,7 +1024,7 @@ class Moderate(commands.Cog, name="Moderate"):
 					e = discord.Embed(
 						description=f"Пользователь `{str(member)}` был размьючен в голосовых каналах",
 						colour=discord.Color.green(),
-						timestamp=datetime.utcnow(),
+						timestamp=datetime.datetime.utcnow(),
 					)
 					e.add_field(
 						name="Модератором",
@@ -1232,7 +1255,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был замьючен",
 				colour=discord.Color.green(),
-				timestamp=datetime.utcnow(),
+				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}",
@@ -1339,7 +1362,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был размьючен",
 				colour=discord.Color.green(),
-				timestamp=datetime.utcnow(),
+				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
 				name="Модератором",
@@ -1415,7 +1438,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			e = discord.Embed(
 				description=f"У пользователя `{str(member)}` были сняты все предупреждения",
 				colour=discord.Color.green(),
-				timestamp=datetime.utcnow(),
+				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
 				name="Модератором",
@@ -1543,7 +1566,7 @@ class Moderate(commands.Cog, name="Moderate"):
 				target=member,
 				reason=reason,
 				author=ctx.author.id,
-				time=str(datetime.today()),
+				time=str(datetime.datetime.today()),
 			)
 
 			if cur_lvl <= 3:
@@ -1639,7 +1662,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` получил предупреждения",
 				colour=discord.Color.green(),
-				timestamp=datetime.utcnow(),
+				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}",
@@ -1697,7 +1720,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			e = discord.Embed(
 				description=f"У пользователь `{str(ctx.guild.get_member(data[0]))}` было снято предупреждения",
 				colour=discord.Color.green(),
-				timestamp=datetime.utcnow(),
+				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}",

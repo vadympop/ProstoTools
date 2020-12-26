@@ -1,4 +1,5 @@
 import psutil as ps
+import time
 from discord.ext import commands, tasks
 
 
@@ -22,12 +23,18 @@ class TasksBotStat(commands.Cog):
     @tasks.loop(minutes=5)
     async def cpu_stat_loop(self):
         if self.client.is_ready():
-            await self.client.database.add_amout_command(entity="cpu", add_counter=ps.cpu_percent())
+            try:
+                await self.client.database.add_amout_command(entity="cpu", add_counter=ps.cpu_percent())
+            except:
+                pass
 
     @tasks.loop(minutes=10)
     async def memory_stat_loop(self):
         if self.client.is_ready():
-            await self.client.database.add_amout_command(entity="memory", add_counter=self.mem.percent)
+            try:
+                await self.client.database.add_amout_command(entity="memory", add_counter=self.mem.percent)
+            except:
+                pass
 
 
 def setup(client):
