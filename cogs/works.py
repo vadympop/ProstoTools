@@ -102,13 +102,18 @@ class Works(commands.Cog, name="Works"):
 		lvl_member = data["lvl"]
 		cur_state_pr = data["prison"]
 		cur_items = data["items"]
+		cur_pets = data["pets"]
 
 		async def func_trHunt(shans: int):
 			rand_num_1 = randint(0, 100)
 			shans_2 = 100 - shans
+			if "loupe" in cur_pets:
+				shans_2 += shans_2*20//100
 
 			if rand_num_1 >= shans:
 				rand_num_2 = randint(1, 500)
+				if "helmet" in cur_pets:
+					rand_num_2 += rand_num_2*10//100
 
 				sql = """UPDATE users SET money = money + %s WHERE user_id = %s AND guild_id = %s"""
 				val = (rand_num_2, ctx.author.id, ctx.guild.id)
@@ -127,7 +132,6 @@ class Works(commands.Cog, name="Works"):
 		if not cur_state_pr:
 			if lvl_member >= 2:
 				if cur_items is not None:
-
 					if "metal_1" in cur_items and "metal_2" in cur_items:
 						msg_content = await func_trHunt(20)
 						emb = discord.Embed(

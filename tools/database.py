@@ -320,6 +320,9 @@ class DB:
 						await cur.execute(sql_2, val_2)
 						await conn.commit()
 
+						await cur.execute(sql_1, val_1)
+						data = await cur.fetchone()
+
 		if data is not None:
 			prison = data[9]
 			if prison == "True":
@@ -403,6 +406,9 @@ class DB:
 				if data is None:
 					await cur.execute(sql_2, val_2)
 					await conn.commit()
+
+					await cur.execute(sql_1, val_1)
+					data = await cur.fetchone()
 
 		donate = data[9]
 		if donate == "True":
@@ -527,7 +533,6 @@ class DB:
 
 					await cur.execute(sql, val)
 					await conn.commit()
-					return
 
 				sql = """INSERT INTO bot_stats(id, count, timestamp, entity) VALUES(%s, %s, %s, %s)"""
 				val = (new_id+1, new_count, datetime.datetime.now(), entity)

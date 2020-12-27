@@ -41,7 +41,7 @@ class Errors(commands.Cog, name="Errors"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.MissingRequiredArgument):
-			emb = self.client.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx,
 				f"**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указаной команде!**\n\n{ctx.command.help.format(Prefix=PREFIX)}"
 			)
@@ -59,26 +59,26 @@ class Errors(commands.Cog, name="Errors"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.MissingPermissions):
-			emb = self.client.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx,
 				"**У вас не достаточно прав! Для этой команды нужны права администратора**"
 			)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.BadArgument):
-			emb = self.client.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx,
 				f"**Указан не правильный аргумент!**\n\n{ctx.command.help.format(Prefix=PREFIX)}"
 			)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.BotMissingPermissions):
 			owner = get(ctx.guild.members, id=ctx.guild.owner_id)
-			emb_err = self.client.utils.create_error_embed(
+			emb_err = await self.client.utils.create_error_embed(
 				ctx,
 				f"У бота отсутствуют права: {' '.join(error.missing_perms)}\nВыдайте их ему для полного функционирования бота"
 			)
 			await owner.send(embed=emb_err)
 		elif isinstance(error, commands.errors.MemberNotFound):
-			emb = self.client.utils.create_error_embed(ctx, "**Указаный пользователь не найден!**")
+			emb = await self.client.utils.create_error_embed(ctx, "**Указаный пользователь не найден!**")
 			await ctx.send(embed=emb)
 		else:
 			error_id = str(uuid.uuid4())
@@ -86,7 +86,7 @@ class Errors(commands.Cog, name="Errors"):
 			await ctx.message.add_reaction("❌")
 			emb = discord.Embed(
 				title="Ошибка!",
-				description="**Произошла неизвестная ошибка, обратитесь к моему создателю!!**",
+				description="**Произошла неизвестная ошибка, обратитесь к моему создателю!**",
 				colour=discord.Color.red(),
 			)
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)

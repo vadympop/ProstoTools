@@ -1234,25 +1234,13 @@ class Economy(commands.Cog):
 			return
 
 		if not cur_state_pr:
-			if member in ctx.guild.members:
-				data2 = await self.client.database.sel_user(target=member)
-			else:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description=f"**На сервере не существует такого пользователя!**",
-					colour=discord.Color.green(),
-				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await ctx.send(embed=emb)
-				await ctx.message.add_reaction("❌")
-				self.rob.reset_cooldown(ctx)
-				return
-
+			data2 = await self.client.database.sel_user(target=member)
 			rand_num = randint(1, 100)
+			cur_pets = data1["pets"]
 			crimed_member_money = data2["money"]
+			rob_shans = 80
+			if "parrot" in cur_pets:
+				rob_shans -= 10
 
 			async def rob_func(num, member):
 				data = await self.client.database.sel_user(target=member)
@@ -1277,7 +1265,6 @@ class Economy(commands.Cog):
 				)
 
 				await self.client.database.execute(sql, val)
-
 				return [state, data["money"]]
 
 			if rand_num <= 40:
@@ -1317,7 +1304,7 @@ class Economy(commands.Cog):
 				)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
-			elif rand_num > 80:
+			elif rand_num > rob_shans:
 				rand_num_1 = randint(1, 2)
 				cr_money = crimed_member_money // 4 * rand_num_1
 
@@ -1362,17 +1349,16 @@ class Economy(commands.Cog):
 
 		if cur_state_pr == False:
 			rand_num = randint(1, 100)
+			cur_pets = data["pets"]
+			crime_shans = 80
+			if "parrot" in cur_pets:
+				crime_shans -= 10
 
 			async def crime_func(num, member):
 				data = await self.client.database.sel_user(target=member)
 				cur_money = data["money"] + num
 				prison = data["prison"]
 				items = data["items"]
-
-				if cur_money <= -5000:
-					prison = True
-					items = []
-					return [True, data["money"]]
 
 				sql = """UPDATE users SET money = %s, prison = %s, items = %s WHERE user_id = %s AND guild_id = %s"""
 				val = (
@@ -1384,6 +1370,10 @@ class Economy(commands.Cog):
 				)
 
 				await self.client.database.execute(sql, val)
+				if cur_money <= -5000:
+					prison = True
+					items = []
+					return [True, data["money"]]
 
 			if rand_num <= 40:
 				state = await crime_func(-5000, ctx.author)
@@ -1422,7 +1412,7 @@ class Economy(commands.Cog):
 				)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
-			elif rand_num > 80:
+			elif rand_num > crime_shans:
 				rand_money = randint(20, 1000)
 				await crime_func(rand_money, ctx.author)
 				emb = discord.Embed(

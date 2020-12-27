@@ -77,7 +77,6 @@ class Client(commands.AutoShardedBot):
 		logger.info(
 			f"[PT-SYSTEM-LOGGING]:::{self.user.name} is disconnected from discord server"
 		)
-		await self.database.close()
 
 	async def clear_commands(self, guild):
 		return (await self.database.sel_guild(guild=guild))["purge"]

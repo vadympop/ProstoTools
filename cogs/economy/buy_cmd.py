@@ -55,6 +55,7 @@ class EconomyBuyCmd(commands.Cog):
                 cur_items = data["items"]
                 cur_transantions = data["transantions"]
                 prison = "False"
+                prison_state = False
 
                 if isinstance(cur_items, list):
                     cur_items.append(func_item)
@@ -64,7 +65,7 @@ class EconomyBuyCmd(commands.Cog):
                 if cur_money <= -5000:
                     prison = "True"
                     cur_items = []
-                    yield True
+                    prison_state = True
 
                 info_transantion = {
                     "to": "Магазин",
@@ -87,6 +88,7 @@ class EconomyBuyCmd(commands.Cog):
                 )
 
                 await self.client.database.execute(sql, val)
+                return prison_state
 
             async def buy_coins_func(func_item, func_cost):
                 coins_member = data["coins"] - func_cost
@@ -109,11 +111,12 @@ class EconomyBuyCmd(commands.Cog):
                 num_textchannels = data["text_channels"] + num
                 cur_items = data["items"]
                 prison = "False"
+                prison_state = False
 
                 if cur_money <= -5000:
                     prison = "True"
                     cur_items = []
-                    yield True
+                    prison_state = True
 
                 info_transantion = {
                     "to": "Магазин",
@@ -137,6 +140,7 @@ class EconomyBuyCmd(commands.Cog):
                 )
 
                 await self.client.database.execute(sql, val)
+                return prison_state
 
             async def buy_item(item, cost, stacked=False):
                 emb_cool = None

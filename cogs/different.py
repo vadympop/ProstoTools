@@ -1,12 +1,10 @@
 import time
 import locale
-
+import datetime
 import discord
 import sanic
 import requests
 import psutil as ps
-
-from datetime import datetime
 from Cybernator import Paginator
 from discord.ext import commands
 from discord.utils import get
@@ -32,53 +30,40 @@ class Different(commands.Cog, name="Different"):
 	):
 		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
-		print(type_time.split("/"))
 
 		if action == "create":
 			if type_time is None:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description="**Укажите время напоминая!**",
-					colour=discord.Color.green(),
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите время напоминая!**",
 				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await ctx.message.add_reaction("❌")
 				await ctx.send(embed=emb)
 				return
 
 			if text is None:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description="**Укажите текст напоминания!**",
-					colour=discord.Color.green(),
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите текст напоминания!**",
 				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await ctx.message.add_reaction("❌")
 				await ctx.send(embed=emb)
 				return
 
-			reminder_time = self.client.utils.time_to_num(type_time)
-			if reminder_time[0] <= 0:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description="**Укажите время больше 0!**",
-					colour=discord.Color.green(),
-				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await ctx.message.add_reaction("❌")
-				await ctx.send(embed=emb)
-				return
+			if type_time.split(".")[0] == type_time:
+				reminder_time = self.client.utils.time_to_num(type_time)
+				if reminder_time[0] <= 0:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите время больше 0!**",
+					)
+					await ctx.send(embed=emb)
+					return
 
-			times = time.time() + reminder_time[0]
+				times = time.time() + reminder_time[0]
+			else:
+				times = self.client.utils.date_to_time(type_time.split("."), type_time)
+				if times == 0:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Указан не правильный формат времени! Укажите так: ЧЧ:ММ.ДД.ММ.ГГГГ"
+					)
+					await ctx.send(embed=emb)
+					return
 
 			reminder_id = await self.client.database.set_reminder(
 				member=ctx.author, channel=ctx.channel, time=times, text=text
@@ -86,26 +71,24 @@ class Different(commands.Cog, name="Different"):
 			if reminder_id:
 				emb = discord.Embed(
 					title=f"Созданно новое напоминая #{reminder_id}",
-					description=f"**Текст напоминая:**\n```{text}```\n**Действует до:**\n`{str(datetime.fromtimestamp(times))}`",
+					description=f"**Текст напоминая:**\n```{text}```\n**Действует до:**\n`{str(datetime.datetime.fromtimestamp(times))}`",
 					colour=discord.Color.green(),
 				)
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
+				return
 			elif not reminder_id:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description="**Превишен лимит напоминалок(25)!**",
-					colour=discord.Color.green(),
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Превишен лимит напоминалок(25)!**",
 				)
-				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
+				return
 		elif action == "list":
 			data = await self.client.database.get_reminder(target=ctx.author)
 			if data != []:
 				reminders = "\n\n".join(
-					f"**Id - {reminder[0]}**\n**Текст:** `{reminder[5]}`, **Действует до:** `{str(datetime.fromtimestamp(float(reminder[4])))}`"
+					f"**Id - {reminder[0]}**\n**Текст:** `{reminder[5]}`, **Действует до:** `{str(datetime.datetime.fromtimestamp(float(reminder[4])))}`"
 					for reminder in data
 				)
 			else:
@@ -126,45 +109,33 @@ class Different(commands.Cog, name="Different"):
 				if type_time.isdigit():
 					state = await self.client.database.del_reminder(ctx.author, int(type_time))
 					if state:
-						emb = discord.Embed(
-							description=f"**Напоминания #{type_time} было успешно удалено**",
-							colour=discord.Color.green(),
+						emb = await self.client.utils.create_error_embed(
+							ctx, f"**Напоминания #{type_time} было успешно удалено**"
 						)
+						await ctx.send(embed=emb)
+						return
 					else:
-						emb = discord.Embed(
-							title="Ошибка!",
-							description="**Напоминания с таким id не существует!**",
-							colour=discord.Color.green(),
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Напоминания с таким id не существует!**"
 						)
+						await ctx.send(embed=emb)
+						return
 				else:
-					emb = discord.Embed(
-						title="Ошибка!",
-						description="**Указаное id - строка!**",
-						colour=discord.Color.green(),
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Указаное id - строка!**"
 					)
+					await ctx.send(embed=emb)
+					return
 			elif type_time is None:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description="**Укажите id напоминания!**",
-					colour=discord.Color.green(),
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите id напоминания!**"
 				)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.message.add_reaction("❌")
-			await ctx.send(embed=emb)
+				await ctx.send(embed=emb)
+				return
 		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Укажите одно из этих действий: create, list, delete!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Укажите одно из этих действий: create, list, delete!**",
 			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.message.add_reaction("❌")
 			await ctx.send(embed=emb)
 
 	@commands.command(
@@ -388,8 +359,8 @@ class Different(commands.Cog, name="Different"):
 
 		data = await self.client.database.sel_user(target=member)
 		all_message = data["messages"][1]
-		joined_at = datetime.strftime(member.joined_at, "%d %B %Y %X")
-		created_at = datetime.strftime(member.created_at, "%d %B %Y %X")
+		joined_at = datetime.datetime.strftime(member.joined_at, "%d %B %Y %X")
+		created_at = datetime.datetime.strftime(member.created_at, "%d %B %Y %X")
 
 		get_bio = (
 			lambda: ""
@@ -512,12 +483,12 @@ class Different(commands.Cog, name="Different"):
 		)
 		embed1.add_field(
 			name="Uptime:",
-			value=str(datetime.now()-self.client.launched_at),
+			value=str(datetime.datetime.now()-self.client.launched_at),
 			inline=False
 		)
 		embed1.add_field(
-			name="Помощь:",
-			value="Приглашение Бота: [Тык](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)\nСервер помощьи: [Тык](https://discord.gg/CXB32Mq)",
+			name="Полезные ссылки",
+			value="[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)\n[Сервер помощьи](https://discord.gg/6SHKgj43r9)\n[Patreon](https://www.patreon.com/prostotools)",
 			inline=False,
 		)
 		embed1.set_thumbnail(url=self.client.user.avatar_url)
@@ -605,7 +576,7 @@ class Different(commands.Cog, name="Different"):
 		await ctx.channel.purge(limit=purge)
 
 		data = await self.client.database.sel_guild(guild=ctx.guild)
-		created_at = datetime.strftime(ctx.guild.created_at, "%d %B %Y %X")
+		created_at = datetime.datetime.strftime(ctx.guild.created_at, "%d %B %Y %X")
 		time = data["timedelete_textchannel"]
 		max_warns = data["max_warns"]
 		all_message = data["all_message"]

@@ -57,6 +57,9 @@ class EventsLeveling(commands.Cog):
 
 			exp_member = data["exp"]
 			coins_member = data["coins"]
+			pets_member = data["pets"]
+			if "hamster" in pets_member:
+				coins_first += math.ceil(coins_first*70/100)
 			exp = exp_first + exp_member
 			coins = coins_first + coins_member
 			reputation = data["reputation"]

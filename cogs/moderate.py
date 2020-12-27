@@ -45,7 +45,11 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.send(embed=emb)
 			return
 
-		amount += 1
+		if amount >= 100:
+			emb = await self.client.utils.create_error_embed(ctx, "Укажите число удаляемых сообщения меньше 100!")
+			await ctx.send(embed=emb)
+			return
+
 		number = 0
 		delete_messages = ""
 		delete_messages_objs = []
@@ -53,11 +57,11 @@ class Moderate(commands.Cog, name="Moderate"):
 		if member is None:
 			async with ctx.typing():
 				delete_messages_fp = self.TEMP_PATH + str(uuid.uuid4()) + ".txt"
+				num_channel_messages = len(await ctx.channel.history().flatten())
 				async for msg in ctx.channel.history():
 					if (datetime.datetime.now()-msg.created_at) >= datetime.timedelta(weeks=2):
 						emb = await self.client.utils.create_error_embed(
-							ctx,
-							"Я не могу удалить сообщения старше 14 дней!"
+							ctx, "Я не могу удалить сообщения старше 14 дней!"
 						)
 						await ctx.send(embed=emb)
 						return
@@ -66,7 +70,7 @@ class Moderate(commands.Cog, name="Moderate"):
 						delete_messages += f"""\n{msg.created_at.strftime("%H:%M:%S %d-%m-%Y")} -- {str(msg.author)}\n{msg.content}\n\n"""
 					delete_messages_objs.append(msg)
 					number += 1
-					if number >= amount:
+					if number >= amount or number >= num_channel_messages:
 						await ctx.channel.delete_messages(delete_messages_objs)
 						if logs_channel_id != 0:
 							self.client.txt_dump(delete_messages_fp, delete_messages)
