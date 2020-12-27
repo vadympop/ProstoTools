@@ -23,7 +23,6 @@ extensions = (
 	"cogs.clans",
 	"cogs.different",
 	"cogs.economy.main",
-	"cogs.economy.buy_cmd",
 	"cogs.fun.other",
 	"cogs.fun.edit_image",
 	"cogs.fun.random_image",

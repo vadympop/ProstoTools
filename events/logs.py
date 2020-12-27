@@ -4,7 +4,7 @@ import datetime
 from discord.ext import commands
 
 
-class Events(commands.Cog):
+class EventsLogs(commands.Cog):
 	def __init__(self, client):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
@@ -177,4 +177,4 @@ class Events(commands.Cog):
 
 
 def setup(client):
-	client.add_cog(Events(client))
+	client.add_cog(EventsLogs(client))

@@ -74,11 +74,11 @@ class Help(commands.Cog, name="Help"):
 			await ctx.send(embed=emb)
 			return
 
-		if cog_name.capitalize() not in self.client.cogs:
+		if cog_name.lower() not in [cog.lower() for cog in self.client.cogs]:
 			if cog_name.lower() not in self.commands:
 				emb = discord.Embed(
 					title="Ошибка!",
-					description="Такой категории нет, введите названия правильно. Список доступных категорий: different, economy, moderate, games, settings, utils, works",
+					description=f"Такой категории нет, введите названия правильно. Список доступных категорий: {', '.join([cog.lower() for cog in self.client.cogs])}",
 					colour=discord.Color.green(),
 				)
 				emb.set_author(
