@@ -20,14 +20,16 @@ class Clans(commands.Cog):
 				if member.id not in clan["members"]:
 					clan_id = clan["id"]
 					clan["members"].append(member.id)
+					await member.add_roles(ctx.guild.get_role(clan["role_id"]))
+					break
 
 		await self.client.database.execute(
 			("""UPDATE users SET clan = %s WHERE user_id = %s AND guild_id = %s"""),
 			(clan_id, member.id, ctx.guild.id),
 		)
 		await self.client.database.execute(
-			("""UPDATE guilds SET clans = %s WHERE guild_id = %s AND guild_id = %s"""),
-			(json.dumps(data), ctx.guild.id, ctx.guild.id),
+			("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""),
+			(json.dumps(data), ctx.guild.id),
 		)
 		await ctx.message.add_reaction("✅")
 
@@ -226,6 +228,13 @@ class Clans(commands.Cog):
 			await ctx.message.add_reaction("❌")
 			return
 
+		if (await self.client.database.sel_user(target=member))["clan"] != "":
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Указаный участник уже есть в одном из кланов сервера!"
+			)
+			await ctx.send(embed=emb)
+			return
+
 		if member == ctx.author:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -252,10 +261,16 @@ class Clans(commands.Cog):
 					await ctx.send(embed=emb)
 
 					clan["owner"] = member.id
+					await member.add_roles(ctx.guild.get_role(clan["role_id"]))
 					await self.client.database.execute(
-						("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""),
+						"""UPDATE guilds SET clans = %s WHERE guild_id = %s""",
 						(json.dumps(data), ctx.guild.id),
 					)
+					await self.client.database.execute(
+						"""UPDATE users SET clan = %s WHERE user_id = %s AND guild_id = %s""",
+						(clan["id"], member.id, ctx.guild.id)
+					)
+					return
 				else:
 					emb = discord.Embed(
 						title="Ошибка!",
@@ -337,13 +352,15 @@ class Clans(commands.Cog):
 					await ctx.message.add_reaction("❌")
 					return
 
-		sql = """UPDATE guilds SET clans = %s WHERE guild_id = %s AND guild_id = %s"""
-		val = (json.dumps(data), ctx.guild.id, ctx.guild.id)
-		await self.client.database.execute(sql, val)
+		sql_1 = """UPDATE guilds SET clans = %s WHERE guild_id = %s AND guild_id = %s"""
+		val_1 = (json.dumps(data), ctx.guild.id, ctx.guild.id)
+		sql_2 = """UPDATE users SET clan = %s WHERE guild_id = %s AND user_id = %s"""
+		await self.client.database.execute(sql_1, val_1)
 		for member_id in delete_clan["members"]:
-			sql = """UPDATE users SET clan = %s WHERE guild_id = %s AND user_id = %s"""
-			val = ("", ctx.guild.id, member_id)
-			await self.client.database.execute(sql, val)
+			val_2 = ("", ctx.guild.id, member_id)
+			await self.client.database.execute(sql_2, val_2)
+
+		await self.client.database.execute(sql_2, ("", ctx.guild.id, delete_clan["owner"]))
 		await ctx.message.add_reaction("✅")
 
 		if logs_channel_id != 0:
@@ -373,7 +390,7 @@ class Clans(commands.Cog):
 		state = False
 		if not clan_id:
 			if (await self.client.database.sel_user(target=ctx.author))["clan"] != "":
-				clan_id = await self.client.database.sel_user(target=ctx.author)["clan"]
+				clan_id = (await self.client.database.sel_user(target=ctx.author))["clan"]
 			else:
 				emb = discord.Embed(
 					title="Ошибка!",
@@ -541,7 +558,7 @@ class Clans(commands.Cog):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
 		state = False
-		if not clan_id:
+		if clan_id is None:
 			if user_clan != "":
 				clan_id = user_clan
 			else:
@@ -810,7 +827,7 @@ class Clans(commands.Cog):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 		state = False
 
-		if await self.client.database.sel_user(target=ctx.author)["clan"] != "":
+		if (await self.client.database.sel_user(target=ctx.author))["clan"] != "":
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="**Вы уже находитесь в одном из кланов сервера!**",
