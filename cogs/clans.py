@@ -995,8 +995,9 @@ class Clans(commands.Cog):
 						except:
 							pass
 						await ctx.message.add_reaction("✅")
-						await self._add_member(ctx, clan["id"], member)
 						clan["join_requests"].remove(member.id)
+						clan["members"].append(member.id)
+						await self._add_member(ctx, clan["id"], member)
 						await self.client.database.execute(
 							("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""),
 							(json.dumps(data), ctx.guild.id),
