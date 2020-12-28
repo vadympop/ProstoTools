@@ -16,50 +16,6 @@ class Help(commands.Cog, name="Help"):
 				self._names.append(command.name)
 		self.commands = self._names
 
-	@commands.command()
-	async def works(self, ctx):
-
-		purge = self.client.clear_commands(ctx.guild)
-		Prefix = self.get_prefix(self.client, ctx)
-		await ctx.channel.purge(limit=purge)
-
-		emb = discord.Embed(
-			title="Категория команд - works",
-			description="[Пример] - требуется, |Пример| - необязательно",
-			colour=discord.Color.green(),
-		)
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-
-		emb.add_field(
-			name=f"{Prefix}loader",
-			value="**Работа грузчиком. Получает от 80$ до 100$, можна работать с 3 уровня, кулдавн 3 часа после 2 попыток**",
-			inline=False,
-		)
-		emb.add_field(
-			name=f"{Prefix}treasure-hunter",
-			value="**Работа кладо искателем. Получает от 0$(Ты ничего не нашёл) до 500$, можна работать с 2 уровня, нужно купить апарат за 500$ или второго уровня за 1000$(На 20% больше найти клад), кулдавн 5 часов**",
-			inline=False,
-		)
-		emb.add_field(
-			name=f"{Prefix}barman",
-			value="**Работа барменом. Получает 150$ + чаевые до 50$, можна работать с 4 уровня, кулдавн 3 часа после 2 попыток**",
-			inline=False,
-		)
-		emb.add_field(
-			name=f"{Prefix}cleaner",
-			value="**Работа уборщиком. Получает от 40$ до 50$, уровень пользователя не важен, кулдавн 2 часа после 3 попыток**",
-			inline=False,
-		)
-		emb.add_field(
-			name=f"{Prefix}window-washer",
-			value="**Работа мойщиком окон. Получает от 250$ до 300$, можна работать с 5 уровня, может упасть и потерять 300$, кулдавн 5 часов**",
-			inline=False,
-		)
-
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-
-		await ctx.send(embed=emb)
-
 	@commands.command(
 		help="**Примеры использования:**\n1. {Prefix}help\n2. {Prefix}help moderate\n2. {Prefix}help ban\n\n**Пример 1:** Показывает список всех команд бота\n**Пример 2:** Показывает список всех указаной групы\n**Пример 3:** Показывает документацию по указаной команде"
 	)
@@ -69,17 +25,33 @@ class Help(commands.Cog, name="Help"):
 		groups = ["settings", "works", "clans"]
 		moder_roles = (await self.client.database.sel_guild(guild=ctx.guild))["moder_roles"]
 		PREFIX = self.client.database.get_prefix(guild=ctx.guild)
+		cogs_aliases = {
+			"economy": "Economy",
+			"funeditimage": "FunEditImage",
+			"funother": "FunOther",
+			"funrandomimage": "FunRandomImage",
+			"clans": "Clans",
+			"different": "Different",
+			"moderate": "Moderate",
+			"settings": "Settings",
+			"utils": "Utils",
+			"works": "Works"
+		}
 
 		if cog_name is None:
 			emb = await self.client.utils.build_help(ctx, PREFIX, groups, moder_roles)
 			await ctx.send(embed=emb)
 			return
 
-		if cog_name.lower() not in [cog.lower() for cog in self.client.cogs]:
+		if cog_name.lower() not in cogs_aliases.keys():
 			if cog_name.lower() not in self.commands:
+				str_cogs = ", ".join([
+					cogs_aliases[cog.lower()] for cog in self.client.cogs
+					if cog.lower() in cogs_aliases.keys()
+				])
 				emb = discord.Embed(
 					title="Ошибка!",
-					description=f"Такой категории нет, введите названия правильно. Список доступных категорий: {', '.join([cog.lower() for cog in self.client.cogs])}",
+					description=f"Такой категории нет, введите названия правильно. Список доступных категорий: {str_cogs}",
 					colour=discord.Color.green(),
 				)
 				emb.set_author(
@@ -134,12 +106,12 @@ class Help(commands.Cog, name="Help"):
 					add_command_field(emb, c)
 
 		emb_2 = discord.Embed(
-			title=f"Категория команд - {cog_name.capitalize()}",
+			title=f"Категория команд - {cogs_aliases[cog_name]}",
 			description="[Пример] - требуется, |Пример| - необязательно",
 			colour=discord.Color.green(),
 		)
-		for c in self.client.get_cog(cog_name.capitalize()).get_commands():
-			if self.client.get_cog(cog_name.capitalize()).qualified_name.lower() in groups:
+		for c in self.client.get_cog(cogs_aliases[cog_name]).get_commands():
+			if self.client.get_cog(cogs_aliases[cog_name]).qualified_name.lower() in groups:
 				for command in c.commands:
 					check_command_permissions(emb_2, command)
 			else:
