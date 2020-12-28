@@ -96,15 +96,14 @@ class Utils:
         new_time = datetime.datetime.strptime(str_d, "%H:%M.%d.%m.%Y")
         return ((new_time-datetime.datetime(year=1970, month=1, day=1))-datetime.timedelta(hours=2)).total_seconds()
 
-    async def create_error_embed(self, ctx, error_msg: str):
-        emb = discord.Embed(title="Ошибка!", description=f"**{error_msg}**", colour=discord.Color.green())
+    async def create_error_embed(self, ctx, error_msg: str, bold: bool = True):
+        emb = discord.Embed(title="Ошибка!", description=f"**{error_msg}**" if bold else error_msg, colour=discord.Color.green())
         emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
         emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
         await ctx.message.add_reaction("❌")
         return emb
 
-    async def build_help(self, ctx, prefix, groups):
-        moder_roles = (await self.client.database.sel_guild(guild=ctx.guild))["moder_roles"]
+    async def build_help(self, ctx, prefix, groups, moder_roles):
         state = False
         group_name = ""
         locks = {
@@ -132,17 +131,13 @@ class Utils:
                             count += 1
                             group_name = command.name
                         else:
+                            state = False
                             for role_id in moder_roles:
-                                role = ctx.guild.get_role(role_id)
-                                if role in ctx.author.roles:
+                                if ctx.guild.get_role(role_id) in ctx.author.roles:
                                     state = True
                                     break
 
-                            if (
-                                    state
-                                    or ctx.author == ctx.guild.owner
-                                    or ctx.author.guild_permissions.administrator
-                            ):
+                            if state or ctx.author == ctx.guild.owner or ctx.author.guild_permissions.administrator:
                                 commands += f" {prefix}{c.name} "
                                 count += 1
                                 group_name = command.name
@@ -189,11 +184,7 @@ class Utils:
                                     state = True
                                     break
 
-                            if (
-                                    state
-                                    or ctx.author == ctx.guild.owner
-                                    or ctx.author.guild_permissions.administrator
-                            ):
+                            if state or ctx.author == ctx.guild.owner or ctx.author.guild_permissions.administrator:
                                 commands, count, group_name = add_command_loop(
                                     command, commands, count, group_name
                                 )

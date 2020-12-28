@@ -2,7 +2,7 @@ import discord
 import datetime
 
 from tools.http import RandomAPI
-from tools import DB, Utils
+from tools import DB, Utils, Commands
 from tools import template_engine as temp_eng
 
 from loguru import logger
@@ -61,6 +61,7 @@ class Client(commands.AutoShardedBot):
 		self.database = DB(client=self)
 		self.utils = Utils(client=self)
 		self.random_api = RandomAPI()
+		self.support_commands = Commands(client=self)
 
 	async def on_ready(self):
 		logger.info(

@@ -9,7 +9,9 @@ class Settings(commands.Cog, name="Settings"):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
-	@commands.group()
+	@commands.group(
+		help=f"""**Команды групы:** time-delete-channel, purge, shop-role, exp-multi, text-channels-category, log-channel, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels\n\n"""
+	)
 	@commands.has_permissions(administrator=True)
 	async def setting(self, ctx):
 		purge = await self.client.clear_commands(ctx.guild)
@@ -108,7 +110,7 @@ class Settings(commands.Cog, name="Settings"):
 		else:
 			emb = discord.Embed(
 				title="Ошибка!",
-				description=f"**Вы не правильно указали действие!**",
+				description=f"**Укажите одно из этих действий: clear, delete, add!**",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
@@ -331,7 +333,7 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	async def maxwarns(self, ctx, number: int):
 		if number <= 0:
-			emb = await self.client.create_error_embed(ctx, "Укажите максимальное количество предупреждений больше 0!")
+			emb = await self.client.utils.create_error_embed(ctx, "Укажите максимальное количество предупреждений больше 0!")
 			await ctx.send(embed=emb)
 			return
 
@@ -402,54 +404,6 @@ class Settings(commands.Cog, name="Settings"):
 
 		settings = data["auto_mod"]
 		settings.update({"anti_flud": action})
-
-		sql = (
-			"""UPDATE guilds SET auto_mod = %s WHERE guild_id = %s AND guild_id = %s"""
-		)
-		val = (json.dumps(settings), ctx.guild.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
-
-	@setting.command(
-		hidden=True,
-		name="auto-rade-mode",
-		description="**Настройка авто-рейд-режима(В разработке)**",
-		usage="setting auto-rade-mode [on/off]",
-	)
-	async def auto_rade_mode(self, ctx, action: str):
-		actions = ["on", "off", "true", "false", "0", "1"]
-		if action.lower() not in actions:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Вы не правильно указали действие! Укажите из этих вариантов: on(Вкл.), off(Выкл.), true(Вкл.), false(Выкл.), 0(Вкл.), 1(Выкл.)**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
-			return
-
-		data = await self.client.database.sel_guild(guild=ctx.guild)
-		emb = discord.Embed(
-			description=f"**Настройки анти-рейд-режима успешно обновленны!**",
-			colour=discord.Color.green(),
-		)
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
-
-		if action.lower() == "on" or action.lower() == "true" or action.lower() == "1":
-			action = True
-		elif (
-			action.lower() == "off"
-			or action.lower() == "false"
-			or action.lower() == "0"
-		):
-			action = False
-
-		settings = data["auto_mod"]
-		settings.update({"auto_anti_rade_mode": action})
 
 		sql = (
 			"""UPDATE guilds SET auto_mod = %s WHERE guild_id = %s AND guild_id = %s"""

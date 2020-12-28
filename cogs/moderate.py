@@ -36,7 +36,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		brief="True",
 		description="**Удаляет указаное число сообщений**",
 		usage="clear |@Участник| [Число удаляемых сообщений]",
-		help="**Примеры использования:**\n1. {Prefix}clear 10\n2. {Prefix}clear @Участник 10\n3. {Prefix}clear 660110922865704980 10\n\n**Пример 1:** Удалит 10 сообщений\n**Пример 2:** Удалит 10 сообщений упомянотого участника в текущем канале\n**Пример 3:** Удалит 10 сообщений участника с указаным id",
+		help="**Полезное:**\nМаксимальное число удаляемых сообщений равняется 100\nБот не может удалить сообщения старше 14 дней\n\n**Примеры использования:**\n1. {Prefix}clear 10\n2. {Prefix}clear @Участник 10\n3. {Prefix}clear 660110922865704980 10\n\n**Пример 1:** Удалит 10 сообщений\n**Пример 2:** Удалит 10 сообщений упомянотого участника в текущем канале\n**Пример 3:** Удалит 10 сообщений участника с указаным id",
 	)
 	@commands.check(check_role)
 	async def clear(self, ctx, member: typing.Optional[discord.Member], amount: int):
@@ -212,9 +212,16 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}slow-mode 10 #Канал\n2. {Prefix}slow-mode 10 717776571406090313\n\n**Пример 1:** Ставит упомянутому канала медленный режим на 10 секунд\n**Пример 2:** Ставит каналу с указаным id медленный режим на 10 секунд",
 	)
 	@commands.check(check_role)
-	async def slowmode(self, ctx, delay: int, channel: discord.TextChannel):
+	async def slowmode(self, ctx, delay: int, channel: discord.TextChannel = None):
 		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
+
+		if delay > 21000:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Укажите задержку меньше 21000!"
+			)
+			await ctx.send(embed=emb)
+			return
 
 		if channel is None:
 			guild_text_channels = ctx.guild.text_channels
@@ -378,7 +385,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		name="soft-ban",
 		description="**Апаратно банит указаного участника - участник имеет доступ к серверу, но к каналам доступа нет**",
 		usage="soft-ban [@Участник] |Длительность| |Причина|",
-		help="**Примеры использования:**\n1. {Prefix}soft-ban @Участник 10d Нарушения правил сервера\n2. {Prefix}soft-ban 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}soft-ban @Участник 10d\n4. {Prefix}soft-ban 660110922865704980 10d\n5. {Prefix}soft-ban @Участник\n6. {Prefix}soft-ban 660110922865704980\n7. {Prefix}soft-ban @Участник Нарушения правил сервера\n8. {Prefix}soft-ban 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Апапаратно банит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Апапаратно банит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Апапаратно банит упомянутого участника без причины на 10 дней\n**Пример 4:** Апапаратно банит участника с указаным id без причины на 10 дней\n**Пример 5:** Даёт перманентный апапаратный бан упомянутому участнику без причины\n**Пример 6:** Даёт перманентный апапаратный бан участнику с указаным id без причины\n**Пример 7:** Даёт перманентный апапаратный бан упомянутому участнику по причине\n`Нарушения правил сервера`\n**Пример 8:** Даёт апапаратный апапаратный бан участнику с указаным id по причине\n`Нарушения правил сервера`",
+		help="**Полезное:**\n\n**Примеры использования:**\n1. {Prefix}soft-ban @Участник 10d Нарушения правил сервера\n2. {Prefix}soft-ban 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}soft-ban @Участник 10d\n4. {Prefix}soft-ban 660110922865704980 10d\n5. {Prefix}soft-ban @Участник\n6. {Prefix}soft-ban 660110922865704980\n7. {Prefix}soft-ban @Участник Нарушения правил сервера\n8. {Prefix}soft-ban 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Апапаратно банит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Апапаратно банит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Апапаратно банит упомянутого участника без причины на 10 дней\n**Пример 4:** Апапаратно банит участника с указаным id без причины на 10 дней\n**Пример 5:** Даёт перманентный апапаратный бан упомянутому участнику без причины\n**Пример 6:** Даёт перманентный апапаратный бан участнику с указаным id без причины\n**Пример 7:** Даёт перманентный апапаратный бан упомянутому участнику по причине\n`Нарушения правил сервера`\n**Пример 8:** Даёт апапаратный апапаратный бан участнику с указаным id по причине\n`Нарушения правил сервера`",
 	)
 	@commands.check(check_role)
 	async def softban(
@@ -1119,22 +1126,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		mute_time = self.client.utils.time_to_num(type_time)
 		times = time.time() + mute_time[0]
 
-		if member in ctx.guild.members:
-			data = await self.client.database.sel_user(target=member)
-		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**На сервере не существует такого пользователя!**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
-			return
-
+		data = await self.client.database.sel_user(target=member)
 		role = get(ctx.guild.roles, name=self.MUTE_ROLE)
 		if role is None:
 			role = await ctx.guild.create_role(name=self.MUTE_ROLE)
@@ -1171,7 +1163,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 			if cur_lvl <= 3:
 				cur_money -= 250
-			elif cur_lvl > 3 and cur_lvl <= 5:
+			elif 3 < cur_lvl <= 5:
 				cur_money -= 500
 			elif cur_lvl > 5:
 				cur_money -= 1000
@@ -1205,7 +1197,6 @@ class Moderate(commands.Cog, name="Moderate"):
 				member.id,
 				ctx.guild.id,
 			)
-
 			await self.client.database.execute(sql, val)
 
 			if mute_time[0] <= 0:
@@ -1409,34 +1400,19 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		if member in ctx.guild.members:
-			await self.client.database.sel_user(target=member)
-		else:
+		async with ctx.typing():
+			warns = (await self.client.database.sel_user(target=member))["warns"]
+			warns_ids = [warn["id"] for warn in warns]
+			for warn_id in warns_ids:
+				await self.client.database.del_warn(ctx.guild.id, warn_id)
+
 			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**На сервере не существует такого пользователя!**",
+				description=f"**У пользователя `{member}` были сняты предупреждения**",
 				colour=discord.Color.green(),
 			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
-			return
-
-		sql = """UPDATE users SET warns = %s WHERE user_id = %s AND guild_id = %s"""
-		val = (json.dumps([]), member.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
-
-		emb = discord.Embed(
-			description=f"**У пользователя `{member}` были сняты предупреждения**",
-			colour=discord.Color.green(),
-		)
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
 
 		if logs_channel_id != 0:
 			e = discord.Embed(
@@ -1575,7 +1551,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 			if cur_lvl <= 3:
 				cur_money -= 250
-			elif cur_lvl > 3 and cur_lvl <= 5:
+			elif 3 < cur_lvl <= 5:
 				cur_money -= 500
 			elif cur_lvl > 5:
 				cur_money -= 1000
@@ -1604,6 +1580,8 @@ class Moderate(commands.Cog, name="Moderate"):
 					warn_id=[warn for warn in cur_warns if not warn["state"]][0]["id"]
 				)
 
+			print(max_warns)
+			print(len([warn for warn in cur_warns if warn["state"]]))
 			if len([warn for warn in cur_warns if warn["state"]]) >= max_warns:
 				cur_coins -= 1000
 
@@ -1613,16 +1591,16 @@ class Moderate(commands.Cog, name="Moderate"):
 				if cur_coins < 0:
 					cur_coins = 0
 
-				await Commands(self.client).main_mute(
+				await self.client.support_commands.main_mute(
 					ctx=ctx.message,
 					member=member,
 					reason=reason,
 					check_role=False,
-					mute_typetime="h",
-					mute_time=2,
+					author=ctx.author,
+					type_time="2h",
 				)
 				emb = discord.Embed(
-					description=f"**`{member}` Достиг максимального значения предупреждения и был замючен на 2 часа.**",
+					description=f"**`{member}` Достиг максимального значения предупреждений и был замючен на 2 часа.**",
 					colour=discord.Color.green(),
 				)
 				emb.set_author(
@@ -1630,6 +1608,9 @@ class Moderate(commands.Cog, name="Moderate"):
 				)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
+
+				for warn_id in [warn["id"] for warn in cur_warns]:
+					await self.client.database.del_warn(ctx.guild.id, warn_id)
 			else:
 				emb = discord.Embed(
 					description=f"**Вы были предупреждены {ctx.author.mention} по причине {reason}. Количество предупрежденний - `{len(cur_warns)+1}`, id - `{warn_id}`**",

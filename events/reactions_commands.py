@@ -52,7 +52,7 @@ class EventsReactionsCmds(commands.Cog):
 							except:
 								pass
 						elif reaction.name == "🤐":
-							emb = await Commands(self.client).main_mute(
+							emb = await self.client.support_commands.main_mute(
 								ctx=message,
 								member=member,
 								reason="Команды по реакциям: Нарушения правил",

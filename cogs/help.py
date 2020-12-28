@@ -67,10 +67,11 @@ class Help(commands.Cog, name="Help"):
 		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 		groups = ["settings", "works", "clans"]
+		moder_roles = (await self.client.database.sel_guild(guild=ctx.guild))["moder_roles"]
 		PREFIX = self.client.database.get_prefix(guild=ctx.guild)
 
 		if cog_name is None:
-			emb = await self.client.utils.build_help(ctx, PREFIX, groups)
+			emb = await self.client.utils.build_help(ctx, PREFIX, groups, moder_roles)
 			await ctx.send(embed=emb)
 			return
 
@@ -108,28 +109,41 @@ class Help(commands.Cog, name="Help"):
 				await ctx.send(embed=emb)
 				return
 
+		def add_command_field(emb, c):
+			emb.add_field(
+				name=f"{PREFIX}{c.usage}",
+				value=f"{c.description[2:-2]}.",
+				inline=False,
+			)
+
+		def check_command_permissions(emb, c):
+			if not c.hidden:
+				if c.brief != "True":
+					add_command_field(emb, c)
+				else:
+					state = False
+					for role_id in moder_roles:
+						if ctx.guild.get_role(role_id) in ctx.author.roles:
+							state = True
+							break
+
+					if state or ctx.guild.owner == ctx.author or ctx.author.guild_permissions.administrator:
+						add_command_field(emb, c)
+			else:
+				if ctx.guild.owner == ctx.author or ctx.author.guild_permissions.administrator:
+					add_command_field(emb, c)
+
 		emb_2 = discord.Embed(
 			title=f"Категория команд - {cog_name.capitalize()}",
 			description="[Пример] - требуется, |Пример| - необязательно",
 			colour=discord.Color.green(),
 		)
 		for c in self.client.get_cog(cog_name.capitalize()).get_commands():
-			if (
-				self.client.get_cog(cog_name.capitalize()).qualified_name.lower()
-				in groups
-			):
+			if self.client.get_cog(cog_name.capitalize()).qualified_name.lower() in groups:
 				for command in c.commands:
-					emb_2.add_field(
-						name=f"{PREFIX}{command.usage}",
-						value=f"{command.description[2:-2]}.",
-						inline=False,
-					)
+					check_command_permissions(emb_2, command)
 			else:
-				emb_2.add_field(
-					name=f"{PREFIX}{c.usage}",
-					value=f"{c.description[2:-2]}.",
-					inline=False,
-				)
+				check_command_permissions(emb_2, c)
 		emb_2.set_author(
 			name=self.client.user.name, icon_url=self.client.user.avatar_url
 		)

@@ -30,7 +30,10 @@ class Works(commands.Cog, name="Works"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
-	@work.command()
+	@work.command(
+		usage="loader",
+		description="**Робота грузчик**"
+	)
 	@commands.cooldown(2, 10800, commands.BucketType.member)
 	async def loader(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
@@ -95,7 +98,11 @@ class Works(commands.Cog, name="Works"):
 			await ctx.send(embed=emb)
 			return
 
-	@work.command(aliases=["treasure-hunter"])
+	@work.command(
+		aliases=["treasure-hunter"],
+		usage="treasure-hunter",
+		description="**Робота охотник за сокровищами**"
+	)
 	@commands.cooldown(1, 18000, commands.BucketType.member)
 	async def treasurehunter(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
@@ -222,7 +229,10 @@ class Works(commands.Cog, name="Works"):
 			await ctx.send(embed=emb)
 			return
 
-	@work.command()
+	@work.command(
+		usage="barman",
+		description="**Робота бармэн**"
+	)
 	@commands.cooldown(2, 10800, commands.BucketType.member)
 	async def barman(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
@@ -269,7 +279,10 @@ class Works(commands.Cog, name="Works"):
 			await ctx.send(embed=emb)
 			return
 
-	@work.command()
+	@work.command(
+		usage="cleaner",
+		description="**Робота уборщик**"
+	)
 	@commands.cooldown(3, 7200, commands.BucketType.member)
 	async def cleaner(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
@@ -347,7 +360,11 @@ class Works(commands.Cog, name="Works"):
 
 			await self.client.database.execute(sql, val)
 
-	@work.command(aliases=["window-washer"])
+	@work.command(
+		aliases=["window-washer"],
+		usage="window-washer",
+		description="**Робота мойщик окон**"
+	)
 	@commands.cooldown(1, 18000, commands.BucketType.member)
 	async def windowasher(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)

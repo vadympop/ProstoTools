@@ -122,11 +122,10 @@ class EventsLeveling(commands.Cog):
 				pass
 			else:
 				if guild_moder_settings["anti_flud"]:
-					emb = await Commands(self.client).main_mute(
+					emb = await self.client.support_commands.main_mute(
 						ctx=message,
 						member=message.author,
-						mute_time=4,
-						mute_typetime="h",
+						type_time="4h",
 						reason="Авто-модерация: Флуд",
 					)
 					if emb is not None:

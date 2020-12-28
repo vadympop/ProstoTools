@@ -38,9 +38,6 @@ class Utils(commands.Cog, name="Utils"):
 		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
-		channel_category = await ctx.guild.create_category("Голосовые комнаты")
-		await asyncio.sleep(1)
-
 		on_answers = ["on", "вкл", "включить", "true"]
 		off_answers = ["off", "выкл", "выключить", "false"]
 
@@ -48,38 +45,34 @@ class Utils(commands.Cog, name="Utils"):
 			data = (await self.client.database.sel_guild(guild=ctx.guild))["voice_channel"]
 
 			if "channel_id" not in data:
+				channel_category = await ctx.guild.create_category("Голосовые комнаты")
 				voice_channel = await ctx.guild.create_voice_channel(
 					"Нажми на меня", category=channel_category
 				)
-				await ctx.message.add_reaction("✅")
 				data.update({"channel_id": voice_channel.id})
 
 				sql = """UPDATE guilds SET voice_channel = %s WHERE guild_id = %s AND guild_id = %s"""
 				val = (json.dumps(data), ctx.guild.id, ctx.guild.id)
 
 				await self.client.database.execute(sql, val)
+				await ctx.message.add_reaction("✅")
 			else:
-				emb = discord.Embed(
-					desciption="**На этом сервере приватные голосовые комнаты уже включены**",
-					color=discord.Color.green(),
+				emb = await self.client.utils.create_error_embed(
+					ctx, "На этом сервере приватные голосовые комнаты уже включены!"
 				)
-				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
-				await ctx.message.add_reaction("❌")
 				return
 
 		elif state in off_answers:
-			await ctx.message.add_reaction("✅")
-
 			sql = """UPDATE guilds SET voice_channel = %s WHERE guild_id = %s AND guild_id = %s"""
 			val = (json.dumps({}), ctx.guild.id, ctx.guild.id)
 
 			await self.client.database.execute(sql, val)
+			await ctx.message.add_reaction("✅")
 		else:
 			emb = discord.Embed(
 				title="Ошибка!",
-				desciption="**Вы не правильно указали действие! Укажите on - что бы включить, off - что бы выключить**",
+				description="**Вы не правильно указали действие! Укажите on - что бы включить, off - что бы выключить**",
 				color=discord.Color.green(),
 			)
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -99,7 +92,6 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def serverstats(self, ctx, stats_count: str):
-		server_stats = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
 		members_count = len(
 			[
 				member.id
@@ -119,74 +111,77 @@ class Utils(commands.Cog, name="Utils"):
 		}
 
 		if stats_count.lower() in ["message", "сообщения"]:
+			async with ctx.typing():
+				val = (ctx.guild.id, ctx.guild.id)
+				sql_1 = """SELECT user_id, exp, money, reputation, messages FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 20"""
+				sql_2 = """SELECT exp FROM users WHERE guild_id = %s AND guild_id = %s"""
+
+				all_exp = sum([i[0] for i in await self.client.database.execute(sql_2, val)])
+				data = await self.client.database.execute(sql_1, val)
+				dnd = len(
+					[
+						str(member.id)
+						for member in ctx.guild.members
+						if member.status.name == "dnd"
+					]
+				)
+				sleep = len(
+					[
+						str(member.id)
+						for member in ctx.guild.members
+						if member.status.name == "idle"
+					]
+				)
+				online = len(
+					[
+						str(member.id)
+						for member in ctx.guild.members
+						if member.status.name == "online"
+					]
+				)
+				offline = len(
+					[
+						str(member.id)
+						for member in ctx.guild.members
+						if member.status.name == "offline"
+					]
+				)
+				description = "Статистика обновляеться каждые 5 минут\n\n**20 Самых активных участников сервера**"
+				num = 1
+				for profile in data:
+					member = ctx.guild.get_member(profile[0])
+					if member is not None:
+						if not member.bot:
+							if len(member.name) > 10:
+								member = (
+									member.name[:10] + "..." + "#" + member.discriminator
+								)
+							description += f"""\n`{num}. {str(member)} {profile[1]}exp {profile[2]}$ {profile[3]}rep {json.loads(profile[4])[1]}msg`"""
+							num += 1
+
+				description += f"""\n\n**Общая инфомация**\n:baby:Пользователей: **{ctx.guild.member_count}**\n:family_man_girl_boy:Участников: **{len([m.id for m in ctx.guild.members if not m.bot])}**\n<:bot:731819847905837066>Ботов: **{len([m.id for m in ctx.guild.members if m.bot])}**\n<:voice_channel:730399079418429561>Голосовых подключений: **{sum([len(v.members) for v in ctx.guild.voice_channels])}**\n<:text_channel:730396561326211103>Каналов: **{len([c.id for c in ctx.guild.channels])}**\n<:role:730396229220958258>Ролей: **{len([r.id for r in ctx.guild.roles])}**\n:star:Всего опыта: **{all_exp}**\n\n**Статусы участников**\n<:online:730393440046809108>`{online}`  <:offline:730392846573633626>`{offline}`\n<:sleep:730390502972850256>`{sleep}`  <:mobile:777854822300385291>`{len([m.id for m in ctx.guild.members if m.is_on_mobile()])}`\n<:dnd:730391353929760870>`{dnd}` <:boost:777854437724127272>`{len(set(ctx.guild.premium_subscribers))}`"""
+
+				emb = discord.Embed(
+					title="Статистика сервера",
+					description=description,
+					colour=discord.Color.green(),
+				)
+				emb.set_author(
+					name=self.client.user.name, icon_url=self.client.user.avatar_url
+				)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				message = await ctx.send(embed=emb)
+				await ctx.message.add_reaction("✅")
+
+				server_stats = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
+				server_stats.update({"message": [message.id, ctx.channel.id]})
+
+				sql = """UPDATE guilds SET server_stats = %s WHERE guild_id = %s AND guild_id = %s"""
+				val = (json.dumps(server_stats), ctx.guild.id, ctx.guild.id)
+
+				await self.client.database.execute(sql, val)
+			await asyncio.sleep(10)
 			await ctx.message.delete()
-			val = (ctx.guild.id, ctx.guild.id)
-			sql_1 = """SELECT user_id, exp, money, reputation, messages FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 20"""
-			sql_2 = """SELECT exp FROM users WHERE guild_id = %s AND guild_id = %s"""
-
-			all_exp = sum([i[0] for i in await self.client.database.execute(sql_2, val)])
-			dnd = len(
-				[
-					str(member.id)
-					for member in ctx.guild.members
-					if member.status.name == "dnd"
-				]
-			)
-			sleep = len(
-				[
-					str(member.id)
-					for member in ctx.guild.members
-					if member.status.name == "idle"
-				]
-			)
-			online = len(
-				[
-					str(member.id)
-					for member in ctx.guild.members
-					if member.status.name == "online"
-				]
-			)
-			offline = len(
-				[
-					str(member.id)
-					for member in ctx.guild.members
-					if member.status.name == "offline"
-				]
-			)
-			description = "Статистика обновляеться каждые 5 минут\n\n**20 Самых активных участников сервера**"
-			num = 1
-			for profile in data:
-				member = ctx.guild.get_member(profile[0])
-				if member is not None:
-					if not member.bot:
-						if len(member.name) > 15:
-							member = (
-								member.name[:15] + "..." + "#" + member.discriminator
-							)
-						description += f"""\n`{num}. {str(member)} {profile[1]}exp {profile[2]}$ {profile[3]}rep {json.loads(profile[4])[1]}msg`"""
-						num += 1
-
-			description += f"""\n\n**Общая инфомация**\n:baby:Пользователей: **{ctx.guild.member_count}**\n:family_man_girl_boy:Участников: **{len([m.id for m in ctx.guild.members if not m.bot])}**\n<:bot:731819847905837066>Ботов: **{len([m.id for m in ctx.guild.members if m.bot])}**\n<:voice_channel:730399079418429561>Голосовых подключений: **{sum([len(v.members) for v in ctx.guild.voice_channels])}**\n<:text_channel:730396561326211103>Каналов: **{len([c.id for c in ctx.guild.channels])}**\n<:role:730396229220958258>Ролей: **{len([r.id for r in ctx.guild.roles])}**\n:star:Всего опыта: **{all_exp}**\n\n**Статусы участников**\n<:online:730393440046809108>`{online}`  <:offline:730392846573633626>`{offline}`\n<:sleep:730390502972850256>`{sleep}`  <:mobile:777854822300385291>`{len([m.id for m in ctx.guild.members if m.is_on_mobile()])}`\n<:dnd:730391353929760870>`{dnd}` <:boost:777854437724127272>`{len(set(ctx.guild.premium_subscribers))}`"""
-
-			emb = discord.Embed(
-				title="Статистика сервера",
-				description=description,
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			message = await ctx.send(embed=emb)
-			await ctx.message.add_reaction("✅")
-
-			server_stats = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
-			server_stats.update({"message": [message.id, ctx.channel.id]})
-
-			sql = """UPDATE guilds SET server_stats = %s WHERE guild_id = %s AND guild_id = %s"""
-			val = (json.dumps(server_stats), ctx.guild.id, ctx.guild.id)
-
-			await self.client.database.execute(sql, val)
 			return
 
 		purge = await self.client.clear_commands(ctx.guild)
@@ -206,26 +201,24 @@ class Utils(commands.Cog, name="Utils"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		stats_category = await ctx.guild.create_category("Статистика")
-		await asyncio.sleep(1)
+		async with ctx.typing():
+			stats_category = await ctx.guild.create_category("Статистика")
+			overwrite = discord.PermissionOverwrite(connect=False)
+			stats_channel = await ctx.guild.create_voice_channel(
+				f"[{counters[stats_count.lower()][1]}] {counters[stats_count.lower()][0]}",
+				category=stats_category,
+			)
+			await stats_channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+			await stats_category.edit(position=0)
 
-		overwrite = discord.PermissionOverwrite(connect=False)
-		stats_channel = await ctx.guild.create_voice_channel(
-			f"[{counters[stats_count.lower()][1]}] {counters[stats_count.lower()][0]}",
-			category=stats_category,
-		)
-		await stats_channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+			data = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
+			data.update({stats_count.lower(): stats_channel.id})
 
-		await stats_category.edit(position=0)
-		await ctx.message.add_reaction("✅")
+			sql = """UPDATE guilds SET server_stats = %s WHERE guild_id = %s AND guild_id = %s"""
+			val = (json.dumps(data), ctx.guild.id, ctx.guild.id)
 
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
-		data.update({stats_count.lower(): stats_channel.id})
-
-		sql = """UPDATE guilds SET server_stats = %s WHERE guild_id = %s AND guild_id = %s"""
-		val = (json.dumps(data), ctx.guild.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
+			await self.client.database.execute(sql, val)
+			await ctx.message.add_reaction("✅")
 
 	@commands.command(
 		aliases=["massrole"],
@@ -299,7 +292,7 @@ class Utils(commands.Cog, name="Utils"):
 		purge = await self.client.clear_commands(ctx.guild)
 		await ctx.channel.purge(limit=purge)
 
-		data = await self.client.database.sel_guild(guild=ctx.guild)["moder_roles"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild))["moder_roles"]
 		if data != []:
 			roles = "\n".join(f"`{get(ctx.guild.roles, id=i).name}`" for i in data)
 		else:
@@ -313,6 +306,7 @@ class Utils(commands.Cog, name="Utils"):
 		await ctx.send(embed=emb)
 
 	@commands.command(
+		brief="True",
 		aliases=["mutes-list", "listmutes", "muteslist", "mutes"],
 		name="list-mutes",
 		description="Показывает все мьюты на сервере",
@@ -373,7 +367,7 @@ class Utils(commands.Cog, name="Utils"):
 		usage="regenerate-api-key",
 		help="**Примеры использования:**\n1. {Prefix}regenerate-api-key\n\n**Пример 1:** Перегенерирует ключ API для сервера",
 	)
-	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
+	@commands.check(lambda ctx: ctx.author.id == ctx.guild.owner.id)
 	@commands.cooldown(1, 43200, commands.BucketType.member)
 	async def regenerate_api_key(self, ctx):
 		purge = await self.client.clear_commands(ctx.guild)

@@ -50,7 +50,11 @@ class FunEditImage(commands.Cog):
             await ctx.message.add_reaction("❌")
             return
 
-    @commands.command()
+    @commands.command(
+        description="**Добавляет к аватарке радужный эффект**",
+        usage="gay |@Участник|",
+        help="**Примеры использования:**\n1. {Prefix}gay\n2. {Prefix}gay @Участник\n3. {Prefix}gay 660110922865704980\n\n**Пример 1:** Добавит к вашей аватарке радужный эффект\n**Пример 2:** Добавит к аватарке указаного участника радужный эффект\n**Пример 3:** Добавит к аватарке участника с указаным id радужный эффект"
+    )
     @commands.cooldown(1, 60, commands.BucketType.member)
     async def gay(self, ctx, member: discord.Member = None):
         if member is None:
@@ -62,7 +66,11 @@ class FunEditImage(commands.Cog):
         emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
         await ctx.send(embed=emb)
 
-    @commands.command()
+    @commands.command(
+        description="**Добавляет к аватарке эффект стекла**",
+        usage="glass |@Участник|",
+        help="**Примеры использования:**\n1. {Prefix}glass\n2. {Prefix}glass @Участник\n3. {Prefix}glass 660110922865704980\n\n**Пример 1:** Добавит к вашей аватарке эффект стекла\n**Пример 2:** Добавит к аватарке указаного участника эффект стекла\n**Пример 3:** Добавит к аватарке участника с указаным id эффект стекла"
+    )
     @commands.cooldown(1, 60, commands.BucketType.member)
     async def glass(self, ctx, member: discord.Member = None):
         if member is None:
@@ -74,7 +82,11 @@ class FunEditImage(commands.Cog):
         emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
         await ctx.send(embed=emb)
 
-    @commands.command()
+    @commands.command(
+        description="**Добавляет к аватарке эффект смерти в GTA**",
+        usage="wasted |@Участник|",
+        help="**Примеры использования:**\n1. {Prefix}wasted\n2. {Prefix}wasted @Участник\n3. {Prefix}wasted 660110922865704980\n\n**Пример 1:** Добавит к вашей аватарке эффект смерти в GTA\n**Пример 2:** Добавит к аватарке указаного участника эффект смерти в GTA\n**Пример 3:** Добавит к аватарке участника с указаным id эффект смерти в GTA"
+    )
     @commands.cooldown(1, 60, commands.BucketType.member)
     async def wasted(self, ctx, member: discord.Member = None):
         if member is None:
@@ -86,7 +98,11 @@ class FunEditImage(commands.Cog):
         emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
         await ctx.send(embed=emb)
 
-    @commands.command()
+    @commands.command(
+        description="**Добавляет к аватарке указаный эффект**",
+        usage="filter [Фильтер] |@Участник|",
+        help="**Примеры использования:**\n1. {Prefix}filter threshold\n2. {Prefix}filter threshold @Участник\n3. {Prefix}filter threshold 660110922865704980\n\n**Пример 1:** Добавит к вашей аватарке эффект threshold\n**Пример 2:** Добавит к аватарке указаного участника эффект threshold\n**Пример 3:** Добавит к аватарке участника с указаным id эффект threshold"
+    )
     @commands.cooldown(1, 60, commands.BucketType.member)
     async def filter(self, ctx, filter:str, member: discord.Member = None):
         if member is None:

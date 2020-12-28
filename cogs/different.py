@@ -15,6 +15,7 @@ class Different(commands.Cog, name="Different"):
 	def __init__(self, client):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
+		self.HELP_SERVER = self.client.config.HELP_SERVER
 		locale.setlocale(locale.LC_ALL, "ru")
 
 	@commands.command(
@@ -22,7 +23,7 @@ class Different(commands.Cog, name="Different"):
 		aliases=["remin"],
 		description="**Работа с напоминаниями**",
 		usage="reminder [create/list/delete] |Время| |Текст|",
-		help="**Примеры использования:**\n1. {Prefix}reminder create 1h Example reminder text\n2. {Prefix}reminder list\n3. {Prefix}reminder delete 1\n\n**Пример 1:** Напомнит `Example reminder text` через 1 час\n**Пример 2:** Покажет список ваших напоминаний\n**Пример 3:** Удалит напоминания с id - `1`",
+		help="**Полезное:**\nВремя можно указывать в таких форматах: ЧЧ:ММ.ДД.ММ.ГГГГ - 10:30.12.12.2050, кол-воТип - 10m\n\n**Примеры использования:**\n1. {Prefix}reminder create 1h Example reminder text\n2. {Prefix}reminder list\n3. {Prefix}reminder delete 1\n4. {Prefix}reminder create 10:30.12.12.2050 Example reminder text\n\n**Пример 1:** Напомнит `Example reminder text` через 1 час\n**Пример 2:** Покажет список ваших напоминаний\n**Пример 3:** Удалит напоминания с id - `1`\n**Пример 4:** Напомнит `Example reminder text` в 10:30 12.12.2050\n",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def reminder(
@@ -141,7 +142,7 @@ class Different(commands.Cog, name="Different"):
 	@commands.command(
 		usage="color [Цвет]",
 		description="**Устанавливает роль с указаным цветом**",
-		help="**Примеры использования:**\n1. {Prefix}color #444444\n2. {Prefix}color remove\n\n**Пример 1:** Установит вам роль с указаным цветом в HEX формате(Поддерживаеться только HEX)\n**Пример 2:** Удалить у вас роль с цветом",
+		help="**Полезное:**\nЦвет надо указывать в формате HEX - #444444\n\n**Примеры использования:**\n1. {Prefix}color #444444\n2. {Prefix}color remove\n\n**Пример 1:** Установит вам роль с указаным цветом в HEX формате(Поддерживаеться только HEX)\n**Пример 2:** Удалить у вас роль с цветом",
 	)
 	@commands.cooldown(1, 300, commands.BucketType.member)
 	async def color(self, ctx, color: str):
@@ -432,7 +433,7 @@ class Different(commands.Cog, name="Different"):
 
 	@commands.command(
 		name="info-bot",
-		aliases=["botinfo", "infobot", "bot-info"],
+		aliases=["botinfo", "infobot", "bot-info", "about", "bot"],
 		usage="info-bot",
 		description="Подробная информация о боте",
 		help="**Примеры использования:**\n1. {Prefix}info-bot\n\n**Пример 1:** Покажет информацию обо мне",
@@ -488,7 +489,7 @@ class Different(commands.Cog, name="Different"):
 		)
 		embed1.add_field(
 			name="Полезные ссылки",
-			value="[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)\n[Сервер помощьи](https://discord.gg/6SHKgj43r9)\n[Patreon](https://www.patreon.com/prostotools)",
+			value=f"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)\n[Сервер помощьи]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)",
 			inline=False,
 		)
 		embed1.set_thumbnail(url=self.client.user.avatar_url)

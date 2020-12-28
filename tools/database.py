@@ -147,19 +147,16 @@ class DB:
 	async def del_warn(self, guild_id: int, warn_id: int) -> typing.Union[bool, tuple]:
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
-				try:
-					await cur.execute(
-						("""UPDATE warns SET state = %s WHERE id = %s"""), ("False", warn_id)
-					)
-					await conn.commit()
+				await cur.execute(
+					("""UPDATE warns SET state = %s WHERE id = %s"""), ("False", warn_id)
+				)
+				await conn.commit()
 
-					await cur.execute(
-						("""SELECT user_id FROM warns WHERE id = %s AND id = %s"""),
-						(warn_id, warn_id),
-					)
-					data = await cur.fetchone()
-				except:
-					data = False
+				await cur.execute(
+					("""SELECT user_id FROM warns WHERE id = %s AND id = %s"""),
+					(warn_id, warn_id),
+				)
+				data = await cur.fetchone()
 		return data
 
 	async def set_mute(self, **kwargs) -> None:

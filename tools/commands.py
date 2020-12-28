@@ -3,11 +3,6 @@ import json
 import typing
 import time
 import datetime
-import random
-import mysql.connector
-
-from . import DB
-
 from datetime import datetime
 from discord.utils import get
 
@@ -15,10 +10,6 @@ from discord.utils import get
 class Commands:
 	def __init__(self, client):
 		self.client = client
-		self.conn = mysql.connector.connect(
-			user="root", password="9fr8-PkM;M4+", host="localhost", database="data"
-		)
-		self.cursor = self.conn.cursor(buffered=True)
 		self.MUTE_ROLE = self.client.config.MUTE_ROLE
 		self.VMUTE_ROLE = self.client.config.VMUTE_ROLE
 		self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
@@ -28,84 +19,22 @@ class Commands:
 		self,
 		ctx,
 		member: discord.Member,
-		author: discord.User = None,
-		mute_time: int = 0,
-		mute_typetime: str = None,
+		author: discord.User,
+		type_time: str = None,
 		check_role: bool = True,
-		reason: str = None,
+		reason: str = "Причина не указана",
 		message: bool = True,
 	) -> typing.Union[discord.Embed, bool]:
 		client = self.client
 		overwrite = discord.PermissionOverwrite(send_messages=False)
-		types = [
-			"мин",
-			"м",
-			"m",
-			"min",
-			"час",
-			"ч",
-			"h",
-			"hour",
-			"дней",
-			"д",
-			"d",
-			"day",
-			"недель",
-			"н",
-			"week",
-			"w",
-			"месяц",
-			"м",
-			"mounth",
-			"m",
-		]
 
-		if (
-			mute_typetime == "мин"
-			or mute_typetime == "м"
-			or mute_typetime == "m"
-			or mute_typetime == "min"
-		):
-			mute_minutes = mute_time * 60
-		elif (
-			mute_typetime == "час"
-			or mute_typetime == "ч"
-			or mute_typetime == "h"
-			or mute_typetime == "hour"
-		):
-			mute_minutes = mute_time * 60
-		elif (
-			mute_typetime == "дней"
-			or mute_typetime == "д"
-			or mute_typetime == "d"
-			or mute_typetime == "day"
-		):
-			mute_minutes = mute_time * 120 * 12
-		elif (
-			mute_typetime == "недель"
-			or mute_typetime == "н"
-			or mute_typetime == "week"
-			or mute_typetime == "w"
-		):
-			mute_minutes = mute_time * 120 * 12 * 7
-		elif (
-			mute_typetime == "месяц"
-			or mute_typetime == "м"
-			or mute_typetime == "mounth"
-			or mute_typetime == "m"
-		):
-			mute_minutes = mute_time * 120 * 12 * 30
-		else:
-			mute_minutes = mute_time * 60
-
-		times = time.time()
-		times += mute_minutes
-
-		if not reason and mute_typetime not in types:
-			reason = mute_typetime
+		mute_time = self.client.utils.time_to_num(type_time)
+		times = time.time()+mute_time[0]
 
 		if member in ctx.guild.members:
 			data = await self.client.database.sel_user(target=member)
+		else:
+			return
 
 		role = get(ctx.guild.roles, name=self.MUTE_ROLE)
 		if not role:
@@ -138,7 +67,7 @@ class Commands:
 
 		if cur_lvl <= 3:
 			cur_money -= 250
-		elif cur_lvl > 3 and cur_lvl <= 5:
+		elif 3 < cur_lvl <= 5:
 			cur_money -= 500
 		elif cur_lvl > 5:
 			cur_money -= 1000
@@ -154,7 +83,10 @@ class Commands:
 				name=client.user.name, icon_url=client.user.avatar_url
 			)
 			emb_member.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-			await member.send(embed=emb_member)
+			try:
+				await member.send(embed=emb_member)
+			except:
+				pass
 
 		sql = """UPDATE users SET money = %s, coins = %s, reputation = %s, items = %s, prison = %s WHERE user_id = %s AND guild_id = %s"""
 		val = (
@@ -169,7 +101,7 @@ class Commands:
 
 		await self.client.database.execute(sql, val)
 
-		if mute_minutes <= 0:
+		if mute_time[0] <= 0:
 			if message:
 				if reason:
 					emb = discord.Embed(
@@ -185,24 +117,24 @@ class Commands:
 					)
 					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 					emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-		elif mute_minutes != 0:
+		elif mute_time[0] != 0:
 			if message:
 				if reason:
 					emb = discord.Embed(
-						description=f"**{member.mention} Был замьючен по причине {reason} на {mute_time}{mute_typetime}**",
+						description=f"**{member.mention} Был замьючен по причине {reason} на {mute_time[1]}{mute_time[2]}**",
 						colour=discord.Color.green(),
 					)
 					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 					emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 				elif not reason:
 					emb = discord.Embed(
-						description=f"**{member.mention} Был замьючен на {mute_time}{mute_typetime}**",
+						description=f"**{member.mention} Был замьючен на {mute_time[1]}{mute_time[2]}**",
 						colour=discord.Color.green(),
 					)
 					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 					emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 
-		if mute_minutes > 0:
+		if mute_time[0] > 0:
 			await self.client.database.set_punishment(
 				type_punishment="mute",
 				time=times,
@@ -225,7 +157,7 @@ class Commands:
 		if member in ctx.guild.members:
 			data = await self.client.database.sel_user(target=member)
 		else:
-			raise "The guild hasn`t that member {}".format(member.name)
+			return
 
 		info = await self.client.database.sel_guild(guild=ctx.guild)
 		max_warns = int(info["max_warns"])
@@ -245,7 +177,7 @@ class Commands:
 
 		if cur_lvl <= 3:
 			cur_money -= 250
-		elif cur_lvl > 3 and cur_lvl <= 5:
+		elif 3 < cur_lvl <= 5:
 			cur_money -= 500
 		elif cur_lvl > 5:
 			cur_money -= 1000
@@ -276,8 +208,7 @@ class Commands:
 				ctx,
 				member=member,
 				author=author,
-				mute_time=2,
-				mute_typetime="h",
+				type_time="2h",
 				check_role=False,
 				message=False,
 			)
@@ -306,7 +237,5 @@ class Commands:
 		sql = """UPDATE users SET money = %s, coins = %s, reputation = %s, prison = %s WHERE user_id = %s AND guild_id = %s"""
 		val = (cur_money, cur_coins, cur_reputation, str(cur_state_pr))
 
-		self.cursor.execute(sql, val)
-		self.conn.commit()
-
+		await self.client.database.execute(sql, val)
 		return emb_ctx
