@@ -107,12 +107,12 @@ class Utils:
         state = False
         group_name = ""
         locks = {
-            "Different": 6,
-            "Economy": 5,
+            "Different": 5,
+            "Economy": 4,
             "Games": 7,
-            "Moderate": 6,
+            "Moderate": 5,
             "Settings": 3,
-            "Utils": 5,
+            "Utils": 4,
             "Works": 7,
             "Clans": 3,
             "EconomyBuyCmd": 3,
@@ -174,7 +174,7 @@ class Utils:
                                 command, commands, count, group_name
                             )
                             count += 1
-                            if count >= locks[soft_cog_name]:
+                            if count > locks[soft_cog_name]:
                                 count = 0
                                 commands += "`\n`"
                         else:
@@ -189,7 +189,7 @@ class Utils:
                                     command, commands, count, group_name
                                 )
                                 count += 1
-                                if count >= locks[soft_cog_name]:
+                                if count > locks[soft_cog_name]:
                                     count = 0
                                     commands += "`\n`"
                     else:
@@ -198,7 +198,7 @@ class Utils:
                                 command, commands, count, group_name
                             )
                             count += 1
-                            if count >= locks[soft_cog_name]:
+                            if count > locks[soft_cog_name]:
                                 count = 0
                                 commands += "`\n`"
                 if commands != "":

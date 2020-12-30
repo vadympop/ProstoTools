@@ -11,7 +11,7 @@ class EventsJoin(commands.Cog):
 	async def on_guild_join(self, guild):
 		emb = discord.Embed(
 			title="Спасибо за приглашения нашего бота! Мы вам всегда рады",
-			description=f"Стандартний префикс - *, команда помощи - *help, \nкоманда настроёк - *settings. \n Полезные ссылки:\n[Наш сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)",
+			description=f"Стандартний префикс - `p.`, команда помощи - p.help, \nкоманда настроёк - p.settings. \n Полезные ссылки:\n[Наш сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)

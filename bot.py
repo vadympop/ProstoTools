@@ -68,7 +68,7 @@ class Client(commands.AutoShardedBot):
 			f"[PT-SYSTEM-LOGGING]:::{self.user.name} is connected to discord server"
 		)
 		await self.change_presence(
-			status=discord.Status.online, activity=discord.Game(" *help | *invite ")
+			status=discord.Status.online, activity=discord.Game(" p.help | p.invite ")
 		)
 		self.launched_at = datetime.datetime.now()
 		await self.database.prepare()

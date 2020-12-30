@@ -375,7 +375,7 @@ class DB:
 		val_2 = (
 			guild.id,
 			"False",
-			"*",
+			"p.",
 			str(uuid.uuid4()),
 			json.dumps([]),
 			json.dumps([]),
