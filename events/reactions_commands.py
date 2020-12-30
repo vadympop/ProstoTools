@@ -1,6 +1,4 @@
 import discord
-
-from tools import Commands
 from discord.ext import commands
 
 
@@ -14,7 +12,10 @@ class EventsReactionsCmds(commands.Cog):
 		reaction = payload.emoji
 		author = payload.member
 		channel = self.client.get_channel(payload.channel_id)
-		message = await channel.fetch_message(payload.message_id)
+		try:
+			message = await channel.fetch_message(payload.message_id)
+		except discord.errors.NotFound:
+			return
 		member = message.author
 		guild = message.guild
 		if guild:
