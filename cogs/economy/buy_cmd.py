@@ -69,7 +69,7 @@ async def buy(self, ctx, item: str = None, num: int = None):
                 "from": ctx.author.id,
                 "cash": func_cost,
                 "time": str(datetime.datetime.today()),
-                "id": str(uuid.uuid4),
+                "id": str(uuid.uuid4()),
                 "guild_id": ctx.guild.id,
             }
             cur_transantions.append(info_transantion)
@@ -120,7 +120,7 @@ async def buy(self, ctx, item: str = None, num: int = None):
                 "from": ctx.author.id,
                 "cash": cost,
                 "time": str(datetime.datetime.today()),
-                "id": str(uuid.uuid4),
+                "id": str(uuid.uuid4()),
                 "guild_id": ctx.guild.id,
             }
             cur_transantions.append(info_transantion)

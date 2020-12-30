@@ -37,7 +37,7 @@ class TasksSendData(commands.Cog):
 				},
 			}
 			headers = {
-				"token": os.getenv("BOT_TOKEN")
+				"Authorization": os.getenv("BOT_TOKEN")
 			}
 			await requests.post(url=self.api_url + "private/client", json=data, headers=headers)
 
