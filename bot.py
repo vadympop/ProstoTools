@@ -1,10 +1,8 @@
 import discord
 import datetime
-
 from tools.http import RandomAPI
-from tools import DB, Utils, Commands
-from tools import template_engine as temp_eng
-
+from tools import DB, Utils, Commands, template_engine as temp_eng
+from cogs.economy.buy_cmd import buy
 from loguru import logger
 from colorama import *
 from discord.ext import commands
@@ -77,9 +75,6 @@ class Client(commands.AutoShardedBot):
 		logger.info(
 			f"[PT-SYSTEM-LOGGING]:::{self.user.name} is disconnected from discord server"
 		)
-
-	async def clear_commands(self, guild):
-		return (await self.database.sel_guild(guild=guild))["purge"]
 
 	def txt_dump(self, filename, filecontent):
 		with open(filename, "w", encoding="utf-8") as f:

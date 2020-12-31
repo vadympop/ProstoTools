@@ -2,22 +2,18 @@ import discord
 import datetime
 import uuid
 import json
-from .main import Economy
 from discord.utils import get
 from discord.ext import commands
 
 
 @commands.command(
-    cog=Economy,
+    cog_name="Economy",
     description="**Купляет указанный товар**",
     usage="buy [Имя товара]",
     help="**Примеры использования:**\n1. {Prefix}buy gloves\n2. {Prefix}buy text-channel 10\n3. {Prefix}buy box-E\n\n**Пример 1:** Купляет товар с названиям `gloves`\n**Пример 2:** Купляет десять приватных каналов\n**Пример 3:** Купляет эпический лут-бокс",
 )
 @commands.cooldown(2, 10, commands.BucketType.member)
 async def buy(self, ctx, item: str = None, num: int = None):
-    purge = await self.client.clear_commands(ctx.guild)
-    await ctx.channel.purge(limit=purge)
-
     member = ctx.author
 
     data = await self.client.database.sel_user(target=ctx.author)

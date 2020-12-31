@@ -86,6 +86,13 @@ class Errors(commands.Cog, name="Errors"):
 			emb = await self.client.utils.create_error_embed(ctx, "Указаный пользователь не найден!")
 			await ctx.send(embed=emb)
 		else:
+			if isinstance(error.original, discord.errors.Forbidden):
+				emb = await self.client.utils.create_error_embed(
+					ctx, f"У бота отсутствуют необходимые права!"
+				)
+				await ctx.send(embed=emb)
+				return
+
 			error_id = str(uuid.uuid4())
 			await self.client.database.set_error(error_id, repr(error), ctx.command.name)
 			await ctx.message.add_reaction("❌")

@@ -35,9 +35,6 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def voicechannel(self, ctx, state: str):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		on_answers = ["on", "вкл", "включить", "true"]
 		off_answers = ["off", "выкл", "выключить", "false"]
 
@@ -181,11 +178,11 @@ class Utils(commands.Cog, name="Utils"):
 
 				await self.client.database.execute(sql, val)
 			await asyncio.sleep(10)
-			await ctx.message.delete()
+			try:
+				await ctx.message.delete()
+			except:
+				pass
 			return
-
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 
 		if stats_count.lower() not in counters.keys():
 			emb = discord.Embed(
@@ -233,9 +230,6 @@ class Utils(commands.Cog, name="Utils"):
 	async def mass_role(
 		self, ctx, type_act: str, for_role: discord.Role, role: discord.Role
 	):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if type_act == "add":
 			async with ctx.typing():
 				for member in ctx.guild.members:
@@ -289,9 +283,6 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(check_role)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def list_moderators(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["moder_roles"]
 		if data != []:
 			roles = "\n".join(f"`{get(ctx.guild.roles, id=i).name}`" for i in data)
@@ -316,9 +307,6 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(check_role)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def mutes(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		data = await self.client.database.get_mutes(ctx.guild.id)
 
 		if data != []:
@@ -349,9 +337,6 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def api_key(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		key = (await self.client.database.sel_guild(guild=ctx.guild))["api_key"]
 
 		await ctx.author.send(
@@ -370,9 +355,6 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(lambda ctx: ctx.author.id == ctx.guild.owner.id)
 	@commands.cooldown(1, 43200, commands.BucketType.member)
 	async def regenerate_api_key(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		await self.client.database.execute(
 			"""UPDATE guilds SET api_key = %s WHERE guild_id = %s""",
 			(str(uuid.uuid4()), ctx.guild.id)

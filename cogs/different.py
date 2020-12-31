@@ -1,5 +1,4 @@
 import time
-import locale
 import datetime
 import discord
 import sanic
@@ -16,7 +15,6 @@ class Different(commands.Cog, name="Different"):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
 		self.HELP_SERVER = self.client.config.HELP_SERVER
-		locale.setlocale(locale.LC_ALL, "ru")
 
 	@commands.command(
 		name="reminder",
@@ -29,9 +27,6 @@ class Different(commands.Cog, name="Different"):
 	async def reminder(
 		self, ctx, action: str, type_time: str = None, *, text: str = None
 	):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if action == "create":
 			if type_time is None:
 				emb = await self.client.utils.create_error_embed(
@@ -234,9 +229,6 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 60, commands.BucketType.member)
 	async def send(self, ctx, member: discord.Member, *, message: str):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		data = await self.client.database.sel_user(target=ctx.author)
 		coins_member = data["coins"]
 		cur_items = data["items"]
@@ -290,9 +282,6 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(1, 7200, commands.BucketType.member)
 	async def devs(self, ctx, typef: str, *, msg: str):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		prch = get(self.client.users, id=660110922865704980)
 		mrkl = get(self.client.users, id=404224656598499348)
 
@@ -338,9 +327,6 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def userinfo(self, ctx, member: discord.Member = None):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if member is None:
 			member = ctx.author
 
@@ -415,9 +401,6 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def avatar(self, ctx, member: discord.Member = None):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if member is None:
 			member = ctx.author
 
@@ -440,9 +423,6 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bot(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		def bytes2human(number, typer=None):
 			if typer == "system":
 				symbols = ("KБ", "МБ", "ГБ", "TБ", "ПБ", "ЭБ", "ЗБ", "ИБ")
@@ -573,9 +553,6 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def serverinfo(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		data = await self.client.database.sel_guild(guild=ctx.guild)
 		created_at = datetime.datetime.strftime(ctx.guild.created_at, "%d %B %Y %X")
 		time = data["timedelete_textchannel"]
@@ -693,9 +670,6 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(1, 7200, commands.BucketType.member)
 	async def idea(self, ctx, *, text: str):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		data = await self.client.database.sel_guild(guild=ctx.guild)
 		idea_channel_id = data["idea_channel"]
 
@@ -747,9 +721,6 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def invite(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		emb = discord.Embed(
 			title="Пригласи бота на свой сервер =).**Жмякай!**",
 			url="https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot",
@@ -769,9 +740,6 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(1, 120, commands.BucketType.member)
 	async def msgforw(self, ctx, channel: discord.TextChannel, *, msg: str):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if ctx.author.permissions_in(channel).send_messages:
 			emb = discord.Embed(
 				title="Новое сообщения!",
@@ -802,7 +770,10 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(3, 30, commands.BucketType.member)
 	async def say(self, ctx, *, text: str):
-		await ctx.message.delete()
+		try:
+			await ctx.message.delete()
+		except:
+			pass
 		await ctx.send(text)
 
 	@commands.command(
@@ -814,9 +785,6 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def rnum(self, ctx, rnum1: int, rnum2: int):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if len(str(rnum1)) > 64 or len(str(rnum2)) > 64:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -845,8 +813,6 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bio(self, ctx, *, text: str = None):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		cur_bio = (await self.client.database.sel_user(target=ctx.author))["bio"]
 
 		clears = ["clear", "-", "delete", "очистить", "удалить"]

@@ -23,9 +23,6 @@ class FunOther(commands.Cog):
     )
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def cr_qr(self, ctx, *, code_text: str):
-        purge = await self.client.clear_commands(ctx.guild)
-        await ctx.channel.purge(limit=purge)
-
         if len(code_text) > 6000:
             emb = discord.Embed(
                 title="Ошибка!",
@@ -65,9 +62,6 @@ class FunOther(commands.Cog):
     )
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def scan_url(self, ctx, url: str):
-        purge = await self.client.clear_commands(ctx.guild)
-        await ctx.channel.purge(limit=purge)
-
         try:
             ddd = await requests.get_raw_data(url)
         except client_exceptions.InvalidURL:
@@ -105,9 +99,6 @@ class FunOther(commands.Cog):
     )
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def wiki(self, ctx, *, text: str):
-        purge = await self.client.clear_commands(ctx.guild)
-        await ctx.channel.purge(limit=purge)
-
         try:
             async with ctx.typing():
                 wikipedia.set_lang("ru")
@@ -143,9 +134,6 @@ class FunOther(commands.Cog):
     )
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def magic_ball(self, ctx, *, msg: str):
-        purge = await self.client.clear_commands(ctx.guild)
-        await ctx.channel.purge(limit=purge)
-
         rand_num = random.randint(1, 3)
 
         phrases_1 = [

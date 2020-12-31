@@ -14,8 +14,7 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	@commands.has_permissions(administrator=True)
 	async def setting(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
+		pass
 
 	@setting.command(
 		hidden=True,

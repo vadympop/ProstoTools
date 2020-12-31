@@ -20,8 +20,6 @@ class Help(commands.Cog, name="Help"):
 		help="**Примеры использования:**\n1. {Prefix}help\n2. {Prefix}help moderate\n2. {Prefix}help ban\n\n**Пример 1:** Показывает список всех команд бота\n**Пример 2:** Показывает список всех указаной групы\n**Пример 3:** Показывает документацию по указаной команде"
 	)
 	async def help(self, ctx, cog_name: str = None):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		groups = ["settings", "works", "clans"]
 		moder_roles = (await self.client.database.sel_guild(guild=ctx.guild))["moder_roles"]
 		PREFIX = self.client.database.get_prefix(guild=ctx.guild)

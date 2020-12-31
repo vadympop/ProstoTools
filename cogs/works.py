@@ -14,9 +14,6 @@ class Works(commands.Cog, name="Works"):
 	)
 	@commands.cooldown(2, 7200, commands.BucketType.member)
 	async def work(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if ctx.invoked_subcommand is None:
 			self.work.reset_cooldown(ctx)
 			emb = discord.Embed(

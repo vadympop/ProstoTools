@@ -298,8 +298,6 @@ class DB:
 			json.dumps([]),
 			"",
 		)
-		sql_3 = """SELECT bio FROM users WHERE user_id = %s AND user_id = %s"""
-		val_3 = (target.id, target.id)
 		sql_4 = """SELECT * FROM warns WHERE user_id = %s AND guild_id = %s"""
 		val_4 = (target.id, target.guild.id)
 
@@ -307,8 +305,6 @@ class DB:
 			async with conn.cursor() as cur:
 				await cur.execute(sql_1, val_1)
 				data = await cur.fetchone()
-				await cur.execute(sql_3, val_3)
-				bio = await cur.fetchone()
 				await cur.execute(sql_4, val_4)
 				db_warns = await cur.fetchall()
 
@@ -357,13 +353,13 @@ class DB:
 				"num_commands": int(data[8]),
 				"prison": prison,
 				"profile": str(data[10]),
+				"bio": str(data[11]),
 				"clan": str(data[12]),
 				"items": json.loads(data[13]),
 				"pets": json.loads(data[14]),
 				"warns": warns,
 				"messages": json.loads(data[15]),
 				"transantions": json.loads(data[16]),
-				"bio": bio[0],
 			}
 
 			return dict_data

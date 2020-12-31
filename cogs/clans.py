@@ -38,8 +38,7 @@ class Clans(commands.Cog):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def clan(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
+		pass
 
 	@clan.command(usage="clan create [Названия]", description="**Создаёт клан**")
 	async def create(self, ctx, *, name: str):

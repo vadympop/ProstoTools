@@ -137,9 +137,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def temprole(
 		self, ctx, member: discord.Member, role: discord.Role, type_time: str
 	):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if member == ctx.author:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -212,9 +209,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def slowmode(self, ctx, delay: int, channel: discord.TextChannel = None):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if delay > 21000:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Укажите задержку меньше 21000!"
@@ -274,8 +268,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def kick(self, ctx, member: discord.Member, *, reason: str = "Причина не указана"):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
@@ -390,8 +382,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def softban(
 		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = "Причина не указана"
 	):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
@@ -527,8 +517,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def unsoftban(self, ctx, member: discord.Member):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
@@ -628,9 +616,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def ban(
 		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = "Причина не указана"
 	):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if member == ctx.author:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -743,9 +728,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.has_permissions(ban_members=True)
 	async def unban(self, ctx, *, member: discord.User):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if member == ctx.author:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -823,8 +805,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def vmute(
 		self, ctx, member: discord.Member, type_time: str = None, reason: str = "Причина не указана"
 	):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
@@ -954,8 +934,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def unvmute(self, ctx, member: discord.Member):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
@@ -1062,8 +1040,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	async def mute(
 		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = "Причина не указана"
 	):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
@@ -1280,8 +1256,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def unmute(self, ctx, member: discord.Member):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
@@ -1381,8 +1355,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def clearwarn(self, ctx, member: discord.Member):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
@@ -1440,8 +1412,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def warn(self, ctx, member: discord.Member, *, reason: str = "Причина не указана"):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member == ctx.author:
@@ -1579,8 +1549,6 @@ class Moderate(commands.Cog, name="Moderate"):
 					warn_id=[warn for warn in cur_warns if not warn["state"]][0]["id"]
 				)
 
-			print(max_warns)
-			print(len([warn for warn in cur_warns if warn["state"]]))
 			if len([warn for warn in cur_warns if warn["state"]]) >= max_warns:
 				cur_coins -= 1000
 
@@ -1676,8 +1644,6 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def rem_warn(self, ctx, warn_id: int):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		data = await self.client.database.del_warn(ctx.guild.id, warn_id)
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
@@ -1729,9 +1695,6 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}warns @Участник\n2. {Prefix}warns 660110922865704980\n\n**Пример 1:** Показывает предупреждения указаного участника\n**Пример 2:** Показывает предупреждения участника с указаным id",
 	)
 	async def warns(self, ctx, member: discord.Member = None):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if member is None:
 			member = ctx.author
 

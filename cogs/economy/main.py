@@ -28,9 +28,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def top(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		sql = """SELECT user_id, exp, level, money, reputation FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 15"""
 		val = (ctx.guild.id, ctx.guild.id)
 
@@ -82,9 +79,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(1, 3600, commands.BucketType.member)
 	async def repp(self, ctx, member: discord.Member, num: int):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if member == ctx.author:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -152,9 +146,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(1, 3600, commands.BucketType.member)
 	async def repm(self, ctx, member: discord.Member, num: int):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if member == ctx.author:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -220,9 +211,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(1, 86400, commands.BucketType.member)
 	async def daily(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		nums = [100, 250, 1000, 500, 50]
 		rand_num = random.choice(nums)
 
@@ -249,9 +237,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(1, 240, commands.BucketType.member)
 	async def textchannel(self, ctx, *, name: str):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		data = await self.client.database.sel_user(target=ctx.author)
 		sql = """UPDATE users SET text_channel = text_channel - 1 WHERE user_id = %s AND guild_id = %s"""
 		val = (ctx.author.id, ctx.guild.id)
@@ -349,9 +334,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def shoplist(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		data = await self.client.database.sel_guild(guild=ctx.guild)
 		shoplist = data["shop_list"]
 		content = ""
@@ -392,9 +374,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(1, 1800, commands.BucketType.member)
 	async def sendmoney(self, ctx, member: discord.Member, num: int):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if member.bot:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -521,9 +500,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def trans(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		data = await self.client.database.sel_user(target=ctx.author)
 		transantions = data["transantions"]
 
@@ -565,9 +541,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def open(self, ctx, box: str = None):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if box is not None:
 			boxes = ["box-C", "box-R", "box-E", "box-L", "box-I"]
 			box = box[:-2].lower() + f"-{box[-1:].upper()}"
@@ -909,8 +882,6 @@ class Economy(commands.Cog):
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	@commands.has_permissions(administrator=True)
 	async def remove_role(self, ctx, member: discord.Member, role: discord.Role):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		logs_channel_id = await self.client.database.sel_guild(guild=ctx.guild)["log_channel"]
 
 		if member.bot:
@@ -1004,8 +975,6 @@ class Economy(commands.Cog):
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	async def add_cash(self, ctx, member: discord.Member, typem: str, num: int):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member.bot:
@@ -1118,8 +1087,6 @@ class Economy(commands.Cog):
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	async def remove_cash(self, ctx, member: discord.Member, typem: str, num: int):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
 		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
 
 		if member.bot:
@@ -1213,9 +1180,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(1, 86400, commands.BucketType.member)
 	async def rob(self, ctx, member: discord.Member):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		data1 = await self.client.database.sel_user(target=ctx.author)
 		cur_state_pr = data1["prison"]
 
@@ -1341,9 +1305,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(1, 43200, commands.BucketType.member)
 	async def crime(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		data = await self.client.database.sel_user(target=ctx.author)
 		cur_state_pr = data["prison"]
 
@@ -1446,9 +1407,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def invertory(self, ctx):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		data = await self.client.database.sel_user(target=ctx.author)
 		Prefix = self.client.database.get_prefix(guild=ctx.guild)
 		number = data["text_channels"]
@@ -1536,9 +1494,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def profile_color(self, ctx, color: str = None):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		colors = [
 			"green",
 			"lime",
@@ -1613,9 +1568,6 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def profile(self, ctx, member: discord.Member = None):
-		purge = await self.client.clear_commands(ctx.guild)
-		await ctx.channel.purge(limit=purge)
-
 		if member is None:
 			member = ctx.author
 
