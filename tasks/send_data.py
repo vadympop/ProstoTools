@@ -32,7 +32,10 @@ class TasksSendData(commands.Cog):
 						"Moderate",
 						"Settings",
 						"Utils",
-						"Works"
+						"Works",
+						"FunOther",
+						"FunEditImage",
+						"FunRandomImage"
 					)
 				},
 			}

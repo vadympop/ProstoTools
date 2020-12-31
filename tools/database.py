@@ -382,7 +382,6 @@ class DB:
 			json.dumps(
 				{
 					"anti_flud": False,
-					"auto_anti_rade_mode": False,
 					"react_coomands": False,
 				}
 			),
