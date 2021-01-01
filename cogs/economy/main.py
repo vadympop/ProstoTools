@@ -1749,9 +1749,10 @@ class Economy(commands.Cog):
 				font=midletext,
 				fill="#444",
 			)
+			fill_percent = 100 - progress_bar_percent
 			idraw.text(
-				(get_width_progress_bar(100 - progress_bar_percent), 300),
-				f"{100 - progress_bar_percent}%",
+				(get_width_progress_bar(fill_percent if fill_percent > 0 else 0), 300),
+				f"{fill_percent if fill_percent > 0 else 0}%",
 				font=midletext,
 				fill="#444",
 			)
