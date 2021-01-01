@@ -199,36 +199,6 @@ class Settings(commands.Cog, name="Settings"):
 
 	@setting.command(
 		hidden=True,
-		description="**Настройка авто удаления команд**",
-		usage="setting purge [1 = Бот будет удалять свои команды, 0 = Бот не будет удалять свои команды]",
-	)
-	async def purge(self, ctx, purge_num: int):
-		if purge_num != 1 and purge_num != 0:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Введите значения правильно! Инструкции - {self.client.database.get_prefix(ctx.guild)}settings **",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-			return
-		elif purge_num == 1 or purge_num == 0:
-			sql = """UPDATE guilds SET `purge` = %s WHERE guild_id = %s AND guild_id = %s"""
-			val = (purge_num, ctx.guild.id, ctx.guild.id)
-
-			await self.client.database.execute(sql, val)
-
-			emb = discord.Embed(
-				description=f"**Вы успешно изменили значения! Новое значения - {purge_num}**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-
-	@setting.command(
-		hidden=True,
 		name="shop-role",
 		description="**Настройка магазина на сервере**",
 		usage="setting shop-role [clear - очищает список ролей, add - добавляет роль, delete - удаляет роль] [@Роль] [Стоимость роли]",

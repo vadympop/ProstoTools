@@ -106,20 +106,6 @@ class Utils:
     async def build_help(self, ctx, prefix, groups, moder_roles):
         state = False
         group_name = ""
-        locks = {
-            "Different": 5,
-            "Economy": 4,
-            "Games": 7,
-            "Moderate": 5,
-            "Settings": 3,
-            "Utils": 4,
-            "Works": 7,
-            "Clans": 3,
-            "EconomyBuyCmd": 3,
-            "FunOther": 5,
-            "FunEditImage": 6,
-            "FunRandomImage": 7
-        }
         exceptions = ["Help", "Loops", "Events", "Owner", "Errors"]
 
         def add_command_loop(command, commands, count, group_name):
@@ -127,8 +113,7 @@ class Utils:
                 for c in command.commands:
                     if not c.hidden:
                         if command.brief != "True":
-                            commands += f" {prefix}{c.name} "
-                            count += 1
+                            commands += f" `{prefix}{c.name}` "
                             group_name = command.name
                         else:
                             state = False
@@ -138,20 +123,14 @@ class Utils:
                                     break
 
                             if state or ctx.author == ctx.guild.owner or ctx.author.guild_permissions.administrator:
-                                commands += f" {prefix}{c.name} "
-                                count += 1
+                                commands += f" `{prefix}{c.name}` "
                                 group_name = command.name
                     else:
                         if ctx.author.guild_permissions.administrator:
-                            commands += f" {prefix}{c.name} "
-                            count += 1
+                            commands += f" `{prefix}{c.name}` "
                             group_name = command.name
-
-                    if count >= locks[soft_cog_name]:
-                        count = 0
-                        commands += "`\n`"
             except:
-                commands += f" {prefix}{command.name} "
+                commands += f" `{prefix}{command.name}` "
 
             return [commands, count, group_name]
 
@@ -173,10 +152,6 @@ class Utils:
                             commands, count, group_name = add_command_loop(
                                 command, commands, count, group_name
                             )
-                            count += 1
-                            if count > locks[soft_cog_name]:
-                                count = 0
-                                commands += "`\n`"
                         else:
                             for role_id in moder_roles:
                                 role = ctx.guild.get_role(role_id)
@@ -188,24 +163,16 @@ class Utils:
                                 commands, count, group_name = add_command_loop(
                                     command, commands, count, group_name
                                 )
-                                count += 1
-                                if count > locks[soft_cog_name]:
-                                    count = 0
-                                    commands += "`\n`"
                     else:
                         if ctx.author.guild_permissions.administrator:
                             commands, count, group_name = add_command_loop(
                                 command, commands, count, group_name
                             )
-                            count += 1
-                            if count > locks[soft_cog_name]:
-                                count = 0
-                                commands += "`\n`"
                 if commands != "":
                     if soft_cog_name.lower() in groups:
-                        value = f"` {group_name.lower()}: {commands}`"
+                        value = f"`{group_name.lower()}`**:** {commands}"
                     else:
-                        value = f"`{commands}`"
+                        value = commands
 
                     emb.add_field(
                         name=f"Категория команд: {soft_cog_name.capitalize()} - {prefix}help {soft_cog_name.lower()}",

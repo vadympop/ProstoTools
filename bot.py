@@ -150,4 +150,5 @@ if __name__ == "__main__":
 			)
 		else:
 			logger.info(f"[PT-SYSTEM-COG]:::{extension} - Loaded")
+	client.add_command(buy)
 	client.run(client.config.TOKEN)
