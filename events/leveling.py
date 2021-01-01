@@ -126,6 +126,7 @@ class EventsLeveling(commands.Cog):
 						member=message.author,
 						type_time="4h",
 						reason="Авто-модерация: Флуд",
+						author=message.guild.me
 					)
 					if emb is not None:
 						await message.channel.send(embed=emb)

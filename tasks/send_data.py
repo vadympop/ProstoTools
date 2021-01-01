@@ -8,8 +8,10 @@ class TasksSendData(commands.Cog):
 		self.client = client
 		self.api_url = "http://api.prosto-tools.ml/api/"
 		self.sdc_api_url = "https://api.server-discord.com/v2/bots/{0}/stats"
+		self.boticord_api_url = "https://boticord.top/api/stats?servers={0}&shards={1}&users={2}"
 		self.send_data_loop.start()
 		self.send_sdc_data_loop.start()
+		self.send_boticord_data_loop.start()
 
 	@tasks.loop(hours=12)
 	async def send_data_loop(self):
@@ -58,6 +60,20 @@ class TasksSendData(commands.Cog):
 					"servers": len(self.client.guilds)
 				}
 				await requests.post(url=self.sdc_api_url.format(self.client.user.id), data=data, headers=headers)
+
+	@tasks.loop(hours=12)
+	async def send_boticord_data_loop(self):
+		if self.client.is_ready():
+			if os.getenv("BOTICORD_TOKEN") is not None:
+				headers = {
+					"Authorization": os.getenv('BOTICORD_TOKEN')
+				}
+				resp = await requests.get(url=self.boticord_api_url.format(
+					len(self.client.guilds),
+					self.client.shard_count,
+					len(self.client.users)
+				), headers=headers)
+				print(resp.status)
 
 
 def setup(client):
