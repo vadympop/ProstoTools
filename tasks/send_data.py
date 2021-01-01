@@ -54,8 +54,8 @@ class TasksSendData(commands.Cog):
 					"Authorization": f"SDC {os.getenv('SDC_TOKEN')}"
 				}
 				data = {
-					"shards": len(self.client.shards),
-					"servers": self.client.shard_count
+					"shards": self.client.shard_count,
+					"servers": len(self.client.guilds)
 				}
 				await requests.post(url=self.sdc_api_url.format(self.client.user.id), data=data, headers=headers)
 
