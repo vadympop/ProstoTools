@@ -2,8 +2,12 @@ import discord
 import datetime
 import uuid
 import json
+from configs import Config
 from discord.utils import get
 from discord.ext import commands
+
+
+FOOTER = Config.FOOTER_TEXT
 
 
 @commands.command(
@@ -13,10 +17,10 @@ from discord.ext import commands
     help="**Примеры использования:**\n1. {Prefix}buy gloves\n2. {Prefix}buy text-channel 10\n3. {Prefix}buy box-E\n\n**Пример 1:** Купляет товар с названиям `gloves`\n**Пример 2:** Купляет десять приватных каналов\n**Пример 3:** Купляет эпический лут-бокс",
 )
 @commands.cooldown(2, 10, commands.BucketType.member)
-async def buy(self, ctx, item: str = None, num: int = None):
+async def buy(ctx, item: str = None, num: int = None):
     member = ctx.author
 
-    data = await self.client.database.sel_user(target=ctx.author)
+    data = await ctx.bot.database.sel_user(target=ctx.author)
     cur_state_prison = data["prison"]
     member_items = data["items"]
 
@@ -29,18 +33,18 @@ async def buy(self, ctx, item: str = None, num: int = None):
         if item is None:
             emb = discord.Embed(
                 title="Как купить товары?",
-                description=f"Метало искатель 1-го уровня - metal_1 или металоискатель_1\nМетало искатель 2-го уровня - metal_2 или металоискатель_2\nТелефон - tel или телефон\nСим-карта - sim или сим-карта\nТекстовый канал - текстовый-канал или text-channel\nМетла - метла или broom\nШвабра - швабра или mop\nПерчатки - перчатки или gloves\nДля покупки роли нужно вести её названия\n\n**Все цены можно узнать с помощю команды {self.client.database.get_prefix(ctx.guild)}shoplist**",
+                description=f"Метало искатель 1-го уровня - metal_1 или металоискатель_1\nМетало искатель 2-го уровня - metal_2 или металоискатель_2\nТелефон - tel или телефон\nСим-карта - sim или сим-карта\nТекстовый канал - текстовый-канал или text-channel\nМетла - метла или broom\nШвабра - швабра или mop\nПерчатки - перчатки или gloves\nДля покупки роли нужно вести её названия\n\n**Все цены можно узнать с помощю команды {ctx.bot.database.get_prefix(ctx.guild)}shoplist**",
                 colour=discord.Color.green(),
             )
             emb.set_author(
-                name=self.client.user.name, icon_url=self.client.user.avatar_url
+                name=ctx.bot.user.name, icon_url=ctx.bot.user.avatar_url
             )
-            emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+            emb.set_footer(text=FOOTER, icon_url=ctx.bot.user.avatar_url)
             await ctx.send(embed=emb)
             return
 
         costs = [500, 1000, 100, 1100, 100, 600, 800, 1800, 4600, 9800, 19600]
-        info = await self.client.database.sel_guild(guild=ctx.guild)
+        info = await ctx.bot.database.sel_guild(guild=ctx.guild)
         roles = info["shop_list"]
 
         async def buy_func(func_item, func_cost):
@@ -80,7 +84,7 @@ async def buy(self, ctx, item: str = None, num: int = None):
                 ctx.guild.id,
             )
 
-            await self.client.database.execute(sql, val)
+            await ctx.bot.database.execute(sql, val)
             return prison_state
 
         async def buy_coins_func(func_item, func_cost):
@@ -95,7 +99,7 @@ async def buy(self, ctx, item: str = None, num: int = None):
             sql = """UPDATE users SET items = %s, coins = %s WHERE user_id = %s AND guild_id = %s"""
             val = (json.dumps(cur_items), coins_member, ctx.author.id, ctx.guild.id)
 
-            await self.client.database.execute(sql, val)
+            await ctx.bot.database.execute(sql, val)
 
         async def buy_text_channel(func_cost, num):
             cost = func_cost * num
@@ -132,7 +136,7 @@ async def buy(self, ctx, item: str = None, num: int = None):
                 ctx.guild.id,
             )
 
-            await self.client.database.execute(sql, val)
+            await ctx.bot.database.execute(sql, val)
             return prison_state
 
         async def buy_item(item, cost, stacked=False):
@@ -160,12 +164,12 @@ async def buy(self, ctx, item: str = None, num: int = None):
                                 colour=discord.Color.green(),
                             )
                             emb_prison.set_author(
-                                name=self.client.user.name,
-                                icon_url=self.client.user.avatar_url,
+                                name=ctx.bot.user.name,
+                                icon_url=ctx.bot.user.avatar_url,
                             )
                             emb_prison.set_footer(
-                                text=self.FOOTER,
-                                icon_url=self.client.user.avatar_url,
+                                text=FOOTER,
+                                icon_url=ctx.bot.user.avatar_url,
                             )
 
                         emb_cool = discord.Embed(
@@ -173,11 +177,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                             colour=discord.Color.green(),
                         )
                         emb_cool.set_author(
-                            name=self.client.user.name,
-                            icon_url=self.client.user.avatar_url,
+                            name=ctx.bot.user.name,
+                            icon_url=ctx.bot.user.avatar_url,
                         )
                         emb_cool.set_footer(
-                            text=self.FOOTER, icon_url=self.client.user.avatar_url
+                            text=FOOTER, icon_url=ctx.bot.user.avatar_url
                         )
                     elif stack:
                         cur_money = data["money"] - cost
@@ -195,12 +199,12 @@ async def buy(self, ctx, item: str = None, num: int = None):
                                 colour=discord.Color.green(),
                             )
                             emb_prison.set_author(
-                                name=self.client.user.name,
-                                icon_url=self.client.user.avatar_url,
+                                name=ctx.bot.user.name,
+                                icon_url=ctx.bot.user.avatar_url,
                             )
                             emb_prison.set_footer(
-                                text=self.FOOTER,
-                                icon_url=self.client.user.avatar_url,
+                                text=FOOTER,
+                                icon_url=ctx.bot.user.avatar_url,
                             )
 
                         emb_cool = discord.Embed(
@@ -208,11 +212,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                             colour=discord.Color.green(),
                         )
                         emb_cool.set_author(
-                            name=self.client.user.name,
-                            icon_url=self.client.user.avatar_url,
+                            name=ctx.bot.user.name,
+                            icon_url=ctx.bot.user.avatar_url,
                         )
                         emb_cool.set_footer(
-                            text=self.FOOTER, icon_url=self.client.user.avatar_url
+                            text=FOOTER, icon_url=ctx.bot.user.avatar_url
                         )
 
                         sql = """UPDATE users SET items = %s, prison = %s, money = %s WHERE user_id = %s AND guild_id = %s"""
@@ -224,7 +228,7 @@ async def buy(self, ctx, item: str = None, num: int = None):
                             ctx.guild.id,
                         )
 
-                        await self.client.database.execute(sql, val)
+                        await ctx.bot.database.execute(sql, val)
 
                 elif not stacked:
                     state = await buy_func(item, cost)
@@ -234,11 +238,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                             colour=discord.Color.green(),
                         )
                         emb_prison.set_author(
-                            name=self.client.user.name,
-                            icon_url=self.client.user.avatar_url,
+                            name=ctx.bot.user.name,
+                            icon_url=ctx.bot.user.avatar_url,
                         )
                         emb_prison.set_footer(
-                            text=self.FOOTER, icon_url=self.client.user.avatar_url
+                            text=FOOTER, icon_url=ctx.bot.user.avatar_url
                         )
 
                     emb_cool = discord.Embed(
@@ -246,11 +250,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                         colour=discord.Color.green(),
                     )
                     emb_cool.set_author(
-                        name=self.client.user.name,
-                        icon_url=self.client.user.avatar_url,
+                        name=ctx.bot.user.name,
+                        icon_url=ctx.bot.user.avatar_url,
                     )
                     emb_cool.set_footer(
-                        text=self.FOOTER, icon_url=self.client.user.avatar_url
+                        text=FOOTER, icon_url=ctx.bot.user.avatar_url
                     )
             else:
                 if not stacked:
@@ -259,11 +263,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                         colour=discord.Color.green(),
                     )
                     emb_fail.set_author(
-                        name=self.client.user.name,
-                        icon_url=self.client.user.avatar_url,
+                        name=ctx.bot.user.name,
+                        icon_url=ctx.bot.user.avatar_url,
                     )
                     emb_fail.set_footer(
-                        text=self.FOOTER, icon_url=self.client.user.avatar_url
+                        text=FOOTER, icon_url=ctx.bot.user.avatar_url
                     )
                 elif stacked:
                     cur_items = data["items"]
@@ -283,12 +287,12 @@ async def buy(self, ctx, item: str = None, num: int = None):
                                 colour=discord.Color.green(),
                             )
                             emb_prison.set_author(
-                                name=self.client.user.name,
-                                icon_url=self.client.user.avatar_url,
+                                name=ctx.bot.user.name,
+                                icon_url=ctx.bot.user.avatar_url,
                             )
                             emb_prison.set_footer(
-                                text=self.FOOTER,
-                                icon_url=self.client.user.avatar_url,
+                                text=FOOTER,
+                                icon_url=ctx.bot.user.avatar_url,
                             )
 
                         emb_cool = discord.Embed(
@@ -296,11 +300,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                             colour=discord.Color.green(),
                         )
                         emb_cool.set_author(
-                            name=self.client.user.name,
-                            icon_url=self.client.user.avatar_url,
+                            name=ctx.bot.user.name,
+                            icon_url=ctx.bot.user.avatar_url,
                         )
                         emb_cool.set_footer(
-                            text=self.FOOTER, icon_url=self.client.user.avatar_url
+                            text=FOOTER, icon_url=ctx.bot.user.avatar_url
                         )
                     elif stack:
                         cur_money = data["money"] - cost
@@ -318,12 +322,12 @@ async def buy(self, ctx, item: str = None, num: int = None):
                                 colour=discord.Color.green(),
                             )
                             emb_prison.set_author(
-                                name=self.client.user.name,
-                                icon_url=self.client.user.avatar_url,
+                                name=ctx.bot.user.name,
+                                icon_url=ctx.bot.user.avatar_url,
                             )
                             emb_prison.set_footer(
-                                text=self.FOOTER,
-                                icon_url=self.client.user.avatar_url,
+                                text=FOOTER,
+                                icon_url=ctx.bot.user.avatar_url,
                             )
 
                         emb_cool = discord.Embed(
@@ -331,11 +335,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                             colour=discord.Color.green(),
                         )
                         emb_cool.set_author(
-                            name=self.client.user.name,
-                            icon_url=self.client.user.avatar_url,
+                            name=ctx.bot.user.name,
+                            icon_url=ctx.bot.user.avatar_url,
                         )
                         emb_cool.set_footer(
-                            text=self.FOOTER, icon_url=self.client.user.avatar_url
+                            text=FOOTER, icon_url=ctx.bot.user.avatar_url
                         )
 
                         sql = """UPDATE users SET items = %s, prison = %s, money = %s WHERE user_id = %s AND guild_id = %s"""
@@ -347,7 +351,7 @@ async def buy(self, ctx, item: str = None, num: int = None):
                             ctx.guild.id,
                         )
 
-                        await self.client.database.execute(sql, val)
+                        await ctx.bot.database.execute(sql, val)
 
             embeds = [emb_cool, emb_prison, emb_fail]
             return embeds
@@ -434,11 +438,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                             colour=discord.Color.green(),
                         )
                         emb.set_author(
-                            name=self.client.user.name,
-                            icon_url=self.client.user.avatar_url,
+                            name=ctx.bot.user.name,
+                            icon_url=ctx.bot.user.avatar_url,
                         )
                         emb.set_footer(
-                            text=self.FOOTER, icon_url=self.client.user.avatar_url
+                            text=FOOTER, icon_url=ctx.bot.user.avatar_url
                         )
                         await member.send(embed=emb)
                         return
@@ -448,11 +452,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                         colour=discord.Color.green(),
                     )
                     emb.set_author(
-                        name=self.client.user.name,
-                        icon_url=self.client.user.avatar_url,
+                        name=ctx.bot.user.name,
+                        icon_url=ctx.bot.user.avatar_url,
                     )
                     emb.set_footer(
-                        text=self.FOOTER, icon_url=self.client.user.avatar_url
+                        text=FOOTER, icon_url=ctx.bot.user.avatar_url
                     )
                     await ctx.send(embed=emb)
                 else:
@@ -462,11 +466,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                         colour=discord.Color.green(),
                     )
                     emb.set_author(
-                        name=self.client.user.name,
-                        icon_url=self.client.user.avatar_url,
+                        name=ctx.bot.user.name,
+                        icon_url=ctx.bot.user.avatar_url,
                     )
                     emb.set_footer(
-                        text=self.FOOTER, icon_url=self.client.user.avatar_url
+                        text=FOOTER, icon_url=ctx.bot.user.avatar_url
                     )
                     await ctx.send(embed=emb)
                     await ctx.message.add_reaction("❌")
@@ -478,10 +482,10 @@ async def buy(self, ctx, item: str = None, num: int = None):
                     colour=discord.Color.green(),
                 )
                 emb.set_author(
-                    name=self.client.user.name, icon_url=self.client.user.avatar_url
+                    name=ctx.bot.user.name, icon_url=ctx.bot.user.avatar_url
                 )
                 emb.set_footer(
-                    text=self.FOOTER, icon_url=self.client.user.avatar_url
+                    text=FOOTER, icon_url=ctx.bot.user.avatar_url
                 )
                 await ctx.send(embed=emb)
                 await ctx.message.add_reaction("❌")
@@ -497,11 +501,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                             colour=discord.Color.green(),
                         )
                         emb.set_author(
-                            name=self.client.user.name,
-                            icon_url=self.client.user.avatar_url,
+                            name=ctx.bot.user.name,
+                            icon_url=ctx.bot.user.avatar_url,
                         )
                         emb.set_footer(
-                            text=self.FOOTER, icon_url=self.client.user.avatar_url
+                            text=FOOTER, icon_url=ctx.bot.user.avatar_url
                         )
                         await ctx.send(embed=emb)
                     else:
@@ -510,11 +514,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                             colour=discord.Color.green(),
                         )
                         emb.set_author(
-                            name=self.client.user.name,
-                            icon_url=self.client.user.avatar_url,
+                            name=ctx.bot.user.name,
+                            icon_url=ctx.bot.user.avatar_url,
                         )
                         emb.set_footer(
-                            text=self.FOOTER, icon_url=self.client.user.avatar_url
+                            text=FOOTER, icon_url=ctx.bot.user.avatar_url
                         )
                         await ctx.send(embed=emb)
                         return
@@ -525,11 +529,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                         colour=discord.Color.green(),
                     )
                     emb.set_author(
-                        name=self.client.user.name,
-                        icon_url=self.client.user.avatar_url,
+                        name=ctx.bot.user.name,
+                        icon_url=ctx.bot.user.avatar_url,
                     )
                     emb.set_footer(
-                        text=self.FOOTER, icon_url=self.client.user.avatar_url
+                        text=FOOTER, icon_url=ctx.bot.user.avatar_url
                     )
                     await ctx.send(embed=emb)
             else:
@@ -539,10 +543,10 @@ async def buy(self, ctx, item: str = None, num: int = None):
                     colour=discord.Color.green(),
                 )
                 emb.set_author(
-                    name=self.client.user.name, icon_url=self.client.user.avatar_url
+                    name=ctx.bot.user.name, icon_url=ctx.bot.user.avatar_url
                 )
                 emb.set_footer(
-                    text=self.FOOTER, icon_url=self.client.user.avatar_url
+                    text=FOOTER, icon_url=ctx.bot.user.avatar_url
                 )
                 await ctx.send(embed=emb)
                 await ctx.message.add_reaction("❌")
@@ -556,11 +560,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                         colour=discord.Color.green(),
                     )
                     emb.set_author(
-                        name=self.client.user.name,
-                        icon_url=self.client.user.avatar_url,
+                        name=ctx.bot.user.name,
+                        icon_url=ctx.bot.user.avatar_url,
                     )
                     emb.set_footer(
-                        text=self.FOOTER, icon_url=self.client.user.avatar_url
+                        text=FOOTER, icon_url=ctx.bot.user.avatar_url
                     )
                     await ctx.send(embed=emb)
                 else:
@@ -569,11 +573,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                         colour=discord.Color.green(),
                     )
                     emb.set_author(
-                        name=self.client.user.name,
-                        icon_url=self.client.user.avatar_url,
+                        name=ctx.bot.user.name,
+                        icon_url=ctx.bot.user.avatar_url,
                     )
                     emb.set_footer(
-                        text=self.FOOTER, icon_url=self.client.user.avatar_url
+                        text=FOOTER, icon_url=ctx.bot.user.avatar_url
                     )
                     await ctx.send(embed=emb)
                     return
@@ -585,10 +589,10 @@ async def buy(self, ctx, item: str = None, num: int = None):
                     colour=discord.Color.green(),
                 )
                 emb.set_author(
-                    name=self.client.user.name, icon_url=self.client.user.avatar_url
+                    name=ctx.bot.user.name, icon_url=ctx.bot.user.avatar_url
                 )
                 emb.set_footer(
-                    text=self.FOOTER, icon_url=self.client.user.avatar_url
+                    text=FOOTER, icon_url=ctx.bot.user.avatar_url
                 )
                 await ctx.send(embed=emb)
                 return
@@ -685,7 +689,7 @@ async def buy(self, ctx, item: str = None, num: int = None):
         ):
             if num is not None:
                 if num <= 0:
-                    emb = await self.client.utils.create_error_embed(
+                    emb = await ctx.bot.utils.create_error_embed(
                         ctx,
                         "Укажите число покупаемых каналов больше 0!"
                     )
@@ -699,11 +703,11 @@ async def buy(self, ctx, item: str = None, num: int = None):
                         colour=discord.Color.green(),
                     )
                     emb.set_author(
-                        name=self.client.user.name,
-                        icon_url=self.client.user.avatar_url,
+                        name=ctx.bot.user.name,
+                        icon_url=ctx.bot.user.avatar_url,
                     )
                     emb.set_footer(
-                        text=self.FOOTER, icon_url=self.client.user.avatar_url
+                        text=FOOTER, icon_url=ctx.bot.user.avatar_url
                     )
                     await member.send(embed=emb)
                     return
@@ -713,10 +717,10 @@ async def buy(self, ctx, item: str = None, num: int = None):
                     colour=discord.Color.green(),
                 )
                 emb.set_author(
-                    name=self.client.user.name, icon_url=self.client.user.avatar_url
+                    name=ctx.bot.user.name, icon_url=ctx.bot.user.avatar_url
                 )
                 emb.set_footer(
-                    text=self.FOOTER, icon_url=self.client.user.avatar_url
+                    text=FOOTER, icon_url=ctx.bot.user.avatar_url
                 )
                 await ctx.send(embed=emb)
             elif num is None:
@@ -727,10 +731,10 @@ async def buy(self, ctx, item: str = None, num: int = None):
                     colour=discord.Color.green(),
                 )
                 emb.set_author(
-                    name=self.client.user.name, icon_url=self.client.user.avatar_url
+                    name=ctx.bot.user.name, icon_url=ctx.bot.user.avatar_url
                 )
                 emb.set_footer(
-                    text=self.FOOTER, icon_url=self.client.user.avatar_url
+                    text=FOOTER, icon_url=ctx.bot.user.avatar_url
                 )
                 await ctx.send(embed=emb)
                 return
@@ -743,8 +747,8 @@ async def buy(self, ctx, item: str = None, num: int = None):
             colour=discord.Color.green(),
         )
         emb.set_author(
-            name=self.client.user.name, icon_url=self.client.user.avatar_url
+            name=ctx.bot.user.name, icon_url=ctx.bot.user.avatar_url
         )
-        emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+        emb.set_footer(text=FOOTER, icon_url=ctx.bot.user.avatar_url)
         await ctx.send(embed=emb)
         return
