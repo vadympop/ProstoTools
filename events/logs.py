@@ -12,7 +12,10 @@ class EventsLogs(commands.Cog):
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
 		if self.client.is_ready():
-			channel_id = (await self.client.database.sel_guild(guild=before.guild))["log_channel"]
+			try:
+				channel_id = (await self.client.database.sel_guild(guild=before.guild))["log_channel"]
+			except AttributeError:
+				return
 			if channel_id == 0:
 				return
 			channel = self.client.get_channel(channel_id)
