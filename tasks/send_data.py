@@ -57,7 +57,8 @@ class TasksSendData(commands.Cog):
 					"shards": len(self.client.shards),
 					"servers": self.client.shard_count
 				}
-				await requests.post(url=self.sdc_api_url.format(self.client.user.id), json=data, headers=headers)
+				resp = await requests.post(url=self.sdc_api_url.format(self.client.user.id), data=data, headers=headers)
+				print(await resp.text())
 
 
 def setup(client):
