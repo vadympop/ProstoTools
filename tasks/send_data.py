@@ -7,7 +7,9 @@ class TasksSendData(commands.Cog):
 	def __init__(self, client):
 		self.client = client
 		self.api_url = "http://api.prosto-tools.ml/api/"
+		self.sdc_api_url = "https://api.server-discord.com/v2/bots/{0}/stats"
 		self.send_data_loop.start()
+		self.send_sdc_data_loop.start()
 
 	@tasks.loop(hours=12)
 	async def send_data_loop(self):
@@ -43,6 +45,19 @@ class TasksSendData(commands.Cog):
 				"Authorization": os.getenv("BOT_TOKEN")
 			}
 			await requests.post(url=self.api_url + "private/client", json=data, headers=headers)
+
+	@tasks.loop(hours=12)
+	async def send_sdc_data_loop(self):
+		if self.client.is_ready():
+			if os.getenv("SDC_TOKEN") is not None:
+				headers = {
+					"Authorization": os.getenv("SDC_TOKEN")
+				}
+				data = {
+					"shards": len(self.client.shards),
+					"servers": self.client.shard_count
+				}
+				await requests.post(url=self.sdc_api_url.format(self.client.user.id), json=data, headers=headers)
 
 
 def setup(client):
