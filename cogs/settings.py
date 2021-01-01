@@ -10,7 +10,7 @@ class Settings(commands.Cog, name="Settings"):
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.group(
-		help=f"""**Команды групы:** time-delete-channel, purge, shop-role, exp-multi, text-channels-category, log-channel, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels\n\n"""
+		help=f"""**Команды групы:** time-delete-channel, shop-role, exp-multi, text-channels-category, log-channel, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels\n\n"""
 	)
 	@commands.has_permissions(administrator=True)
 	async def setting(self, ctx):

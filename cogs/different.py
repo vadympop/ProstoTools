@@ -564,11 +564,6 @@ class Different(commands.Cog, name="Different"):
 		else:
 			ideachannel = "Не указан"
 
-		if data["purge"] == 1:
-			purge = "Удаления команд включено"
-		elif data["purge"] == 0:
-			purge = "Удаления команд выключено"
-
 		if data["textchannels_category"] != 0:
 			text_category = get(
 				ctx.guild.categories, id=int(data["textchannels_category"])
@@ -653,7 +648,7 @@ class Different(commands.Cog, name="Different"):
 		)
 		emb.add_field(
 			name="Настройки сервера",
-			value=f"**Канал идей:** {ideachannel}\n**Удаления команд:** {purge}\n**Категория приватных текстовых каналов:** {text_category}\n**Максимальное количество предупрежденний:** {max_warns}\n**Время удаления приватного текстового канала:** {time}мин\n**Множитель опыта:** {exp_multi}",
+			value=f"**Канал идей:** {ideachannel}\n**Категория приватных текстовых каналов:** {text_category}\n**Максимальное количество предупрежденний:** {max_warns}\n**Время удаления приватного текстового канала:** {time}мин\n**Множитель опыта:** {exp_multi}",
 			inline=False,
 		)
 

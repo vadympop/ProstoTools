@@ -3,9 +3,7 @@ import json
 import asyncio
 import math
 import datetime
-
-from tools import Commands
-
+import pymysql
 from discord.ext import commands
 from discord.utils import get
 from random import randint
@@ -108,9 +106,10 @@ class EventsLeveling(commands.Cog):
 				message.author.id,
 				message.guild.id,
 			)
-
-			await self.client.database.execute(sql, val)
-
+			try:
+				await self.client.database.execute(sql, val)
+			except pymysql.err.InternalError:
+				pass
 			try:
 				await self.client.wait_for(
 					"message",
