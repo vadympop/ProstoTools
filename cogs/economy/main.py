@@ -1614,6 +1614,8 @@ class Economy(commands.Cog):
 				width = 785
 			elif len(str(percent)) == 3:
 				width = 770
+			else:
+				width = 750
 
 			return width
 
@@ -1626,6 +1628,8 @@ class Economy(commands.Cog):
 				width = 650
 			elif len(str(data)) == 4:
 				width = 610
+			else:
+				width = 580
 
 			return width
 
