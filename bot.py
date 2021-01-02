@@ -84,11 +84,10 @@ class Client(commands.AutoShardedBot):
 		with open(filename, "r", encoding="utf-8") as f:
 			return f.read()
 
-	async def get_guild_prefix(self, ctx):
-		return self.database.get_prefix(guild=ctx.guild)
-
 
 async def get_prefix(client, message):
+	if message.guild is None:
+		return "p."
 	return client.database.get_prefix(guild=message.guild)
 
 

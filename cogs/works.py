@@ -135,7 +135,7 @@ class Works(commands.Cog, name="Works"):
 
 		if not cur_state_pr:
 			if lvl_member >= 2:
-				if cur_items is not None:
+				if cur_items != []:
 					if "metal_1" in cur_items and "metal_2" in cur_items:
 						msg_content = await func_trHunt(20)
 						emb = discord.Embed(

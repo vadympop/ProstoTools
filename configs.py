@@ -14,7 +14,7 @@ class Config:
 	BOT_NAME = 'ProstoTools.exe'
 	BOT_ID = 700767394154414142
 	HELP_SERVER = 'https://discord.gg/6SHKgj43r9'
-	FOOTER_TEXT = 'ProstoTools.exe || Copyright 2020-2020'
+	FOOTER_TEXT = 'ProstoTools.exe || Copyright 2020-2021'
 	MUTE_ROLE = 'PT-MUTED'
 	VMUTE_ROLE = 'PT-VMUTED'
 	SOFTBAN_ROLE = 'PT-SOFT-BANNED'

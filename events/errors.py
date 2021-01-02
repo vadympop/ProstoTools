@@ -14,6 +14,8 @@ class Errors(commands.Cog, name="Errors"):
 
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, error):
+		if ctx.guild is None:
+			return
 		PREFIX = self.client.database.get_prefix(guild=ctx.guild)
 
 		if isinstance(error, commands.errors.CommandOnCooldown):
