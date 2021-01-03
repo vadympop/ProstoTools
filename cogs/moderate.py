@@ -102,8 +102,7 @@ class Moderate(commands.Cog, name="Moderate"):
 								embed=e, file=discord.File(fp=delete_messages_fp)
 							)
 							os.remove(
-								"e:\\PyProg\\ProstoTools"
-								+ delete_messages_fp.replace("/", "\\")[1:]
+								"/home/PROSTO-TOOLS-DiscordBot"+delete_messages_fp[1:]
 							)
 						break
 
