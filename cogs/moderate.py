@@ -71,8 +71,6 @@ class Moderate(commands.Cog, name="Moderate"):
 					number += 1
 					if number >= amount or number >= num_channel_messages:
 						await ctx.channel.delete_messages(delete_messages_objs)
-						if logs_channel_id != 0:
-							self.client.txt_dump(delete_messages_fp, delete_messages)
 						emb = discord.Embed(
 							description=f"** :white_check_mark: Удаленно {number - 1} сообщений**",
 							colour=discord.Color.green(),
@@ -84,6 +82,7 @@ class Moderate(commands.Cog, name="Moderate"):
 						await ctx.send(embed=emb)
 
 						if logs_channel_id != 0:
+							self.client.txt_dump(delete_messages_fp, delete_messages)
 							e = discord.Embed(
 								colour=discord.Color.green(), timestamp=datetime.datetime.utcnow()
 							)

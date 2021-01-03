@@ -97,7 +97,10 @@ class Errors(commands.Cog, name="Errors"):
 
 			error_id = str(uuid.uuid4())
 			await self.client.database.set_error(error_id, repr(error), ctx.command.name)
-			await ctx.message.add_reaction("❌")
+			try:
+				await ctx.message.add_reaction("❌")
+			except:
+				pass
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="**Произошла неизвестная ошибка, обратитесь к моему создателю!**",

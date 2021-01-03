@@ -518,7 +518,15 @@ class Settings(commands.Cog, name="Settings"):
 		description="**Настройка канала аудита**",
 		usage="setting log-channel [Id канала]",
 	)
-	async def set_log_channel(self, ctx, channel: discord.TextChannel):
+	async def set_log_channel(self, ctx, channel: typing.Union[discord.TextChannel, str]):
+		if isinstance(channel, str):
+			if channel in ("off", "-", "0"):
+				sql = """UPDATE guilds SET log_channel = %s WHERE guild_id = %s"""
+				val = (0, ctx.guild.id)
+				await self.client.database.execute(sql, val)
+				await ctx.message.add_reaction("✅")
+				return
+
 		sql = """UPDATE guilds SET log_channel = %s WHERE guild_id = %s"""
 		val = (channel.id, ctx.guild.id)
 		await self.client.database.execute(sql, val)

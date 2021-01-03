@@ -469,7 +469,7 @@ class Different(commands.Cog, name="Different"):
 		)
 		embed1.add_field(
 			name="Полезные ссылки",
-			value=f"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)\n[Сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](http://api.prosto-tools.ml/)\n[Документация](https://vythonlui.gitbook.io/prostotools/)",
+			value=f"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)\n[Сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](http://api.prosto-tools.ml/)\n[Документация](https://vythonlui.gitbook.io/prostotools/)\n[SDC](https://bots.server-discord.com/700767394154414142)\n[Boticord](https://boticord.top/bot/700767394154414142)",
 			inline=False,
 		)
 		embed1.set_thumbnail(url=self.client.user.avatar_url)

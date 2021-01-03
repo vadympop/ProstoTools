@@ -16,12 +16,13 @@ class EventsReactionsCmds(commands.Cog):
 			message = await channel.fetch_message(payload.message_id)
 		except discord.errors.NotFound:
 			return
+		except discord.errors.Forbidden:
+			return
 		member = message.author
 		guild = message.guild
 		if guild:
 			data = await self.client.database.sel_guild(guild=guild)
-
-			if data["auto_mod"]["react_coomands"]:
+			if data["auto_mod"]["react_commands"]:
 				if not author.bot:
 					if author.guild_permissions.administrator:
 						if reaction.name == "❌":

@@ -123,6 +123,8 @@ class EventsLogs(commands.Cog):
 		if channel_id == 0:
 			return
 		channel = self.client.get_channel(channel_id)
+		if len(message.content) > 1000:
+			return
 		e = discord.Embed(
 			colour=discord.Color.green(), timestamp=datetime.datetime.utcnow()
 		)

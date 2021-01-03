@@ -378,7 +378,7 @@ class DB:
 			json.dumps(
 				{
 					"anti_flud": False,
-					"react_coomands": False,
+					"react_commands": False,
 				}
 			),
 			json.dumps([]),
