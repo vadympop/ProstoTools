@@ -537,7 +537,7 @@ class Settings(commands.Cog, name="Settings"):
 		name="auto-reactions",
 		aliases=["autoreactions"],
 		description="**Настройка авто-реакций**",
-		usage="setting auto-reactions |Канал| [set/off]",
+		usage="setting auto-reactions [set/off] |Канал| |Эмодзи|",
 	)
 	async def auto_reactions(self, ctx, action: str, channel: typing.Optional[discord.TextChannel], *, reactions: str = None):
 		auto_reactions = (await self.client.database.sel_guild(guild=ctx.guild))["auto_reactions"]
