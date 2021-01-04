@@ -20,7 +20,7 @@ logger.add(
 extensions = (
 	"cogs.clans",
 	"cogs.different",
-	"cogs.economy.main",
+	"cogs.economy.economy",
 	"cogs.fun.other",
 	"cogs.fun.edit_image",
 	"cogs.fun.random_image",
@@ -44,6 +44,7 @@ extensions = (
 	"events.logs",
 	"events.other",
 	"events.reactions_commands",
+	"events.auto_reactions"
 )
 
 

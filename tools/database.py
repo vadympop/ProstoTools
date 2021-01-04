@@ -367,7 +367,7 @@ class DB:
 	async def sel_guild(self, guild) -> dict:
 		sql_1 = """SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s"""
 		val_1 = (guild.id, guild.id)
-		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, react_channels, welcome, auto_roles) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcome, auto_roles) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 		val_2 = (
 			guild.id,
 			"False",
@@ -385,7 +385,7 @@ class DB:
 			json.dumps({}),
 			json.dumps({}),
 			json.dumps([]),
-			json.dumps([]),
+			json.dumps({}),
 			json.dumps({}),
 			json.dumps({}),
 		)
@@ -428,7 +428,7 @@ class DB:
 			"auto_mod": json.loads(data[16]),
 			"clans": json.loads(data[17]),
 			"moder_roles": json.loads(data[18]),
-			"react_channels": json.loads(data[19]),
+			"auto_reactions": json.loads(data[19]),
 			"welcome": json.loads(data[20]),
 			"auto_roles": json.loads(data[21]),
 		}

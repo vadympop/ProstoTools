@@ -20,7 +20,7 @@ class EventsLeveling(commands.Cog):
 	async def on_message(self, message):
 		if message.author.bot:
 			return
-		elif not message.guild:
+		elif message.guild is None:
 			return
 		else:
 			role = get(message.guild.roles, name=self.MUTE_ROLE)
@@ -29,10 +29,6 @@ class EventsLeveling(commands.Cog):
 
 			guild_data = await self.client.database.sel_guild(guild=message.guild)
 			data = await self.client.database.sel_user(target=message.author)
-
-			if message.channel.id in guild_data["react_channels"]:
-				await message.add_reaction("👍")
-				await message.add_reaction("👎")
 
 			all_message = guild_data["all_message"]
 			guild_moder_settings = guild_data["auto_mod"]

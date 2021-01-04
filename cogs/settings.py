@@ -532,6 +532,59 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.execute(sql, val)
 		await ctx.message.add_reaction("✅")
 
+	@setting.command(
+		hidden=True,
+		name="auto-reactions",
+		aliases=["autoreactions"],
+		description="**Настройка авто-реакций**",
+		usage="setting auto-reactions |Канал| [set/off]",
+	)
+	async def auto_reactions(self, ctx, action: str, channel: typing.Optional[discord.TextChannel], *, reactions: str = None):
+		auto_reactions = (await self.client.database.sel_guild(guild=ctx.guild))["auto_reactions"]
+		if action.lower() == "set":
+			if reactions is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите эмодзи!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if channel is None:
+				channel = ctx.channel
+
+			emojis = [emoji for emoji in reactions.split(" ") if emoji]
+			auto_reactions.update({channel.id: emojis})
+			await self.client.database.execute(
+				"""UPDATE guilds SET auto_reactions = %s WHERE guild_id = %s""",
+				(json.dumps(auto_reactions), ctx.guild.id)
+			)
+			await ctx.message.add_reaction("✅")
+			return
+		elif action.lower() == "off":
+			if channel is None:
+				channel = ctx.channel
+
+			try:
+				auto_reactions.pop(str(channel.id))
+			except KeyError:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Для указаного канала авто-реакции не настроены!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			await self.client.database.execute(
+				"""UPDATE guilds SET auto_reactions = %s WHERE guild_id = %s""",
+				(json.dumps(auto_reactions), ctx.guild.id)
+			)
+			await ctx.message.add_reaction("✅")
+			return
+		else:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Укажите одно из этих действий: set, off"
+			)
+			await ctx.send(embed=emb)
+
 
 def setup(client):
 	client.add_cog(Settings(client))
