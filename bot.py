@@ -92,8 +92,17 @@ async def get_prefix(client, message):
 	return client.database.get_prefix(guild=message.guild)
 
 
+base_intents = discord.Intents.none()
+base_intents.guilds = True
+base_intents.members = True
+base_intents.bans = True
+base_intents.emojis = True
+base_intents.voice_states = True
+base_intents.presences = True
+base_intents.guild_messages = True
+base_intents.guild_reactions = True
 client = Client(
-	command_prefix=get_prefix, case_insensitive=True, intents=discord.Intents.all()
+	command_prefix=get_prefix, case_insensitive=True, intents=base_intents
 )
 temp_eng.client = client
 
