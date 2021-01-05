@@ -72,7 +72,7 @@ class Moderate(commands.Cog, name="Moderate"):
 					if number >= amount or number >= num_channel_messages:
 						await ctx.channel.delete_messages(delete_messages_objs)
 						emb = discord.Embed(
-							description=f"** :white_check_mark: Удаленно {number - 1} сообщений**",
+							description=f"** :white_check_mark: Удаленно {number} сообщений**",
 							colour=discord.Color.green(),
 						)
 						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
