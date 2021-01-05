@@ -15,7 +15,7 @@ class TasksSendData(commands.Cog):
 
 	@tasks.loop(hours=12)
 	async def send_data_loop(self):
-		if self.client.is_ready():
+		if len(self.client.guilds) > 0:
 			data = {
 				"guilds": [guild.id for guild in self.client.guilds],
 				"users": [user.id for user in self.client.users],
@@ -50,7 +50,7 @@ class TasksSendData(commands.Cog):
 
 	@tasks.loop(hours=12)
 	async def send_sdc_data_loop(self):
-		if self.client.is_ready():
+		if len(self.client.guilds) > 0:
 			if os.getenv("SDC_TOKEN") is not None:
 				headers = {
 					"Authorization": f"SDC {os.getenv('SDC_TOKEN')}"
@@ -63,7 +63,7 @@ class TasksSendData(commands.Cog):
 
 	@tasks.loop(hours=12)
 	async def send_boticord_data_loop(self):
-		if self.client.is_ready():
+		if len(self.client.guilds) > 0:
 			if os.getenv("BOTICORD_TOKEN") is not None:
 				headers = {
 					"Authorization": os.getenv('BOTICORD_TOKEN')
@@ -73,7 +73,6 @@ class TasksSendData(commands.Cog):
 					self.client.shard_count,
 					len(self.client.users)
 				), headers=headers)
-				print(resp.status)
 
 
 def setup(client):
