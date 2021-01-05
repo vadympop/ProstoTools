@@ -104,7 +104,7 @@ class Help(commands.Cog, name="Help"):
 					add_command_field(emb, c)
 
 		emb_2 = discord.Embed(
-			title=f"Категория команд - {cogs_aliases[cog_name]}",
+			title=f"Категория команд - {cogs_aliases[cog_name.lower()]}",
 			description="[Пример] - требуется, |Пример| - необязательно",
 			colour=discord.Color.green(),
 		)
