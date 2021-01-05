@@ -19,7 +19,10 @@ class Errors(commands.Cog, name="Errors"):
 		PREFIX = self.client.database.get_prefix(guild=ctx.guild)
 
 		if isinstance(error, commands.errors.CommandOnCooldown):
-			await ctx.message.add_reaction("❌")
+			try:
+				await ctx.message.add_reaction("❌")
+			except:
+				pass
 			retry_after = error.retry_after
 			if retry_after < 60:
 				emb = discord.Embed(
@@ -54,7 +57,10 @@ class Errors(commands.Cog, name="Errors"):
 		elif isinstance(error, commands.errors.CommandNotFound):
 			pass
 		elif isinstance(error, commands.errors.NotOwner):
-			await ctx.message.add_reaction("❌")
+			try:
+				await ctx.message.add_reaction("❌")
+			except:
+				pass
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="**Вы неявляетесь создателем бота! Эта команда только для создателей!**",
