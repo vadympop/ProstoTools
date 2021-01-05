@@ -108,8 +108,8 @@ class Help(commands.Cog, name="Help"):
 			description="[Пример] - требуется, |Пример| - необязательно",
 			colour=discord.Color.green(),
 		)
-		for c in self.client.get_cog(cogs_aliases[cog_name]).get_commands():
-			if self.client.get_cog(cogs_aliases[cog_name]).qualified_name.lower() in groups:
+		for c in self.client.get_cog(cogs_aliases[cog_name.lower()]).get_commands():
+			if self.client.get_cog(cogs_aliases[cog_name.lower()]).qualified_name.lower() in groups:
 				for command in c.commands:
 					check_command_permissions(emb_2, command)
 			else:
