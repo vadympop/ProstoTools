@@ -394,7 +394,6 @@ class DB:
 			async with conn.cursor() as cur:
 				await cur.execute(sql_1, val_1)
 				data = await cur.fetchone()
-				print(data)
 
 				if data is None:
 					await cur.execute(sql_2, val_2)
