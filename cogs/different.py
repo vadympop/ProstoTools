@@ -82,7 +82,7 @@ class Different(commands.Cog, name="Different"):
 				return
 		elif action == "list":
 			data = await self.client.database.get_reminder(target=ctx.author)
-			if data != []:
+			if data != ():
 				reminders = "\n\n".join(
 					f"**Id - {reminder[0]}**\n**Текст:** `{reminder[5]}`, **Действует до:** `{str(datetime.datetime.fromtimestamp(float(reminder[4])))}`"
 					for reminder in data
@@ -105,9 +105,12 @@ class Different(commands.Cog, name="Different"):
 				if type_time.isdigit():
 					state = await self.client.database.del_reminder(ctx.author, int(type_time))
 					if state:
-						emb = await self.client.utils.create_error_embed(
-							ctx, f"**Напоминания #{type_time} было успешно удалено**"
+						emb = discord.Embed(
+							description=f"**Напоминания #{type_time} было успешно удалено**",
+							colour=discord.Color.green(),
 						)
+						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 						await ctx.send(embed=emb)
 						return
 					else:

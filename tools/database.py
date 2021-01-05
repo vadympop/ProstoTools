@@ -88,6 +88,7 @@ class DB:
 					f"""SELECT * FROM reminders WHERE guild_id = {member.guild.id}"""
 				)
 				reminders = await cur.fetchall()
+				state = False
 				for reminder in reminders:
 					if reminder[0] == reminder_id:
 						if reminder[1] == member.id:
@@ -98,7 +99,6 @@ class DB:
 							await conn.commit()
 							state = True
 							break
-				state = False
 		return state
 
 	async def set_warn(self, **kwargs) -> int:
