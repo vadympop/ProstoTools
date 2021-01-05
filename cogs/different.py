@@ -4,7 +4,6 @@ import discord
 import sanic
 import requests
 import psutil as ps
-from Cybernator import Paginator
 from discord.ext import commands
 from discord.utils import get
 from random import randint
@@ -15,6 +14,23 @@ class Different(commands.Cog, name="Different"):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
 		self.HELP_SERVER = self.client.config.HELP_SERVER
+
+	def bytes_to_human(self, number, typer=None):
+		if typer == "system":
+			symbols = ("KБ", "МБ", "ГБ", "TБ", "ПБ", "ЭБ", "ЗБ", "ИБ")
+		else:
+			symbols = ("K", "M", "G", "T", "P", "E", "Z", "Y")
+
+		prefix = {}
+		for i, s in enumerate(symbols):
+			prefix[s] = 1 << (i + 1) * 10
+
+		for s in reversed(symbols):
+			if number >= prefix[s]:
+				value = float(number) / prefix[s]
+				return "%.1f%s" % (value, s)
+
+		return f"{number}B"
 
 	@commands.command(
 		name="reminder",
@@ -422,130 +438,102 @@ class Different(commands.Cog, name="Different"):
 		aliases=["botinfo", "infobot", "bot-info", "about", "bot"],
 		usage="info-bot",
 		description="Подробная информация о боте",
-		help="**Примеры использования:**\n1. {Prefix}info-bot\n\n**Пример 1:** Покажет информацию обо мне",
+		help="**Примеры использования:**\n1. {Prefix}info-bot\n2. {Prefix}info-bot system\n\n**Пример 1:** Покажет информацию обо мне\n**Пример 2:** Покажет информацию о моей системе",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def bot(self, ctx):
-		def bytes2human(number, typer=None):
-			if typer == "system":
-				symbols = ("KБ", "МБ", "ГБ", "TБ", "ПБ", "ЭБ", "ЗБ", "ИБ")
-			else:
-				symbols = ("K", "M", "G", "T", "P", "E", "Z", "Y")
+	async def bot(self, ctx, action: str = None):
+		if action != "system":
+			commands_count = (await self.client.database.execute(
+				query="""SELECT count FROM bot_stats WHERE entity = 'all commands' ORDER BY count DESC LIMIT 1""",
+				fetchone=True,
+			))[0]
+			embed1 = discord.Embed(
+				title=f"{self.client.user.name}#{self.client.user.discriminator}",
+				description=f"Информация о боте **{self.client.user.name}**.\nМного-функциональный бот со своей экономикой, кланами и системой модерации!",
+				color=discord.Color.green(),
+			)
+			embed1.add_field(
+				name="Создатель бота:", value="Mr. Kola#0684, 𝚅𝚢𝚝𝚑𝚘𝚗.𝚕𝚞𝚒#9339", inline=False
+			)
+			embed1.add_field(
+				name="Проект был созданн с помощью:",
+				value=f"discord.py, sanic\ndiscord.py: {discord.__version__}, sanic: {sanic.__version__}",
+				inline=False,
+			)
+			embed1.add_field(
+				name="Статистика:",
+				value=f"Участников: {len(self.client.users)}, Серверов: {len(self.client.guilds)}, Шардов: {self.client.shard_count}\nОбработано команд: {commands_count}",
+				inline=False,
+			)
+			embed1.add_field(
+				name="Uptime:",
+				value=str(datetime.datetime.now()-self.client.launched_at),
+				inline=False
+			)
+			embed1.add_field(
+				name="Полезные ссылки",
+				value=f"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)\n[Сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](http://api.prosto-tools.ml/)\n[Документация](https://vythonlui.gitbook.io/prostotools/)\n[SDC](https://bots.server-discord.com/700767394154414142)\n[Boticord](https://boticord.top/bot/700767394154414142)",
+				inline=False,
+			)
+			embed1.set_thumbnail(url=self.client.user.avatar_url)
+			embed1.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=embed1)
+		else:
+			mem = ps.virtual_memory()
+			ping = self.client.latency
 
-			prefix = {}
-			for i, s in enumerate(symbols):
-				prefix[s] = 1 << (i + 1) * 10
+			ping_emoji = "🟩🔳🔳🔳🔳"
+			ping_list = [
+				{"ping": 0.00000000000000000, "emoji": "🟩🔳🔳🔳🔳"},
+				{"ping": 0.10000000000000000, "emoji": "🟧🟩🔳🔳🔳"},
+				{"ping": 0.15000000000000000, "emoji": "🟥🟧🟩🔳🔳"},
+				{"ping": 0.20000000000000000, "emoji": "🟥🟥🟧🟩🔳"},
+				{"ping": 0.25000000000000000, "emoji": "🟥🟥🟥🟧🟩"},
+				{"ping": 0.30000000000000000, "emoji": "🟥🟥🟥🟥🟧"},
+				{"ping": 0.35000000000000000, "emoji": "🟥🟥🟥🟥🟥"},
+			]
+			for ping_one in ping_list:
+				if ping <= ping_one["ping"]:
+					ping_emoji = ping_one["emoji"]
+					break
 
-			for s in reversed(symbols):
-				if number >= prefix[s]:
-					value = float(number) / prefix[s]
-					return "%.1f%s" % (value, s)
-
-			return f"{number}B"
-
-		commands_count = (await self.client.database.execute(
-			query="""SELECT count FROM bot_stats WHERE entity = 'all commands' ORDER BY count DESC LIMIT 1""",
-			fetchone=True,
-		))[0]
-		embed1 = discord.Embed(
-			title=f"{self.client.user.name}#{self.client.user.discriminator}",
-			description=f"Информация о боте **{self.client.user.name}**.\nМного-функциональный бот со своей экономикой, кланами и системой модерации!",
-			color=discord.Color.green(),
-		)
-		embed1.add_field(
-			name="Создатель бота:", value="Mr. Kola#0684, 𝚅𝚢𝚝𝚑𝚘𝚗.𝚕𝚞𝚒#9339", inline=False
-		)
-		embed1.add_field(
-			name="Проект был созданн с помощью:",
-			value=f"discord.py, sanic\ndiscord.py: {discord.__version__}, sanic: {sanic.__version__}",
-			inline=False,
-		)
-		embed1.add_field(
-			name="Статистика:",
-			value=f"Участников: {len(self.client.users)}, Серверов: {len(self.client.guilds)}, Шардов: {self.client.shard_count}\nОбработано команд: {commands_count}",
-			inline=False,
-		)
-		embed1.add_field(
-			name="Uptime:",
-			value=str(datetime.datetime.now()-self.client.launched_at),
-			inline=False
-		)
-		embed1.add_field(
-			name="Полезные ссылки",
-			value=f"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)\n[Сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](http://api.prosto-tools.ml/)\n[Документация](https://vythonlui.gitbook.io/prostotools/)\n[SDC](https://bots.server-discord.com/700767394154414142)\n[Boticord](https://boticord.top/bot/700767394154414142)",
-			inline=False,
-		)
-		embed1.set_thumbnail(url=self.client.user.avatar_url)
-		embed1.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-
-		mem = ps.virtual_memory()
-		ping = self.client.latency
-
-		ping_emoji = "🟩🔳🔳🔳🔳"
-		ping_list = [
-			{"ping": 0.00000000000000000, "emoji": "🟩🔳🔳🔳🔳"},
-			{"ping": 0.10000000000000000, "emoji": "🟧🟩🔳🔳🔳"},
-			{"ping": 0.15000000000000000, "emoji": "🟥🟧🟩🔳🔳"},
-			{"ping": 0.20000000000000000, "emoji": "🟥🟥🟧🟩🔳"},
-			{"ping": 0.25000000000000000, "emoji": "🟥🟥🟥🟧🟩"},
-			{"ping": 0.30000000000000000, "emoji": "🟥🟥🟥🟥🟧"},
-			{"ping": 0.35000000000000000, "emoji": "🟥🟥🟥🟥🟥"},
-		]
-		for ping_one in ping_list:
-			if ping <= ping_one["ping"]:
-				ping_emoji = ping_one["emoji"]
-				break
-
-		embed2 = discord.Embed(title="Статистика Бота", color=discord.Color.green())
-		embed2.add_field(
-			name="Использование CPU",
-			value=f"В настоящее время используется: {ps.cpu_percent()}%",
-			inline=True,
-		)
-		embed2.add_field(
-			name="Использование RAM",
-			value=f'Доступно: {bytes2human(mem.available, "system")}\nИспользуется: {bytes2human(mem.used, "system")} ({mem.percent}%)\nВсего: {bytes2human(mem.total, "system")}',
-			inline=True,
-		)
-		embed2.add_field(
-			name="Пинг Бота",
-			value=f"Пинг: {ping * 1000:.0f}ms\n`{ping_emoji}`",
-			inline=True,
-		)
-
-		for disk in ps.disk_partitions():
-			usage = ps.disk_usage(disk.mountpoint)
-			embed2.add_field(name="‎‎‎‎", value=f"```{disk.device}```", inline=False)
+			embed2 = discord.Embed(title="Статистика Бота", color=discord.Color.green())
 			embed2.add_field(
-				name="Всего на диске",
-				value=bytes2human(usage.total, "system"),
+				name="Использование CPU",
+				value=f"В настоящее время используется: {ps.cpu_percent()}%",
 				inline=True,
 			)
 			embed2.add_field(
-				name="Свободное место на диске",
-				value=bytes2human(usage.free, "system"),
+				name="Использование RAM",
+				value=f'Доступно: {self.bytes_to_human(mem.available, "system")}\nИспользуется: {self.bytes_to_human(mem.used, "system")} ({mem.percent}%)\nВсего: {self.bytes_to_human(mem.total, "system")}',
 				inline=True,
 			)
 			embed2.add_field(
-				name="Используемое дисковое пространство",
-				value=bytes2human(usage.used, "system"),
+				name="Пинг Бота",
+				value=f"Пинг: {ping * 1000:.0f}ms\n`{ping_emoji}`",
 				inline=True,
 			)
 
-		embeds = [embed1, embed2]
-		message = await ctx.send(embed=embed1)
-		page = Paginator(
-			self.client,
-			message,
-			only=ctx.author,
-			use_more=False,
-			embeds=embeds,
-			language="ru",
-			timeout=120,
-			use_exit=True,
-			delete_message=False,
-		)
-		await page.start()
+			for disk in ps.disk_partitions():
+				usage = ps.disk_usage(disk.mountpoint)
+				embed2.add_field(name="‎‎‎‎", value=f"```{disk.device}```", inline=False)
+				embed2.add_field(
+					name="Всего на диске",
+					value=self.bytes_to_human(usage.total, "system"),
+					inline=True,
+				)
+				embed2.add_field(
+					name="Свободное место на диске",
+					value=self.bytes_to_human(usage.free, "system"),
+					inline=True,
+				)
+				embed2.add_field(
+					name="Используемое дисковое пространство",
+					value=self.bytes_to_human(usage.used, "system"),
+					inline=True,
+				)
+			await ctx.send(embed=embed2)
+
 
 	@commands.command(
 		aliases=["server", "serverinfo", "guild", "guildinfo", "guild-info"],

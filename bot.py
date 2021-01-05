@@ -107,6 +107,19 @@ client = Client(
 temp_eng.client = client
 
 
+def start_bot():
+	for extension in extensions:
+		try:
+			client.load_extension(extension)
+		except Exception as e:
+			raise e
+			logger.error(
+				f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension}"
+			)
+		else:
+			logger.info(f"[PT-SYSTEM-COG]:::{extension} - Loaded")
+
+
 @client.command()
 @commands.is_owner()
 async def load(ctx, extension):
@@ -149,15 +162,6 @@ async def reload(ctx, extension):
 
 
 if __name__ == "__main__":
-	for extension in extensions:
-		try:
-			client.load_extension(extension)
-		except Exception as e:
-			raise e
-			logger.error(
-				f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension}"
-			)
-		else:
-			logger.info(f"[PT-SYSTEM-COG]:::{extension} - Loaded")
+	start_bot()
 	client.add_command(buy)
 	client.run(client.config.TOKEN)
