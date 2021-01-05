@@ -65,7 +65,7 @@ class Settings(commands.Cog, name="Settings"):
 
 			cur_roles.append(role.id)
 			emb = discord.Embed(
-				description=f"**Вы успешно добавили новую роль модератора! Добавлённая роль - `{role.name}`**",
+				description=f"**Вы успешно добавили новую роль модератора! Добавленная роль - `{role.name}`**",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
@@ -519,13 +519,12 @@ class Settings(commands.Cog, name="Settings"):
 		usage="setting log-channel [Id канала]",
 	)
 	async def set_log_channel(self, ctx, channel: typing.Union[discord.TextChannel, str]):
-		if isinstance(channel, str):
-			if channel in ("off", "-", "0"):
-				sql = """UPDATE guilds SET log_channel = %s WHERE guild_id = %s"""
-				val = (0, ctx.guild.id)
-				await self.client.database.execute(sql, val)
-				await ctx.message.add_reaction("✅")
-				return
+		if channel in ("off", "-", "0"):
+			sql = """UPDATE guilds SET log_channel = %s WHERE guild_id = %s"""
+			val = (0, ctx.guild.id)
+			await self.client.database.execute(sql, val)
+			await ctx.message.add_reaction("✅")
+			return
 
 		sql = """UPDATE guilds SET log_channel = %s WHERE guild_id = %s"""
 		val = (channel.id, ctx.guild.id)
