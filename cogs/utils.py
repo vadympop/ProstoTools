@@ -309,7 +309,7 @@ class Utils(commands.Cog, name="Utils"):
 	async def mutes(self, ctx):
 		data = await self.client.database.get_mutes(ctx.guild.id)
 
-		if data != []:
+		if data != ():
 			mutes = "\n\n".join(
 				f"**Пользователь:** `{ctx.guild.get_member(mute[1])}`, **Причина:** `{mute[3]}`\n**Автор:** {str(ctx.guild.get_member(mute[6]))}, **Время мьюта:** `{mute[5]}`\n**Активный до**: `{mute[4]}`"
 				for mute in data
