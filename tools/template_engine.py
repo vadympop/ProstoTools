@@ -1,22 +1,44 @@
 import discord
 import math
-
-from . import DB
+import random
+import asyncio
+from jinja2 import Template
+from asyncinit import asyncinit
 
 client = None
 
 
-class Attributes:
-	__slots__ = "_attrs"
-
-	def __init__(self, attrs):
-		self._attrs = list(attrs)
-
-	def __str__(self):
-		return self._attrs
-
-	def get(self, key):
-		return self._attrs[key]
+async def render(message, member, data, render_text):
+	template = Template(render_text, autoescape=False)
+	context = {
+		"member": Member(member, data),
+		"guild": await Guild(member.guild),
+		"channel": Channel(message.channel),
+		"bot": User(client.user),
+		"message": await Message(message),
+		"len": len,
+		"math": math,
+		"round": round,
+		"random": random,
+		"list": list,
+		"int": int,
+		"dict": dict,
+		"str": str,
+		"upper": lambda msg: msg.upper(),
+		"lower": lambda msg: msg.lower(),
+		"capitalize": lambda msg: msg.capitalize(),
+		"format": lambda msg, **args: msg.format(args),
+		"split": lambda msg, sdata: msg.split(sdata),
+		"join": lambda msg, value: msg.join(value),
+		"reverse": lambda msg: msg[::-1],
+		"keys": lambda msg: msg.keys(),
+		"items": lambda msg: msg.items(),
+		"values": lambda msg: msg.values(),
+		"replace": lambda msg, old, new: msg.replace(old, new),
+		"contains": lambda msg, word: True if word in msg.split(" ") else False,
+	}
+	result = template.render(context)
+	return result
 
 
 class Rank:
@@ -196,6 +218,7 @@ class Member(User):
 			return False
 
 
+@asyncinit
 class Guild:
 	__slots__ = (
 		"id",
@@ -211,9 +234,9 @@ class Guild:
 		"__databasedataofmember",
 	)
 
-	def __init__(self, data):
-		self.exp_multiplier = DB().sel_guild(data)["exp_multi"]
-		self.__databasedataofmember = DB().sel_user(data.owner)
+	async def __init__(self, data):
+		self.exp_multiplier = (await client.database.sel_guild(data))["exp_multi"]
+		self.__databasedataofmember = await client.database.sel_user(data.owner)
 		self.__databasedataofmember.update({"multi": self.exp_multiplier})
 		self._region_emojis = {
 			"us_west": ":flag_us: — Запад США",
@@ -231,6 +254,7 @@ class Guild:
 			"brazil": ":flag_br: — Бразилия",
 			"india": ":flag_in: — Индия",
 			"hongkong": ":flag_hk: — Гонконг",
+			"europe": ":flag_eu: - Европа"
 		}
 
 		self.id = data.id
@@ -248,9 +272,9 @@ class Guild:
 	def get_channel(self, id: int) -> Channel:
 		return Channel(client.get_channel(id))
 
-	def get_member(self, id: int) -> Member:
+	async def get_member(self, id: int) -> Member:
 		member = client.get_guild(self.id).get_member(id)
-		db_member = DB().sel_user(member)
+		db_member = await client.database.sel_user(member)
 		db_member.update({"multi": self.exp_multiplier})
 		return Member(member, db_member)
 
@@ -258,6 +282,7 @@ class Guild:
 		return Role(client.get_guild(self.id).get_role(id))
 
 
+@asyncinit
 class Message:
 	__slots__ = (
 		"id",
@@ -270,9 +295,9 @@ class Message:
 		"jump_url",
 	)
 
-	def __init__(self, data):
-		self.guild = Guild(data.guild)
-		self.__databasedataofmember = DB().sel_user(data.author)
+	async def __init__(self, data):
+		self.guild = await Guild(data.guild)
+		self.__databasedataofmember = await client.database.sel_user(data.author)
 		self.__databasedataofmember.update({"multi": self.guild.exp_multiplier})
 
 		self.id = data.id

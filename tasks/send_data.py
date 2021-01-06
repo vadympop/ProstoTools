@@ -1,4 +1,5 @@
 import os
+import json
 from tools.http import async_requests as requests
 from discord.ext import commands, tasks
 
@@ -8,7 +9,7 @@ class TasksSendData(commands.Cog):
 		self.client = client
 		self.api_url = "http://api.prosto-tools.ml/api/"
 		self.sdc_api_url = "https://api.server-discord.com/v2/bots/{0}/stats"
-		self.boticord_api_url = "https://boticord.top/api/stats?servers={0}&shards={1}&users={2}"
+		self.boticord_api_url = "https://boticord.top/api/stats"
 		self.send_data_loop.start()
 		self.send_sdc_data_loop.start()
 		self.send_boticord_data_loop.start()
@@ -68,11 +69,13 @@ class TasksSendData(commands.Cog):
 				headers = {
 					"Authorization": os.getenv('BOTICORD_TOKEN')
 				}
-				resp = await requests.get(url=self.boticord_api_url.format(
-					len(self.client.guilds),
-					self.client.shard_count,
-					len(self.client.users)
-				), headers=headers)
+				data = {
+					"shards": self.client.shard_count,
+					"servers": len(self.client.guilds),
+					"users": len(self.client.users)
+				}
+				resp = await requests.post(url=self.boticord_api_url, body=json.dumps(data), headers=headers)
+				print(await resp.json())
 
 
 def setup(client):

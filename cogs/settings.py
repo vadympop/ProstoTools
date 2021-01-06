@@ -10,7 +10,7 @@ class Settings(commands.Cog, name="Settings"):
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.group(
-		help=f"""**Команды групы:** time-delete-channel, shop-role, exp-multi, text-channels-category, log-channel, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels\n\n"""
+		help=f"""**Команды групы:** time-delete-channel, shop-role, exp-multi, text-channels-category, log-channel, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions\n\n"""
 	)
 	@commands.has_permissions(administrator=True)
 	async def setting(self, ctx):
@@ -256,16 +256,10 @@ class Settings(commands.Cog, name="Settings"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif cl_add != "clear" and cl_add != "add":
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Вы не правильно указали действие!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Укажите одно из этих действий: add, clear, delete!**",
 			)
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
-			return
 
 		sql = (
 			"""UPDATE guilds SET shop_list = %s WHERE guild_id = %s AND guild_id = %s"""
@@ -581,6 +575,173 @@ class Settings(commands.Cog, name="Settings"):
 		else:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Укажите одно из этих действий: set, off"
+			)
+			await ctx.send(embed=emb)
+
+	@setting.command(
+		hidden=True,
+		name="custom-command",
+		aliases=["customcommand", "custom-commands", "customcommands"],
+		description="**Настройка кастомных команд**",
+		usage="setting custom-command [add/edit/delete/show/list] [Названия команды] |Код команды|",
+	)
+	async def custom_command(self, ctx, action: str, command_name: str = None, *, command_text: str = None):
+		custom_commands = (await self.client.database.sel_guild(guild=ctx.guild))["custom_commands"]
+		if action.lower() == "add":
+			if command_name is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите названия команды!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if command_name in custom_commands.keys():
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаная команда уже есть в списке команд!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if command_text is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите код к команде!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if len(custom_commands.keys()) > 20:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Вы достигли ограничения(20 команд)!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if len(command_text) > 1000:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаный код слишком большой(Максимум 1000 символов)!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			custom_commands.update({command_name: command_text})
+			await self.client.database.execute(
+				f"""UPDATE guilds SET custom_commands = %s WHERE guild_id = %s""",
+				(json.dumps(custom_commands), ctx.guild.id)
+			)
+
+			emb = discord.Embed(
+				description=f"**Успешно созданна новая команда - `{command_name}`**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+		elif action.lower() == "show":
+			if command_name is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите названия команды!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if command_name not in custom_commands.keys():
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаной команды не существует!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			emb = discord.Embed(
+				title=f"Информация о кастомной команде - `{command_name}`",
+				description=f"Код команды:\n```{custom_commands[command_name]}```",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+		elif action.lower() == "delete":
+			if command_name is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите названия команды!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if command_name not in custom_commands.keys():
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаной команды не существует!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			custom_commands.pop(command_name)
+			await self.client.database.execute(
+				f"""UPDATE guilds SET custom_commands = %s WHERE guild_id = %s""",
+				(json.dumps(custom_commands), ctx.guild.id)
+			)
+
+			emb = discord.Embed(
+				description=f"**Команда - `{command_name}` успешно удаленна**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+		elif action.lower() == "edit":
+			if command_name is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите названия команды!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if command_name not in custom_commands.keys():
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаной команды не существует!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if command_text is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите код к команде!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if len(command_text) > 1000:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаный код слишком большой(Максимум 1000 символов)!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if command_text == custom_commands[command_name]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Вы должны указать новый код отличающийся от старого!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			custom_commands.update({command_name: command_text})
+			await self.client.database.execute(
+				f"""UPDATE guilds SET custom_commands = %s WHERE guild_id = %s""",
+				(json.dumps(custom_commands), ctx.guild.id)
+			)
+		elif action.lower() == "list":
+			commands = ("\n".join([f"`{command}`" for command in custom_commands.keys()])
+						if custom_commands != {} else "На сервере ещё нет кастомных команд")
+			emb = discord.Embed(
+				title="Кастомные команды сервера",
+				description=commands,
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+		else:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Укажите одно из этих действий: add, delete, edit, show, list!**",
 			)
 			await ctx.send(embed=emb)
 

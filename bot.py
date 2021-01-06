@@ -44,7 +44,8 @@ extensions = (
 	"events.logs",
 	"events.other",
 	"events.reactions_commands",
-	"events.auto_reactions"
+	"events.auto_reactions",
+	"events.custom_commands"
 )
 
 
@@ -61,6 +62,8 @@ class Client(commands.AutoShardedBot):
 		self.utils = Utils(client=self)
 		self.random_api = RandomAPI()
 		self.support_commands = Commands(client=self)
+		self.template_engine = temp_eng
+		self.template_engine.client = self
 
 	async def on_ready(self):
 		logger.info(
@@ -104,7 +107,6 @@ base_intents.guild_reactions = True
 client = Client(
 	command_prefix=get_prefix, case_insensitive=True, intents=base_intents
 )
-temp_eng.client = client
 
 
 def start_bot():

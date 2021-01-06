@@ -16,6 +16,7 @@ class TasksOther(commands.Cog):
 	@tasks.loop(seconds=30)
 	async def reminders_loop(self):
 		for reminder in await self.client.database.get_reminder():
+			print(reminder)
 			reminder_time = reminder[4]
 			guild = self.client.get_guild(int(reminder[2]))
 			if guild is not None:
@@ -30,6 +31,7 @@ class TasksOther(commands.Cog):
 					name=self.client.user.name, icon_url=self.client.user.avatar_url
 				)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				print(reminder_time, time.time())
 				if float(reminder_time) <= float(time.time()):
 					await self.client.database.del_reminder(member, reminder[0])
 					if member is not None and channel is not None:

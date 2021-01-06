@@ -367,7 +367,7 @@ class DB:
 	async def sel_guild(self, guild) -> dict:
 		sql_1 = """SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s"""
 		val_1 = (guild.id, guild.id)
-		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcome, auto_roles) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcome, auto_roles, custom_commands) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 		val_2 = (
 			guild.id,
 			"False",
@@ -385,6 +385,7 @@ class DB:
 			json.dumps({}),
 			json.dumps({}),
 			json.dumps([]),
+			json.dumps({}),
 			json.dumps({}),
 			json.dumps({}),
 			json.dumps({}),
@@ -431,6 +432,7 @@ class DB:
 			"auto_reactions": json.loads(data[19]),
 			"welcome": json.loads(data[20]),
 			"auto_roles": json.loads(data[21]),
+			"custom_commands": json.loads(data[22])
 		}
 
 		return dict_data

@@ -9,7 +9,6 @@ from tools import template_engine as TemplateEngine
 from discord.ext import commands
 from colorama import *
 from discord.utils import get
-from jinja2 import Template
 
 init()
 
@@ -32,40 +31,12 @@ class Owner(commands.Cog, name="Owner"):
 		self.client = client
 
 	@commands.command()
+	@commands.is_owner()
 	async def test(self, ctx, member: discord.Member = None, *, message: str = None):
-		template = Template(message, autoescape=False)
 		data = await self.client.database.sel_user(member)
 		multi = (await self.client.database.sel_guild(ctx.guild))["exp_multi"]
 		data.update({"multi": multi})
-		context = {
-			"member": TemplateEngine.Member(member, data),
-			"guild": TemplateEngine.Guild(member.guild),
-			"channel": TemplateEngine.Channel(ctx.message.channel),
-			"bot": TemplateEngine.User(self.client.user),
-			"message": TemplateEngine.Message(ctx.message),
-			"attributes": TemplateEngine.Attributes(ctx.args),
-			"len": len,
-			"math": math,
-			"round": round,
-			"random": random,
-			"list": list,
-			"int": int,
-			"dict": dict,
-			"str": str,
-			"upper": lambda msg: msg.upper(),
-			"lower": lambda msg: msg.lower(),
-			"capitalize": lambda msg: msg.capitalize(),
-			"format": lambda msg, **args: msg.format(args),
-			"split": lambda msg, sdata: msg.split(sdata),
-			"join": lambda msg, value: msg.join(value),
-			"reverse": lambda msg: msg[::-1],
-			"keys": lambda msg: msg.keys(),
-			"items": lambda msg: msg.items(),
-			"values": lambda msg: msg.values(),
-			"replace": lambda msg, old, new: msg.replace(old, new),
-			"contains": lambda msg, word: True if word in msg.split(" ") else False,
-		}
-		result = template.render(context)
+		result = self.client.template_engine.render(ctx.message, member, data, message)
 		await ctx.send(result)
 
 	@commands.command(aliases=["eval"])
