@@ -10,7 +10,7 @@ class Settings(commands.Cog, name="Settings"):
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.group(
-		help=f"""**Команды групы:** time-delete-channel, shop-role, exp-multi, text-channels-category, log-channel, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions\n\n"""
+		help=f"""**Команды групы:** time-delete-channel, shop-role, exp-multi, text-channels-category, log-channel, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions, auto-responder\n\n"""
 	)
 	@commands.has_permissions(administrator=True)
 	async def setting(self, ctx):
@@ -733,6 +733,173 @@ class Settings(commands.Cog, name="Settings"):
 						if custom_commands != {} else "На сервере ещё нет кастомных команд")
 			emb = discord.Embed(
 				title="Кастомные команды сервера",
+				description=commands,
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+		else:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Укажите одно из этих действий: add, delete, edit, show, list!**",
+			)
+			await ctx.send(embed=emb)
+
+	@setting.command(
+		hidden=True,
+		name="auto-responder",
+		aliases=["autoresponder", "auto-responders", "autoresponders"],
+		description="**Настройка авто-ответчиков**",
+		usage="setting auto-responder [add/edit/delete/show/list] [Названия авто-ответчика] |Текст авто-ответчика|",
+	)
+	async def auto_responder(self, ctx, action: str, responder_name: str = None, *, text: str = None):
+		auto_responders = (await self.client.database.sel_guild(guild=ctx.guild))["autoresponders"]
+		if action.lower() == "add":
+			if responder_name is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите названия авто-ответчика!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if responder_name in auto_responders.keys():
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаный авто-ответчик уже есть в списке авто-ответчиков!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if text is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите текст к авто-ответчику!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if len(auto_responders.keys()) > 15:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Вы достигли ограничения(15 авто-ответчиков)!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if len(text) > 1500:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаный текст слишком большой(Максимум 1500 символов)!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			auto_responders.update({responder_name: text})
+			await self.client.database.execute(
+				f"""UPDATE guilds SET autoresponders = %s WHERE guild_id = %s""",
+				(json.dumps(auto_responders), ctx.guild.id)
+			)
+
+			emb = discord.Embed(
+				description=f"**Успешно создан новый авто-ответчик - `{responder_name}`**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+		elif action.lower() == "show":
+			if responder_name is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите названия авто-ответчика!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if responder_name not in auto_responders.keys():
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаного авто-ответчика не существует!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			emb = discord.Embed(
+				title=f"Информация о авто-ответчике - `{responder_name}`",
+				description=f"Текст авто-ответчика:\n```{auto_responders[responder_name]}```",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+		elif action.lower() == "delete":
+			if responder_name is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите названия авто-ответчика!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if responder_name not in auto_responders.keys():
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаного авто-ответчика не существует!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			auto_responders.pop(responder_name)
+			await self.client.database.execute(
+				f"""UPDATE guilds SET autoresponders = %s WHERE guild_id = %s""",
+				(json.dumps(auto_responders), ctx.guild.id)
+			)
+
+			emb = discord.Embed(
+				description=f"**Авто-ответчик - `{responder_name}` успешно удален**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+		elif action.lower() == "edit":
+			if responder_name is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите названия авто-ответчика!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if responder_name not in auto_responders.keys():
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаного авто-ответчика не существует!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if text is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx,  "Укажите текст к авто-ответчику!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if len(text) > 1500:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаный текст слишком большой(Максимум 1500 символов)!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if text == auto_responders[responder_name]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Вы должны указать новый текст отличающийся от старого!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			auto_responders.update({responder_name: text})
+			await self.client.database.execute(
+				f"""UPDATE guilds SET autoresponders = %s WHERE guild_id = %s""",
+				(json.dumps(auto_responders), ctx.guild.id)
+			)
+		elif action.lower() == "list":
+			commands = ("\n".join([f"`{command}`" for command in auto_responders.keys()])
+						if auto_responders != {} else "На сервере ещё нет авто-ответчиков")
+			emb = discord.Embed(
+				title="Авто-ответчики сервера",
 				description=commands,
 				colour=discord.Color.green(),
 			)

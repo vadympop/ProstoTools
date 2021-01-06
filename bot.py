@@ -45,7 +45,8 @@ extensions = (
 	"events.other",
 	"events.reactions_commands",
 	"events.auto_reactions",
-	"events.custom_commands"
+	"events.custom_commands",
+	"events.autoresponders"
 )
 
 
