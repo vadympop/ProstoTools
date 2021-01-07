@@ -15,21 +15,23 @@ class TasksBotStat(commands.Cog):
         try:
             ping = round(self.client.latency * 1000)
             await self.client.database.add_amout_command(entity="ping", add_counter=int(ping))
-        except:
+        except AttributeError:
+            pass
+        except ValueError:
             pass
 
     @tasks.loop(minutes=5)
     async def cpu_stat_loop(self):
         try:
             await self.client.database.add_amout_command(entity="cpu", add_counter=ps.cpu_percent())
-        except:
+        except AttributeError:
             pass
 
     @tasks.loop(minutes=10)
     async def memory_stat_loop(self):
         try:
             await self.client.database.add_amout_command(entity="memory", add_counter=self.mem.percent)
-        except:
+        except AttributeError:
             pass
 
 

@@ -44,7 +44,7 @@ class Clans(commands.Cog):
 	async def create(self, ctx, *, name: str):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 		user_data = await self.client.database.sel_user(target=ctx.author)
-		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
+		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		for clan in data:
 			if ctx.author.id in clan["members"]:
@@ -119,7 +119,7 @@ class Clans(commands.Cog):
 		val = (coins, new_id, ctx.guild.id, ctx.author.id)
 		await self.client.database.execute(sql, val)
 
-		if logs_channel_id != 0:
+		if "clans" in audit.keys():
 			e = discord.Embed(
 				description=f"Создан новый клан",
 				colour=discord.Color.green(),
@@ -131,7 +131,9 @@ class Clans(commands.Cog):
 				icon_url=ctx.author.avatar_url,
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+			channel = ctx.guild.get_channel(audit["clans"])
+			if channel is not None:
+				await channel.send(embed=e)
 
 	@clan.command(
 		usage="clan edit [Параметр] [Новое значения]",
@@ -288,7 +290,7 @@ class Clans(commands.Cog):
 	async def delete(self, ctx):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
-		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
+		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if user_clan == "":
 			emb = discord.Embed(
@@ -362,7 +364,7 @@ class Clans(commands.Cog):
 		await self.client.database.execute(sql_2, ("", ctx.guild.id, delete_clan["owner"]))
 		await ctx.message.add_reaction("✅")
 
-		if logs_channel_id != 0:
+		if "clans" in audit.keys():
 			e = discord.Embed(
 				description=f"Удален клан",
 				colour=discord.Color.green(),
@@ -379,7 +381,9 @@ class Clans(commands.Cog):
 				icon_url=ctx.author.avatar_url,
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+			channel = ctx.guild.get_channel(audit["clans"])
+			if channel is not None:
+				await channel.send(embed=e)
 
 	@clan.command(
 		usage="clan members", description="**Показывает всех участников клана**"

@@ -367,12 +367,13 @@ class DB:
 	async def sel_guild(self, guild) -> dict:
 		sql_1 = """SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s"""
 		val_1 = (guild.id, guild.id)
-		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcome, auto_roles, custom_commands, autoresponders) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, audit, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcome, auto_roles, custom_commands, autoresponders) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 		val_2 = (
 			guild.id,
 			"False",
 			"p.",
 			str(uuid.uuid4()),
+			json.dumps({}),
 			json.dumps([]),
 			json.dumps([]),
 			json.dumps(
@@ -413,7 +414,7 @@ class DB:
 		dict_data = {
 			"guild_id": int(data[0]),
 			"purge": int(data[1]),
-			"log_channel": int(data[2]),
+			"audit": json.loads(data[2]),
 			"all_message": int(data[3]),
 			"textchannels_category": int(data[4]),
 			"max_warns": int(data[5]),

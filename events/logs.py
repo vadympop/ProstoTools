@@ -13,12 +13,14 @@ class EventsLogs(commands.Cog):
 	async def on_member_update(self, before, after):
 		if self.client.is_ready():
 			try:
-				channel_id = (await self.client.database.sel_guild(guild=before.guild))["log_channel"]
+				audit = (await self.client.database.sel_guild(guild=before.guild))["audit"]
 			except AttributeError:
 				return
-			if channel_id == 0:
+			if "member_update" not in audit.keys():
 				return
-			channel = self.client.get_channel(channel_id)
+			channel = self.client.get_channel(audit["member_update"])
+			if channel is None:
+				return
 
 			if not len(before.roles) == len(after.roles):
 				roles = []
@@ -73,10 +75,13 @@ class EventsLogs(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_member_ban(self, guild, user):
-		channel_id = (await self.client.database.sel_guild(guild=guild))["log_channel"]
-		if channel_id == 0:
+		audit = (await self.client.database.sel_guild(guild=guild))["audit"]
+		if "member_ban" not in audit.keys():
 			return
-		channel = self.client.get_channel(channel_id)
+		channel = self.client.get_channel(audit["member_ban"])
+		if channel is None:
+			return
+
 		ban = await guild.fetch_ban(user)
 		e = discord.Embed(
 			description=f"Пользователь `{str(user)}` был забанен",
@@ -98,10 +103,13 @@ class EventsLogs(commands.Cog):
 		if user.bot:
 			return
 
-		channel_id = (await self.client.database.sel_guild(guild=guild))["log_channel"]
-		if channel_id == 0:
+		audit = (await self.client.database.sel_guild(guild=guild))["audit"]
+		if "member_unban" not in audit.keys():
 			return
-		channel = self.client.get_channel(channel_id)
+		channel = self.client.get_channel(audit["member_unban"])
+		if channel is None:
+			return
+
 		e = discord.Embed(
 			description=f"Пользователь `{str(user)}` был разбанен",
 			colour=discord.Color.green(),
@@ -119,10 +127,13 @@ class EventsLogs(commands.Cog):
 		if message.author.bot:
 			return
 
-		channel_id = (await self.client.database.sel_guild(guild=message.guild))["log_channel"]
-		if channel_id == 0:
+		audit = (await self.client.database.sel_guild(guild=message.guild))["audit"]
+		if "message_delete" not in audit.keys():
 			return
-		channel = self.client.get_channel(channel_id)
+		channel = self.client.get_channel(audit["message_delete"])
+		if channel is None:
+			return
+
 		if len(message.content) > 1000:
 			return
 		e = discord.Embed(
@@ -155,10 +166,13 @@ class EventsLogs(commands.Cog):
 		if before.author.bot:
 			return
 
-		channel_id = (await self.client.database.sel_guild(guild=before.guild))["log_channel"]
-		if channel_id == 0:
+		audit = (await self.client.database.sel_guild(guild=before.guild))["audit"]
+		if "message_edit" not in audit.keys():
 			return
-		channel = self.client.get_channel(channel_id)
+		channel = self.client.get_channel(audit["message_edit"])
+		if channel is None:
+			return
+
 		e = discord.Embed(
 			description=f"**[Сообщение]({before.jump_url}) было изменено**",
 			colour=discord.Color.green(),

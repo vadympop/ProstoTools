@@ -3,7 +3,6 @@ import time
 
 from datetime import datetime
 from discord.ext import commands, tasks
-from discord.utils import get
 
 
 class TasksPunishments(commands.Cog):
@@ -15,14 +14,19 @@ class TasksPunishments(commands.Cog):
 		self.vmute_loop.start()
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
-	@tasks.loop(seconds=5)
+	@tasks.loop(minutes=1)
 	async def mute_loop(self):
-		for mute in await self.client.database.get_punishment():
+		try:
+			data = await self.client.database.get_punishment()
+		except AttributeError:
+			return
+
+		for mute in data:
 			mute_time = mute[2]
 			guild = self.client.get_guild(int(mute[1]))
 			if mute[3] == "mute":
 				if guild is not None:
-					logs_channel_id = (await self.client.database.sel_guild(guild=guild))["log_channel"]
+					audit = (await self.client.database.sel_guild(guild=guild))["audit"]
 					member = guild.get_member(int(mute[0]))
 					if float(mute_time) <= float(time.time()):
 						await self.client.database.del_punishment(
@@ -48,7 +52,7 @@ class TasksPunishments(commands.Cog):
 							except:
 								pass
 
-							if logs_channel_id != 0:
+							if "moderate" in audit.keys():
 								e = discord.Embed(
 									description=f"Пользователь `{str(member)}` был размьючен",
 									colour=discord.Color.green(),
@@ -60,11 +64,18 @@ class TasksPunishments(commands.Cog):
 									icon_url=self.client.user.avatar_url,
 								)
 								e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-								await guild.get_channel(logs_channel_id).send(embed=e)
+								channel = guild.get_channel(audit["moderate"])
+								if channel is not None:
+									await channel.send(embed=e)
 
-	@tasks.loop(seconds=5)
+	@tasks.loop(minutes=1)
 	async def ban_loop(self):
-		for ban in await self.client.database.get_punishment():
+		try:
+			data = await self.client.database.get_punishment()
+		except AttributeError:
+			return
+
+		for ban in data:
 			ban_time = ban[2]
 			guild = self.client.get_guild(int(ban[1]))
 			if ban[3] == "ban":
@@ -98,9 +109,14 @@ class TasksPunishments(commands.Cog):
 								except:
 									pass
 
-	@tasks.loop(seconds=5)
+	@tasks.loop(minutes=1)
 	async def temprole_loop(self):
-		for temprole in await self.client.database.get_punishment():
+		try:
+			data = await self.client.database.get_punishment()
+		except AttributeError:
+			return
+
+		for temprole in data:
 			temprole_time = temprole[2]
 			guild = self.client.get_guild(int(temprole[1]))
 			if temprole[3] == "temprole":
@@ -116,14 +132,19 @@ class TasksPunishments(commands.Cog):
 						if member is not None and temprole_role is not None:
 							await member.remove_roles(temprole_role)
 
-	@tasks.loop(seconds=5)
+	@tasks.loop(minutes=1)
 	async def vmute_loop(self):
-		for vmute in await self.client.database.get_punishment():
+		try:
+			data = await self.client.database.get_punishment()
+		except AttributeError:
+			return
+
+		for vmute in data:
 			vmute_time = vmute[2]
 			guild = self.client.get_guild(int(vmute[1]))
 			if vmute[3] == "vmute":
 				if guild is not None:
-					logs_channel_id = (await self.client.database.sel_guild(guild=guild))["log_channel"]
+					audit = (await self.client.database.sel_guild(guild=guild))["audit"]
 					member = guild.get_member(int(vmute[0]))
 					if float(vmute_time) <= float(time.time()):
 						await self.client.database.del_punishment(
@@ -157,7 +178,7 @@ class TasksPunishments(commands.Cog):
 							except:
 								pass
 
-							if logs_channel_id != 0:
+							if "moderate" in audit.keys():
 								e = discord.Embed(
 									description=f"Пользователь `{str(member)}` был размьючен в голосовых каналах",
 									colour=discord.Color.green(),
@@ -169,7 +190,9 @@ class TasksPunishments(commands.Cog):
 									icon_url=self.client.user.avatar_url,
 								)
 								e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-								await guild.get_channel(logs_channel_id).send(embed=e)
+								channel = guild.get_channel(audit["moderate"])
+								if channel is not None:
+									await channel.send(embed=e)
 
 
 def setup(client):

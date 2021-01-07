@@ -508,22 +508,104 @@ class Settings(commands.Cog, name="Settings"):
 	@setting.command(
 		hidden=True,
 		name="set-audit",
-		aliases=["setaudit"],
+		aliases=["setaudit", "audit"],
 		description="**Настройка канала аудита**",
-		usage="setting logs [on/off] [Категория] [Канал]",
+		usage="setting logs [on/off] [Категория] |Канал|",
 	)
-	async def set_audit(self, ctx, action: str, category: str, channel: discord.TextChannel):
-		if channel in ("off", "-", "0"):
-			sql = """UPDATE guilds SET log_channel = %s WHERE guild_id = %s"""
-			val = (0, ctx.guild.id)
-			await self.client.database.execute(sql, val)
-			await ctx.message.add_reaction("✅")
-			return
+	async def set_audit(self, ctx, action: str, category: str, channel: discord.TextChannel = None):
+		ons = ("on", "вкл", "включить", "+", "1")
+		offs = ("off", "выкл", "выключить", "-", "0")
+		categories = {
+			"модерация": "moderate",
+			"экономика": "economy",
+			"кланы": "clans",
+			"учасник_обновился": "member_update",
+			"участник_разбанен": "member_unban",
+			"участник_забанен": "member_ban",
+			"сообщения_изменено": "message_edit",
+			"сообщения_удалено": "message_delete"
+		}
+		base_categories = (
+			"moderate",
+			"economy",
+			"clans",
+			"member_update",
+			"member_ban",
+			"member_unban",
+			"message_edit",
+			"message_delete"
+		)
+		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+		if action.lower() in ons:
+			if channel is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите канал!**",
+				)
+				await ctx.send(embed=emb)
+				return
 
-		sql = """UPDATE guilds SET log_channel = %s WHERE guild_id = %s"""
-		val = (channel.id, ctx.guild.id)
-		await self.client.database.execute(sql, val)
-		await ctx.message.add_reaction("✅")
+			if category.lower() in base_categories:
+				audit.update({category.lower(): channel.id})
+				await self.client.database.execute(
+					"""UPDATE guilds SET audit = %s WHERE guild_id = %s""",
+					(json.dumps(audit), ctx.guild.id)
+				)
+				await ctx.message.add_reaction("✅")
+			else:
+				if category.lower() in categories.keys():
+					audit.update({categories[category.lower()]: channel.id})
+					await self.client.database.execute(
+						"""UPDATE guilds SET audit = %s WHERE guild_id = %s""",
+						(json.dumps(audit), ctx.guild.id)
+					)
+					await ctx.message.add_reaction("✅")
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Указаной категории не существует!**",
+					)
+					await ctx.send(embed=emb)
+					return
+		elif action.lower() in offs:
+			if category.lower() in base_categories:
+				if category.lower() not in audit.keys():
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Указаная категория ещё не настроена!**",
+					)
+					await ctx.send(embed=emb)
+					return
+
+				audit.pop(category.lower())
+				await self.client.database.execute(
+					"""UPDATE guilds SET audit = %s WHERE guild_id = %s""",
+					(json.dumps(audit), ctx.guild.id)
+				)
+				await ctx.message.add_reaction("✅")
+			else:
+				if category.lower() in categories.keys():
+					if categories[category.lower()] not in audit.keys():
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Указаная категория ещё не настроена!**",
+						)
+						await ctx.send(embed=emb)
+						return
+
+					audit.pop(categories[category.lower()])
+					await self.client.database.execute(
+						"""UPDATE guilds SET audit = %s WHERE guild_id = %s""",
+						(json.dumps(audit), ctx.guild.id)
+					)
+					await ctx.message.add_reaction("✅")
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Указаной категории не существует!**",
+					)
+					await ctx.send(embed=emb)
+					return
+		else:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Укажите одно из этих действий: on, off!**",
+			)
+			await ctx.send(embed=emb)
 
 	@setting.command(
 		hidden=True,

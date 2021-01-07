@@ -807,9 +807,9 @@ class Different(commands.Cog, name="Different"):
 			val = ("", ctx.author.id)
 
 			await self.client.database.execute(sql, val)
-
 			await ctx.message.add_reaction("✅")
 			return
+
 		if text is None:
 			emb = discord.Embed(
 				title="Ваша биография",

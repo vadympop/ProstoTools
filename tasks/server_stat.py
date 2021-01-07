@@ -10,12 +10,15 @@ class TasksServerStat(commands.Cog):
 
 	@tasks.loop(minutes=10)
 	async def server_stat_loop(self):
-		data = [
-			(stat[0], json.loads(stat[1]))
-			for stat in await self.client.database.execute(
-				"""SELECT guild_id, server_stats FROM guilds"""
-			)
-		]
+		try:
+			data = [
+				(stat[0], json.loads(stat[1]))
+				for stat in await self.client.database.execute(
+					"""SELECT guild_id, server_stats FROM guilds"""
+				)
+			]
+		except AttributeError:
+			return
 
 		for stat in data:
 			if stat[1] != {}:

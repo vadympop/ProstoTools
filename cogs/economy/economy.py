@@ -882,7 +882,7 @@ class Economy(commands.Cog):
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	@commands.has_permissions(administrator=True)
 	async def remove_role(self, ctx, member: discord.Member, role: discord.Role):
-		logs_channel_id = await self.client.database.sel_guild(guild=ctx.guild)["log_channel"]
+		audit = await self.client.database.sel_guild(guild=ctx.guild)["audit"]
 
 		if member.bot:
 			emb = discord.Embed(
@@ -940,7 +940,7 @@ class Economy(commands.Cog):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
-		if logs_channel_id != 0:
+		if "economy" in audit.keys():
 			e = discord.Embed(
 				description=f"У пользователя `{str(member)}` была убрана роль",
 				colour=discord.Color.green(),
@@ -962,7 +962,9 @@ class Economy(commands.Cog):
 				icon_url=ctx.author.avatar_url,
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+			channel = ctx.guild.get_channel(audit["economy"])
+			if channel is not None:
+				await channel.send(embed=e)
 
 	@commands.command(
 		aliases=["addcash"],
@@ -975,7 +977,7 @@ class Economy(commands.Cog):
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	async def add_cash(self, ctx, member: discord.Member, typem: str, num: int):
-		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
+		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if member.bot:
 			emb = discord.Embed(
@@ -1047,7 +1049,7 @@ class Economy(commands.Cog):
 
 		await self.client.database.execute(sql, val)
 
-		if logs_channel_id != 0:
+		if "economy" in audit.keys():
 			e = discord.Embed(
 				description=f"Пользователю `{str(member)}` были добавлены средства",
 				colour=discord.Color.green(),
@@ -1074,7 +1076,9 @@ class Economy(commands.Cog):
 				icon_url=ctx.author.avatar_url,
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+			channel = ctx.guild.get_channel(audit["economy"])
+			if channel is not None:
+				await channel.send(embed=e)
 
 	@commands.command(
 		aliases=["removecash"],
@@ -1087,7 +1091,7 @@ class Economy(commands.Cog):
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	async def remove_cash(self, ctx, member: discord.Member, typem: str, num: int):
-		logs_channel_id = (await self.client.database.sel_guild(guild=ctx.guild))["log_channel"]
+		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if member.bot:
 			emb = discord.Embed(
@@ -1132,7 +1136,7 @@ class Economy(commands.Cog):
 			return
 
 		emb = discord.Embed(
-			description=f"**Вы успешно добавили значений в профиль {member.name}**",
+			description=f"**Вы успешно отняли значений из профиля {member.name}**",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
@@ -1144,7 +1148,7 @@ class Economy(commands.Cog):
 
 		await self.client.database.execute(sql, val)
 
-		if logs_channel_id != 0:
+		if "economy" in audit:
 			e = discord.Embed(
 				description=f"Пользователю `{str(member)}` были отняты средства",
 				colour=discord.Color.green(),
@@ -1171,7 +1175,9 @@ class Economy(commands.Cog):
 				icon_url=ctx.author.avatar_url,
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.guild.get_channel(logs_channel_id).send(embed=e)
+			channel = ctx.guild.get_channel(audit["economy"])
+			if channel is not None:
+				await channel.send(embed=e)
 
 	@commands.command(
 		description="**Этой командой можно ограбить пользователя(Cooldown 24 часа)**",

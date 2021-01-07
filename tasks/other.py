@@ -15,8 +15,12 @@ class TasksOther(commands.Cog):
 
 	@tasks.loop(seconds=30)
 	async def reminders_loop(self):
-		for reminder in await self.client.database.get_reminder():
-			print(reminder)
+		try:
+			data = await self.client.database.get_reminder()
+		except AttributeError:
+			return
+
+		for reminder in data:
 			reminder_time = reminder[4]
 			guild = self.client.get_guild(int(reminder[2]))
 			if guild is not None:
@@ -31,7 +35,6 @@ class TasksOther(commands.Cog):
 					name=self.client.user.name, icon_url=self.client.user.avatar_url
 				)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				print(reminder_time, time.time())
 				if float(reminder_time) <= float(time.time()):
 					await self.client.database.del_reminder(member, reminder[0])
 					if member is not None and channel is not None:
@@ -43,9 +46,14 @@ class TasksOther(commands.Cog):
 							except:
 								pass
 
-	@tasks.loop(seconds=5)
+	@tasks.loop(minutes=1)
 	async def channel_loop(self):
-		for channel in await self.client.database.get_punishment():
+		try:
+			data = await self.client.database.get_punishment()
+		except AttributeError:
+			return
+
+		for channel in data:
 			channel_time = channel[2]
 			guild = self.client.get_guild(int(channel[1]))
 			if channel[3] == "text_channel":
@@ -64,7 +72,10 @@ class TasksOther(commands.Cog):
 
 	@tasks.loop(seconds=86400)
 	async def update_messages_loop(self):
-		data = await self.client.database.execute("""SELECT user_id, guild_id, messages FROM users""")
+		try:
+			data = await self.client.database.execute("""SELECT user_id, guild_id, messages FROM users""")
+		except AttributeError:
+			return
 
 		for profile in data:
 			if profile != []:

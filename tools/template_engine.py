@@ -50,10 +50,8 @@ class Rank:
 		"money",
 		"coins",
 		"bio",
-		"count_channels",
 		"reputation",
 		"count_messages",
-		"count_warns",
 		"level_exp",
 	)
 
@@ -68,10 +66,8 @@ class Rank:
 		self.money = data["money"]
 		self.coins = data["coins"]
 		self.bio = data["bio"]
-		self.count_channels = data["text_channels"]
 		self.reputation = data["reputation"]
 		self.count_messages = data["messages"][1]
-		self.count_warns = len(data["warns"])
 
 	def __str__(self):
 		return client.get_user(self._id).name + client.get_user(self._id).discriminator
