@@ -524,7 +524,7 @@ class Clans(commands.Cog):
 
 	@clan.command(
 		name="list",
-		usage="clan list-clans",
+		usage="clan list",
 		description="**Показывает все кланы сервера**",
 	)
 	async def list_clans(self, ctx):
