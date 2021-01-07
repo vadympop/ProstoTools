@@ -10,7 +10,7 @@ class Settings(commands.Cog, name="Settings"):
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.group(
-		help=f"""**Команды групы:** time-delete-channel, shop-role, exp-multi, text-channels-category, log-channel, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions, auto-responder\n\n"""
+		help=f"""**Команды групы:** time-delete-channel, shop-role, exp-multi, text-channels-category, set-audit, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions, auto-responder\n\n"""
 	)
 	@commands.has_permissions(administrator=True)
 	async def setting(self, ctx):
@@ -507,12 +507,12 @@ class Settings(commands.Cog, name="Settings"):
 
 	@setting.command(
 		hidden=True,
-		name="log-channel",
-		aliases=["set-log", "set-log-channel", "log_channel", "logchannel"],
+		name="set-audit",
+		aliases=["setaudit"],
 		description="**Настройка канала аудита**",
-		usage="setting log-channel [Id канала]",
+		usage="setting logs [on/off] [Категория] [Канал]",
 	)
-	async def set_log_channel(self, ctx, channel: typing.Union[discord.TextChannel, str]):
+	async def set_audit(self, ctx, action: str, category: str, channel: discord.TextChannel):
 		if channel in ("off", "-", "0"):
 			sql = """UPDATE guilds SET log_channel = %s WHERE guild_id = %s"""
 			val = (0, ctx.guild.id)
@@ -728,6 +728,14 @@ class Settings(commands.Cog, name="Settings"):
 				f"""UPDATE guilds SET custom_commands = %s WHERE guild_id = %s""",
 				(json.dumps(custom_commands), ctx.guild.id)
 			)
+
+			emb = discord.Embed(
+				description=f"**Код к команде - `{command_name}` успешно измененен**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
 		elif action.lower() == "list":
 			commands = ("\n".join([f"`{command}`" for command in custom_commands.keys()])
 						if custom_commands != {} else "На сервере ещё нет кастомных команд")
@@ -895,6 +903,15 @@ class Settings(commands.Cog, name="Settings"):
 				f"""UPDATE guilds SET autoresponders = %s WHERE guild_id = %s""",
 				(json.dumps(auto_responders), ctx.guild.id)
 			)
+
+			emb = discord.Embed(
+				description=f"**Текст к авто-ответчику - `{responder_name}` успешно измененен**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+
 		elif action.lower() == "list":
 			commands = ("\n".join([f"`{command}`" for command in auto_responders.keys()])
 						if auto_responders != {} else "На сервере ещё нет авто-ответчиков")
