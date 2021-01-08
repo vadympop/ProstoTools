@@ -9,8 +9,14 @@ class Settings(commands.Cog, name="Settings"):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
+	def find_custom_command(self, command_name: str, commands: list):
+		for command in commands:
+			if command["name"] == command_name:
+				return command
+		return None
+
 	@commands.group(
-		help=f"""**Команды групы:** time-delete-channel, shop-role, exp-multi, text-channels-category, set-audit, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions, auto-responder\n\n"""
+		help=f"""**Команды групы:** level-up-message, time-delete-channel, shop-role, exp-multi, text-channels-category, set-audit, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions, auto-responder\n\n"""
 	)
 	@commands.has_permissions(administrator=True)
 	async def setting(self, ctx):
@@ -331,49 +337,244 @@ class Settings(commands.Cog, name="Settings"):
 		hidden=True,
 		name="anti-flud",
 		description="**Настройка анти-флуда(Бета-тест)**",
-		usage="setting anti-flud [on/off]",
+		usage="setting anti-flud [on/off/setting] [Настройка] [Значения...]",
 	)
-	async def anti_flud(self, ctx, action: str):
-		actions = ["on", "off", "true", "false", "0", "1"]
-		if action.lower() not in actions:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Вы не правильно указали действие! Укажите из этих вариантов: on(Вкл.), off(Выкл.), true(Вкл.), false(Выкл.), 0(Вкл.), 1(Выкл.)**",
-				colour=discord.Color.green(),
+	async def anti_flud(self, ctx, action: str, setting: str = None, *options):
+		ons = ("on", "вкл", "включить", "+", "1")
+		offs = ("off", "выкл", "выключить", "-", "0")
+		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
+		if action.lower() in ons:
+			if auto_mod["anti_flud"]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Анти-флуд уже включен!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			auto_mod["anti_flud"]["state"] = True
+
+		elif action.lower() in offs:
+			if not auto_mod["anti_flud"]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Анти-флуд и так выключен!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			auto_mod["anti_flud"] = {"state": False}
+
+		elif action.lower() == "setting":
+			settings = ("message", "punishment", "target-channel", "ignore-channel", "target-role", "ignore-role")
+			punishments = ("mute", "ban", "soft-ban", "warn", "kick")
+			if setting is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите изменяемую настройку!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if setting.lower() not in settings:
+				emb = await self.client.utils.create_error_embed(
+					ctx,
+					"Укажите одну из этих настроек: message, punishment, target-channel, ignore-channel, target-role, ignore-role!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if not auto_mod["anti_flud"]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Сначала включите анти-флуд!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if len(options) < 1:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите значения для настройки!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if setting.lower() != "message" and len(options) < 2:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите значения для настройки!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if setting.lower() == "message":
+				types = ("channel", "dm")
+				if options[0] == "off":
+					if "message" not in auto_mod["anti_flud"].keys():
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Сообщения не настроено!**",
+						)
+						await ctx.send(embed=emb)
+						return
+
+					auto_mod["anti_flud"].pop("message")
+				elif options[0] in types:
+					if len(options) < 2:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Укажите значения для настройки!"
+						)
+						await ctx.send(embed=emb)
+						return
+
+					auto_mod["anti_flud"].update({"message": {"type": options[0]}})
+					options = list(options)
+					options.pop(0)
+					auto_mod["anti_flud"]["message"].update({"text": " ".join(options)})
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите один из этих типов: dm, channel!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "punishment":
+				if options[0].lower() not in punishments:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих наказаний: mute, ban, soft-ban, warn, kick!**",
+					)
+					await ctx.send(embed=emb)
+					return
+
+				auto_mod["anti_flud"].update({"punishment": {
+					"type": options[0],
+					"time": options[1]
+				}})
+			elif setting.lower() == "target-channel":
+				channel_converter = commands.TextChannelConverter()
+				channel = await channel_converter.convert(ctx, options[1])
+				if options[0].lower() == "add":
+					if "target_channels" not in auto_mod["anti_flud"]:
+						auto_mod["anti_flud"].update({"target_channels": [channel.id]})
+					else:
+						auto_mod["anti_flud"]["target_channels"].append(channel.id)
+				elif options[0].lower() == "delete":
+					if "target_channels" not in auto_mod["anti_flud"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Список каналов пуст!**",
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						try:
+							auto_mod["anti_flud"]["target_channels"].remove(channel.id)
+						except ValueError:
+							emb = await self.client.utils.create_error_embed(
+								ctx, "**В списке каналов нету указаного канала!**",
+							)
+							await ctx.send(embed=emb)
+							return
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: add, delete!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "ignore-channel":
+				channel_converter = commands.TextChannelConverter()
+				channel = await channel_converter.convert(ctx, options[1])
+				if options[0].lower() == "add":
+					if "ignore_channels" not in auto_mod["anti_flud"]:
+						auto_mod["anti_flud"].update({"ignore_channels": [channel.id]})
+					else:
+						auto_mod["anti_flud"]["ignore_channels"].append(channel.id)
+				elif options[0].lower() == "delete":
+					if "ignore_channels" not in auto_mod["anti_flud"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Список каналов пуст!**",
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						try:
+							auto_mod["anti_flud"]["ignore_channels"].remove(channel.id)
+						except ValueError:
+							emb = await self.client.utils.create_error_embed(
+								ctx, "**В списке каналов нету указаного канала!**",
+							)
+							await ctx.send(embed=emb)
+							return
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: add, delete!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "target-role":
+				role_converter = commands.RoleConverter()
+				role = await role_converter.convert(ctx, options[1])
+				if options[0].lower() == "add":
+					if "target_roles" not in auto_mod["anti_flud"]:
+						auto_mod["anti_flud"].update({"target_roles": [role.id]})
+					else:
+						auto_mod["anti_flud"]["target_roles"].append(role.id)
+				elif options[0].lower() == "delete":
+					if "target_roles" not in auto_mod["anti_flud"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Список ролей пуст!**",
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						try:
+							auto_mod["anti_flud"]["target_roles"].remove(role.id)
+						except ValueError:
+							emb = await self.client.utils.create_error_embed(
+								ctx, "**В списке ролей нету указаной роли!**",
+							)
+							await ctx.send(embed=emb)
+							return
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: add, delete!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "ignore-role":
+				role_converter = commands.RoleConverter()
+				role = await role_converter.convert(ctx, options[1])
+				if options[0].lower() == "add":
+					if "ignore_roles" not in auto_mod["anti_flud"]:
+						auto_mod["anti_flud"].update({"ignore_roles": [role.id]})
+					else:
+						auto_mod["anti_flud"]["ignore_roles"].append(role.id)
+				elif options[0].lower() == "delete":
+					if "ignore_roles" not in auto_mod["anti_flud"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Список ролей пуст!**",
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						try:
+							auto_mod["anti_flud"]["ignore_roles"].remove(role.id)
+						except ValueError:
+							emb = await self.client.utils.create_error_embed(
+								ctx, "**В списке ролей нету указаной роли!**",
+							)
+							await ctx.send(embed=emb)
+							return
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: add, delete!**",
+					)
+					await ctx.send(embed=emb)
+					return
+		else:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Укажите одно из этих действий: on, off, setting!**",
 			)
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
-		data = await self.client.database.sel_guild(guild=ctx.guild)
-		emb = discord.Embed(
-			description=f"**Настройки анти-флуда успешно обновленны!**",
-			colour=discord.Color.green(),
+		await self.client.database.execute(
+			"""UPDATE guilds SET auto_mod = %s WHERE guild_id = %s""",
+			(json.dumps(auto_mod), ctx.guild.id)
 		)
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
-
-		if action.lower() == "on" or action.lower() == "true" or action.lower() == "1":
-			action = True
-		elif (
-			action.lower() == "off"
-			or action.lower() == "false"
-			or action.lower() == "0"
-		):
-			action = False
-
-		settings = data["auto_mod"]
-		settings.update({"anti_flud": action})
-
-		sql = (
-			"""UPDATE guilds SET auto_mod = %s WHERE guild_id = %s AND guild_id = %s"""
-		)
-		val = (json.dumps(settings), ctx.guild.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
+		await ctx.message.add_reaction("✅")
 
 	@setting.command(
 		hidden=True,
@@ -665,9 +866,9 @@ class Settings(commands.Cog, name="Settings"):
 		name="custom-command",
 		aliases=["customcommand", "custom-commands", "customcommands"],
 		description="**Настройка кастомных команд**",
-		usage="setting custom-command [add/edit/delete/show/list] [Названия команды] |Код команды|",
+		usage="setting custom-command [add/edit/delete/show] [Названия команды] |Опции|",
 	)
-	async def custom_command(self, ctx, action: str, command_name: str = None, *, command_text: str = None):
+	async def custom_command(self, ctx, action: str, command_name: str = None, *options):
 		custom_commands = (await self.client.database.sel_guild(guild=ctx.guild))["custom_commands"]
 		if action.lower() == "add":
 			if command_name is None:
@@ -677,35 +878,42 @@ class Settings(commands.Cog, name="Settings"):
 				await ctx.send(embed=emb)
 				return
 
-			if command_name in custom_commands.keys():
+			if len(command_name) > 30:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаное названия слишком большое(Максимум 30 символов)!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if self.find_custom_command(command_name, custom_commands) is not None:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Указаная команда уже есть в списке команд!"
 				)
 				await ctx.send(embed=emb)
 				return
 
-			if command_text is None:
+			if len(options) < 1:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Укажите код к команде!"
 				)
 				await ctx.send(embed=emb)
 				return
 
-			if len(custom_commands.keys()) > 20:
+			if len(custom_commands) > 20:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Вы достигли ограничения(20 команд)!"
 				)
 				await ctx.send(embed=emb)
 				return
 
-			if len(command_text) > 1000:
+			if len(" ".join(options)) > 1000:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Указаный код слишком большой(Максимум 1000 символов)!"
 				)
 				await ctx.send(embed=emb)
 				return
 
-			custom_commands.update({command_name: command_text})
+			custom_commands.append({"name": command_name, "code": " ".join(options)})
 			await self.client.database.execute(
 				f"""UPDATE guilds SET custom_commands = %s WHERE guild_id = %s""",
 				(json.dumps(custom_commands), ctx.guild.id)
@@ -726,7 +934,8 @@ class Settings(commands.Cog, name="Settings"):
 				await ctx.send(embed=emb)
 				return
 
-			if command_name not in custom_commands.keys():
+			command = self.find_custom_command(command_name, custom_commands)
+			if command is None:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Указаной команды не существует!"
 				)
@@ -735,7 +944,7 @@ class Settings(commands.Cog, name="Settings"):
 
 			emb = discord.Embed(
 				title=f"Информация о кастомной команде - `{command_name}`",
-				description=f"Код команды:\n```{custom_commands[command_name]}```",
+				description=f"Код команды:\n```{command['code']}```",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
@@ -749,14 +958,15 @@ class Settings(commands.Cog, name="Settings"):
 				await ctx.send(embed=emb)
 				return
 
-			if command_name not in custom_commands.keys():
+			command = self.find_custom_command(command_name, custom_commands)
+			if command is None:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Указаной команды не существует!"
 				)
 				await ctx.send(embed=emb)
 				return
 
-			custom_commands.pop(command_name)
+			custom_commands.remove(command)
 			await self.client.database.execute(
 				f"""UPDATE guilds SET custom_commands = %s WHERE guild_id = %s""",
 				(json.dumps(custom_commands), ctx.guild.id)
@@ -777,53 +987,76 @@ class Settings(commands.Cog, name="Settings"):
 				await ctx.send(embed=emb)
 				return
 
-			if command_name not in custom_commands.keys():
+			command = self.find_custom_command(command_name, custom_commands)
+			if command is None:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Указаной команды не существует!"
 				)
 				await ctx.send(embed=emb)
 				return
 
-			if command_text is None:
+			if len(options) < 2:
 				emb = await self.client.utils.create_error_embed(
-					ctx, "Укажите код к команде!"
+					ctx, "Укажите значения к настройке!"
 				)
 				await ctx.send(embed=emb)
 				return
 
-			if len(command_text) > 1000:
+			fields = ("description", "code")
+			if options[0].lower() not in fields:
 				emb = await self.client.utils.create_error_embed(
-					ctx, "Указаный код слишком большой(Максимум 1000 символов)!"
+					ctx, "Укажите один из этих параметров: description, code!"
 				)
 				await ctx.send(embed=emb)
 				return
 
-			if command_text == custom_commands[command_name]:
-				emb = await self.client.utils.create_error_embed(
-					ctx, "Вы должны указать новый код отличающийся от старого!"
-				)
-				await ctx.send(embed=emb)
-				return
+			if options[0].lower() == "code":
+				options = list(options)
+				options.pop(0)
+				if len(" ".join(options)) > 1000:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Указаный код слишком большой(Максимум 1000 символов)!"
+					)
+					await ctx.send(embed=emb)
+					return
 
-			custom_commands.update({command_name: command_text})
+				if " ".join(options) == command["code"]:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Вы должны указать код отличающийся от старого!"
+					)
+					await ctx.send(embed=emb)
+					return
+
+				command.update({"code": " ".join(options)})
+				custom_commands[custom_commands.index(command)] = command
+			elif options[0].lower() == "description":
+				options = list(options)
+				options.pop(0)
+				if len(" ".join(options)) > 50:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Указаное описания слишком большое(Максимум 50 символов)!"
+					)
+					await ctx.send(embed=emb)
+					return
+
+				if "description" in command.keys():
+					if " ".join(options) == command["description"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Вы должны указать описания отличающийся от старого!"
+						)
+						await ctx.send(embed=emb)
+						return
+
+				command.update({"description": " ".join(options)})
+				custom_commands[custom_commands.index(command)] = command
+
 			await self.client.database.execute(
 				f"""UPDATE guilds SET custom_commands = %s WHERE guild_id = %s""",
 				(json.dumps(custom_commands), ctx.guild.id)
 			)
 
 			emb = discord.Embed(
-				description=f"**Код к команде - `{command_name}` успешно измененен**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-		elif action.lower() == "list":
-			commands = ("\n".join([f"`{command}`" for command in custom_commands.keys()])
-						if custom_commands != {} else "На сервере ещё нет кастомных команд")
-			emb = discord.Embed(
-				title="Кастомные команды сервера",
-				description=commands,
+				description=f"**Команда - `{command_name}` успешно изменена**",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
@@ -831,7 +1064,7 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.send(embed=emb)
 		else:
 			emb = await self.client.utils.create_error_embed(
-				ctx, "**Укажите одно из этих действий: add, delete, edit, show, list!**",
+				ctx, "**Укажите одно из этих действий: add, delete, edit, show!**",
 			)
 			await ctx.send(embed=emb)
 
@@ -1010,6 +1243,63 @@ class Settings(commands.Cog, name="Settings"):
 				ctx, "**Укажите одно из этих действий: add, delete, edit, show, list!**",
 			)
 			await ctx.send(embed=emb)
+
+	@setting.command(
+		hidden=True,
+		name="level-up-message",
+		aliases=["levelupmessage", "set-level-up-message", "setlevelupmessage"],
+		description="**Настройка авто-ответчиков**",
+		usage="setting level-up-message [channel/dm/off] |Текст|",
+	)
+	async def level_up_message(self, ctx, type: str, *, text = None):
+		rank_message = (await self.client.database.sel_guild(guild=ctx.guild))["rank_message"]
+		if type.lower() == "dm":
+			if text is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите текст!**",
+				)
+				await ctx.send(embed=emb)
+				return
+
+			rank_message.update({
+				"state": True,
+				"type": "dm",
+				"text": text
+			})
+		elif type.lower() == "channel":
+			if text is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите текст!**",
+				)
+				await ctx.send(embed=emb)
+				return
+
+			rank_message.update({
+				"state": True,
+				"type": "channel",
+				"text": text
+			})
+		elif type.lower() == "off":
+			if "text" not in rank_message.keys():
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Текст ещё не настроен!**",
+				)
+				await ctx.send(embed=emb)
+				return
+
+			rank_message = {"state": False}
+		else:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Укажите одно из этих действий: off, dm, channel!**",
+			)
+			await ctx.send(embed=emb)
+			return
+
+		await self.client.database.execute(
+			"""UPDATE guilds SET rank_message = %s WHERE guild_id = %s""",
+			(json.dumps(rank_message), ctx.guild.id)
+		)
+		await ctx.message.add_reaction("✅")
 
 
 def setup(client):

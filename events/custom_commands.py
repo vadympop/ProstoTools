@@ -8,6 +8,12 @@ class EventsCustomCommands(commands.Cog):
         self.client = client
         self.FOOTER = self.client.config.FOOTER_TEXT
 
+    def find_custom_command(self, command_name: str, commands: list):
+        for command in commands:
+            if command["name"] == command_name:
+                return command
+        return None
+
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.guild is not None:
@@ -15,14 +21,16 @@ class EventsCustomCommands(commands.Cog):
             if message.content.startswith(PREFIX):
                 guild_data = await self.client.database.sel_guild(guild=message.guild)
                 command = message.content.split(" ")[0].replace(PREFIX, "")
-                if command in guild_data["custom_commands"].keys():
+                commands_names = [c["name"] for c in guild_data["custom_commands"]]
+                if command in commands_names:
+                    custom_command_data = self.find_custom_command(command, guild_data["custom_commands"])
                     member_data = await self.client.database.sel_user(target=message.author)
                     member_data.update({"multi": guild_data["exp_multi"]})
                     try:
                         try:
                             await message.channel.send(
                                 await self.client.template_engine.render(
-                                    message, message.author, member_data, guild_data["custom_commands"][command]
+                                    message, message.author, member_data, custom_command_data["code"]
                                 )
                             )
                         except discord.errors.HTTPException:

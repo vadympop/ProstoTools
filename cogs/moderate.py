@@ -678,21 +678,6 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		if member in ctx.guild.members:
-			await self.client.database.sel_user(target=member)
-		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**На сервере не существует такого пользователя!**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-			return
-
 		ban_time = self.client.utils.time_to_num(type_time)
 		times = time.time() + ban_time[0]
 
@@ -721,7 +706,6 @@ class Moderate(commands.Cog, name="Moderate"):
 			val = (json.dumps([]), json.dumps([]), 0, 0, -100, member.id, ctx.guild.id)
 
 			await self.client.database.execute(sql, val)
-
 			await self.client.database.set_punishment(type_punishment="ban", time=times, member=member)
 
 	@commands.command(

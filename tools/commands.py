@@ -31,11 +31,7 @@ class Commands:
 		mute_time = self.client.utils.time_to_num(type_time)
 		times = time.time()+mute_time[0]
 
-		if member in ctx.guild.members:
-			data = await self.client.database.sel_user(target=member)
-		else:
-			return
-
+		data = await self.client.database.sel_user(target=member)
 		role = get(ctx.guild.roles, name=self.MUTE_ROLE)
 		if not role:
 			role = await ctx.guild.create_role(name=self.MUTE_ROLE)
@@ -154,11 +150,7 @@ class Commands:
 	) -> discord.Embed:
 		client = self.client
 
-		if member in ctx.guild.members:
-			data = await self.client.database.sel_user(target=member)
-		else:
-			return
-
+		data = await self.client.database.sel_user(target=member)
 		info = await self.client.database.sel_guild(guild=ctx.guild)
 		max_warns = int(info["max_warns"])
 		cur_lvl = data["lvl"]
@@ -213,7 +205,7 @@ class Commands:
 				message=False,
 			)
 			emb_ctx = discord.Embed(
-				description=f"**{member.mention} Достиг максимального значения предупреждения и был замючен на 2 часа.**",
+				description=f"**{member.mention} Достиг максимального значения предупреждения и был замьючен на 2 часа.**",
 				colour=discord.Color.green(),
 			)
 			emb_ctx.set_author(name=client.user.name, icon_url=client.user.avatar_url)

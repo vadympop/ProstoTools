@@ -1,6 +1,6 @@
 import discord
 import json
-import asyncio
+import jinja2
 import math
 import datetime
 import pymysql
@@ -31,7 +31,6 @@ class EventsLeveling(commands.Cog):
 		data = await self.client.database.sel_user(target=message.author)
 
 		all_message = guild_data["all_message"]
-		guild_moder_settings = guild_data["auto_mod"]
 		multi = guild_data["exp_multi"]
 		ignored_channels = guild_data["ignored_channels"]
 		all_message += 1
@@ -59,7 +58,6 @@ class EventsLeveling(commands.Cog):
 		reputation = data["reputation"]
 		messages = data["messages"]
 		lvl_member = data["lvl"]
-		last_msg = messages[2]
 
 		reput_msg = 150
 		messages[0] += 1
@@ -69,21 +67,64 @@ class EventsLeveling(commands.Cog):
 		exp_end = math.floor(9 * (lvl_member ** 2) + 50 * lvl_member + 125 * multi)
 		if exp_end < exp:
 			lvl_member += 1
-			emb_lvl = discord.Embed(
-				title="Сообщения о повышении уровня",
-				description=f"Участник {message.author.mention} повысил свой уровень! Текущий уровень - `{lvl_member}`",
-				timestamp=datetime.datetime.utcnow(),
-				colour=discord.Color.green(),
-			)
+			if not guild_data["rank_message"]["state"]:
+				emb_lvl = discord.Embed(
+					title="Сообщения о повышении уровня",
+					description=f"Участник {message.author.mention} повысил свой уровень! Текущий уровень - `{lvl_member}`",
+					timestamp=datetime.datetime.utcnow(),
+					colour=discord.Color.green(),
+				)
 
-			emb_lvl.set_author(
-				name=message.author.name, icon_url=message.author.avatar_url
-			)
-			emb_lvl.set_footer(
-				text=self.FOOTER, icon_url=self.client.user.avatar_url
-			)
+				emb_lvl.set_author(
+					name=message.author.name, icon_url=message.author.avatar_url
+				)
+				emb_lvl.set_footer(
+					text=self.FOOTER, icon_url=self.client.user.avatar_url
+				)
+				await message.channel.send(embed=emb_lvl)
+			else:
+				data.update({"multi": guild_data["exp_multi"]})
+				try:
+					try:
+						text = await self.client.template_engine.render(
+							message,
+							message.author,
+							data,
+							guild_data["rank_message"]["text"]
+						)
+					except discord.errors.HTTPException:
+						try:
+							await message.add_reaction("❌")
+						except:
+							pass
+						emb = discord.Embed(
+							title="Ошибка!",
+							description=f"**Во время выполнения кастомной команды пройзошла ошибка неизвестная ошибка!**",
+							colour=discord.Color.red(),
+						)
+						emb.set_author(name=message.author.name, icon_url=message.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await message.channel.send(embed=emb)
+						return
+				except jinja2.exceptions.TemplateSyntaxError as e:
+					try:
+						await message.add_reaction("❌")
+					except:
+						pass
+					emb = discord.Embed(
+						title="Ошибка!",
+						description=f"Во время выполнения кастомной команды пройзошла ошибка:\n```{repr(e)}```",
+						colour=discord.Color.red(),
+					)
+					emb.set_author(name=message.author.name, icon_url=message.author.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await message.channel.send(embed=emb)
+					return
 
-			await message.channel.send(embed=emb_lvl)
+				if guild_data["rank_message"]["type"] == "channel":
+					await message.channel.send(text)
+				elif guild_data["rank_message"]["type"] == "dm":
+					await message.author.send(text)
 
 		if messages[0] >= reput_msg:
 			reputation += 1
@@ -106,26 +147,6 @@ class EventsLeveling(commands.Cog):
 			await self.client.database.execute(sql, val)
 		except pymysql.err.InternalError:
 			pass
-		try:
-			await self.client.wait_for(
-				"message",
-				check=lambda m: m.content == last_msg
-				and m.channel == message.channel,
-				timeout=2.0,
-			)
-		except asyncio.TimeoutError:
-			pass
-		else:
-			if guild_moder_settings["anti_flud"]:
-				emb = await self.client.support_commands.main_mute(
-					ctx=message,
-					member=message.author,
-					type_time="4h",
-					reason="Авто-модерация: Флуд",
-					author=message.guild.me
-				)
-				if emb is not None:
-					await message.channel.send(embed=emb)
 
 
 def setup(client):

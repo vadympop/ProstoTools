@@ -367,7 +367,7 @@ class DB:
 	async def sel_guild(self, guild) -> dict:
 		sql_1 = """SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s"""
 		val_1 = (guild.id, guild.id)
-		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, audit, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcome, auto_roles, custom_commands, autoresponders) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, audit, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcome, auto_roles, custom_commands, autoresponders, rank_message) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 		val_2 = (
 			guild.id,
 			"False",
@@ -378,7 +378,9 @@ class DB:
 			json.dumps([]),
 			json.dumps(
 				{
-					"anti_flud": False,
+					"anti_flud": {
+						"state": False
+					},
 					"react_commands": False,
 				}
 			),
@@ -389,8 +391,11 @@ class DB:
 			json.dumps({}),
 			json.dumps({}),
 			json.dumps({}),
+			json.dumps([]),
 			json.dumps({}),
-			json.dumps({}),
+			json.dumps({
+				"state": False
+			})
 		)
 
 		async with self.pool.acquire() as conn:
@@ -405,37 +410,32 @@ class DB:
 					await cur.execute(sql_1, val_1)
 					data = await cur.fetchone()
 
-		donate = data[9]
-		if donate == "True":
-			donate = True
-		elif donate == "False":
-			donate = False
-
 		dict_data = {
 			"guild_id": int(data[0]),
 			"purge": int(data[1]),
-			"audit": json.loads(data[2]),
-			"all_message": int(data[3]),
-			"textchannels_category": int(data[4]),
-			"max_warns": int(data[5]),
-			"exp_multi": float(data[6]),
-			"idea_channel": int(data[7]),
-			"timedelete_textchannel": int(data[8]),
-			"donate": donate,
-			"prefix": str(data[10]),
-			"api_key": data[11],
-			"server_stats": json.loads(data[12]),
-			"voice_channel": json.loads(data[13]),
-			"shop_list": json.loads(data[14]),
-			"ignored_channels": json.loads(data[15]),
-			"auto_mod": json.loads(data[16]),
-			"clans": json.loads(data[17]),
-			"moder_roles": json.loads(data[18]),
-			"auto_reactions": json.loads(data[19]),
-			"welcome": json.loads(data[20]),
-			"auto_roles": json.loads(data[21]),
-			"custom_commands": json.loads(data[22]),
-			"autoresponders": json.loads(data[23]),
+			"all_message": int(data[2]),
+			"textchannels_category": int(data[3]),
+			"max_warns": int(data[4]),
+			"exp_multi": float(data[5]),
+			"idea_channel": int(data[6]),
+			"timedelete_textchannel": int(data[7]),
+			"donate": data[8] == "True",
+			"prefix": str(data[9]),
+			"api_key": data[10],
+			"server_stats": json.loads(data[11]),
+			"voice_channel": json.loads(data[12]),
+			"shop_list": json.loads(data[13]),
+			"ignored_channels": json.loads(data[14]),
+			"auto_mod": json.loads(data[15]),
+			"clans": json.loads(data[16]),
+			"moder_roles": json.loads(data[17]),
+			"auto_reactions": json.loads(data[18]),
+			"welcome": json.loads(data[19]),
+			"auto_roles": json.loads(data[20]),
+			"custom_commands": json.loads(data[21]),
+			"autoresponders": json.loads(data[22]),
+			"audit": json.loads(data[23]),
+			"rank_message": json.loads(data[24])
 		}
 
 		return dict_data

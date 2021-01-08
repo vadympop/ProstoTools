@@ -46,7 +46,8 @@ extensions = (
 	"events.reactions_commands",
 	"events.auto_reactions",
 	"events.custom_commands",
-	"events.autoresponders"
+	"events.autoresponders",
+	"events.anti_flud"
 )
 
 

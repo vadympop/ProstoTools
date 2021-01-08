@@ -472,7 +472,7 @@ class Different(commands.Cog, name="Different"):
 			)
 			embed1.add_field(
 				name="Полезные ссылки",
-				value=f"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)\n[Сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](http://api.prosto-tools.ml/)\n[Документация](https://vythonlui.gitbook.io/prostotools/)\n[SDC](https://bots.server-discord.com/700767394154414142)\n[Boticord](https://boticord.top/bot/700767394154414142)",
+				value=f"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)\n[Сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](http://api.prosto-tools.ml/)\n[Документация](https://vythonlui.gitbook.io/prostotools/)\n[SDC](https://bots.server-discord.com/700767394154414142)\n[Boticord](https://boticord.top/bot/700767394154414142)\n[TBL](https://top-bots.xyz/bot/700767394154414142)",
 				inline=False,
 			)
 			embed1.set_thumbnail(url=self.client.user.avatar_url)
@@ -880,6 +880,31 @@ class Different(commands.Cog, name="Different"):
 			await ctx.send(embed=emb)
 			await ctx.message.add_reaction("❌")
 			return
+
+	@commands.command(
+		name="c-help",
+		aliases=["chelp"],
+		description="Помощь по кастомным командам",
+		usage="chelp",
+		help="**Примеры использования:**\n1. {Prefix}chelp\n\n**Пример 1:** Показывает помощь по кастомным командам",
+	)
+	@commands.cooldown(2, 10, commands.BucketType.member)
+	async def c_help(self, ctx):
+		custom_commands = (await self.client.database.sel_guild(guild=ctx.guild))["custom_commands"]
+		commands = ("\n".join([
+			f"`{command['name']}` - {command['description']}"
+			if "description" in command.keys()
+			else f"`{command['name']}` - Не указано"
+			for command in custom_commands
+		]) if custom_commands != [] else "На сервере ещё нет кастомных команд")
+		emb = discord.Embed(
+			title="Кастомные команды сервера",
+			description=commands,
+			colour=discord.Color.green(),
+		)
+		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		await ctx.send(embed=emb)
 
 
 def setup(client):
