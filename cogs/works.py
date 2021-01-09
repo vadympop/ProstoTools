@@ -16,9 +16,10 @@ class Works(commands.Cog, name="Works"):
 	async def work(self, ctx):
 		if ctx.invoked_subcommand is None:
 			self.work.reset_cooldown(ctx)
+			PREFIX = self.client.database.get_prefix(ctx.guild)
 			emb = discord.Embed(
 				title="Список работ",
-				description=f"**Грузчик - {self.client.database.get_prefix(ctx.guild)}work loader**\nДля работы нужно иметь более 3-го уровня и перчатки, кулдавн 3 часа после двух попыток, зарабатывает от 80$ до 100$\n\n**Охотник за кладом - {self.client.database.get_prefix(ctx.guild)}work treasure-hunter**\nДля работы нужен металоискатель(любого уровня), кулдавн 5 часов, может ничего не найти(0$, металоискатель 2-го уровня повышает шанс найти клад на 30%), если найдёт от 1$ до 500$\n\n**Барман - {self.client.database.get_prefix(ctx.guild)}work barman**\nДля работы нужно иметь более 4-го уровня, кулдавн 3 часа, зарабатывает от 150 до 200\n\n**Уборщик - {self.client.database.get_prefix(ctx.guild)}work cleaner**\nДля повышения эфективности работы нужно иметь веник или швабру, кулдавн 2 часа после 3 попыток\n\n**Мойщик окон - {self.client.database.get_prefix(ctx.guild)}work window-washer**\nДля работы нужно иметь более 5-го уровня, кулдавн 5 часов, от 250$ до 300$, может упасть и потерять 300$",
+				description=f"**Грузчик - {PREFIX}work loader**\nДля работы нужно иметь более 3-го уровня и перчатки, кулдавн 3 часа после двух попыток, зарабатывает от 80$ до 100$\n\n**Охотник за кладом - {PREFIX}work treasure-hunter**\nДля работы нужен металоискатель(любого уровня), кулдавн 5 часов, может ничего не найти(0$, металоискатель 2-го уровня повышает шанс найти клад на 30%), если найдёт от 1$ до 500$\n\n**Барман - {PREFIX}work barman**\nДля работы нужно иметь более 4-го уровня, кулдавн 3 часа, зарабатывает от 150 до 200\n\n**Уборщик - {PREFIX}work cleaner**\nДля повышения эфективности работы нужно иметь веник или швабру, кулдавн 2 часа после 3 попыток\n\n**Мойщик окон - {PREFIX}work window-washer**\nДля работы нужно иметь более 5-го уровня, кулдавн 5 часов, от 250$ до 300$, может упасть и потерять 300$",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(

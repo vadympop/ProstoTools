@@ -20,7 +20,19 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	@commands.has_permissions(administrator=True)
 	async def setting(self, ctx):
-		pass
+		if ctx.invoked_subcommand is None:
+			PREFIX = self.client.database.get_prefix(ctx.guild)
+			commands = "\n".join([f"`{PREFIX}setting {c.name}`" for c in self.client.get_command("setting").commands])
+			emb = discord.Embed(
+				title="Команды настройки",
+				description=commands,
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
 
 	@setting.command(
 		hidden=True,

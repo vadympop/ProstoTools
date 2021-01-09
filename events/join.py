@@ -19,7 +19,10 @@ class EventsJoin(commands.Cog):
 			text="Vython.lui and Mr.Kola Copyright",
 			icon_url=self.client.user.avatar_url,
 		)
-		await guild.text_channels[0].send(embed=emb)
+		try:
+			await guild.text_channels[0].send(embed=emb)
+		except discord.errors.Forbidden:
+			pass
 
 		await self.client.database.sel_guild(guild=guild)
 		await self.client.database.add_amout_command(entity="guilds", add_counter=len(self.client.guilds))
