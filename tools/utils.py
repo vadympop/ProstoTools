@@ -7,7 +7,7 @@ class Utils:
     def __init__(self, client):
         self.client = client
         self.FOOTER = self.client.config.FOOTER_TEXT
-    
+
     def time_to_num(self, str_time: str):
         if str_time is not None:
             time = int("".join(char for char in list(str_time) if char.isdigit()))
@@ -105,78 +105,54 @@ class Utils:
 
     async def build_help(self, ctx, prefix, groups, moder_roles):
         state = False
-        group_name = ""
-        exceptions = ["Help", "Loops", "Events", "Owner", "Errors"]
-
-        def add_command_loop(command, commands, count, group_name):
-            try:
-                for c in command.commands:
-                    if not c.hidden:
-                        if command.brief != "True":
-                            commands += f" `{prefix}{c.name}` "
-                            group_name = command.name
-                        else:
-                            state = False
-                            for role_id in moder_roles:
-                                if ctx.guild.get_role(role_id) in ctx.author.roles:
-                                    state = True
-                                    break
-
-                            if state or ctx.author == ctx.guild.owner or ctx.author.guild_permissions.administrator:
-                                commands += f" `{prefix}{c.name}` "
-                                group_name = command.name
-                    else:
-                        if ctx.author.guild_permissions.administrator:
-                            commands += f" `{prefix}{c.name}` "
-                            group_name = command.name
-            except:
-                commands += f" `{prefix}{command.name}` "
-
-            return [commands, count, group_name]
-
+        exceptions = ("owner", "help")
         emb = discord.Embed(
             title="**Доступние команды:**",
-            description=f'**Префикс на этом сервере - **`{prefix}`**, если команды после двое-точия значит их надо использовать как групу, пример: "В хелп - група: команда, надо писать - `[Префикс на сервере]група команда`", если надо ввести названия чего-либо с пробелом, укажите его в двойных кавычках**',
+            description=f'Префикс на этом сервере - `{prefix}`, если надо ввести названия чего-либо с пробелом, укажите его в двойных кавычках',
             colour=discord.Color.green()
         )
         for soft_cog_name in self.client.cogs:
-            if soft_cog_name in exceptions:
-                continue
-            else:
+            if soft_cog_name.lower() not in exceptions:
                 cog = self.client.get_cog(soft_cog_name)
                 commands = ""
-                count = 0
                 for command in cog.get_commands():
-                    if not command.hidden:
-                        if command.brief != "True":
-                            commands, count, group_name = add_command_loop(
-                                command, commands, count, group_name
-                            )
+                    if command.name not in groups:
+                        if not command.hidden:
+                            if command.brief != "True":
+                                commands += f" `{prefix}{command.name}` "
+                            else:
+                                for role_id in moder_roles:
+                                    role = ctx.guild.get_role(role_id)
+                                    if role in ctx.author.roles:
+                                        state = True
+                                        break
+
+                                if state or ctx.author == ctx.guild.owner or ctx.author.guild_permissions.administrator:
+                                    commands += f" `{prefix}{command.name}` "
                         else:
-                            for role_id in moder_roles:
-                                role = ctx.guild.get_role(role_id)
-                                if role in ctx.author.roles:
-                                    state = True
-                                    break
-
-                            if state or ctx.author == ctx.guild.owner or ctx.author.guild_permissions.administrator:
-                                commands, count, group_name = add_command_loop(
-                                    command, commands, count, group_name
-                                )
+                            commands += f" `{prefix}{command.name}` "
                     else:
-                        if ctx.author.guild_permissions.administrator:
-                            commands, count, group_name = add_command_loop(
-                                command, commands, count, group_name
-                            )
+                        for c in command.commands:
+                            if not c.hidden:
+                                if c.brief != "True":
+                                    commands += f" `{prefix}{command.name} {c.name}` "
+                                else:
+                                    for role_id in moder_roles:
+                                        role = ctx.guild.get_role(role_id)
+                                        if role in ctx.author.roles:
+                                            state = True
+                                            break
+
+                                    if state or ctx.author == ctx.guild.owner or ctx.author.guild_permissions.administrator:
+                                        commands += f" `{prefix}{command.name} {c.name}` "
+                            else:
+                                if ctx.author.guild_permissions.administrator:
+                                    commands += f" `{prefix}{command.name} {c.name}` "
+
                 if commands != "":
-                    if soft_cog_name.lower() in groups:
-                        value = f"`{group_name.lower()}`**:** {commands}"
-                    else:
-                        value = commands
-
                     emb.add_field(
                         name=f"Категория команд: {soft_cog_name.capitalize()} - {prefix}help {soft_cog_name.lower()}",
-                        value=value,
+                        value=commands,
                         inline=False,
                     )
         emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)

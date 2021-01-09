@@ -16,13 +16,38 @@ class Help(commands.Cog, name="Help"):
 				self._names.append(command.name)
 		self.commands = self._names
 
+	def _add_command_field(self, emb, c, prefix):
+		emb.add_field(
+			name=f"{prefix}{c.usage}",
+			value=f"{c.description[2:-2]}.",
+			inline=False,
+		)
+
+	def _check_command_permissions(self, ctx, emb, c, moder_roles, prefix):
+		if not c.hidden:
+			if c.brief != "True":
+				self._add_command_field(emb, c, prefix)
+			else:
+				state = False
+				for role_id in moder_roles:
+					if ctx.guild.get_role(role_id) in ctx.author.roles:
+						state = True
+						break
+
+				if state or ctx.guild.owner == ctx.author or ctx.author.guild_permissions.administrator:
+					self._add_command_field(emb, c, prefix)
+		else:
+			if ctx.guild.owner == ctx.author or ctx.author.guild_permissions.administrator:
+				self._add_command_field(emb, c, prefix)
+
 	@commands.command(
 		help="**Примеры использования:**\n1. {Prefix}help\n2. {Prefix}help moderate\n2. {Prefix}help ban\n\n**Пример 1:** Показывает список всех команд бота\n**Пример 2:** Показывает список всех указаной групы\n**Пример 3:** Показывает документацию по указаной команде"
 	)
 	async def help(self, ctx, cog_name: str = None):
-		groups = ["settings", "works", "clans"]
+		cogs_group = ("settings", "works", "clans")
+		commands_group = ("setting", "work", "clan")
 		moder_roles = (await self.client.database.sel_guild(guild=ctx.guild))["moder_roles"]
-		PREFIX = self.client.database.get_prefix(guild=ctx.guild)
+		prefix = self.client.database.get_prefix(guild=ctx.guild)
 		cogs_aliases = {
 			"economy": "Economy",
 			"funeditimage": "FunEditImage",
@@ -37,7 +62,7 @@ class Help(commands.Cog, name="Help"):
 		}
 
 		if cog_name is None:
-			emb = await self.client.utils.build_help(ctx, PREFIX, groups, moder_roles)
+			emb = await self.client.utils.build_help(ctx, prefix, commands_group, moder_roles)
 			await ctx.send(embed=emb)
 			return
 
@@ -65,10 +90,10 @@ class Help(commands.Cog, name="Help"):
 					else ""
 				)
 				emb = discord.Embed(
-					title=f"Команда: {PREFIX+cog_name.lower()}",
+					title=f"Команда: {prefix+cog_name.lower()}",
 					description=aliases
 					+ self.client.get_command(cog_name.lower()).help.format(
-						Prefix=PREFIX
+						Prefix=prefix
 					),
 					colour=discord.Color.green(),
 				)
@@ -79,41 +104,17 @@ class Help(commands.Cog, name="Help"):
 				await ctx.send(embed=emb)
 				return
 
-		def add_command_field(emb, c):
-			emb.add_field(
-				name=f"{PREFIX}{c.usage}",
-				value=f"{c.description[2:-2]}.",
-				inline=False,
-			)
-
-		def check_command_permissions(emb, c):
-			if not c.hidden:
-				if c.brief != "True":
-					add_command_field(emb, c)
-				else:
-					state = False
-					for role_id in moder_roles:
-						if ctx.guild.get_role(role_id) in ctx.author.roles:
-							state = True
-							break
-
-					if state or ctx.guild.owner == ctx.author or ctx.author.guild_permissions.administrator:
-						add_command_field(emb, c)
-			else:
-				if ctx.guild.owner == ctx.author or ctx.author.guild_permissions.administrator:
-					add_command_field(emb, c)
-
 		emb_2 = discord.Embed(
 			title=f"Категория команд - {cogs_aliases[cog_name.lower()]}",
 			description="[Пример] - требуется, |Пример| - необязательно",
 			colour=discord.Color.green(),
 		)
 		for c in self.client.get_cog(cogs_aliases[cog_name.lower()]).get_commands():
-			if self.client.get_cog(cogs_aliases[cog_name.lower()]).qualified_name.lower() in groups:
+			if self.client.get_cog(cogs_aliases[cog_name.lower()]).qualified_name.lower() in cogs_group:
 				for command in c.commands:
-					check_command_permissions(emb_2, command)
+					self._check_command_permissions(ctx, emb_2, command, moder_roles, prefix)
 			else:
-				check_command_permissions(emb_2, c)
+				self._check_command_permissions(ctx, emb_2, c, moder_roles, prefix)
 		emb_2.set_author(
 			name=self.client.user.name, icon_url=self.client.user.avatar_url
 		)
