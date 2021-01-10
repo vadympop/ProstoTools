@@ -17,7 +17,7 @@ class EventsCustomCommands(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.guild is not None:
-            PREFIX = self.client.database.get_prefix(guild=message.guild)
+            PREFIX = str(await self.client.database.get_prefix(guild=message.guild))
             if message.content.startswith(PREFIX):
                 guild_data = await self.client.database.sel_guild(guild=message.guild)
                 command = message.content.split(" ")[0].replace(PREFIX, "")

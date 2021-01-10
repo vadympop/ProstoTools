@@ -35,10 +35,11 @@ class EventsLeveling(commands.Cog):
 		ignored_channels = guild_data["ignored_channels"]
 		all_message += 1
 
-		scr = """UPDATE guilds SET all_message = %s WHERE guild_id = %s AND guild_id = %s"""
-		val_1 = (all_message, message.guild.id, message.guild.id)
-
-		await self.client.database.execute(scr, val_1)
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": message.guild.id},
+			all_message=all_message
+		)
 
 		if ignored_channels != []:
 			if message.channel.id in ignored_channels:
@@ -57,11 +58,11 @@ class EventsLeveling(commands.Cog):
 		coins = coins_first + coins_member
 		reputation = data["reputation"]
 		messages = data["messages"]
-		lvl_member = data["lvl"]
+		lvl_member = data["level"]
 
 		reput_msg = 150
-		messages[0] += 1
-		messages[1] += 1
+		messages[0] = int(messages[0])+1
+		messages[1] = int(messages[1])+1
 		messages[2] = message.content
 
 		exp_end = math.floor(9 * (lvl_member ** 2) + 50 * lvl_member + 125 * multi)
@@ -133,18 +134,16 @@ class EventsLeveling(commands.Cog):
 		if reputation >= 100:
 			reputation = 100
 
-		sql = """UPDATE users SET exp = %s, coins = %s, reputation = %s, messages = %s, level = %s WHERE user_id = %s AND guild_id = %s"""
-		val = (
-			exp,
-			coins,
-			reputation,
-			json.dumps(messages),
-			lvl_member,
-			message.author.id,
-			message.guild.id,
-		)
 		try:
-			await self.client.database.execute(sql, val)
+			await self.client.database.update(
+				"users",
+				where={"user_id": message.author.id, "guild_id": message.guild.id},
+				exp=exp,
+				coins=coins,
+				reputation=reputation,
+				messages=json.dumps(messages),
+				level=lvl_member
+			)
 		except pymysql.err.InternalError:
 			pass
 

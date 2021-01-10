@@ -23,13 +23,15 @@ class Clans(commands.Cog):
 					await member.add_roles(ctx.guild.get_role(clan["role_id"]))
 					break
 
-		await self.client.database.execute(
-			("""UPDATE users SET clan = %s WHERE user_id = %s AND guild_id = %s"""),
-			(clan_id, member.id, ctx.guild.id),
+		await self.client.database.update(
+			"users",
+			where={"user_id": member.id, "guild_id": ctx.guild.id},
+			clan=clan_id
 		)
-		await self.client.database.execute(
-			("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""),
-			(json.dumps(data), ctx.guild.id),
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			clans=json.dumps(data)
 		)
 		await ctx.message.add_reaction("✅")
 
@@ -112,12 +114,17 @@ class Clans(commands.Cog):
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
 
-		sql = """UPDATE guilds SET clans = %s WHERE guild_id = %s AND guild_id = %s"""
-		val = (json.dumps(data), ctx.guild.id, ctx.guild.id)
-		await self.client.database.execute(sql, val)
-		sql = """UPDATE users SET coins = %s, clan = %s WHERE guild_id = %s AND user_id = %s"""
-		val = (coins, new_id, ctx.guild.id, ctx.author.id)
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			clans=json.dumps(data)
+		)
+		await self.client.database.update(
+			"users",
+			where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+			clan=new_id,
+			coins=coins
+		)
 
 		if "clans" in audit.keys():
 			e = discord.Embed(
@@ -175,9 +182,10 @@ class Clans(commands.Cog):
 						await ctx.message.add_reaction("✅")
 
 						clan[field] = value
-						await self.client.database.execute(
-							("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""),
-							(json.dumps(data), ctx.guild.id),
+						await self.client.database.update(
+							"guilds",
+							where={"guild_id": ctx.guild.id},
+							clans=json.dumps(data)
 						)
 					else:
 						emb = discord.Embed(
@@ -263,13 +271,15 @@ class Clans(commands.Cog):
 
 					clan["owner"] = member.id
 					await member.add_roles(ctx.guild.get_role(clan["role_id"]))
-					await self.client.database.execute(
-						"""UPDATE guilds SET clans = %s WHERE guild_id = %s""",
-						(json.dumps(data), ctx.guild.id),
+					await self.client.database.update(
+						"guilds",
+						where={"guild_id": ctx.guild.id},
+						clans=json.dumps(data)
 					)
-					await self.client.database.execute(
-						"""UPDATE users SET clan = %s WHERE user_id = %s AND guild_id = %s""",
-						(clan["id"], member.id, ctx.guild.id)
+					await self.client.database.update(
+						"users",
+						where={"user_id": member.id, "guild_id": ctx.guild.id},
+						clan=clan["id"]
 					)
 					return
 				else:
@@ -353,13 +363,17 @@ class Clans(commands.Cog):
 					await ctx.message.add_reaction("❌")
 					return
 
-		sql_1 = """UPDATE guilds SET clans = %s WHERE guild_id = %s AND guild_id = %s"""
-		val_1 = (json.dumps(data), ctx.guild.id, ctx.guild.id)
-		sql_2 = """UPDATE users SET clan = %s WHERE guild_id = %s AND user_id = %s"""
-		await self.client.database.execute(sql_1, val_1)
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			clans=json.dumps(data)
+		)
 		for member_id in delete_clan["members"]:
-			val_2 = ("", ctx.guild.id, member_id)
-			await self.client.database.execute(sql_2, val_2)
+			await self.client.database.update(
+				"users",
+				where={"user_id": member_id, "guild_id": ctx.guild.id},
+				clan=""
+			)
 
 		await self.client.database.execute(sql_2, ("", ctx.guild.id, delete_clan["owner"]))
 		await ctx.message.add_reaction("✅")
@@ -481,15 +495,15 @@ class Clans(commands.Cog):
 							)
 						except:
 							pass
-						await self.client.database.execute(
-							(
-								"""UPDATE users SET clan = %s WHERE user_id = %s AND guild_id = %s"""
-							),
-							("", member.id, ctx.guild.id),
+						await self.client.database.update(
+							"users",
+							where={"user_id": member.id, "guild_id": ctx.guild.id},
+							clan=""
 						)
-						await self.client.database.execute(
-							("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""),
-							(json.dumps(data), ctx.guild.id),
+						await self.client.database.update(
+							"guilds",
+							where={"guild_id": ctx.guild.id},
+							clans=json.dumps(data)
 						)
 						await ctx.message.add_reaction("✅")
 						return
@@ -641,15 +655,15 @@ class Clans(commands.Cog):
 					except:
 						pass
 					clan["members"].remove(ctx.author.id)
-					await self.client.database.execute(
-						(
-							"""UPDATE users SET clan = %s WHERE user_id = %s AND guild_id = %s"""
-						),
-						("", ctx.author.id, ctx.guild.id),
+					await self.client.database.update(
+						"users",
+						where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+						clan=clan["id"]
 					)
-					await self.client.database.execute(
-						("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""),
-						(json.dumps(data), ctx.guild.id),
+					await self.client.database.update(
+						"guilds",
+						where={"guild_id": ctx.guild.id},
+						clans=json.dumps(data)
 					)
 					await ctx.message.add_reaction("✅")
 					break
@@ -709,9 +723,10 @@ class Clans(commands.Cog):
 						await ctx.send(embed=emb)
 
 						clan["invites"].append(new_invite)
-						await self.client.database.execute(
-							("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""),
-							(json.dumps(data), ctx.guild.id),
+						await self.client.database.update(
+							"guilds",
+							where={"guild_id": ctx.guild.id},
+							clans=json.dumps(data)
 						)
 					else:
 						emb = discord.Embed(
@@ -791,9 +806,10 @@ class Clans(commands.Cog):
 					clan["invites"].remove(invite)
 					clan["members"].append(ctx.author.id)
 					await self._add_member(ctx, clan["id"], ctx.author)
-					await self.client.database.execute(
-						("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""),
-						(json.dumps(data), ctx.guild.id),
+					await self.client.database.update(
+						"guilds",
+						where={"guild_id": ctx.guild.id},
+						clans=json.dumps(data)
 					)
 					break
 				else:
@@ -860,9 +876,10 @@ class Clans(commands.Cog):
 						await ctx.send(embed=emb)
 
 						clan["join_requests"].append(ctx.author.id)
-						await self.client.database.execute(
-							("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""),
-							(json.dumps(data), ctx.guild.id),
+						await self.client.database.update(
+							"guilds",
+							where={"guild_id": ctx.guild.id},
+							clans=json.dumps(data)
 						)
 					else:
 						emb = discord.Embed(
@@ -1001,9 +1018,10 @@ class Clans(commands.Cog):
 						clan["join_requests"].remove(member.id)
 						clan["members"].append(member.id)
 						await self._add_member(ctx, clan["id"], member)
-						await self.client.database.execute(
-							("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""),
-							(json.dumps(data), ctx.guild.id),
+						await self.client.database.update(
+							"guilds",
+							where={"guild_id": ctx.guild.id},
+							clans=json.dumps(data)
 						)
 					else:
 						emb = discord.Embed(
@@ -1076,9 +1094,10 @@ class Clans(commands.Cog):
 						await ctx.message.add_reaction("✅")
 
 						clan["join_requests"].remove(member.id)
-						await self.client.database.execute(
-							("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""),
-							(json.dumps(data), ctx.guild.id),
+						await self.client.database.update(
+							"guilds",
+							where={"guild_id": ctx.guild.id},
+							clans=json.dumps(data)
 						)
 					else:
 						emb = discord.Embed(
@@ -1171,17 +1190,15 @@ class Clans(commands.Cog):
 							)
 							await ctx.send(embed=emb)
 
-							await self.client.database.execute(
-								(
-									"""UPDATE guilds SET clans = %s WHERE guild_id = %s"""
-								),
-								(json.dumps(data), ctx.guild.id),
+							await self.client.database.update(
+								"guilds",
+								where={"guild_id": ctx.guild.id},
+								clans=json.dumps(data)
 							)
-							await self.client.database.execute(
-								(
-									"""UPDATE users SET coins = %s WHERE user_id = %s AND guild_id = %s"""
-								),
-								(user_data["coins"], ctx.author.id, ctx.guild.id),
+							await self.client.database.update(
+								"users",
+								where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+								coins=user_data["coins"]
 							)
 						else:
 							emb = discord.Embed(
@@ -1245,15 +1262,15 @@ class Clans(commands.Cog):
 
 						clan["size"] += 5
 						user_data["coins"] -= 7500
-						await self.client.database.execute(
-							("""UPDATE guilds SET clans = %s WHERE guild_id = %s"""),
-							(json.dumps(data), ctx.guild.id),
+						await self.client.database.update(
+							"guilds",
+							where={"guild_id": ctx.guild.id},
+							clans=json.dumps(data)
 						)
-						await self.client.database.execute(
-							(
-								"""UPDATE users SET coins = %s WHERE user_id = %s AND guild_id = %s"""
-							),
-							(user_data["coins"], ctx.author.id, ctx.guild.id),
+						await self.client.database.update(
+							"users",
+							where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+							coins=user_data["coins"]
 						)
 					else:
 						emb = discord.Embed(
@@ -1329,11 +1346,10 @@ class Clans(commands.Cog):
 							await ctx.send(embed=emb)
 
 							user_data["coins"] -= 5000
-							await self.client.database.execute(
-								(
-									"""UPDATE users SET coins = %s WHERE user_id = %s AND guild_id = %s"""
-								),
-								(user_data["coins"], ctx.author.id, ctx.guild.id),
+							await self.client.database.update(
+								"users",
+								where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+								coins=user_data["coins"]
 							)
 						except:
 							emb = discord.Embed(

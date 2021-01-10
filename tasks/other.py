@@ -80,10 +80,11 @@ class TasksOther(commands.Cog):
 		for profile in data:
 			if profile != []:
 				all_message = json.loads(profile[2])[1]
-				sql = """UPDATE users SET messages = %s WHERE user_id = %s AND guild_id = %s"""
-				val = (json.dumps([0, all_message, None]), profile[0], profile[1])
-
-				await self.client.database.execute(sql, val)
+				await self.client.database.update(
+					"users",
+					where={"user_id": profile[0], "guild_id": profile[1]},
+					messages=json.dumps([0, all_message, None])
+				)
 
 
 def setup(client):

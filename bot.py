@@ -1,6 +1,7 @@
 import discord
 import datetime
 from tools.http import RandomAPI
+from tools.cache import CacheManager
 from tools import DB, Utils, Commands, template_engine as temp_eng
 from cogs.economy.buy_cmd import buy
 from loguru import logger
@@ -60,6 +61,7 @@ class Client(commands.AutoShardedBot):
 		)
 		self.remove_command("help")
 		self.config = Config
+		self.cache = CacheManager()
 		self.database = DB(client=self)
 		self.utils = Utils(client=self)
 		self.random_api = RandomAPI()
@@ -94,7 +96,8 @@ class Client(commands.AutoShardedBot):
 async def get_prefix(client, message):
 	if message.guild is None:
 		return "p."
-	return client.database.get_prefix(guild=message.guild)
+	prefix = await client.database.get_prefix(guild=message.guild)
+	return commands.when_mentioned_or(*(str(prefix), ))(client, message)
 
 
 base_intents = discord.Intents.none()

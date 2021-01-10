@@ -252,12 +252,13 @@ class Different(commands.Cog, name="Different"):
 		coins_member = data["coins"]
 		cur_items = data["items"]
 
-		sql = """UPDATE users SET coins = coins - 50 WHERE user_id = %s AND guild_id = %s"""
-		val = (ctx.author.id, ctx.guild.id)
-
 		if cur_items != []:
 			if "sim" in cur_items and "tel" in cur_items and coins_member > 50:
-				await self.client.database.execute(sql, val)
+				await self.client.database.update(
+					"users",
+					where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+					coins=coins_member-50
+				)
 
 				emb = discord.Embed(
 					title=f"Новое сообщения от {ctx.author.name}",
@@ -534,7 +535,6 @@ class Different(commands.Cog, name="Different"):
 				)
 			await ctx.send(embed=embed2)
 
-
 	@commands.command(
 		aliases=["server", "serverinfo", "guild", "guildinfo", "guild-info"],
 		name="server-info",
@@ -586,6 +586,7 @@ class Different(commands.Cog, name="Different"):
 			"brazil": ":flag_br: — Бразилия",
 			"india": ":flag_in: — Индия",
 			"hongkong": ":flag_hk: — Гонконг",
+			"europe": ":flag_eu: — Европа"
 		}
 
 		dnd = len(

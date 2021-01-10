@@ -5,12 +5,15 @@ import typing
 import time
 import discord
 import aiomysql
-import mysql.connector
+from tools.abc import AbcDatabase
 
 
-class DB:
+class DB(AbcDatabase):
 	def __init__(self, client):
 		self.client = client
+		self.cache = self.client.cache
+		self.cached_guild_key = "guild {0.id}"
+		self.cached_user_key = "user {0.id} {0.guild.id}"
 		self.DB_HOST = self.client.config.DB_HOST
 		self.DB_USER = self.client.config.DB_USER
 		self.DB_PASSWORD = self.client.config.DB_PASSWORD
@@ -283,6 +286,11 @@ class DB:
 				await conn.commit()
 
 	async def sel_user(self, target, check=True) -> dict:
+		cached_user = await self.cache.get(self.cached_user_key.format(target))
+		if await self.cache.exists(self.cached_user_key.format(target)):
+			if cached_user is not None:
+				return cached_user
+
 		sql_1 = """SELECT * FROM users WHERE user_id = %s AND guild_id = %s"""
 		val_1 = (target.id, target.guild.id)
 		sql_2 = """INSERT INTO users (user_id, guild_id, prison, profile, items, pets, clan, messages, transantions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
@@ -344,11 +352,11 @@ class DB:
 			dict_data = {
 				"user_id": int(data[0]),
 				"guild_id": int(data[1]),
-				"lvl": int(data[2]),
+				"level": int(data[2]),
 				"exp": int(data[3]),
 				"money": int(data[4]),
 				"coins": int(data[5]),
-				"text_channels": int(data[6]),
+				"text_channel": int(data[6]),
 				"reputation": int(data[7]),
 				"num_commands": int(data[8]),
 				"prison": prison,
@@ -361,10 +369,17 @@ class DB:
 				"messages": json.loads(data[15]),
 				"transantions": json.loads(data[16]),
 			}
-
+			await self.cache.set(
+				self.cached_user_key.format(target), dict_data
+			)
 			return dict_data
 
 	async def sel_guild(self, guild) -> dict:
+		cached_guild = await self.cache.get(self.cached_guild_key.format(guild))
+		if await self.cache.exists(self.cached_guild_key.format(guild)):
+			if cached_guild is not None:
+				return cached_guild
+
 		sql_1 = """SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s"""
 		val_1 = (guild.id, guild.id)
 		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, audit, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcome, auto_roles, custom_commands, autoresponders, rank_message) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
@@ -437,38 +452,34 @@ class DB:
 			"audit": json.loads(data[23]),
 			"rank_message": json.loads(data[24])
 		}
-
+		await self.cache.set(
+			self.cached_guild_key.format(guild), dict_data
+		)
 		return dict_data
 
-	def get_prefix(self, guild: discord.Guild):
-		conn = mysql.connector.connect(
-			user=self.DB_USER,
-			password=self.DB_PASSWORD,
-			host=self.DB_HOST,
-			database=self.DB_DATABASE,
-			port=3306
-		)
-		cursor = conn.cursor(buffered=True)
+	async def get_prefix(self, guild: discord.Guild):
+		cached_guild = await self.cache.get(self.cached_guild_key.format(guild))
+		if await self.cache.exists(self.cached_guild_key.format(guild)):
+			if cached_guild is not None:
+				return cached_guild["prefix"]
 
-		cursor.execute(f"""SELECT prefix FROM guilds WHERE guild_id = {guild.id}""")
-		data = cursor.fetchone()[0]
-		cursor.close()
-		return data
+		return (await self.execute(
+			"""SELECT prefix FROM guilds WHERE guild_id = %s""",
+			(guild.id),
+			fetchone=True
+		))[0]
 
-	def get_moder_roles(self, guild: discord.Guild):
-		conn = mysql.connector.connect(
-			user=self.DB_USER,
-			password=self.DB_PASSWORD,
-			host=self.DB_HOST,
-			database=self.DB_DATABASE,
-			port=3306
-		)
-		cursor = conn.cursor(buffered=True)
+	async def get_moder_roles(self, guild: discord.Guild):
+		cached_guild = await self.cache.get(self.cached_guild_key.format(guild))
+		if await self.cache.exists(self.cached_guild_key.format(guild)):
+			if cached_guild is not None:
+				return cached_guild["moder_roles"]
 
-		cursor.execute(f"""SELECT moderators FROM guilds WHERE guild_id = {guild.id}""")
-		data = cursor.fetchone()[0]
-		cursor.close()
-		return data
+		return (await self.execute(
+			"""SELECT moderators FROM guilds WHERE guild_id = %s""",
+			(guild.id),
+			fetchone=True
+		))[0]
 
 	async def execute(
 		self, query: str, val: typing.Union[tuple, list] = (), fetchone: bool = False
@@ -482,6 +493,27 @@ class DB:
 				else:
 					data = await cur.fetchall()
 		return data
+
+	async def update(self, table: str, **kwargs):
+		where = kwargs.pop("where")
+		query = ", ".join([
+			f"{key} = {value}"
+			if str(value).isdigit()
+			else f"{key} = '{value}'"
+			for key, value in kwargs.items()
+		])
+		if table in ("users", "guilds"):
+			if table == "users":
+				cache_key = f"user {where['user_id']} {where['guild_id']}"
+			elif table == "guilds":
+				cache_key = f"guild {where['guild_id']}"
+
+			for key, value in kwargs.items():
+				await self.cache.update(cache_key, key, value)
+
+		await self.execute(
+			f"""UPDATE {table} SET {query} WHERE {' AND '.join([f"{key} = {value}" for key, value in where.items()])}"""
+		)
 
 	async def add_amout_command(
 		self, entity: str = "all commands", add_counter: typing.Union[int, float] = None

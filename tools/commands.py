@@ -51,7 +51,7 @@ class Commands:
 		for channel in ctx.guild.text_channels:
 			await channel.set_permissions(role, overwrite=overwrite)
 
-		cur_lvl = data["lvl"]
+		cur_lvl = data["level"]
 		cur_coins = data["coins"] - 1500
 		cur_money = data["money"]
 		cur_reputation = data["reputation"] - 15
@@ -84,18 +84,15 @@ class Commands:
 			except:
 				pass
 
-		sql = """UPDATE users SET money = %s, coins = %s, reputation = %s, items = %s, prison = %s WHERE user_id = %s AND guild_id = %s"""
-		val = (
-			cur_money,
-			cur_coins,
-			cur_reputation,
-			json.dumps(cur_items),
-			str(prison),
-			member.id,
-			ctx.guild.id,
+		await self.client.database.update(
+			"users",
+			where={"user_id": member.id, "guild_id": ctx.guild.id},
+			money=cur_money,
+			coins=cur_coins,
+			reputation=cur_reputation,
+			items=json.dumps(cur_items),
+			prison=str(prison)
 		)
-
-		await self.client.database.execute(sql, val)
 
 		if mute_time[0] <= 0:
 			if message:
@@ -153,7 +150,7 @@ class Commands:
 		data = await self.client.database.sel_user(target=member)
 		info = await self.client.database.sel_guild(guild=ctx.guild)
 		max_warns = int(info["max_warns"])
-		cur_lvl = data["lvl"]
+		cur_lvl = data["level"]
 		cur_coins = data["coins"]
 		cur_money = data["money"]
 		cur_warns = data["warns"]
@@ -226,8 +223,12 @@ class Commands:
 			emb_ctx.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb_ctx.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
 
-		sql = """UPDATE users SET money = %s, coins = %s, reputation = %s, prison = %s WHERE user_id = %s AND guild_id = %s"""
-		val = (cur_money, cur_coins, cur_reputation, str(cur_state_pr))
-
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"users",
+			where={"user_id": member.id, "guild_id": ctx.guild.id},
+			money=cur_money,
+			coins=cur_coins,
+			reputation=cur_reputation,
+			prison=str(cur_state_pr)
+		)
 		return emb_ctx

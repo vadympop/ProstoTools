@@ -16,7 +16,7 @@ class Works(commands.Cog, name="Works"):
 	async def work(self, ctx):
 		if ctx.invoked_subcommand is None:
 			self.work.reset_cooldown(ctx)
-			PREFIX = self.client.database.get_prefix(ctx.guild)
+			PREFIX = str(await self.client.database.get_prefix(ctx.guild))
 			emb = discord.Embed(
 				title="Список работ",
 				description=f"**Грузчик - {PREFIX}work loader**\nДля работы нужно иметь более 3-го уровня и перчатки, кулдавн 3 часа после двух попыток, зарабатывает от 80$ до 100$\n\n**Охотник за кладом - {PREFIX}work treasure-hunter**\nДля работы нужен металоискатель(любого уровня), кулдавн 5 часов, может ничего не найти(0$, металоискатель 2-го уровня повышает шанс найти клад на 30%), если найдёт от 1$ до 500$\n\n**Барман - {PREFIX}work barman**\nДля работы нужно иметь более 4-го уровня, кулдавн 3 часа, зарабатывает от 150 до 200\n\n**Уборщик - {PREFIX}work cleaner**\nДля повышения эфективности работы нужно иметь веник или швабру, кулдавн 2 часа после 3 попыток\n\n**Мойщик окон - {PREFIX}work window-washer**\nДля работы нужно иметь более 5-го уровня, кулдавн 5 часов, от 250$ до 300$, может упасть и потерять 300$",
@@ -35,7 +35,7 @@ class Works(commands.Cog, name="Works"):
 	@commands.cooldown(2, 10800, commands.BucketType.member)
 	async def loader(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		lvl_member = data["lvl"]
+		lvl_member = data["level"]
 		rand_num = randint(80, 100)
 		cur_state_pr = data["prison"]
 		cur_items = data["items"]
@@ -43,10 +43,11 @@ class Works(commands.Cog, name="Works"):
 		if not cur_state_pr:
 			if lvl_member >= 3:
 				if "gloves" in cur_items:
-					sql = """UPDATE users SET money = money + %s WHERE user_id = %s AND guild_id = %s"""
-					val = (rand_num, ctx.author.id, ctx.guild.id)
-
-					await self.client.database.execute(sql, val)
+					await self.client.database.update(
+						"users",
+						where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+						money=data["money"] + rand_num,
+					)
 
 					emb = discord.Embed(
 						description=f"**За работу вы получили: {rand_num}$. Продолжайте стараться!**",
@@ -104,7 +105,7 @@ class Works(commands.Cog, name="Works"):
 	@commands.cooldown(1, 18000, commands.BucketType.member)
 	async def treasurehunter(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		lvl_member = data["lvl"]
+		lvl_member = data["level"]
 		cur_state_pr = data["prison"]
 		cur_items = data["items"]
 		cur_pets = data["pets"]
@@ -120,10 +121,11 @@ class Works(commands.Cog, name="Works"):
 				if "helmet" in cur_pets:
 					rand_num_2 += rand_num_2*10//100
 
-				sql = """UPDATE users SET money = money + %s WHERE user_id = %s AND guild_id = %s"""
-				val = (rand_num_2, ctx.author.id, ctx.guild.id)
-
-				await self.client.database.execute(sql, val)
+				await self.client.database.update(
+					"users",
+					where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+					money=data["money"]+rand_num_2,
+				)
 
 				msg_content = (
 					f"**За работу вы получили: {rand_num_2}$. Продолжайте стараться!**"
@@ -234,16 +236,17 @@ class Works(commands.Cog, name="Works"):
 	@commands.cooldown(2, 10800, commands.BucketType.member)
 	async def barman(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		lvl_member = data["lvl"]
+		lvl_member = data["level"]
 		rand_num = 150 + randint(0, 50)
 		cur_state_pr = data["prison"]
 
 		if not cur_state_pr:
 			if lvl_member >= 4:
-				sql = """UPDATE users SET money = money + %s WHERE user_id = %s AND guild_id = %s"""
-				val = (rand_num, ctx.author.id, ctx.guild.id)
-
-				await self.client.database.execute(sql, val)
+				await self.client.database.update(
+					"users",
+					where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+					money=data["money"]+rand_num,
+				)
 
 				emb = discord.Embed(
 					description=f"**За сегодняшнюю работу в баре: {rand_num}$. Не употребляйте много алкоголя :3**",
@@ -290,10 +293,11 @@ class Works(commands.Cog, name="Works"):
 		async def cleaner_func(rnum1: int, rnum2: int):
 			rnum = randint(rnum1, rnum2)
 
-			sql = """UPDATE users SET money = money + %s WHERE user_id = %s AND guild_id = %s"""
-			val = (rnum, ctx.author.id, ctx.guild.id)
-
-			await self.client.database.execute(sql, val)
+			await self.client.database.update(
+				"users",
+				where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+				money=data["money"]+rnum,
+			)
 
 			msg_content = f"**За сегодняшнюю уборку вы получили: {rnum}$**"
 			return msg_content
@@ -351,12 +355,11 @@ class Works(commands.Cog, name="Works"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
-			sql = (
-				"""UPDATE users SET prison = %s WHERE user_id = %s AND guild_id = %s"""
+			await self.client.database.update(
+				"users",
+				where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+				prison="False",
 			)
-			val = ("False", ctx.author.id, ctx.guild.id)
-
-			await self.client.database.execute(sql, val)
 
 	@work.command(
 		aliases=["window-washer"],
@@ -366,7 +369,7 @@ class Works(commands.Cog, name="Works"):
 	@commands.cooldown(1, 18000, commands.BucketType.member)
 	async def windowasher(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		lvl_member = data["lvl"]
+		lvl_member = data["level"]
 		rand_num_1 = randint(1, 2)
 		cur_state_pr = data["prison"]
 
@@ -400,11 +403,11 @@ class Works(commands.Cog, name="Works"):
 					)
 					await ctx.send(embed=emb)
 
-				sql = """UPDATE users SET money = %s WHERE user_id = %s AND guild_id = %s"""
-				val = (cur_money, ctx.author.id, ctx.guild.id)
-
-				await self.client.database.execute(sql, val)
-
+				await self.client.database.update(
+					"users",
+					where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+					money=cur_money,
+				)
 			else:
 				emb = discord.Embed(
 					description="**У вас не достаточний уровень для этой работы!**",

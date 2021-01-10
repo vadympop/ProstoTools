@@ -22,12 +22,17 @@ class EventsLeave(commands.Cog):
 		await self.client.database.execute(sql_3, val)
 		await self.client.database.execute(sql_4, val)
 		await self.client.database.execute(sql_5, val)
-
+		await self.client.cache.delete(
+			self.client.database.cached_guild_key.format(guild)
+		)
 		for member in guild.members:
 			sql_2 = """DELETE FROM users WHERE user_id = %s AND guild_id = %s"""
 			val_2 = (member.id, guild.id)
 
 			await self.client.database.execute(sql_2, val_2)
+			await self.client.cache.delete(
+				self.client.database.cached_user_key.format(member)
+			)
 
 		guild_owner_bot = self.client.get_guild(717776571406090310)
 		channel = guild_owner_bot.text_channels[3]

@@ -6,17 +6,19 @@ from discord.ext import commands
 from discord.utils import get
 
 
-def check_role(ctx):
-	data = ctx.bot.database.get_moder_roles(guild=ctx.guild)
+async def check_role(ctx):
+	data = await ctx.bot.database.get_moder_roles(guild=ctx.guild)
 	roles = ctx.guild.roles[::-1]
 	data.append(roles[0].id)
 
 	if data != []:
 		for role in data:
 			role = get(ctx.guild.roles, id=role)
-			yield role in ctx.author.roles
+			if role in ctx.author.roles:
+				return True
+		return False
 	else:
-		return roles[0] in ctx.author.roles
+		return ctx.author.guild_permission.administrator
 
 
 class Utils(commands.Cog, name="Utils"):
@@ -47,11 +49,11 @@ class Utils(commands.Cog, name="Utils"):
 					"Нажми на меня", category=channel_category
 				)
 				data.update({"channel_id": voice_channel.id})
-
-				sql = """UPDATE guilds SET voice_channel = %s WHERE guild_id = %s AND guild_id = %s"""
-				val = (json.dumps(data), ctx.guild.id, ctx.guild.id)
-
-				await self.client.database.execute(sql, val)
+				await self.client.database.update(
+					"guilds",
+					where={"guild_id": ctx.guild.id},
+					voice_channel=json.dumps(data)
+				)
 				await ctx.message.add_reaction("✅")
 			else:
 				emb = await self.client.utils.create_error_embed(
@@ -61,10 +63,11 @@ class Utils(commands.Cog, name="Utils"):
 				return
 
 		elif state in off_answers:
-			sql = """UPDATE guilds SET voice_channel = %s WHERE guild_id = %s AND guild_id = %s"""
-			val = (json.dumps({}), ctx.guild.id, ctx.guild.id)
-
-			await self.client.database.execute(sql, val)
+			await self.client.database.update(
+				"guilds",
+				where={"guild_id": ctx.guild.id},
+				voice_channel=json.dumps({})
+			)
 			await ctx.message.add_reaction("✅")
 		else:
 			emb = discord.Embed(
@@ -172,11 +175,11 @@ class Utils(commands.Cog, name="Utils"):
 
 				server_stats = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
 				server_stats.update({"message": [message.id, ctx.channel.id]})
-
-				sql = """UPDATE guilds SET server_stats = %s WHERE guild_id = %s AND guild_id = %s"""
-				val = (json.dumps(server_stats), ctx.guild.id, ctx.guild.id)
-
-				await self.client.database.execute(sql, val)
+				await self.client.database.update(
+					"guilds",
+					where={"guild_id": ctx.guild.id},
+					server_stats=json.dumps(server_stats)
+				)
 			await asyncio.sleep(10)
 			try:
 				await ctx.message.delete()
@@ -211,10 +214,11 @@ class Utils(commands.Cog, name="Utils"):
 			data = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
 			data.update({stats_count.lower(): stats_channel.id})
 
-			sql = """UPDATE guilds SET server_stats = %s WHERE guild_id = %s AND guild_id = %s"""
-			val = (json.dumps(data), ctx.guild.id, ctx.guild.id)
-
-			await self.client.database.execute(sql, val)
+			await self.client.database.update(
+				"guilds",
+				where={"guild_id": ctx.guild.id},
+				server_stats=json.dumps(data)
+			)
 			await ctx.message.add_reaction("✅")
 
 	@commands.command(
@@ -355,9 +359,10 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(lambda ctx: ctx.author.id == ctx.guild.owner.id)
 	@commands.cooldown(1, 43200, commands.BucketType.member)
 	async def regenerate_api_key(self, ctx):
-		await self.client.database.execute(
-			"""UPDATE guilds SET api_key = %s WHERE guild_id = %s""",
-			(str(uuid.uuid4()), ctx.guild.id)
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			api_key=str(uuid.uuid4())
 		)
 		await ctx.message.add_reaction("✅")
 

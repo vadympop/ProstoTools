@@ -21,7 +21,7 @@ class Settings(commands.Cog, name="Settings"):
 	@commands.has_permissions(administrator=True)
 	async def setting(self, ctx):
 		if ctx.invoked_subcommand is None:
-			PREFIX = self.client.database.get_prefix(ctx.guild)
+			PREFIX = str(await self.client.database.get_prefix(ctx.guild))
 			commands = "\n".join([f"`{PREFIX}setting {c.name}`" for c in self.client.get_command("setting").commands])
 			emb = discord.Embed(
 				title="Команды настройки",
@@ -51,10 +51,11 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.send(embed=emb)
 			return
 
-		sql = """UPDATE guilds SET prefix = %s WHERE guild_id = %s AND guild_id = %s"""
-		val = (prefix, ctx.guild.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			prefix=prefix
+		)
 
 		emb = discord.Embed(
 			description=f"**Вы успешно изменили префикс бота на этом сервере. Новый префикс {prefix}**",
@@ -135,10 +136,11 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.send(embed=emb)
 			return
 
-		sql = """UPDATE guilds SET moderators = %s WHERE guild_id = %s AND guild_id = %s"""
-		val = (json.dumps(cur_roles), ctx.guild.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			moderators=json.dumps(cur_roles)
+		)
 
 	@setting.command(
 		hidden=True,
@@ -210,10 +212,11 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.send(embed=emb)
 			return
 
-		sql = """UPDATE guilds SET ignored_channels = %s WHERE guild_id = %s AND guild_id = %s"""
-		val = (json.dumps(cur_ignchannel), ctx.guild.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			ignored_channels=json.dumps(cur_ignchannel)
+		)
 
 	@setting.command(
 		hidden=True,
@@ -278,13 +281,13 @@ class Settings(commands.Cog, name="Settings"):
 				ctx, "**Укажите одно из этих действий: add, clear, delete!**",
 			)
 			await ctx.send(embed=emb)
+			return
 
-		sql = (
-			"""UPDATE guilds SET shop_list = %s WHERE guild_id = %s AND guild_id = %s"""
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			shop_list=json.dumps(shoplist)
 		)
-		val = (json.dumps(shoplist), ctx.guild.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
 
 	@setting.command(
 		hidden=True,
@@ -293,10 +296,11 @@ class Settings(commands.Cog, name="Settings"):
 		usage="setting text-channels-category [Id категории]",
 	)
 	async def privatetextcategory(self, ctx, category: discord.CategoryChannel):
-		sql = """UPDATE guilds SET textchannels_category = %s WHERE guild_id = %s AND guild_id = %s"""
-		val = (category.id, ctx.guild.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			textchannels_category=category.id
+		)
 
 		emb = discord.Embed(
 			description=f"**Вы успешно настроили категорию для приватних текстовых каналов! Новая категория - {category.name}**",
@@ -330,12 +334,11 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		sql = (
-			"""UPDATE guilds SET max_warns = %s WHERE guild_id = %s AND guild_id = %s"""
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			max_warns=number
 		)
-		val = (number, ctx.guild.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
 
 		emb = discord.Embed(
 			description=f"**Вы успешно настроили максимальное количество предупрежденний! Новое значения - `{number}`**",
@@ -582,9 +585,10 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.send(embed=emb)
 			return
 
-		await self.client.database.execute(
-			"""UPDATE guilds SET auto_mod = %s WHERE guild_id = %s""",
-			(json.dumps(auto_mod), ctx.guild.id)
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			auto_mod=json.dumps(auto_mod)
 		)
 		await ctx.message.add_reaction("✅")
 
@@ -629,12 +633,11 @@ class Settings(commands.Cog, name="Settings"):
 		settings = data["auto_mod"]
 		settings.update({"react_commands": action})
 
-		sql = (
-			"""UPDATE guilds SET auto_mod = %s WHERE guild_id = %s AND guild_id = %s"""
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			auto_mod=json.dumps(settings)
 		)
-		val = (json.dumps(settings), ctx.guild.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
 
 	@setting.command(
 		hidden=True,
@@ -643,10 +646,11 @@ class Settings(commands.Cog, name="Settings"):
 		usage="setting idea-channel [Id канала]",
 	)
 	async def ideachannel(self, ctx, channel: discord.TextChannel):
-		sql = """UPDATE guilds SET idea_channel = %s WHERE guild_id = %s AND guild_id = %s"""
-		val = (channel.id, ctx.guild.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			idea_channel=channel.id
+		)
 
 		emb = discord.Embed(
 			description=f"**Вы успешно настроили канал идей! Новий канал - {channel.name}**",
@@ -668,10 +672,11 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.send(embed=emb)
 			return
 
-		sql = """UPDATE guilds SET timedelete_textchannel = %s WHERE guild_id = %s AND guild_id = %s"""
-		val = (time, ctx.guild.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			timedelete_textchannel=time
+		)
 
 		emb = discord.Embed(
 			description=f"**Вы успешно изменили значения! Новая длительность на удаления приватного текстового - {time}**",
@@ -703,12 +708,11 @@ class Settings(commands.Cog, name="Settings"):
 			return
 
 		form = float(multi / 100)
-		sql = (
-			"""UPDATE guilds SET exp_multi = %s WHERE guild_id = %s AND guild_id = %s"""
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			exp_multi=form
 		)
-		val = (form, ctx.guild.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
 
 		emb = discord.Embed(
 			description=f"**Вы успешно настроили множитель опыта, {multiplier}**",
@@ -759,19 +763,9 @@ class Settings(commands.Cog, name="Settings"):
 
 			if category.lower() in base_categories:
 				audit.update({category.lower(): channel.id})
-				await self.client.database.execute(
-					"""UPDATE guilds SET audit = %s WHERE guild_id = %s""",
-					(json.dumps(audit), ctx.guild.id)
-				)
-				await ctx.message.add_reaction("✅")
 			else:
 				if category.lower() in categories.keys():
 					audit.update({categories[category.lower()]: channel.id})
-					await self.client.database.execute(
-						"""UPDATE guilds SET audit = %s WHERE guild_id = %s""",
-						(json.dumps(audit), ctx.guild.id)
-					)
-					await ctx.message.add_reaction("✅")
 				else:
 					emb = await self.client.utils.create_error_embed(
 						ctx, "**Указаной категории не существует!**",
@@ -788,11 +782,6 @@ class Settings(commands.Cog, name="Settings"):
 					return
 
 				audit.pop(category.lower())
-				await self.client.database.execute(
-					"""UPDATE guilds SET audit = %s WHERE guild_id = %s""",
-					(json.dumps(audit), ctx.guild.id)
-				)
-				await ctx.message.add_reaction("✅")
 			else:
 				if category.lower() in categories.keys():
 					if categories[category.lower()] not in audit.keys():
@@ -803,11 +792,6 @@ class Settings(commands.Cog, name="Settings"):
 						return
 
 					audit.pop(categories[category.lower()])
-					await self.client.database.execute(
-						"""UPDATE guilds SET audit = %s WHERE guild_id = %s""",
-						(json.dumps(audit), ctx.guild.id)
-					)
-					await ctx.message.add_reaction("✅")
 				else:
 					emb = await self.client.utils.create_error_embed(
 						ctx, "**Указаной категории не существует!**",
@@ -819,6 +803,14 @@ class Settings(commands.Cog, name="Settings"):
 				ctx, "**Укажите одно из этих действий: on, off!**",
 			)
 			await ctx.send(embed=emb)
+			return
+
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			audit=json.dumps(audit)
+		)
+		await ctx.message.add_reaction("✅")
 
 	@setting.command(
 		hidden=True,
@@ -842,9 +834,10 @@ class Settings(commands.Cog, name="Settings"):
 
 			emojis = [emoji for emoji in reactions.split(" ") if emoji]
 			auto_reactions.update({channel.id: emojis})
-			await self.client.database.execute(
-				"""UPDATE guilds SET auto_reactions = %s WHERE guild_id = %s""",
-				(json.dumps(auto_reactions), ctx.guild.id)
+			await self.client.database.update(
+				"guilds",
+				where={"guild_id": ctx.guild.id},
+				auto_reactions=json.dumps(auto_reactions)
 			)
 			await ctx.message.add_reaction("✅")
 			return
@@ -861,9 +854,10 @@ class Settings(commands.Cog, name="Settings"):
 				await ctx.send(embed=emb)
 				return
 
-			await self.client.database.execute(
-				"""UPDATE guilds SET auto_reactions = %s WHERE guild_id = %s""",
-				(json.dumps(auto_reactions), ctx.guild.id)
+			await self.client.database.update(
+				"guilds",
+				where={"guild_id": ctx.guild.id},
+				auto_reactions=json.dumps(auto_reactions)
 			)
 			await ctx.message.add_reaction("✅")
 			return
@@ -926,9 +920,10 @@ class Settings(commands.Cog, name="Settings"):
 				return
 
 			custom_commands.append({"name": command_name, "code": " ".join(options)})
-			await self.client.database.execute(
-				f"""UPDATE guilds SET custom_commands = %s WHERE guild_id = %s""",
-				(json.dumps(custom_commands), ctx.guild.id)
+			await self.client.database.update(
+				"guilds",
+				where={"guild_id": ctx.guild.id},
+				custom_commands=json.dumps(custom_commands)
 			)
 
 			emb = discord.Embed(
@@ -979,9 +974,10 @@ class Settings(commands.Cog, name="Settings"):
 				return
 
 			custom_commands.remove(command)
-			await self.client.database.execute(
-				f"""UPDATE guilds SET custom_commands = %s WHERE guild_id = %s""",
-				(json.dumps(custom_commands), ctx.guild.id)
+			await self.client.database.update(
+				"guilds",
+				where={"guild_id": ctx.guild.id},
+				custom_commands=json.dumps(custom_commands)
 			)
 
 			emb = discord.Embed(
@@ -1062,9 +1058,10 @@ class Settings(commands.Cog, name="Settings"):
 				command.update({"description": " ".join(options)})
 				custom_commands[custom_commands.index(command)] = command
 
-			await self.client.database.execute(
-				f"""UPDATE guilds SET custom_commands = %s WHERE guild_id = %s""",
-				(json.dumps(custom_commands), ctx.guild.id)
+			await self.client.database.update(
+				"guilds",
+				where={"guild_id": ctx.guild.id},
+				custom_commands=json.dumps(custom_commands)
 			)
 
 			emb = discord.Embed(
@@ -1126,9 +1123,10 @@ class Settings(commands.Cog, name="Settings"):
 				return
 
 			auto_responders.update({responder_name: text})
-			await self.client.database.execute(
-				f"""UPDATE guilds SET autoresponders = %s WHERE guild_id = %s""",
-				(json.dumps(auto_responders), ctx.guild.id)
+			await self.client.database.update(
+				"guilds",
+				where={"guild_id": ctx.guild.id},
+				autoresponders=json.dumps(auto_responders)
 			)
 
 			emb = discord.Embed(
@@ -1177,9 +1175,10 @@ class Settings(commands.Cog, name="Settings"):
 				return
 
 			auto_responders.pop(responder_name)
-			await self.client.database.execute(
-				f"""UPDATE guilds SET autoresponders = %s WHERE guild_id = %s""",
-				(json.dumps(auto_responders), ctx.guild.id)
+			await self.client.database.update(
+				"guilds",
+				where={"guild_id": ctx.guild.id},
+				autoresponders=json.dumps(auto_responders)
 			)
 
 			emb = discord.Embed(
@@ -1226,9 +1225,10 @@ class Settings(commands.Cog, name="Settings"):
 				return
 
 			auto_responders.update({responder_name: text})
-			await self.client.database.execute(
-				f"""UPDATE guilds SET autoresponders = %s WHERE guild_id = %s""",
-				(json.dumps(auto_responders), ctx.guild.id)
+			await self.client.database.update(
+				"guilds",
+				where={"guild_id": ctx.guild.id},
+				autoresponders=json.dumps(auto_responders)
 			)
 
 			emb = discord.Embed(
@@ -1307,9 +1307,10 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.send(embed=emb)
 			return
 
-		await self.client.database.execute(
-			"""UPDATE guilds SET rank_message = %s WHERE guild_id = %s""",
-			(json.dumps(rank_message), ctx.guild.id)
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			rank_message=json.dumps(rank_message)
 		)
 		await ctx.message.add_reaction("✅")
 

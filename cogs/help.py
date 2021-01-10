@@ -47,7 +47,7 @@ class Help(commands.Cog, name="Help"):
 		cogs_group = ("settings", "works", "clans")
 		commands_group = ("setting", "work", "clan")
 		moder_roles = (await self.client.database.sel_guild(guild=ctx.guild))["moder_roles"]
-		prefix = self.client.database.get_prefix(guild=ctx.guild)
+		prefix = str(await self.client.database.get_prefix(guild=ctx.guild))
 		cogs_aliases = {
 			"economy": "Economy",
 			"funeditimage": "FunEditImage",

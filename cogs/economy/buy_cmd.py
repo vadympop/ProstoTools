@@ -31,9 +31,10 @@ async def buy(ctx, item: str = None, num: int = None):
             pass
 
         if item is None:
+            PREFIX = str(await ctx.bot.database.get_prefix(guild=ctx.guild))
             emb = discord.Embed(
                 title="Как купить товары?",
-                description=f"Метало искатель 1-го уровня - metal_1 или металоискатель_1\nМетало искатель 2-го уровня - metal_2 или металоискатель_2\nТелефон - tel или телефон\nСим-карта - sim или сим-карта\nТекстовый канал - текстовый-канал или text-channel\nМетла - метла или broom\nШвабра - швабра или mop\nПерчатки - перчатки или gloves\nДля покупки роли нужно вести её названия\n\n**Все цены можно узнать с помощю команды {ctx.bot.database.get_prefix(ctx.guild)}shoplist**",
+                description=f"Метало искатель 1-го уровня - metal_1 или металоискатель_1\nМетало искатель 2-го уровня - metal_2 или металоискатель_2\nТелефон - tel или телефон\nСим-карта - sim или сим-карта\nТекстовый канал - текстовый-канал или text-channel\nМетла - метла или broom\nШвабра - швабра или mop\nПерчатки - перчатки или gloves\nДля покупки роли нужно вести её названия\n\n**Все цены можно узнать с помощю команды {PREFIX}shoplist**",
                 colour=discord.Color.green(),
             )
             emb.set_author(
@@ -74,17 +75,14 @@ async def buy(ctx, item: str = None, num: int = None):
             }
             cur_transantions.append(info_transantion)
 
-            sql = """UPDATE users SET items = %s, prison = %s, money = %s, transantions = %s WHERE user_id = %s AND guild_id = %s"""
-            val = (
-                json.dumps(cur_items),
-                prison,
-                cur_money,
-                json.dumps(cur_transantions),
-                ctx.author.id,
-                ctx.guild.id,
+            await ctx.bot.database.update(
+                "users",
+                where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+                items=json.dumps(cur_items),
+                prison=prison,
+                money=cur_money,
+                transantions=json.dumps(cur_transantions)
             )
-
-            await ctx.bot.database.execute(sql, val)
             return prison_state
 
         async def buy_coins_func(func_item, func_cost):
@@ -96,16 +94,18 @@ async def buy(ctx, item: str = None, num: int = None):
             elif cur_items == []:
                 cur_items.append(func_item)
 
-            sql = """UPDATE users SET items = %s, coins = %s WHERE user_id = %s AND guild_id = %s"""
-            val = (json.dumps(cur_items), coins_member, ctx.author.id, ctx.guild.id)
-
-            await ctx.bot.database.execute(sql, val)
+            await ctx.bot.database.update(
+                "users",
+                where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+                items=json.dumps(cur_items),
+                coins=coins_member,
+            )
 
         async def buy_text_channel(func_cost, num):
             cost = func_cost * num
             cur_transantions = data["transantions"]
             cur_money = data["money"] - cost
-            num_textchannels = data["text_channels"] + num
+            num_textchannels = data["text_channel"] + num
             cur_items = data["items"]
             prison = "False"
             prison_state = False
@@ -125,18 +125,16 @@ async def buy(ctx, item: str = None, num: int = None):
             }
             cur_transantions.append(info_transantion)
 
-            sql = """UPDATE users SET items = %s, prison = %s, money = %s, text_channel = %s, transantions = %s WHERE user_id = %s AND guild_id = %s"""
-            val = (
-                json.dumps(cur_items),
-                prison,
-                cur_money,
-                num_textchannels,
-                json.dumps(cur_transantions),
-                ctx.author.id,
-                ctx.guild.id,
+            await ctx.bot.database.update(
+                "users",
+                where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+                items=json.dumps(cur_items),
+                prison=prison,
+                money=cur_money,
+                text_channel=num_textchannels,
+                transantions=json.dumps(cur_transantions)
             )
 
-            await ctx.bot.database.execute(sql, val)
             return prison_state
 
         async def buy_item(item, cost, stacked=False):
@@ -219,16 +217,13 @@ async def buy(ctx, item: str = None, num: int = None):
                             text=FOOTER, icon_url=ctx.bot.user.avatar_url
                         )
 
-                        sql = """UPDATE users SET items = %s, prison = %s, money = %s WHERE user_id = %s AND guild_id = %s"""
-                        val = (
-                            json.dumps(cur_items),
-                            str(prison),
-                            cur_money,
-                            ctx.author.id,
-                            ctx.guild.id,
+                        await ctx.bot.database.update(
+                            "users",
+                            where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+                            items=json.dumps(cur_items),
+                            prison=str(prison),
+                            money=cur_money,
                         )
-
-                        await ctx.bot.database.execute(sql, val)
 
                 elif not stacked:
                     state = await buy_func(item, cost)
@@ -342,16 +337,13 @@ async def buy(ctx, item: str = None, num: int = None):
                             text=FOOTER, icon_url=ctx.bot.user.avatar_url
                         )
 
-                        sql = """UPDATE users SET items = %s, prison = %s, money = %s WHERE user_id = %s AND guild_id = %s"""
-                        val = (
-                            json.dumps(cur_items),
-                            str(prison),
-                            cur_money,
-                            ctx.author.id,
-                            ctx.guild.id,
+                        await ctx.bot.database.update(
+                            "users",
+                            where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+                            items=json.dumps(cur_items),
+                            prison=str(prison),
+                            money=cur_money,
                         )
-
-                        await ctx.bot.database.execute(sql, val)
 
             embeds = [emb_cool, emb_prison, emb_fail]
             return embeds

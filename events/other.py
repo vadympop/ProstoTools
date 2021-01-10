@@ -8,11 +8,18 @@ class EventsOther(commands.Cog):
 	@commands.Cog.listener()
 	async def on_command(self, ctx):
 		await self.client.database.add_amout_command(entity=ctx.command.name)
-		if ctx.guild is not None:
-			await self.client.database.execute(
-				"""UPDATE users SET num_commands = num_commands + 1 WHERE user_id = %s AND guild_id = %s""",
-				(ctx.author.id, ctx.guild.id),
-			)
+		if ctx.guild is None:
+			return
+
+		if ctx.author.bot:
+			return
+
+		num_commands = (await self.client.database.sel_user(target=ctx.author))["num_commands"]
+		await self.client.database.update(
+			"users",
+			where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+			num_commands=num_commands+1
+		)
 
 
 def setup(client):

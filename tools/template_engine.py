@@ -58,7 +58,7 @@ class Rank:
 	def __init__(self, data):
 		self._id = data["user_id"]
 		self.exp = data["exp"]
-		self.lvl = data["lvl"]
+		self.lvl = data["level"]
 		self.level_exp = math.floor(
 			9 * (self.lvl ** 2) + 50 * self.lvl + 125 * data["multi"]
 		)

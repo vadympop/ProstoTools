@@ -33,11 +33,6 @@ class EventsAntiFlud(commands.Cog):
             pass
         else:
             if data["auto_mod"]["anti_flud"]["state"]:
-                member_data["messages"][2] = None
-                await self.client.database.execute(
-                    """UPDATE users SET messages = %s WHERE user_id = %s AND guild_id = %s""",
-                    (json.dumps(member_data["messages"]), message.author.id, message.guild.id)
-                )
                 if "target_channels" in data["auto_mod"]["anti_flud"].keys():
                     if message.channel.id not in data["auto_mod"]["anti_flud"]["target_channels"]:
                         return
@@ -91,10 +86,15 @@ class EventsAntiFlud(commands.Cog):
                             return
 
                         if ban_time > 0:
-                            sql = """UPDATE users SET clans = %s, items = %s, money = %s, coins = %s, reputation = %s WHERE user_id = %s AND guild_id = %s"""
-                            val = (json.dumps([]), json.dumps([]), 0, 0, -100, message.author.id, message.guild.id)
-
-                            await self.client.database.execute(sql, val)
+                            await self.client.database.update(
+                                "users",
+                                where={"user_id": message.author.id, "guild_id": message.guild.id},
+                                money=0,
+                                coins=0,
+                                reputation=-100,
+                                items=json.dumps([]),
+                                clan=""
+                            )
                             await self.client.database.set_punishment(
                                 type_punishment="ban", time=times, member=message.author
                             )

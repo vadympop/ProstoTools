@@ -122,12 +122,13 @@ class Economy(commands.Cog):
 			self.repp.reset_cooldown(ctx)
 			return
 
-		await self.client.database.sel_user(target=member)
+		reputation = await self.client.database.sel_user(target=member)["reputation"]
 
-		sql = """UPDATE users SET reputation = reputation + %s WHERE user_id = %s AND guild_id = %s"""
-		val = (num, member.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"users",
+			where={"user_id": member.id, "guild_id": ctx.guild.id},
+			reputation=reputation+num
+		)
 
 		emb = discord.Embed(
 			description="**Вы успешно добавили репутация к указаному пользователю!**",
@@ -189,12 +190,13 @@ class Economy(commands.Cog):
 			self.repm.reset_cooldown(ctx)
 			return
 
-		await self.client.database.sel_user(target=member)
+		reputation = await self.client.database.sel_user(target=member)["reputation"]
 
-		sql = """UPDATE users SET reputation = reputation - %s WHERE user_id = %s AND guild_id = %s"""
-		val = (num, member.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"users",
+			where={"user_id": member.id, "guild_id": ctx.guild.id},
+			reputation=reputation-num
+		)
 
 		emb = discord.Embed(
 			description="**Вы успешно убавили репутация к указаному пользователю!**",
@@ -214,11 +216,13 @@ class Economy(commands.Cog):
 		nums = [100, 250, 1000, 500, 50]
 		rand_num = random.choice(nums)
 
-		await self.client.database.sel_user(target=ctx.author)
-		sql = """UPDATE users SET money = money + %s WHERE user_id = %s AND guild_id = %s"""
-		val = (rand_num, ctx.author.id, ctx.guild.id)
+		money = await self.client.database.sel_user(target=ctx.author)["money"]
 
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"users",
+			where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+			money=money+rand_num
+		)
 
 		emb = discord.Embed(
 			description=f"**Вы получили ежедневну награду! В размере - {rand_num}$**",
@@ -238,13 +242,10 @@ class Economy(commands.Cog):
 	@commands.cooldown(1, 240, commands.BucketType.member)
 	async def textchannel(self, ctx, *, name: str):
 		data = await self.client.database.sel_user(target=ctx.author)
-		sql = """UPDATE users SET text_channel = text_channel - 1 WHERE user_id = %s AND guild_id = %s"""
-		val = (ctx.author.id, ctx.guild.id)
-
 		guild_data = await self.client.database.sel_guild(guild=ctx.guild)
 		category_id = guild_data["textchannels_category"]
 		time_channel = guild_data["timedelete_textchannel"]
-		num_textchannels = data["text_channels"]
+		num_textchannels = data["text_channel"]
 
 		if len(name) > 32:
 			emb = discord.Embed(
@@ -303,8 +304,11 @@ class Economy(commands.Cog):
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
 
-				await self.client.database.execute(sql, val)
-
+				await self.client.database.update(
+					"users",
+					where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+					text_channels=data["text_channel"]-1
+				)
 				await self.client.database.set_punishment(
 					type_punishment="text_channel",
 					time=float(time.time() + 60 * time_channel),
@@ -423,13 +427,18 @@ class Economy(commands.Cog):
 			cur_transantions1.append(info_transantion_1)
 			cur_transantions2.append(info_transantion_2)
 
-			sql_1 = """UPDATE users SET money = money - %s, transantions = %s WHERE user_id = %s AND guild_id = %s"""
-			sql_2 = """UPDATE users SET money = money + %s, transantions = %s WHERE user_id = %s AND guild_id = %s"""
-			val_1 = (num, json.dumps(cur_transantions1), ctx.author.id, ctx.guild.id)
-			val_2 = (num, json.dumps(cur_transantions2), member.id, member.guild.id)
-
-			await self.client.database.execute(sql_1, val_1)
-			await self.client.database.execute(sql_2, val_2)
+			await self.client.database.update(
+				"users",
+				where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+				transantions=json.dumps(cur_transantions1),
+				money=cur_money1-num
+			)
+			await self.client.database.update(
+				"users",
+				where={"user_id": member.id, "guild_id": ctx.guild.id},
+				transantions=json.dumps(cur_transantions2),
+				money=data2["money"]+num
+			)
 
 			emb = discord.Embed(
 				description=f"**Вы успешно совершили транзакцию `{member.mention}` на суму `{num}$`**",
@@ -850,16 +859,13 @@ class Economy(commands.Cog):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
-			sql = """UPDATE users SET items = %s, pets = %s, money = %s WHERE user_id = %s AND guild_id = %s"""
-			val = (
-				json.dumps(items),
-				json.dumps(pets),
-				money,
-				ctx.author.id,
-				ctx.guild.id,
+			await self.client.database.update(
+				"users",
+				where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+				items=json.dumps(items),
+				pets=json.dumps(pets),
+				money=money
 			)
-
-			await self.client.database.execute(sql, val)
 		elif not state:
 			emb = discord.Embed(
 				title=f"Ошибка!",
@@ -924,10 +930,11 @@ class Economy(commands.Cog):
 			except:
 				pass
 
-			sql = """UPDATE users SET items = %s WHERE user_id = %s AND guild_id = %s"""
-			val = (json.dumps(items), member.id, ctx.guild.id)
-
-			await self.client.database.execute(sql, val)
+			await self.client.database.update(
+				"users",
+				where={"user_id": member.id, "guild_id": ctx.guild.id},
+				items=json.dumps(items),
+			)
 
 			emb = discord.Embed(
 				title="Успех!",
@@ -1044,10 +1051,12 @@ class Economy(commands.Cog):
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
 
-		sql = """UPDATE users SET money = %s, coins = %s WHERE user_id = %s AND guild_id = %s"""
-		val = (cur_money, coins_member, member.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"users",
+			where={"user_id": member.id, "guild_id": ctx.guild.id},
+			money=cur_money,
+			coins=coins_member
+		)
 
 		if "economy" in audit.keys():
 			e = discord.Embed(
@@ -1143,10 +1152,12 @@ class Economy(commands.Cog):
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
 
-		sql = """UPDATE users SET money = %s, coins = %s WHERE user_id = %s AND guild_id = %s"""
-		val = (cur_money, coins_member, member.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"users",
+			where={"user_id": member.id, "guild_id": ctx.guild.id},
+			money=cur_money,
+			coins=coins_member
+		)
 
 		if "economy" in audit:
 			e = discord.Embed(
@@ -1225,16 +1236,13 @@ class Economy(commands.Cog):
 						prison = True
 						state = True
 
-				sql = """UPDATE users SET money = %s, items = %s, prison = %s WHERE user_id = %s AND guild_id = %s"""
-				val = (
-					cur_money,
-					json.dumps(items),
-					str(prison),
-					member.id,
-					member.guild.id,
+				await self.client.database.update(
+					"users",
+					where={"user_id": member.id, "guild_id": ctx.guild.id},
+					money=cur_money,
+					items=json.dumps(items),
+					prison=str(prison)
 				)
-
-				await self.client.database.execute(sql, val)
 				return [state, data["money"]]
 
 			if rand_num <= 40:
@@ -1327,16 +1335,13 @@ class Economy(commands.Cog):
 				prison = data["prison"]
 				items = data["items"]
 
-				sql = """UPDATE users SET money = %s, prison = %s, items = %s WHERE user_id = %s AND guild_id = %s"""
-				val = (
-					cur_money,
-					str(prison),
-					json.dumps(items),
-					member.id,
-					member.guild.id,
+				await self.client.database.update(
+					"users",
+					where={"user_id": member.id, "guild_id": ctx.guild.id},
+					money=cur_money,
+					items=json.dumps(items),
+					prison=str(prison)
 				)
-
-				await self.client.database.execute(sql, val)
 				if cur_money <= -5000:
 					prison = True
 					items = []
@@ -1414,8 +1419,8 @@ class Economy(commands.Cog):
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def invertory(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		Prefix = self.client.database.get_prefix(guild=ctx.guild)
-		number = data["text_channels"]
+		PREFIX = str(await self.client.database.get_prefix(guild=ctx.guild))
+		number = data["text_channel"]
 
 		def func_inv():
 			items = data["items"]
@@ -1451,7 +1456,7 @@ class Economy(commands.Cog):
 			}
 
 			if items == []:
-				items_content = f"Ваш инвертарь пуст. Купите что-нибудь с помощью команды - {Prefix}buy\n"
+				items_content = f"Ваш инвертарь пуст. Купите что-нибудь с помощью команды - {PREFIX}buy\n"
 				check_state = False
 			elif items != []:
 				for i in items:
@@ -1553,11 +1558,11 @@ class Economy(commands.Cog):
 			await ctx.send(embed=emb)
 			return
 
-		await self.client.database.sel_user(target=ctx.author)
-		sql = """UPDATE users SET profile = %s WHERE user_id = %s AND guild_id = %s"""
-		val = (colour[color.lower()], ctx.author.id, ctx.guild.id)
-
-		await self.client.database.execute(sql, val)
+		await self.client.database.update(
+			"users",
+			where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+			profile=colour[color.lower()]
+		)
 
 		emb = discord.Embed(
 			description=f"**Вы успешно поменяли цвет своего профиля на {color}**",
@@ -1668,7 +1673,7 @@ class Economy(commands.Cog):
 			multi = (await self.client.database.sel_guild(guild=ctx.guild))["exp_multi"]
 			user = str(member.name)
 			user_exp = int(user_data["exp"])
-			user_level = int(user_data["lvl"])
+			user_level = int(user_data["level"])
 			user_warns = len(user_data["warns"])
 			user_coins = int(user_data["coins"])
 			user_money = int(user_data["money"])

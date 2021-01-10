@@ -9,15 +9,17 @@ from discord.ext import commands
 from discord.utils import get
 
 
-def check_role(ctx):
-	data = ctx.bot.database.get_moder_roles(guild=ctx.guild)
+async def check_role(ctx):
+	data = await ctx.bot.database.get_moder_roles(guild=ctx.guild)
 	roles = ctx.guild.roles[::-1]
 	data.append(roles[0].id)
 
 	if data != []:
 		for role in data:
 			role = get(ctx.guild.roles, id=role)
-			yield role in ctx.author.roles
+			if role in ctx.author.roles:
+				return True
+		return False
 	else:
 		return ctx.author.guild_permission.administrator
 
@@ -702,10 +704,15 @@ class Moderate(commands.Cog, name="Moderate"):
 			pass
 
 		if ban_time > 0:
-			sql = """UPDATE users SET clans = %s, items = %s, money = %s, coins = %s, reputation = %s WHERE user_id = %s AND guild_id = %s"""
-			val = (json.dumps([]), json.dumps([]), 0, 0, -100, member.id, ctx.guild.id)
-
-			await self.client.database.execute(sql, val)
+			await self.client.database.update(
+				"users",
+				where={"user_id": member.id, "guild_id": ctx.guild.id},
+				clan="",
+				items=json.dumps([]),
+				money=0,
+				coins=0,
+				reputation=-100
+			)
 			await self.client.database.set_punishment(type_punishment="ban", time=times, member=member)
 
 	@commands.command(
@@ -1120,7 +1127,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			for channel in ctx.guild.text_channels:
 				await channel.set_permissions(role, overwrite=overwrite)
 
-			cur_lvl = data["lvl"]
+			cur_lvl = data["level"]
 			cur_coins = data["coins"] - 1500
 			cur_money = data["money"]
 			cur_reputation = data["reputation"] - 15
@@ -1156,17 +1163,15 @@ class Moderate(commands.Cog, name="Moderate"):
 				except:
 					pass
 
-			sql = """UPDATE users SET money = %s, coins = %s, reputation = %s, items = %s, prison = %s WHERE user_id = %s AND guild_id = %s"""
-			val = (
-				cur_money,
-				cur_coins,
-				cur_reputation,
-				json.dumps(cur_items),
-				str(prison),
-				member.id,
-				ctx.guild.id,
+			await self.client.database.update(
+				"users",
+				where={"user_id": member.id, "guild_id": ctx.guild.id},
+				money=cur_money,
+				coins=cur_coins,
+				reputation=cur_reputation,
+				items=json.dumps(cur_items),
+				prison=str(prison)
 			)
-			await self.client.database.execute(sql, val)
 
 			if mute_time[0] <= 0:
 				emb = discord.Embed(
@@ -1504,7 +1509,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			info = await self.client.database.sel_guild(guild=ctx.guild)
 			max_warns = int(info["max_warns"])
 
-			cur_lvl = data["lvl"]
+			cur_lvl = data["level"]
 			cur_coins = data["coins"]
 			cur_money = data["money"]
 			cur_warns = data["warns"]
@@ -1598,17 +1603,14 @@ class Moderate(commands.Cog, name="Moderate"):
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
 
-			sql = """UPDATE users SET money = %s, coins = %s, reputation = %s, prison = %s WHERE user_id = %s AND guild_id = %s"""
-			val = (
-				cur_money,
-				cur_coins,
-				cur_reputation,
-				str(cur_state_pr),
-				member.id,
-				ctx.guild.id,
+			await self.client.database.update(
+				"users",
+				where={"user_id": member.id, "guild_id": ctx.guild.id},
+				money=cur_money,
+				coins=cur_coins,
+				reputation=cur_reputation,
+				prison=str(cur_state_pr)
 			)
-
-			await self.client.database.execute(sql, val)
 
 		if "moderate" in audit.keys():
 			e = discord.Embed(
