@@ -829,9 +829,8 @@ class Different(commands.Cog, name="Different"):
 
 		sql = """UPDATE users SET bio = %s WHERE user_id = %s"""
 		val = (text, ctx.author.id)
-
 		await self.client.database.execute(sql, val)
-
+		await self.client.cache.delete(f"user {ctx.author.id} {ctx.guild.id}")
 		await ctx.message.add_reaction("✅")
 
 	@commands.command(

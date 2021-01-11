@@ -16,7 +16,7 @@ class Settings(commands.Cog, name="Settings"):
 		return None
 
 	@commands.group(
-		help=f"""**Команды групы:** level-up-message, time-delete-channel, shop-role, exp-multi, text-channels-category, set-audit, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions, auto-responder\n\n"""
+		help=f"""**Команды групы:** anti-invite, level-up-message, time-delete-channel, shop-role, exp-multi, text-channels-category, set-audit, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions, auto-responder\n\n"""
 	)
 	@commands.has_permissions(administrator=True)
 	async def setting(self, ctx):
@@ -566,6 +566,252 @@ class Settings(commands.Cog, name="Settings"):
 					else:
 						try:
 							auto_mod["anti_flud"]["ignore_roles"].remove(role.id)
+						except ValueError:
+							emb = await self.client.utils.create_error_embed(
+								ctx, "**В списке ролей нету указаной роли!**",
+							)
+							await ctx.send(embed=emb)
+							return
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: add, delete!**",
+					)
+					await ctx.send(embed=emb)
+					return
+		else:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Укажите одно из этих действий: on, off, setting!**",
+			)
+			await ctx.send(embed=emb)
+			return
+
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			auto_mod=json.dumps(auto_mod)
+		)
+		await ctx.message.add_reaction("✅")
+
+	@setting.command(
+		hidden=True,
+		name="anti-invite",
+		description="**Настройка анти-приглашения(Бета-тест)**",
+		usage="setting anti-invite [on/off/setting] [Настройка] [Значения...]",
+	)
+	async def anti_invite(self, ctx, action: str, setting: str = None, *options):
+		ons = ("on", "вкл", "включить", "+", "1")
+		offs = ("off", "выкл", "выключить", "-", "0")
+		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
+		if action.lower() in ons:
+			if auto_mod["anti_invite"]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Анти-приглашения уже включено!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			auto_mod["anti_invite"]["state"] = True
+
+		elif action.lower() in offs:
+			print(auto_mod["anti_invite"]["state"])
+			print(type(auto_mod["anti_invite"]["state"]))
+			if not auto_mod["anti_invite"]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Анти-приглашения и так выключено!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			auto_mod["anti_invite"] = {"state": False}
+
+		elif action.lower() == "setting":
+			settings = ("message", "punishment", "target-channel", "ignore-channel", "target-role", "ignore-role")
+			punishments = ("mute", "ban", "soft-ban", "warn", "kick")
+			if setting is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите изменяемую настройку!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if setting.lower() not in settings:
+				emb = await self.client.utils.create_error_embed(
+					ctx,
+					"Укажите одну из этих настроек: message, punishment, target-channel, ignore-channel, target-role, ignore-role!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if not auto_mod["anti_invite"]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Сначала включите анти-приглашения!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if len(options) < 1:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите значения для настройки!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if setting.lower() != "message" and len(options) < 2:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите значения для настройки!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if setting.lower() == "message":
+				types = ("channel", "dm")
+				if options[0] == "off":
+					if "message" not in auto_mod["anti_invite"].keys():
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Сообщения не настроено!**",
+						)
+						await ctx.send(embed=emb)
+						return
+
+					auto_mod["anti_invite"].pop("message")
+				elif options[0] in types:
+					if len(options) < 2:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Укажите значения для настройки!"
+						)
+						await ctx.send(embed=emb)
+						return
+
+					auto_mod["anti_invite"].update({"message": {"type": options[0]}})
+					options = list(options)
+					options.pop(0)
+					auto_mod["anti_invite"]["message"].update({"text": " ".join(options)})
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите один из этих типов: dm, channel!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "punishment":
+				if options[0].lower() not in punishments:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих наказаний: mute, ban, soft-ban, warn, kick!**",
+					)
+					await ctx.send(embed=emb)
+					return
+
+				auto_mod["anti_invite"].update({"punishment": {
+					"type": options[0],
+					"time": options[1]
+				}})
+			elif setting.lower() == "target-channel":
+				channel_converter = commands.TextChannelConverter()
+				channel = await channel_converter.convert(ctx, options[1])
+				if options[0].lower() == "add":
+					if "target_channels" not in auto_mod["anti_invite"]:
+						auto_mod["anti_invite"].update({"target_channels": [channel.id]})
+					else:
+						auto_mod["anti_invite"]["target_channels"].append(channel.id)
+				elif options[0].lower() == "delete":
+					if "target_channels" not in auto_mod["anti_invite"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Список каналов пуст!**",
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						try:
+							auto_mod["anti_invite"]["target_channels"].remove(channel.id)
+						except ValueError:
+							emb = await self.client.utils.create_error_embed(
+								ctx, "**В списке каналов нету указаного канала!**",
+							)
+							await ctx.send(embed=emb)
+							return
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: add, delete!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "ignore-channel":
+				channel_converter = commands.TextChannelConverter()
+				channel = await channel_converter.convert(ctx, options[1])
+				if options[0].lower() == "add":
+					if "ignore_channels" not in auto_mod["anti_invite"]:
+						auto_mod["anti_invite"].update({"ignore_channels": [channel.id]})
+					else:
+						auto_mod["anti_invite"]["ignore_channels"].append(channel.id)
+				elif options[0].lower() == "delete":
+					if "ignore_channels" not in auto_mod["anti_invite"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Список каналов пуст!**",
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						try:
+							auto_mod["anti_invite"]["ignore_channels"].remove(channel.id)
+						except ValueError:
+							emb = await self.client.utils.create_error_embed(
+								ctx, "**В списке каналов нету указаного канала!**",
+							)
+							await ctx.send(embed=emb)
+							return
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: add, delete!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "target-role":
+				role_converter = commands.RoleConverter()
+				role = await role_converter.convert(ctx, options[1])
+				if options[0].lower() == "add":
+					if "target_roles" not in auto_mod["anti_invite"]:
+						auto_mod["anti_invite"].update({"target_roles": [role.id]})
+					else:
+						auto_mod["anti_invite"]["target_roles"].append(role.id)
+				elif options[0].lower() == "delete":
+					if "target_roles" not in auto_mod["anti_invite"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Список ролей пуст!**",
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						try:
+							auto_mod["anti_invite"]["target_roles"].remove(role.id)
+						except ValueError:
+							emb = await self.client.utils.create_error_embed(
+								ctx, "**В списке ролей нету указаной роли!**",
+							)
+							await ctx.send(embed=emb)
+							return
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: add, delete!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "ignore-role":
+				role_converter = commands.RoleConverter()
+				role = await role_converter.convert(ctx, options[1])
+				if options[0].lower() == "add":
+					if "ignore_roles" not in auto_mod["anti_invite"]:
+						auto_mod["anti_invite"].update({"ignore_roles": [role.id]})
+					else:
+						auto_mod["anti_invite"]["ignore_roles"].append(role.id)
+				elif options[0].lower() == "delete":
+					if "ignore_roles" not in auto_mod["anti_invite"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Список ролей пуст!**",
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						try:
+							auto_mod["anti_invite"]["ignore_roles"].remove(role.id)
 						except ValueError:
 							emb = await self.client.utils.create_error_embed(
 								ctx, "**В списке ролей нету указаной роли!**",

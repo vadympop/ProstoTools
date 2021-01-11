@@ -37,3 +37,6 @@ class CacheManager(AbcCacheManager):
 
         data[data_key] = new_value
         await self.set(key, data)
+
+    async def delete(self, key: str):
+        await self.client.delete(key)

@@ -2,7 +2,8 @@ import discord
 import datetime
 from tools.http import RandomAPI
 from tools.cache import CacheManager
-from tools import DB, Utils, Commands, template_engine as temp_eng
+from tools.database import DB
+from tools import Utils, Commands, template_engine as temp_eng
 from cogs.economy.buy_cmd import buy
 from loguru import logger
 from colorama import *

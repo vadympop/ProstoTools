@@ -13,3 +13,6 @@ class AbcCacheManager(ABC):
 
     async def update(self, key: str, data_key: str, new_value):
         pass
+
+    async def delete(self, key: str):
+        pass

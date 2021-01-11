@@ -22,7 +22,6 @@ class EventsAntiFlud(commands.Cog):
 
         data = await self.client.database.sel_guild(guild=message.guild)
         member_data = await self.client.database.sel_user(target=message.author)
-
         try:
             await self.client.wait_for(
                 "message",

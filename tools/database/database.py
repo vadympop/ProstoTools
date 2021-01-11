@@ -6,6 +6,7 @@ import time
 import discord
 import aiomysql
 from tools.abc import AbcDatabase
+from tools.cache.exceptions import ValueIsNone
 
 
 class DB(AbcDatabase):
@@ -396,6 +397,9 @@ class DB(AbcDatabase):
 					"anti_flud": {
 						"state": False
 					},
+					"anti_invite": {
+						"state": False
+					},
 					"react_commands": False,
 				}
 			),
@@ -509,7 +513,10 @@ class DB(AbcDatabase):
 				cache_key = f"guild {where['guild_id']}"
 
 			for key, value in kwargs.items():
-				await self.cache.update(cache_key, key, value)
+				try:
+					await self.cache.update(cache_key, key, value)
+				except ValueIsNone:
+					pass
 
 		await self.execute(
 			f"""UPDATE {table} SET {query} WHERE {' AND '.join([f"{key} = {value}" for key, value in where.items()])}"""
