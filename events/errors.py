@@ -48,9 +48,9 @@ class Errors(commands.Cog, name="Errors"):
 		elif isinstance(error, commands.errors.MissingRequiredArgument):
 			emb = await self.client.utils.create_error_embed(
 				ctx,
-				f"**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указаной команде!**\n\n{ctx.command.help.format(Prefix=PREFIX)}\n[Документация](https://vythonlui.gitbook.io/prostotools/)"
+				f"**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указаной команде!**\n\n{ctx.command.help.format(Prefix=PREFIX)}\n[Документация](https://docs.prosto-tools.ml/)"
 				if ctx.command.help is not None
-				else "**Указан не правильный аргумент!\n[Документация](https://vythonlui.gitbook.io/prostotools/)**",
+				else "**Указан не правильный аргумент!\n[Документация](https://docs.prosto-tools.ml/)**",
 				False
 			)
 			await ctx.send(embed=emb)
@@ -77,9 +77,9 @@ class Errors(commands.Cog, name="Errors"):
 		elif isinstance(error, commands.errors.BadArgument):
 			emb = await self.client.utils.create_error_embed(
 				ctx,
-				f"**Указан не правильный аргумент!**\n\n{ctx.command.help.format(Prefix=PREFIX)}\n[Документация](https://vythonlui.gitbook.io/prostotools/)"
+				f"**Указан не правильный аргумент!**\n\n{ctx.command.help.format(Prefix=PREFIX)}\n[Документация](https://docs.prosto-tools.ml/)"
 				if ctx.command.help is not None
-				else "**Указан не правильный аргумент!\n[Документация](https://vythonlui.gitbook.io/prostotools/)**",
+				else "**Указан не правильный аргумент!\n[Документация](https://docs.prosto-tools.ml/)**",
 				False
 			)
 			await ctx.send(embed=emb)

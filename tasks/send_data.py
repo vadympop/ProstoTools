@@ -7,7 +7,7 @@ from discord.ext import commands, tasks
 class TasksSendData(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.api_url = "http://api.prosto-tools.ml/api/"
+		self.api_url = "https://api.prosto-tools.ml/api/"
 		self.sdc_api_url = "https://api.server-discord.com/v2/bots/{0}/stats"
 		self.boticord_api_url = "https://boticord.top/api/stats"
 		self.send_data_loop.start()
