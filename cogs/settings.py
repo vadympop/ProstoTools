@@ -8,6 +8,13 @@ class Settings(commands.Cog, name="Settings"):
 	def __init__(self, client):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
+		self._names = []
+		for cog in self.client.cogs:
+			for command in self.client.get_cog(cog).get_commands():
+				for alias in command.aliases:
+					self._names.append(alias)
+				self._names.append(command.name)
+		self.commands = self._names
 
 	def find_custom_command(self, command_name: str, commands: list):
 		for command in commands:
@@ -1126,6 +1133,13 @@ class Settings(commands.Cog, name="Settings"):
 			if command_name is None:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Укажите названия команды!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if command_name in self.commands:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаное названия команды уже есть в командах бота!"
 				)
 				await ctx.send(embed=emb)
 				return
