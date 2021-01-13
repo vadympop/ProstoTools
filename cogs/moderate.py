@@ -15,13 +15,13 @@ async def check_role(ctx):
 	data.append(roles[0].id)
 
 	if data != []:
-		for role in data:
-			role = get(ctx.guild.roles, id=role)
+		for role_id in data:
+			role = get(ctx.guild.roles, id=role_id)
 			if role in ctx.author.roles:
 				return True
-		return False
+		return ctx.author.guild_permissions.administrator
 	else:
-		return ctx.author.guild_permission.administrator
+		return ctx.author.guild_permissions.administrator
 
 
 class Moderate(commands.Cog, name="Moderate"):
@@ -181,12 +181,19 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
+		if type_time.isalpha():
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Время указано в неправильном формате!"
+			)
+			await ctx.send(embed=emb)
+			return
+
 		role_time = self.client.utils.time_to_num(type_time)
 		times = time.time() + role_time[0]
 
 		await member.add_roles(role)
 		emb = discord.Embed(
-			description=f"**`{member}` Была виданно новая роль {role.name} на {role_time[1]}{role_time[2]}**",
+			description=f"**`{member}` Была виданна новая роль {role.name} на {role_time[1]}{role_time[2]}**",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
@@ -384,7 +391,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def softban(
-		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = "Причина не указана"
+		self, ctx, member: discord.Member, *options: str
 	):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
@@ -444,8 +451,19 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		softban_time = self.client.utils.time_to_num(type_time)
-		times = time.time() + softban_time[0]
+		options = list(options)
+		if len(options) > 0:
+			if not options[0].isalpha():
+				type_time = options.pop(0)
+				softban_time = self.client.utils.time_to_num(type_time)
+				times = time.time() + softban_time[0]
+				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
+			else:
+				reason = " ".join(options)
+				softban_time = [0, 0]
+		else:
+			reason = "Причина не указана"
+			softban_time = [0, 0]
 
 		emb = discord.Embed(
 			description=f"**{ctx.author.mention} Апаратно забанил `{member}` по причине {reason}**",
@@ -622,7 +640,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.has_permissions(ban_members=True)
 	async def ban(
-		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = "Причина не указана"
+		self, ctx, member: discord.Member, *options: str
 	):
 		if member == ctx.author:
 			emb = discord.Embed(
@@ -680,8 +698,19 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		ban_time = self.client.utils.time_to_num(type_time)
-		times = time.time() + ban_time[0]
+		options = list(options)
+		if len(options) > 0:
+			if not options[0].isalpha():
+				type_time = options.pop(0)
+				ban_time = self.client.utils.time_to_num(type_time)
+				times = time.time() + ban_time[0]
+				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
+			else:
+				reason = " ".join(options)
+				ban_time = [0, 0]
+		else:
+			reason = "Причина не указана"
+			ban_time = [0, 0]
 
 		await member.ban(reason=reason)
 		emb = discord.Embed(
@@ -791,7 +820,6 @@ class Moderate(commands.Cog, name="Moderate"):
 				await ctx.send(embed=emb)
 				return
 
-
 	@commands.command(
 		brief="True",
 		description="**Мьютит указаного участника в голосовых каналах**",
@@ -800,7 +828,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def vmute(
-		self, ctx, member: discord.Member, type_time: str = None, reason: str = "Причина не указана"
+		self, ctx, member: discord.Member, *options: str
 	):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
@@ -860,8 +888,19 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		vmute_time = self.client.utils.time_to_num(type_time)
-		times = time.time() + vmute_time[0]
+		options = list(options)
+		if len(options) > 0:
+			if not options[0].isalpha():
+				type_time = options.pop(0)
+				vmute_time = self.client.utils.time_to_num(type_time)
+				times = time.time() + vmute_time[0]
+				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
+			else:
+				reason = " ".join(options)
+				vmute_time = [0, 0]
+		else:
+			reason = "Причина не указана"
+			vmute_time = [0, 0]
 
 		overwrite = discord.PermissionOverwrite(connect=False)
 		role = get(ctx.guild.roles, name=self.VMUTE_ROLE)
@@ -1039,7 +1078,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def mute(
-		self, ctx, member: discord.Member, type_time: str = None, *, reason: str = "Причина не указана"
+		self, ctx, member: discord.Member, *options: str
 	):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
@@ -1099,8 +1138,19 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.message.add_reaction("❌")
 			return
 
-		mute_time = self.client.utils.time_to_num(type_time)
-		times = time.time() + mute_time[0]
+		options = list(options)
+		if len(options) > 0:
+			if not options[0].isalpha():
+				type_time = options.pop(0)
+				mute_time = self.client.utils.time_to_num(type_time)
+				times = time.time() + mute_time[0]
+				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
+			else:
+				reason = " ".join(options)
+				mute_time = [0, 0]
+		else:
+			reason = "Причина не указана"
+			mute_time = [0, 0]
 
 		data = await self.client.database.sel_user(target=member)
 		role = get(ctx.guild.roles, name=self.MUTE_ROLE)

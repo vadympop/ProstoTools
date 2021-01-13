@@ -6,7 +6,7 @@ import time
 import discord
 import aiomysql
 from tools.abc import AbcDatabase
-from tools.cache.exceptions import ValueIsNone
+from tools.cache.exceptions import ValueIsNone, NotFoundKey
 
 
 class DB(AbcDatabase):
@@ -516,6 +516,8 @@ class DB(AbcDatabase):
 				try:
 					await self.cache.update(cache_key, key, value)
 				except ValueIsNone:
+					pass
+				except NotFoundKey:
 					pass
 
 		await self.execute(

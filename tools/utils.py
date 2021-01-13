@@ -10,8 +10,11 @@ class Utils:
 
     def time_to_num(self, str_time: str):
         if str_time is not None:
-            time = int("".join(char for char in list(str_time) if char.isdigit()))
-            typetime = str(str_time.replace(str(time), ""))
+            try:
+                time = int("".join(char for char in list(str_time) if char.isdigit()))
+                typetime = str(str_time.replace(str(time), ""))
+            except ValueError:
+                return [0, 0]
         else:
             typetime = None
             time = 0

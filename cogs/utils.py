@@ -12,13 +12,13 @@ async def check_role(ctx):
 	data.append(roles[0].id)
 
 	if data != []:
-		for role in data:
-			role = get(ctx.guild.roles, id=role)
+		for role_id in data:
+			role = get(ctx.guild.roles, id=role_id)
 			if role in ctx.author.roles:
 				return True
-		return False
+		return ctx.author.guild_permissions.administrator
 	else:
-		return ctx.author.guild_permission.administrator
+		return ctx.author.guild_permissions.administrator
 
 
 class Utils(commands.Cog, name="Utils"):
