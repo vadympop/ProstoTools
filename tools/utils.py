@@ -79,24 +79,9 @@ class Utils:
         if len(date) != 4:
             return 0
 
-        now = datetime.datetime.now()
-        if int(date[1]) < now.day:
-            return 0
-
-        if int(date[2]) < now.month:
-            return 0
-
-        if int(date[3]) < now.year:
-            return 0
-
-        splited_time = date[0].split(":")
-        if len(splited_time) != 2:
-            return 0
-
-        if int(splited_time[0]) < now.hour:
-            return 0
-
         new_time = datetime.datetime.strptime(str_d, "%H:%M.%d.%m.%Y")
+        if new_time < datetime.datetime.now():
+            return 0
         return ((new_time-datetime.datetime(year=1970, month=1, day=1))-datetime.timedelta(hours=2)).total_seconds()
 
     async def create_error_embed(self, ctx, error_msg: str, bold: bool = True):
