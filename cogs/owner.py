@@ -32,16 +32,16 @@ class Owner(commands.Cog, name="Owner"):
 
 	@commands.command()
 	@commands.is_owner()
-	async def test(self, ctx, member: discord.Member = None, *, message: str = None):
-		data = await self.client.database.sel_user(member)
+	async def _tsh(self, ctx, *, message: str = None):
+		data = await self.client.database.sel_user(ctx.author)
 		multi = (await self.client.database.sel_guild(ctx.guild))["exp_multi"]
 		data.update({"multi": multi})
-		result = self.client.template_engine.render(ctx.message, member, data, message)
+		result = await self.client.template_engine.render(ctx.message, ctx.author, data, message)
 		await ctx.send(result)
 
 	@commands.command(aliases=["eval"])
 	@commands.is_owner()
-	async def e(self, ctx, *, cmd):
+	async def _e(self, ctx, *, cmd):
 		fn_name = "_eval_expr"
 		cmd = cmd.strip("` ")
 		cmd = "\n".join(f"    {i}" for i in cmd.splitlines())
@@ -74,7 +74,7 @@ class Owner(commands.Cog, name="Owner"):
 
 	@commands.command()
 	@commands.is_owner()
-	async def rest_cd(self, ctx, *, command: str):
+	async def _rest_cd(self, ctx, *, command: str):
 		command = self.client.get_command(command)
 		command.reset_cooldown(ctx)
 

@@ -546,23 +546,7 @@ class Different(commands.Cog, name="Different"):
 	async def serverinfo(self, ctx):
 		data = await self.client.database.sel_guild(guild=ctx.guild)
 		created_at = datetime.datetime.strftime(ctx.guild.created_at, "%d %B %Y %X")
-		time = data["timedelete_textchannel"]
-		max_warns = data["max_warns"]
 		all_message = data["all_message"]
-
-		if data["idea_channel"] != 0:
-			ideachannel = f"<#{int(data['idea_channel'])}>"
-		else:
-			ideachannel = "Не указан"
-
-		if data["textchannels_category"] != 0:
-			text_category = get(
-				ctx.guild.categories, id=int(data["textchannels_category"])
-			).name
-		else:
-			text_category = "Не указана"
-
-		exp_multi = str(data["exp_multi"] * 100) + "%"
 		verifications = {
 			"none": ":white_circle: — Нет верификации",
 			"low": ":green_circle: — Маленькая верификация",
@@ -636,11 +620,6 @@ class Different(commands.Cog, name="Different"):
 		emb.add_field(
 			name="Участники",
 			value=f"**:baby: Общее количество участников:** {ctx.guild.member_count}\n**<:bot:731819847905837066> Боты:** {bots}\n**<:sleep:730390502972850256> Отошли:** {sleep}\n**<:dnd:730391353929760870> Не беспокоить:** {dnd}\n**<:offline:730392846573633626> Не в сети:** {offline}\n**<:online:730393440046809108> В сети:** {online}",
-			inline=False,
-		)
-		emb.add_field(
-			name="Настройки сервера",
-			value=f"**Канал идей:** {ideachannel}\n**Категория приватных текстовых каналов:** {text_category}\n**Максимальное количество предупрежденний:** {max_warns}\n**Время удаления приватного текстового канала:** {time}мин\n**Множитель опыта:** {exp_multi}",
 			inline=False,
 		)
 

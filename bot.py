@@ -31,6 +31,7 @@ extensions = (
 	"cogs.settings",
 	"cogs.utils",
 	"cogs.works",
+	"cogs.show_configs",
 	"cogs.help",
 	"tasks.message_stat",
 	"tasks.other",
@@ -49,7 +50,8 @@ extensions = (
 	"events.auto_reactions",
 	"events.custom_commands",
 	"events.autoresponders",
-	"events.anti_flud"
+	"events.anti_flud",
+	"events.anti_invite"
 )
 
 

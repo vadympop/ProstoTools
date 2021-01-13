@@ -2,6 +2,7 @@ import re
 import discord
 import time
 import json
+import jinja2
 from discord.ext import commands
 
 
@@ -24,6 +25,22 @@ class EventsAntiInvite(commands.Cog):
 
         data = await self.client.database.sel_guild(guild=message.guild)
         if data["auto_mod"]["anti_invite"]["state"]:
+            finded_codes = re.findall(self.pattern, message.content)
+            try:
+                guild_invites_codes = [invite.code for invite in await message.guild.invites()]
+            except discord.errors.Forbidden:
+                return
+
+            invites = [
+                invite
+                for item in finded_codes
+                for invite in item
+                if invite
+                if invite not in guild_invites_codes
+            ]
+            if invites == []:
+                return
+
             if "target_channels" in data["auto_mod"]["anti_invite"].keys():
                 if message.channel.id not in data["auto_mod"]["anti_invite"]["target_channels"]:
                     return
@@ -157,17 +174,6 @@ class EventsAntiInvite(commands.Cog):
                     await message.channel.send(text)
                 elif data["auto_mod"]["anti_invite"]["message"]["type"] == "dm":
                     await message.author.send(text)
-
-        invites = re.findall(self.pattern, message.content)
-        guild_invites = [invite.code for invite in await message.guild.invites()]
-        state_invites = {}
-        for item in invites:
-            for invite in item:
-                if invite:
-                    if invite in guild_invites:
-                        state_invites.update({invite: False})
-                    else:
-                        state_invites.update({invite: True})
 
 
 def setup(client):

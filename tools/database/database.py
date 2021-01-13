@@ -539,13 +539,6 @@ class DB(AbcDatabase):
 					f"""SELECT * FROM bot_stats WHERE entity = 'all commands'"""
 				)
 				main_data = await cur.fetchall()
-				await cur.execute(f"""SELECT id FROM bot_stats ORDER BY id DESC""")
-				last_id = (await cur.fetchall())[0][0]
-				try:
-					new_id = int(last_id) + 1
-				except:
-					new_id = 0
-
 				counter = [str(stat[1]) for stat in data]
 				counter.reverse()
 				try:
@@ -564,14 +557,14 @@ class DB(AbcDatabase):
 					new_count = add_counter
 
 				if add_counter is None:
-					sql = """INSERT INTO bot_stats(id, count, timestamp, entity) VALUES(%s, %s, %s, %s)"""
-					val = (new_id, new_main_count, datetime.datetime.now(), "all commands")
+					sql = """INSERT INTO bot_stats(count, timestamp, entity) VALUES( %s, %s, %s)"""
+					val = (new_main_count, datetime.datetime.now(), "all commands")
 
 					await cur.execute(sql, val)
 					await conn.commit()
 
-				sql = """INSERT INTO bot_stats(id, count, timestamp, entity) VALUES(%s, %s, %s, %s)"""
-				val = (new_id+1, new_count, datetime.datetime.now(), entity)
+				sql = """INSERT INTO bot_stats(count, timestamp, entity) VALUES( %s, %s, %s)"""
+				val = (new_count, datetime.datetime.now(), entity)
 
 				await cur.execute(sql, val)
 				await conn.commit()

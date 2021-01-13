@@ -1,14 +1,13 @@
 import discord
 import math
 import random
-import asyncio
 from jinja2 import Template
 from asyncinit import asyncinit
 
 client = None
 
 
-async def render(message, member, data, render_text):
+async def render(message: discord.Message, member: discord.Member, data: dict, render_text: str):
 	template = Template(render_text, autoescape=False)
 	context = {
 		"member": Member(member, data),

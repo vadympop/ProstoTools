@@ -1,7 +1,5 @@
 import discord
-
 from discord.ext import commands
-from discord.utils import get
 
 
 class Help(commands.Cog, name="Help"):
@@ -44,8 +42,8 @@ class Help(commands.Cog, name="Help"):
 		help="**Примеры использования:**\n1. {Prefix}help\n2. {Prefix}help moderate\n2. {Prefix}help ban\n\n**Пример 1:** Показывает список всех команд бота\n**Пример 2:** Показывает список всех указаной групы\n**Пример 3:** Показывает документацию по указаной команде"
 	)
 	async def help(self, ctx, cog_name: str = None):
-		cogs_group = ("settings", "works", "clans")
-		commands_group = ("setting", "work", "clan")
+		cogs_group = ("settings", "works", "clans", "showconfigs")
+		commands_group = ("setting", "work", "clan", "show-config")
 		moder_roles = (await self.client.database.sel_guild(guild=ctx.guild))["moder_roles"]
 		prefix = str(await self.client.database.get_prefix(guild=ctx.guild))
 		cogs_aliases = {
@@ -58,7 +56,8 @@ class Help(commands.Cog, name="Help"):
 			"moderate": "Moderate",
 			"settings": "Settings",
 			"utils": "Utils",
-			"works": "Works"
+			"works": "Works",
+			"showconfigs": "ShowConfigs"
 		}
 
 		if cog_name is None:
