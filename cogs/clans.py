@@ -375,7 +375,11 @@ class Clans(commands.Cog):
 				clan=""
 			)
 
-		await self.client.database.execute(sql_2, ("", ctx.guild.id, delete_clan["owner"]))
+		await self.client.database.update(
+			"users",
+			where={"user_id": delete_clan["owner"], "guild_id": ctx.guild.id},
+			clan=""
+		)
 		await ctx.message.add_reaction("✅")
 
 		if "clans" in audit.keys():
