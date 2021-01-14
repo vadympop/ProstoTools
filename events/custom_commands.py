@@ -46,6 +46,7 @@ class EventsCustomCommands(commands.Cog):
                             emb.set_author(name=message.author.name, icon_url=message.author.avatar_url)
                             emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
                             await message.channel.send(embed=emb)
+                            return
                     except jinja2.exceptions.TemplateSyntaxError as e:
                         try:
                             await message.add_reaction("❌")
@@ -59,6 +60,18 @@ class EventsCustomCommands(commands.Cog):
                         emb.set_author(name=message.author.name, icon_url=message.author.avatar_url)
                         emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
                         await message.channel.send(embed=emb)
+                        return
+
+                    if "functions" in custom_command_data.keys():
+                        for name, value in custom_command_data["functions"].items():
+                            if name == "role_add":
+                                role = message.guild.get_role(int(value))
+                                if role is not None:
+                                    await message.author.add_roles(role)
+                            elif name == "role_remove":
+                                role = message.guild.get_role(int(value))
+                                if role is not None:
+                                    await message.author.remove_roles(role)
 
 
 def setup(client):

@@ -620,8 +620,6 @@ class Settings(commands.Cog, name="Settings"):
 			auto_mod["anti_invite"]["state"] = True
 
 		elif action.lower() in offs:
-			print(auto_mod["anti_invite"]["state"])
-			print(type(auto_mod["anti_invite"]["state"]))
 			if not auto_mod["anti_invite"]["state"]:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Анти-приглашения и так выключено!"
@@ -1263,6 +1261,7 @@ class Settings(commands.Cog, name="Settings"):
 				await ctx.send(embed=emb)
 				return
 
+			options = list(options)
 			if len(options) < 2:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Укажите значения к настройке!"
@@ -1270,7 +1269,7 @@ class Settings(commands.Cog, name="Settings"):
 				await ctx.send(embed=emb)
 				return
 
-			fields = ("description", "code")
+			fields = ("description", "code", "function")
 			if options[0].lower() not in fields:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Укажите один из этих параметров: description, code!"
@@ -1279,7 +1278,6 @@ class Settings(commands.Cog, name="Settings"):
 				return
 
 			if options[0].lower() == "code":
-				options = list(options)
 				options.pop(0)
 				if len(" ".join(options)) > 1000:
 					emb = await self.client.utils.create_error_embed(
@@ -1298,7 +1296,6 @@ class Settings(commands.Cog, name="Settings"):
 				command.update({"code": " ".join(options)})
 				custom_commands[custom_commands.index(command)] = command
 			elif options[0].lower() == "description":
-				options = list(options)
 				options.pop(0)
 				if len(" ".join(options)) > 50:
 					emb = await self.client.utils.create_error_embed(
@@ -1317,6 +1314,70 @@ class Settings(commands.Cog, name="Settings"):
 
 				command.update({"description": " ".join(options)})
 				custom_commands[custom_commands.index(command)] = command
+			elif options[0].lower() == "function":
+				options.pop(0)
+				if len(options) < 2:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите настройки!"
+					)
+					await ctx.send(embed=emb)
+					return
+
+				functions = ("role-add", "role-remove")
+				converter = commands.RoleConverter()
+
+				if options[1].lower() not in functions:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите одну из этих функций: role-add, role-remove!"
+					)
+					await ctx.send(embed=emb)
+					return
+
+				if options[0].lower() == "add":
+					if len(options) < 3:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Укажите настройки!"
+						)
+						await ctx.send(embed=emb)
+						return
+
+					role = await converter.convert(ctx, options[2])
+					if options[1].lower() == "role-add":
+						if "functions" not in command.keys():
+							command.update({"functions": {
+								"role_add": role.id
+							}})
+						else:
+							command["functions"].update({"role_add": role.id})
+					elif options[1].lower() == "role-remove":
+						if "functions" not in command.keys():
+							command.update({"functions": {
+								"role_remove": role.id
+							}})
+						else:
+							command["functions"].update({"role_remove": role.id})
+
+					custom_commands[custom_commands.index(command)] = command
+				elif options[0].lower() == "off":
+					if "functions" not in command.keys():
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Список функций пуст!**",
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						if options[1].lower() == "role-add":
+							command["functions"].pop("role_add")
+						elif options[1].lower() == "role-remove":
+							command["functions"].pop("role_remove")
+
+					custom_commands[custom_commands.index(command)] = command
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий для edit function: add, off!**",
+					)
+					await ctx.send(embed=emb)
+					return
 
 			await self.client.database.update(
 				"guilds",
