@@ -16,7 +16,7 @@ class EventsJoin(commands.Cog):
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
 		emb.set_footer(
-			text="Vython.lui and Mr.Kola Copyright",
+			text="Vython.lui Copyright",
 			icon_url=self.client.user.avatar_url,
 		)
 		try:

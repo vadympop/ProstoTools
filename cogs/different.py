@@ -454,7 +454,7 @@ class Different(commands.Cog, name="Different"):
 				color=discord.Color.green(),
 			)
 			embed1.add_field(
-				name="Создатель бота:", value="Mr. Kola#0684, 𝚅𝚢𝚝𝚑𝚘𝚗.𝚕𝚞𝚒#9339", inline=False
+				name="Создатель бота:", value="𝚅𝚢𝚝𝚑𝚘𝚗.𝚕𝚞𝚒#9339", inline=False
 			)
 			embed1.add_field(
 				name="Проект был созданн с помощью:",
