@@ -359,7 +359,7 @@ class Settings(commands.Cog, name="Settings"):
 		hidden=True,
 		name="anti-flud",
 		description="**Настройка анти-флуда(Бета-тест)**",
-		usage="setting anti-flud [on/off/setting] [Настройка] [Значения...]",
+		usage="setting anti-flud [on/off/setting] |Настройка| |Опции...|",
 	)
 	async def anti_flud(self, ctx, action: str, setting: str = None, *options):
 		ons = ("on", "вкл", "включить", "+", "1")
@@ -603,7 +603,7 @@ class Settings(commands.Cog, name="Settings"):
 		hidden=True,
 		name="anti-invite",
 		description="**Настройка анти-приглашения(Бета-тест)**",
-		usage="setting anti-invite [on/off/setting] [Настройка] [Значения...]",
+		usage="setting anti-invite [on/off/setting] |Настройка| |Опции...|",
 	)
 	async def anti_invite(self, ctx, action: str, setting: str = None, *options):
 		ons = ("on", "вкл", "включить", "+", "1")
@@ -1181,7 +1181,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				custom_commands=json.dumps(custom_commands)
+				custom_commands=custom_commands
 			)
 
 			emb = discord.Embed(
@@ -1235,7 +1235,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				custom_commands=json.dumps(custom_commands)
+				custom_commands=custom_commands
 			)
 
 			emb = discord.Embed(
@@ -1382,7 +1382,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				custom_commands=json.dumps(custom_commands)
+				custom_commands=custom_commands
 			)
 
 			emb = discord.Embed(

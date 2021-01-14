@@ -12,7 +12,7 @@ class CacheManager(AbcCacheManager):
         )
 
     async def set(self, key: str, value):
-        await self.client.set(key, value, ttl=3600)
+        await self.client.set(key, value, 3600)
 
     async def get(self, key: str):
         data = await self.client.get(key)
@@ -35,8 +35,13 @@ class CacheManager(AbcCacheManager):
         if data_key not in data.keys():
             raise NotFoundKey
 
+        if isinstance(new_value, str):
+            new_value = json.loads(new_value)
+        print(type(new_value))
         data[data_key] = new_value
-        await self.set(key, data)
+        set_data = data
+        await self.set(key, set_data)
+        print((await self.get(key))[data_key], " 5")
 
     async def delete(self, key: str):
         await self.client.delete(key)

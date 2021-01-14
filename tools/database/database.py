@@ -6,15 +6,14 @@ import time
 import discord
 import aiomysql
 from tools.abc import AbcDatabase
-from tools.cache.exceptions import ValueIsNone, NotFoundKey
 
 
 class DB(AbcDatabase):
 	def __init__(self, client):
 		self.client = client
 		self.cache = self.client.cache
-		self.cached_guild_key = "guild {0.id}"
-		self.cached_user_key = "user {0.id} {0.guild.id}"
+		self.cached_guild_key = "guild{0.id}"
+		self.cached_user_key = "user{0.id}{0.guild.id}"
 		self.DB_HOST = self.client.config.DB_HOST
 		self.DB_USER = self.client.config.DB_USER
 		self.DB_PASSWORD = self.client.config.DB_PASSWORD
@@ -503,22 +502,20 @@ class DB(AbcDatabase):
 		query = ", ".join([
 			f"{key} = {value}"
 			if str(value).isdigit()
-			else f"{key} = '{value}'"
+			else f"{key} = '{json.dumps(value)}'"
 			for key, value in kwargs.items()
 		])
 		if table in ("users", "guilds"):
 			if table == "users":
-				cache_key = f"user {where['user_id']} {where['guild_id']}"
+				cache_key = f"user{where['user_id']}{where['guild_id']}"
 			elif table == "guilds":
-				cache_key = f"guild {where['guild_id']}"
+				cache_key = f"guild{where['guild_id']}"
 
 			for key, value in kwargs.items():
-				try:
-					await self.cache.update(cache_key, key, value)
-				except ValueIsNone:
-					pass
-				except NotFoundKey:
-					pass
+				data = await self.cache.get(cache_key)
+				if data is not None:
+					data[key] = value
+					await self.cache.set(key, data)
 
 		await self.execute(
 			f"""UPDATE {table} SET {query} WHERE {' AND '.join([f"{key} = {value}" for key, value in where.items()])}"""
