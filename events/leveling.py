@@ -61,8 +61,8 @@ class EventsLeveling(commands.Cog):
 		lvl_member = data["level"]
 
 		reput_msg = 150
-		messages[0] = int(messages[0])+1
-		messages[1] = int(messages[1])+1
+		messages[0] += 1
+		messages[1] += 1
 		messages[2] = message.content
 
 		exp_end = math.floor(9 * (lvl_member ** 2) + 50 * lvl_member + 125 * multi)

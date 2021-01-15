@@ -466,17 +466,18 @@ class DB(AbcDatabase):
 
 	async def update(self, table: str, **kwargs):
 		where = kwargs.pop("where")
-		query = ", ".join([
-			f"{key} = {value}"
-			if str(value).isdigit()
-			else f"{key} = '{json.dumps(value)}'"
-			for key, value in kwargs.items()
-		])
+		columns = []
+		values = []
+		for key, value in kwargs.items():
+			columns.append(f"{key} = %s")
+			values.append(value)
+		query = ", ".join(columns)
 		if "prefix" in kwargs.keys():
 			await self.cache.set(str(where['guild_id']), kwargs["prefix"])
 
 		await self.execute(
-			f"""UPDATE {table} SET {query} WHERE {' AND '.join([f"{key} = {value}" for key, value in where.items()])}"""
+			f"""UPDATE {table} SET {query} WHERE {' AND '.join([f"{key} = {value}" for key, value in where.items()])}""",
+			values
 		)
 
 	async def add_amout_command(
