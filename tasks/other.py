@@ -7,7 +7,6 @@ from discord.ext import commands, tasks
 
 class TasksOther(commands.Cog):
 	def __init__(self, client):
-		print("Other")
 		self.client = client
 		self.update_messages_loop.start()
 		self.reminders_loop.start()
@@ -16,13 +15,11 @@ class TasksOther(commands.Cog):
 
 	@tasks.loop(seconds=30.0)
 	async def reminders_loop(self):
-		print("Reminders loop 1")
 		try:
 			data = await self.client.database.get_reminder()
 		except AttributeError:
 			pass
 		else:
-			print("Reminders loop 2")
 			for reminder in data:
 				reminder_time = reminder[4]
 				guild = self.client.get_guild(int(reminder[2]))

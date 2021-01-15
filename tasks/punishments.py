@@ -16,13 +16,11 @@ class TasksPunishments(commands.Cog):
 
 	@tasks.loop(minutes=1)
 	async def mute_loop(self):
-		print("Mute loop 1")
 		try:
 			data = await self.client.database.get_punishment()
 		except AttributeError:
 			pass
 		else:
-			print("Mute loop 2")
 			for mute in data:
 				mute_time = mute[2]
 				guild = self.client.get_guild(int(mute[1]))
