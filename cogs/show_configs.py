@@ -156,9 +156,20 @@ class ShowConfigs(commands.Cog):
                     punishment = (f"тип наказания `{punishment_types[data[key]['punishment']['type']]}`, время наказания - `{data[key]['punishment']['time']}`"
                                   if "punishment" in data[key].keys()
                                   else "наказания не установлено")
-                    settings.append(
-                        f"**{categories[key]}**:\n1. Сообщения - {message}\n2. Наказания - {punishment}"
-                    )
+                    target_roles = ("целевые роли не настроены"
+                                    if "target_roles" not in data[key].keys()
+                                    else f"установлено {len(data[key]['target_roles'])} ролей")
+                    target_channels = ("целевые каналы не настроены"
+                                    if "target_channels" not in data[key].keys()
+                                    else f"установлено {len(data[key]['target_roles'])} каналов")
+                    ignore_channels = ("игнорируемые каналы не настроены"
+                                    if "ignore_channels" not in data[key].keys()
+                                    else f"установлено {len(data[key]['target_roles'])} каналов")
+                    ignore_roles = ("игнорируемые роли не настроены"
+                                    if "ignore_roles" not in data[key].keys()
+                                    else f"установлено {len(data[key]['target_roles'])} ролей")
+                    info = f"**{categories[key]}**:\n1. Сообщения - {message}\n2. Наказания - {punishment}\n3. Целевые каналы - {target_channels}\n4. Игнорируемые каналы - {ignore_channels}\n5. Целевые роли - {target_roles}\n6. Игнорируемые роли - {ignore_roles}"
+                    settings.append(info)
                 else:
                     settings.append(
                         f"**{categories[key]}** - `Выключено`"
