@@ -7,7 +7,7 @@ from discord.utils import get
 
 
 async def check_role(ctx):
-	data = await ctx.bot.database.get_moder_roles(guild=ctx.guild)
+	data = json.loads(await ctx.bot.database.get_moder_roles(guild=ctx.guild))
 	roles = ctx.guild.roles[::-1]
 	data.append(roles[0].id)
 
