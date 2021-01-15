@@ -216,7 +216,7 @@ class Economy(commands.Cog):
 		nums = [100, 250, 1000, 500, 50]
 		rand_num = random.choice(nums)
 
-		money = await self.client.database.sel_user(target=ctx.author)["money"]
+		money = (await self.client.database.sel_user(target=ctx.author))["money"]
 
 		await self.client.database.update(
 			"users",
