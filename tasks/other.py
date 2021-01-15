@@ -14,7 +14,7 @@ class TasksOther(commands.Cog):
 		self.channel_loop.start()
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
-	@tasks.loop(seconds=30)
+	@tasks.loop(seconds=30.0)
 	async def reminders_loop(self):
 		print("Reminders loop 1")
 		try:
