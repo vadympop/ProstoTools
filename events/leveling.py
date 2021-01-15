@@ -60,7 +60,7 @@ class EventsLeveling(commands.Cog):
 		messages = data["messages"]
 		lvl_member = data["level"]
 
-		reput_msg = 150
+		print(messages)
 		messages[0] += 1
 		messages[1] += 1
 		messages[2] = message.content
@@ -127,7 +127,7 @@ class EventsLeveling(commands.Cog):
 				elif guild_data["rank_message"]["type"] == "dm":
 					await message.author.send(text)
 
-		if messages[0] >= reput_msg:
+		if messages[0] >= 150:
 			reputation += 1
 			messages[0] = 0
 
