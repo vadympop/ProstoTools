@@ -325,18 +325,8 @@ class DB(AbcDatabase):
 						data = await cur.fetchone()
 
 		if data is not None:
-			prison = data[9]
-			if prison == "True":
-				prison = True
-			elif prison == "False":
-				prison = False
-
 			warns = []
 			for warn in db_warns:
-				if warn[4] == "True":
-					state = True
-				elif warn[4] == "False":
-					state = False
 				warns.append(
 					{
 						"id": warn[0],
@@ -344,7 +334,7 @@ class DB(AbcDatabase):
 						"reason": warn[3],
 						"author": warn[6],
 						"num_warn": warn[7],
-						"state": state,
+						"state": warn[4] == "True",
 						"guild_id": warn[2],
 					}
 				)
@@ -359,7 +349,7 @@ class DB(AbcDatabase):
 				"text_channel": int(data[6]),
 				"reputation": int(data[7]),
 				"num_commands": int(data[8]),
-				"prison": prison,
+				"prison": data[9] == "True",
 				"profile": str(data[10]),
 				"bio": str(data[11]),
 				"clan": str(data[12]),

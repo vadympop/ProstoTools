@@ -13,7 +13,7 @@ class Clans(commands.Cog):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
-	async def _add_member(self, ctx, clan_id: str, member: discord.Member):
+	async def _add_member(self, ctx: Context, clan_id: str, member: discord.Member):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 		for clan in data:
 			if clan["id"] == clan_id:

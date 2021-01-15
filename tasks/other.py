@@ -15,11 +15,13 @@ class TasksOther(commands.Cog):
 
 	@tasks.loop(seconds=30)
 	async def reminders_loop(self):
+		print("Reminders loop 1")
 		try:
 			data = await self.client.database.get_reminder()
 		except AttributeError:
 			pass
 		else:
+			print("Reminders loop 2")
 			for reminder in data:
 				reminder_time = reminder[4]
 				guild = self.client.get_guild(int(reminder[2]))

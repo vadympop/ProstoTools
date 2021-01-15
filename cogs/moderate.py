@@ -40,7 +40,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Полезное:**\nМаксимальное число удаляемых сообщений равняется 100\nБот не может удалить сообщения старше 14 дней\n\n**Примеры использования:**\n1. {Prefix}clear 10\n2. {Prefix}clear @Участник 10\n3. {Prefix}clear 660110922865704980 10\n\n**Пример 1:** Удалит 10 сообщений\n**Пример 2:** Удалит 10 сообщений упомянотого участника в текущем канале\n**Пример 3:** Удалит 10 сообщений участника с указаным id",
 	)
 	@commands.check(check_role)
-	async def clear(self, ctx, member: typing.Optional[discord.Member], amount: int):
+	async def clear(self, ctx: Context, member: typing.Optional[discord.Member], amount: int):
 		if amount <= 0:
 			emb = await self.client.utils.create_error_embed(ctx, "Укажите число удаляемых сообщения больше 0!")
 			await ctx.send(embed=emb)
@@ -137,7 +137,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def temprole(
-		self, ctx, member: discord.Member, role: discord.Role, type_time: str
+		selfctx: Context, member: discord.Member, role: discord.Role, type_time: str
 	):
 		if member == ctx.author:
 			emb = discord.Embed(

@@ -78,7 +78,7 @@ class TasksSendData(commands.Cog):
 					"servers": len(self.client.guilds),
 					"users": len(self.client.users)
 				}
-				resp = await requests.post(url=self.boticord_api_url, data=json.dumps(data), headers=headers)
+				resp = await requests.post(url=self.boticord_api_url, data=data, headers=headers)
 				print(resp.status)
 
 
