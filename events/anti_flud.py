@@ -163,7 +163,10 @@ class EventsAntiFlud(commands.Cog):
                     if data["auto_mod"]["anti_flud"]["message"]["type"] == "channel":
                         await message.channel.send(text)
                     elif data["auto_mod"]["anti_flud"]["message"]["type"] == "dm":
-                        await message.author.send(text)
+                        try:
+                            await message.author.send(text)
+                        except discord.errors.Forbidden:
+                            pass
 
 
 def setup(client):
