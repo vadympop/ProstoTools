@@ -1181,7 +1181,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				custom_commands=custom_commands
+				custom_commands=json.dumps(custom_commands)
 			)
 
 			emb = discord.Embed(
@@ -1235,7 +1235,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				custom_commands=custom_commands
+				custom_commands=json.dumps(custom_commands)
 			)
 
 			emb = discord.Embed(
@@ -1382,7 +1382,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				custom_commands=custom_commands
+				custom_commands=json.dumps(custom_commands)
 			)
 
 			emb = discord.Embed(
