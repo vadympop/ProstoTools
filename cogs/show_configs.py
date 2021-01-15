@@ -55,7 +55,9 @@ class ShowConfigs(commands.Cog):
             await ctx.send(embed=emb)
 
     @show_config.command(
-        name="server-stats"
+        name="server-stats",
+        usage="show-config server-stats",
+        description="**Покажет настройки статистики сервера**"
     )
     async def server_stats(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
@@ -88,7 +90,9 @@ class ShowConfigs(commands.Cog):
         await ctx.send(embed=emb)
 
     @show_config.command(
-        name="ignored-channels"
+        name="ignored-channels",
+        usage="show-config ignored-channels",
+        description="**Покажет игнорируемые каналы**"
     )
     async def ignored_channels(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild))["ignored_channels"]
@@ -111,7 +115,9 @@ class ShowConfigs(commands.Cog):
         await ctx.send(embed=emb)
 
     @show_config.command(
-        name="auto-moderate"
+        name="auto-moderate",
+        usage="show-config auto-moderate",
+        description="**Покажет настройки авто-модерации**"
     )
     async def auto_moderate(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
@@ -165,7 +171,9 @@ class ShowConfigs(commands.Cog):
         await ctx.send(embed=emb)
 
     @show_config.command(
-        name="auto-reactions"
+        name="auto-reactions",
+        usage="show-config auto-reactions",
+        description="**Покажет настройки авто-реакций**"
     )
     async def auto_reactions(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild))["auto_reactions"]
@@ -187,7 +195,10 @@ class ShowConfigs(commands.Cog):
         emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
         await ctx.send(embed=emb)
 
-    @show_config.command()
+    @show_config.command(
+        usage="show-config audit",
+        description="**Покажет настройки аудита**"
+    )
     async def audit(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
         convert_categories = {
