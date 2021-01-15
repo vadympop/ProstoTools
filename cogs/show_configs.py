@@ -63,7 +63,7 @@ class ShowConfigs(commands.Cog):
             server_stats = "Не настроено"
         else:
             server_stats = "\n".join([
-                f"`{category}` - `#{ctx.guild.get_channel(channel).name}`"
+                f"`{category}` - `{ctx.guild.get_channel(channel).name}`"
                 for category, channel in data.items()
                 if category != "message" and ctx.guild.get_channel(channel) is not None
             ])
@@ -147,7 +147,9 @@ class ShowConfigs(commands.Cog):
                     message = ("Выключено"
                                if "message" not in data[key].keys()
                                else f"отправляеться в `{message_types[data[key]['message']['type']]}`, сообщения - `{data[key]['message']['text'][:30]}...`")
-                    punishment = f"тип наказания `{punishment_types[data[key]['punishment']['type']]}`, время наказания - `{data[key]['punishment']['time']}`"
+                    punishment = (f"тип наказания `{punishment_types[data[key]['punishment']['type']]}`, время наказания - `{data[key]['punishment']['time']}`"
+                                  if "punishment" in data[key].keys()
+                                  else "наказания не установлено")
                     settings.append(
                         f"**{categories[key]}**:\n1. Сообщения - {message}\n2. Наказания - {punishment}"
                     )
