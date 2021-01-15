@@ -86,12 +86,12 @@ class Utils(commands.Cog, name="Utils"):
 		name="server-stats",
 		hidden=True,
 		description="**Создает статистику сервера**",
-		usage="server-stats [Счетчик]",
+		usage="server-stats [Счетчик] |off|",
 		help="**Примеры использования:**\n1. {Prefix}server-stats all\n2. {Prefix}server-stats сообщения\n\n**Пример 1:** Создаёт счетчик всех пользователей сервера\n**Пример 2:** Создаёт сообщения в текущем канале с основной информацией о сервере",
 	)
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
-	async def serverstats(self, ctx, stats_count: str):
+	async def serverstats(self, ctx, counter: str, action: str = None):
 		members_count = len(
 			[
 				member.id
@@ -110,7 +110,7 @@ class Utils(commands.Cog, name="Utils"):
 			"members": ["Участников", members_count],
 		}
 
-		if stats_count.lower() in ["message", "сообщения"]:
+		if counter.lower() in ["message", "сообщения"]:
 			async with ctx.typing():
 				val = (ctx.guild.id, ctx.guild.id)
 				sql_1 = """SELECT user_id, exp, money, reputation, messages FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 20"""
@@ -187,7 +187,7 @@ class Utils(commands.Cog, name="Utils"):
 				pass
 			return
 
-		if stats_count.lower() not in counters.keys():
+		if counter.lower() not in counters.keys():
 			emb = discord.Embed(
 				title="Ошибка!",
 				description="**Вы не правильно указали счетчик. Укажите из этих: bots, all, members, roles, channels**",
@@ -202,18 +202,51 @@ class Utils(commands.Cog, name="Utils"):
 			return
 
 		async with ctx.typing():
-			stats_category = await ctx.guild.create_category("Статистика")
-			overwrite = discord.PermissionOverwrite(connect=False)
-			stats_channel = await ctx.guild.create_voice_channel(
-				f"[{counters[stats_count.lower()][1]}] {counters[stats_count.lower()][0]}",
-				category=stats_category,
-			)
-			await stats_channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
-			await stats_category.edit(position=0)
-
 			data = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
-			data.update({stats_count.lower(): stats_channel.id})
-
+			if action is not None:
+				if action.lower() == "off":
+					if counter.lower() in data.keys():
+						channel_id = data.pop(counter.lower())
+						channel = ctx.guild.get_channel(channel_id)
+						if channel is not None:
+							await channel.delete()
+						if "category" in data.keys():
+							category_id = data.get("category")
+							category = ctx.guild.get_channel(category_id)
+							if category is not None:
+								if len(category.channels) <= 0:
+									await category.delete()
+									data.pop("category")
+					else:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Указаный счетчик не включен!"
+						)
+						await ctx.send(embed=emb)
+						return
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите `off` чтобы выключить счетчик или не указывайте ничего для включения"
+					)
+					await ctx.send(embed=emb)
+					return
+			else:
+				if "category" not in data.keys():
+					stats_category = await ctx.guild.create_category("Статистика")
+				else:
+					stats_category = ctx.guild.get_channel(data["category"])
+					if stats_category is None:
+						stats_category = await ctx.guild.create_category("Статистика")
+				overwrites = {
+					ctx.guild.default_role: discord.PermissionOverwrite(connect=False),
+					ctx.guild.me: discord.PermissionOverwrite(connect=True, manage_permissions=True, manage_channels=True)
+				}
+				stats_channel = await ctx.guild.create_voice_channel(
+					f"[{counters[counter.lower()][1]}] {counters[counter.lower()][0]}",
+					category=stats_category,
+					overwrites=overwrites
+				)
+				await stats_category.edit(position=0)
+				data.update({counter.lower(): stats_channel.id, "category": stats_category.id})
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
