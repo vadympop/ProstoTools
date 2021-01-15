@@ -161,13 +161,13 @@ class ShowConfigs(commands.Cog):
                                     else f"установлено {len(data[key]['target_roles'])} ролей")
                     target_channels = ("целевые каналы не настроены"
                                     if "target_channels" not in data[key].keys()
-                                    else f"установлено {len(data[key]['target_roles'])} каналов")
+                                    else f"установлено {len(data[key]['target_channels'])} каналов")
                     ignore_channels = ("игнорируемые каналы не настроены"
                                     if "ignore_channels" not in data[key].keys()
-                                    else f"установлено {len(data[key]['target_roles'])} каналов")
+                                    else f"установлено {len(data[key]['ignore_channels'])} каналов")
                     ignore_roles = ("игнорируемые роли не настроены"
                                     if "ignore_roles" not in data[key].keys()
-                                    else f"установлено {len(data[key]['target_roles'])} ролей")
+                                    else f"установлено {len(data[key]['ignore_roles'])} ролей")
                     info = f"**{categories[key]}**:\n1. Сообщения - {message}\n2. Наказания - {punishment}\n3. Целевые каналы - {target_channels}\n4. Игнорируемые каналы - {ignore_channels}\n5. Целевые роли - {target_roles}\n6. Игнорируемые роли - {ignore_roles}"
                     settings.append(info)
                 else:
