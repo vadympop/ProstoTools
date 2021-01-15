@@ -102,7 +102,7 @@ class Errors(commands.Cog, name="Errors"):
 				return
 
 			error_id = str(uuid.uuid4())
-			await self.client.database.set_error(error_id, repr(error), ctx.command.name)
+			await self.client.database.set_error(error_id, repr(error), PREFIX+ctx.message.content)
 			try:
 				await ctx.message.add_reaction("❌")
 			except:
