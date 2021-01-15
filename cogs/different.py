@@ -473,7 +473,7 @@ class Different(commands.Cog, name="Different"):
 			)
 			embed1.add_field(
 				name="Полезные ссылки",
-				value=f"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot)\n[Сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](https://api.prosto-tools.ml/)\n[Документация](https://docs.prosto-tools.ml/)\n[SDC](https://bots.server-discord.com/700767394154414142)\n[Boticord](https://boticord.top/bot/700767394154414142)\n[TBL](https://top-bots.xyz/bot/700767394154414142)",
+				value=f"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=268954870&scope=bot)\n[Сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](https://api.prosto-tools.ml/)\n[Документация](https://docs.prosto-tools.ml/)\n[SDC](https://bots.server-discord.com/700767394154414142)\n[Boticord](https://boticord.top/bot/700767394154414142)\n[TBL](https://top-bots.xyz/bot/700767394154414142)",
 				inline=False,
 			)
 			embed1.set_thumbnail(url=self.client.user.avatar_url)
@@ -689,7 +689,7 @@ class Different(commands.Cog, name="Different"):
 	async def invite(self, ctx):
 		emb = discord.Embed(
 			title="Пригласи бота на свой сервер =).**Жмякай!**",
-			url="https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=8&scope=bot",
+			url="https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=268954870&scope=bot",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)

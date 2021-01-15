@@ -1272,7 +1272,7 @@ class Settings(commands.Cog, name="Settings"):
 			fields = ("description", "code", "function")
 			if options[0].lower() not in fields:
 				emb = await self.client.utils.create_error_embed(
-					ctx, "Укажите один из этих параметров: description, code!"
+					ctx, "Укажите один из этих параметров: description, code, function!"
 				)
 				await ctx.send(embed=emb)
 				return
