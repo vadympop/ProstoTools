@@ -7,6 +7,7 @@ from discord.ext import commands, tasks
 
 class TasksOther(commands.Cog):
 	def __init__(self, client):
+		print("Other")
 		self.client = client
 		self.update_messages_loop.start()
 		self.reminders_loop.start()
