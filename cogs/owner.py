@@ -1,14 +1,9 @@
 import discord
 import os
 import ast
-import math
-import random
-
-from tools import template_engine as TemplateEngine
-
+import traceback
 from discord.ext import commands
 from colorama import *
-from discord.utils import get
 
 init()
 
@@ -36,8 +31,12 @@ class Owner(commands.Cog, name="Owner"):
 		data = await self.client.database.sel_user(ctx.author)
 		multi = (await self.client.database.sel_guild(ctx.guild))["exp_multi"]
 		data.update({"multi": multi})
-		result = await self.client.template_engine.render(ctx.message, ctx.author, data, message)
-		await ctx.send(result)
+		try:
+			result = await self.client.template_engine.render(ctx.message, ctx.author, data, message)
+		except Exception:
+			await ctx.send(f"```{traceback.format_exc()}```")
+		else:
+			await ctx.send(result)
 
 	@commands.command(aliases=["eval"])
 	@commands.is_owner()
@@ -55,22 +54,20 @@ class Owner(commands.Cog, name="Owner"):
 			"os": os,
 			"commands": commands,
 			"ctx": ctx,
-			"get": get,
-			"__import__": __import__,
 			"database": self.client.database,
 		}
 		exec(compile(parsed, filename="<ast>", mode="exec"), env)
 
 		try:
 			result = await eval(f"{fn_name}()", env)
-		except Exception as e:
-			await ctx.send(repr(e))
+		except Exception:
+			await ctx.send(f"```{traceback.format_exc()}```")
 			return
 
 		if result is not None:
 			await ctx.send(result)
 		elif result is None:
-			return
+			await ctx.send("Result is none")
 
 	@commands.command()
 	@commands.is_owner()
