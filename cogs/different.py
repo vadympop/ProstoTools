@@ -385,7 +385,7 @@ class Different(commands.Cog, name="Different"):
 					f"\n**Пользовательский статус:** {activity.emoji} {activity.name}"
 				)
 			else:
-				if activity.emoji in self.client.emojis():
+				if activity.emoji in self.client.emojis:
 					activity_info = f"\n**Пользовательский статус:** {activity.emoji} {activity.name}"
 				else:
 					activity_info = f"\n**Пользовательский статус:** {activity.name}"
