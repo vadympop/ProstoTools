@@ -732,7 +732,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		except:
 			pass
 
-		if ban_time > 0:
+		if ban_time[0] > 0:
 			await self.client.database.update(
 				"users",
 				where={"user_id": member.id, "guild_id": ctx.guild.id},
