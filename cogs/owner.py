@@ -36,7 +36,10 @@ class Owner(commands.Cog, name="Owner"):
 		except Exception:
 			await ctx.send(f"```{traceback.format_exc()}```")
 		else:
-			await ctx.send(result)
+			try:
+				await ctx.send(result)
+			except Exception:
+				await ctx.send(f"```{traceback.format_exc()}```")
 
 	@commands.command(aliases=["eval"])
 	@commands.is_owner()
