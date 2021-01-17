@@ -46,6 +46,7 @@ class Errors(commands.Cog, name="Errors"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.MissingRequiredArgument):
+			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(
 				ctx,
 				f"**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указаной команде!**\n\n{ctx.command.help.format(Prefix=PREFIX)}\n[Документация](https://docs.prosto-tools.ml/)"
@@ -57,6 +58,7 @@ class Errors(commands.Cog, name="Errors"):
 		elif isinstance(error, commands.errors.CommandNotFound):
 			pass
 		elif isinstance(error, commands.errors.NotOwner):
+			ctx.command.reset_cooldown(ctx)
 			try:
 				await ctx.message.add_reaction("❌")
 			except:
@@ -70,11 +72,13 @@ class Errors(commands.Cog, name="Errors"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.MissingPermissions) or isinstance(error, commands.errors.CheckFailure):
+			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(
 				ctx, "У вас не достаточно прав на использования данной команды!"
 			)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.BadArgument):
+			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(
 				ctx,
 				f"**Указан не правильный аргумент!**\n\n{ctx.command.help.format(Prefix=PREFIX)}\n[Документация](https://docs.prosto-tools.ml/)"
@@ -91,9 +95,11 @@ class Errors(commands.Cog, name="Errors"):
 			)
 			await owner.send(embed=emb_err)
 		elif isinstance(error, commands.errors.MemberNotFound):
+			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(ctx, "Указаный пользователь не найден!")
 			await ctx.send(embed=emb)
 		else:
+			ctx.command.reset_cooldown(ctx)
 			if isinstance(error.original, discord.errors.Forbidden):
 				emb = await self.client.utils.create_error_embed(
 					ctx, f"У бота отсутствуют необходимые права!"

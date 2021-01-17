@@ -306,14 +306,11 @@ class DB(AbcDatabase):
 			async with conn.cursor() as cur:
 				await cur.execute(sql_1, val_1)
 				data = await cur.fetchone()
-				print(data is None)
 				await cur.execute(sql_4, val_4)
 				db_warns = await cur.fetchall()
 
 				if check:
 					if data is None:
-						print("Is None")
-						print(data)
 						await cur.execute(sql_2, val_2)
 						await conn.commit()
 

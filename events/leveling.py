@@ -64,6 +64,13 @@ class EventsLeveling(commands.Cog):
 		messages[1] = int(messages[1])+1
 		messages[2] = message.content
 
+		if messages[0] >= 150:
+			reputation += 1
+			messages[0] = 0
+
+		if reputation >= 100:
+			reputation = 100
+
 		exp_end = math.floor(9 * (lvl_member ** 2) + 50 * lvl_member + 125 * multi)
 		if exp_end < exp:
 			lvl_member += 1
@@ -83,6 +90,10 @@ class EventsLeveling(commands.Cog):
 				)
 				await message.channel.send(embed=emb_lvl)
 			else:
+				data["level"] = lvl_member
+				data["exp"] = exp
+				data["coins"] = coins
+				data["reputation"] = reputation
 				data.update({"multi": guild_data["exp_multi"]})
 				try:
 					try:
@@ -125,13 +136,6 @@ class EventsLeveling(commands.Cog):
 					await message.channel.send(text)
 				elif guild_data["rank_message"]["type"] == "dm":
 					await message.author.send(text)
-
-		if messages[0] >= 150:
-			reputation += 1
-			messages[0] = 0
-
-		if reputation >= 100:
-			reputation = 100
 
 		try:
 			await self.client.database.update(

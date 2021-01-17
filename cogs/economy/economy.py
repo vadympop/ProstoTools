@@ -904,23 +904,22 @@ class Economy(commands.Cog):
 			await ctx.message.add_reaction("❌")
 			return
 
-		if member in ctx.guild.members:
-			data = await self.client.database.sel_user(target=member)
-		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**На сервере не существует такого пользователя!**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		if role.is_integration():
+			emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
-			self.remove_role.reset_cooldown(ctx)
 			return
 
+		if role.is_bot_managed():
+			emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+			await ctx.send(embed=emb)
+			return
+
+		if role.is_premium_subscriber():
+			emb = await self.client.utils.create_error_embed(ctx, "Указанная роль используеться для бустером сервера!")
+			await ctx.send(embed=emb)
+			return
+
+		data = await self.client.database.sel_user(target=member)
 		items = data["items"]
 		if role.id in items:
 			items.remove(role.id)

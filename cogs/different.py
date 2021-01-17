@@ -802,14 +802,16 @@ class Different(commands.Cog, name="Different"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 			return
+
 		if len(text) > 1000:
 			await ctx.message.add_reaction("❌")
 			return
 
-		sql = """UPDATE users SET bio = %s WHERE user_id = %s"""
-		val = (text, ctx.author.id)
-		await self.client.database.execute(sql, val)
-		await self.client.cache.delete(f"user {ctx.author.id} {ctx.guild.id}")
+		await self.client.database.update(
+			"users",
+			where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+			bio=text
+		)
 		await ctx.message.add_reaction("✅")
 
 	@commands.command(

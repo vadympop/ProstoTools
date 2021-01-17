@@ -267,6 +267,40 @@ class Utils(commands.Cog, name="Utils"):
 	async def mass_role(
 		self, ctx, type_act: str, for_role: discord.Role, role: discord.Role
 	):
+		if role.is_integration():
+			emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
+			await ctx.send(embed=emb)
+			return
+
+		if role.is_bot_managed():
+			emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+			await ctx.send(embed=emb)
+			return
+
+		if role.is_premium_subscriber():
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Указанная роль используеться для бустером сервера!"
+			)
+			await ctx.send(embed=emb)
+			return
+
+		if for_role.is_integration():
+			emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
+			await ctx.send(embed=emb)
+			return
+
+		if for_role.is_bot_managed():
+			emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+			await ctx.send(embed=emb)
+			return
+
+		if for_role.is_premium_subscriber():
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Указанная роль используеться для бустером сервера!"
+			)
+			await ctx.send(embed=emb)
+			return
+
 		if type_act == "add":
 			async with ctx.typing():
 				for member in ctx.guild.members:

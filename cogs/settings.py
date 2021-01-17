@@ -89,6 +89,21 @@ class Settings(commands.Cog, name="Settings"):
 				await ctx.send(embed=emb)
 				return
 
+			if role.is_integration():
+				emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
+				await ctx.send(embed=emb)
+				return
+
+			if role.is_bot_managed():
+				emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+				await ctx.send(embed=emb)
+				return
+
+			if role.is_premium_subscriber():
+				emb = await self.client.utils.create_error_embed(ctx, "Указанная роль используеться для бустером сервера!")
+				await ctx.send(embed=emb)
+				return
+
 			cur_roles.append(role.id)
 			emb = discord.Embed(
 				description=f"**Вы успешно добавили новую роль модератора! Добавленная роль - `{role.name}`**",
@@ -239,6 +254,21 @@ class Settings(commands.Cog, name="Settings"):
 
 		if cost <= 0:
 			emb = await self.client.create_error_embed(ctx, "Укажите стоимость предмета больше 0!")
+			await ctx.send(embed=emb)
+			return
+
+		if role.is_integration():
+			emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
+			await ctx.send(embed=emb)
+			return
+
+		if role.is_bot_managed():
+			emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+			await ctx.send(embed=emb)
+			return
+
+		if role.is_premium_subscriber():
+			emb = await self.client.utils.create_error_embed(ctx, "Указанная роль используеться для бустером сервера!")
 			await ctx.send(embed=emb)
 			return
 
@@ -528,6 +558,24 @@ class Settings(commands.Cog, name="Settings"):
 			elif setting.lower() == "target-role":
 				role_converter = commands.RoleConverter()
 				role = await role_converter.convert(ctx, options[1])
+
+				if role.is_integration():
+					emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
+					await ctx.send(embed=emb)
+					return
+
+				if role.is_bot_managed():
+					emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+					await ctx.send(embed=emb)
+					return
+
+				if role.is_premium_subscriber():
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Указанная роль используеться для бустером сервера!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				if options[0].lower() == "add":
 					if "target_roles" not in auto_mod["anti_flud"]:
 						auto_mod["anti_flud"].update({"target_roles": [role.id]})
@@ -558,6 +606,24 @@ class Settings(commands.Cog, name="Settings"):
 			elif setting.lower() == "ignore-role":
 				role_converter = commands.RoleConverter()
 				role = await role_converter.convert(ctx, options[1])
+
+				if role.is_integration():
+					emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
+					await ctx.send(embed=emb)
+					return
+
+				if role.is_bot_managed():
+					emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+					await ctx.send(embed=emb)
+					return
+
+				if role.is_premium_subscriber():
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Указанная роль используеться для бустером сервера!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				if options[0].lower() == "add":
 					if "ignore_roles" not in auto_mod["anti_flud"]:
 						auto_mod["anti_flud"].update({"ignore_roles": [role.id]})
@@ -772,6 +838,24 @@ class Settings(commands.Cog, name="Settings"):
 			elif setting.lower() == "target-role":
 				role_converter = commands.RoleConverter()
 				role = await role_converter.convert(ctx, options[1])
+
+				if role.is_integration():
+					emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
+					await ctx.send(embed=emb)
+					return
+
+				if role.is_bot_managed():
+					emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+					await ctx.send(embed=emb)
+					return
+
+				if role.is_premium_subscriber():
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Указанная роль используеться для бустером сервера!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				if options[0].lower() == "add":
 					if "target_roles" not in auto_mod["anti_invite"]:
 						auto_mod["anti_invite"].update({"target_roles": [role.id]})
@@ -802,6 +886,24 @@ class Settings(commands.Cog, name="Settings"):
 			elif setting.lower() == "ignore-role":
 				role_converter = commands.RoleConverter()
 				role = await role_converter.convert(ctx, options[1])
+
+				if role.is_integration():
+					emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
+					await ctx.send(embed=emb)
+					return
+
+				if role.is_bot_managed():
+					emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+					await ctx.send(embed=emb)
+					return
+
+				if role.is_premium_subscriber():
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Указанная роль используеться для бустером сервера!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				if options[0].lower() == "add":
 					if "ignore_roles" not in auto_mod["anti_invite"]:
 						auto_mod["anti_invite"].update({"ignore_roles": [role.id]})
@@ -945,7 +1047,18 @@ class Settings(commands.Cog, name="Settings"):
 		usage="setting exp-multi [Множитель%(Пример - 450%)]",
 	)
 	async def expform(self, ctx, multiplier: str):
-		multi = int(multiplier[:-1])
+		if not multiplier.endswith("%"):
+			emb = await self.client.utils.create_error_embed(ctx, "Указан неправильный формат множителя!")
+			await ctx.send(embed=emb)
+			return
+
+		raw_multi = multiplier[:-1]
+		if not raw_multi.isdigit():
+			emb = await self.client.utils.create_error_embed(ctx, "Указан неправильный формат множителя!")
+			await ctx.send(embed=emb)
+			return
+
+		multi = int(raw_multi)
 		if multi > 10000 or multi <= 0:
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -1342,6 +1455,23 @@ class Settings(commands.Cog, name="Settings"):
 						return
 
 					role = await converter.convert(ctx, options[2])
+					if role.is_integration():
+						emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
+						await ctx.send(embed=emb)
+						return
+
+					if role.is_bot_managed():
+						emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+						await ctx.send(embed=emb)
+						return
+
+					if role.is_premium_subscriber():
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Указанная роль используеться для бустером сервера!"
+						)
+						await ctx.send(embed=emb)
+						return
+
 					if options[1].lower() == "role-add":
 						if "functions" not in command.keys():
 							command.update({"functions": {
