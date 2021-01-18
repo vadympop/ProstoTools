@@ -106,6 +106,8 @@ class Errors(commands.Cog, name="Errors"):
 				)
 				await ctx.send(embed=emb)
 				return
+			elif isinstance(error.original, discord.errors.NotFound):
+				pass
 
 			error_id = str(uuid.uuid4())
 			await self.client.database.set_error(error_id, repr(error), ctx.message.content)
