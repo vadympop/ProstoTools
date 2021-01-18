@@ -928,7 +928,7 @@ class Clans(commands.Cog):
 	@clan.command(
 		name="list-join-requests",
 		usage="clan list-join-requests",
-		description="**Показывает список всех кланов на сервере**",
+		description="**Показывает список всех запросов на присоединения к клану**",
 	)
 	async def list_join_requests(self, ctx):
 		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
