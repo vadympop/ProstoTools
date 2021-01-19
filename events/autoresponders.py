@@ -8,6 +8,9 @@ class EventsAutoResponders(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.guild is not None:
+            if message.author.bot:
+                return
+
             autoresponders = (await self.client.database.sel_guild(guild=message.guild))["autoresponders"]
             command = message.content.split(" ")[0]
             if command in autoresponders.keys():
