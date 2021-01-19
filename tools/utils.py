@@ -85,7 +85,9 @@ class Utils:
         return ((new_time-datetime.datetime(year=1970, month=1, day=1))-datetime.timedelta(hours=2)).total_seconds()
 
     async def create_error_embed(self, ctx, error_msg: str, bold: bool = True):
-        emb = discord.Embed(title="Ошибка!", description=f"**{error_msg}**" if bold else error_msg, colour=discord.Color.green())
+        emb = discord.Embed(
+            title="Ошибка!", description=f"**{error_msg}**" if bold else error_msg, colour=discord.Color.green()
+        )
         emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
         emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
         await ctx.message.add_reaction("❌")
@@ -93,7 +95,7 @@ class Utils:
 
     async def build_help(self, ctx, prefix, groups, moder_roles):
         state = False
-        exceptions = ("owner", "help")
+        exceptions = ("owner", "help", "jishaku")
         emb = discord.Embed(
             title="**Доступние команды:**",
             description=f'Префикс на этом сервере - `{prefix}`, если надо ввести названия чего-либо с пробелом, укажите его в двойных кавычках',

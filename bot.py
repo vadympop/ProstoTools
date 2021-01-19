@@ -55,12 +55,14 @@ extensions = (
 )
 
 
-class Client(commands.AutoShardedBot):
-	def __init__(self, command_prefix, case_insensitive, intents):
+class ProstoTools(commands.AutoShardedBot):
+	def __init__(self, intents, prefix):
 		super().__init__(
-			command_prefix=command_prefix,
-			case_insensitive=case_insensitive,
+			command_prefix=prefix,
 			intents=intents,
+			allowed_mentions=discord.AllowedMentions(users=True, everyone=False, roles=False),
+			max_messages=500,
+			case_insensitive=True
 		)
 		self.remove_command("help")
 		self.config = Config
@@ -113,9 +115,7 @@ base_intents = discord.Intents(
 	guild_messages=True,
 	guild_reactions=True
 )
-client = Client(
-	command_prefix=get_prefix, case_insensitive=True, intents=base_intents
-)
+client = ProstoTools(intents=base_intents, prefix=get_prefix)
 
 
 def start_bot():
