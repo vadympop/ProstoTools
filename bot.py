@@ -123,12 +123,12 @@ def start_bot():
 		try:
 			client.load_extension(extension)
 		except Exception as e:
-			raise e
 			logger.error(
-				f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension}"
+				f"[PT-SYSTEM-ERROR]:::An error occurred in the cog {extension}:\n{repr(e)}"
 			)
 		else:
 			logger.info(f"[PT-SYSTEM-COG]:::{extension} - Loaded")
+	client.load_extension("jishaku")
 
 
 @client.command()
