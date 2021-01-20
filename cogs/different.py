@@ -412,6 +412,17 @@ class Different(commands.Cog, name="Different"):
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bot(self, ctx, action: str = None):
 		if action != "system":
+			links = [
+				"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=268954870&scope=bot)",
+				f"[Сервер поддержки]({self.HELP_SERVER})",
+				"[Patreon](https://www.patreon.com/join/prostotools)",
+				"[API](https://api.prosto-tools.ml/)",
+				"[Документация](https://docs.prosto-tools.ml/)",
+				"[SDC](https://bots.server-discord.com/700767394154414142)",
+				"[Boticord](https://boticord.top/bot/700767394154414142)",
+				"[TBL](https://top-bots.xyz/bot/700767394154414142)",
+				"[TopBots](https://bots.topcord.ru/bots/700767394154414142)",
+			]
 			commands_count = (await self.client.database.execute(
 				query="""SELECT count FROM bot_stats WHERE entity = 'all commands' ORDER BY count DESC LIMIT 1""",
 				fetchone=True,
@@ -441,7 +452,7 @@ class Different(commands.Cog, name="Different"):
 			)
 			embed1.add_field(
 				name="Полезные ссылки",
-				value=f"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=268954870&scope=bot)\n[Сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](https://api.prosto-tools.ml/)\n[Документация](https://docs.prosto-tools.ml/)\n[SDC](https://bots.server-discord.com/700767394154414142)\n[Boticord](https://boticord.top/bot/700767394154414142)\n[TBL](https://top-bots.xyz/bot/700767394154414142)",
+				value="\n".join(links),
 				inline=False,
 			)
 			embed1.set_thumbnail(url=self.client.user.avatar_url)
@@ -641,10 +652,21 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def invite(self, ctx):
+		links = [
+			"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=268954870&scope=bot)",
+			f"[Сервер поддержки]({self.HELP_SERVER})",
+			"[Patreon](https://www.patreon.com/join/prostotools)",
+			"[API](https://api.prosto-tools.ml/)",
+			"[Документация](https://docs.prosto-tools.ml/)",
+			"[SDC](https://bots.server-discord.com/700767394154414142)",
+			"[Boticord](https://boticord.top/bot/700767394154414142)",
+			"[TBL](https://top-bots.xyz/bot/700767394154414142)",
+			"[TopBots](https://bots.topcord.ru/bots/700767394154414142)",
+		]
 		emb = discord.Embed(colour=discord.Color.green())
 		emb.add_field(
 			name="Полезные ссылки",
-			value=f"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=268954870&scope=bot)\n[Сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](https://api.prosto-tools.ml/)\n[Документация](https://docs.prosto-tools.ml/)\n[SDC](https://bots.server-discord.com/700767394154414142)\n[Boticord](https://boticord.top/bot/700767394154414142)\n[TBL](https://top-bots.xyz/bot/700767394154414142)",
+			value="\n".join(links),
 		)
 		emb.set_thumbnail(url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
