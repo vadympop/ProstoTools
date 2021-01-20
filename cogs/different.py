@@ -641,14 +641,12 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def invite(self, ctx):
-		emb = discord.Embed(
-			title="Пригласи бота на свой сервер =).**Жмякай!**",
-			url="https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=268954870&scope=bot",
-			colour=discord.Color.green(),
+		emb = discord.Embed(colour=discord.Color.green())
+		emb.add_field(
+			name="Полезные ссылки",
+			value=f"[Приглашение Бота](https://discord.com/api/oauth2/authorize?client_id=700767394154414142&permissions=268954870&scope=bot)\n[Сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](https://api.prosto-tools.ml/)\n[Документация](https://docs.prosto-tools.ml/)\n[SDC](https://bots.server-discord.com/700767394154414142)\n[Boticord](https://boticord.top/bot/700767394154414142)\n[TBL](https://top-bots.xyz/bot/700767394154414142)",
 		)
-		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_thumbnail(url=self.client.user.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
 
 	@commands.command(
