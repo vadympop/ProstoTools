@@ -847,7 +847,7 @@ class Economy(commands.Cog):
 		if "economy" in audit.keys():
 			e = discord.Embed(
 				description=f"У пользователя `{str(member)}` была убрана роль",
-				colour=discord.Color.green(),
+				colour=discord.Color.orange(),
 				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
@@ -937,7 +937,7 @@ class Economy(commands.Cog):
 		if "economy" in audit.keys():
 			e = discord.Embed(
 				description=f"Пользователю `{str(member)}` были добавлены средства",
-				colour=discord.Color.green(),
+				colour=discord.Color.blurple(),
 				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(

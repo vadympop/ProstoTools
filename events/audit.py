@@ -1,6 +1,5 @@
 import discord
 import datetime
-
 from discord.ext import commands
 
 
@@ -23,23 +22,24 @@ class EventsAudit(commands.Cog):
 				return
 
 			if not len(before.roles) == len(after.roles):
-				roles = []
 				if len(before.roles) > len(after.roles):
-					for i in before.roles:
-						if not i in after.roles:
-							roles.append(f"➖ Была убрана роль {i.name}(<@&{i.id}>)\n")
+					for role in before.roles:
+						if role not in after.roles:
+							name = "Была убрана роль"
+							value = f"@{role.name}(`{role.id}`)"
 				elif len(before.roles) < len(after.roles):
-					for i in after.roles:
-						if not i in before.roles:
-							roles.append(f"➕ Была добавлена роль {i.name}(<@&{i.id}>)\n")
+					for role in after.roles:
+						if role not in before.roles:
+							name = "Была добавлена роль"
+							value = f"@{role.name}(`{role.id}`)"
 
 				e = discord.Embed(
 					description=f"У пользователя `{str(after)}` были изменены роли",
-					colour=discord.Color.green(),
+					colour=discord.Color.blurple(),
 					timestamp=datetime.datetime.utcnow(),
 				)
 				e.add_field(
-					name="Было сделано", value=f"**{''.join(roles)}**", inline=False
+					name=name, value=value, inline=False
 				)
 				e.add_field(name="Id Участника", value=f"`{after.id}`", inline=False)
 				e.set_author(
@@ -52,7 +52,7 @@ class EventsAudit(commands.Cog):
 			if not before.display_name == after.display_name:
 				e = discord.Embed(
 					description=f"Пользователь `{str(before)}` изменил ник",
-					colour=discord.Color.green(),
+					colour=discord.Color.blue(),
 					timestamp=datetime.datetime.utcnow(),
 				)
 				e.add_field(
@@ -85,7 +85,7 @@ class EventsAudit(commands.Cog):
 		ban = await guild.fetch_ban(user)
 		e = discord.Embed(
 			description=f"Пользователь `{str(user)}` был забанен",
-			colour=discord.Color.green(),
+			colour=discord.Color.red(),
 			timestamp=datetime.datetime.utcnow(),
 		)
 		e.add_field(
@@ -137,7 +137,7 @@ class EventsAudit(commands.Cog):
 		if len(message.content) > 1000:
 			return
 		e = discord.Embed(
-			colour=discord.Color.green(), timestamp=datetime.datetime.utcnow()
+			colour=discord.Color.orange(), timestamp=datetime.datetime.utcnow()
 		)
 		e.add_field(
 			name="Удалённое сообщение",
@@ -175,7 +175,7 @@ class EventsAudit(commands.Cog):
 
 		e = discord.Embed(
 			description=f"**[Сообщение]({before.jump_url}) было изменено**",
-			colour=discord.Color.green(),
+			colour=discord.Color.gold(),
 			timestamp=datetime.datetime.utcnow(),
 		)
 		e.add_field(

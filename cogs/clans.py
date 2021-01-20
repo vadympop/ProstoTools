@@ -119,7 +119,7 @@ class Clans(commands.Cog):
 		if "clans" in audit.keys():
 			e = discord.Embed(
 				description=f"Создан новый клан",
-				colour=discord.Color.green(),
+				colour=discord.Color.blurple(),
 				timestamp=datetime.utcnow(),
 			)
 			e.add_field(name="Id клана", value=f"`{new_id}`", inline=False)
@@ -326,7 +326,7 @@ class Clans(commands.Cog):
 		if "clans" in audit.keys():
 			e = discord.Embed(
 				description=f"Удален клан",
-				colour=discord.Color.green(),
+				colour=discord.Color.orange(),
 				timestamp=datetime.utcnow(),
 			)
 			e.add_field(

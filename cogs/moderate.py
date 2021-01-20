@@ -86,7 +86,7 @@ class Moderate(commands.Cog, name="Moderate"):
 						if "moderate" in audit.keys():
 							self.client.txt_dump(delete_messages_fp, delete_messages)
 							e = discord.Embed(
-								colour=discord.Color.green(), timestamp=datetime.datetime.utcnow()
+								colour=discord.Color.orange(), timestamp=datetime.datetime.utcnow()
 							)
 							e.add_field(
 								name=f"Модератор {str(ctx.author)}",
@@ -325,7 +325,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if "moderate" in audit.keys():
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был кикнут",
-				colour=discord.Color.green(),
+				colour=discord.Color.dark_gold(),
 				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
@@ -444,7 +444,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if "moderate" in audit.keys():
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был апаратно забанен",
-				colour=discord.Color.green(),
+				colour=discord.Color.red(),
 				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
@@ -770,7 +770,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if "moderate" in audit.keys():
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был замьючен в голосовых каналах",
-				colour=discord.Color.green(),
+				colour=discord.Color.teal(),
 				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
@@ -1050,7 +1050,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if "moderate" in audit.keys():
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был замьючен",
-				colour=discord.Color.green(),
+				colour=discord.Color.teal(),
 				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
@@ -1364,7 +1364,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		if "moderate" in audit.keys():
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` получил предупреждения",
-				colour=discord.Color.green(),
+				colour=discord.Color.teal(),
 				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
