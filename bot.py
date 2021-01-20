@@ -44,14 +44,15 @@ extensions = (
 	"events.join",
 	"events.leave",
 	"events.leveling",
-	"events.logs",
+	"events.audit",
 	"events.other",
 	"events.reactions_commands",
 	"events.auto_reactions",
 	"events.custom_commands",
 	"events.autoresponders",
 	"events.anti_flud",
-	"events.anti_invite"
+	"events.anti_invite",
+	"events.on_edit_command"
 )
 
 
