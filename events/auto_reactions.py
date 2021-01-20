@@ -21,6 +21,8 @@ class EventsAutoReactions(commands.Cog):
                         await message.add_reaction(reaction)
                     except discord.errors.HTTPException:
                         pass
+                    except discord.errors.Forbidden:
+                        pass
 
 
 def setup(client):

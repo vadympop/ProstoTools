@@ -28,26 +28,16 @@ class FunEditImage(commands.Cog):
                 emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
                 await ctx.send(embed=emb)
             else:
-                emb = discord.Embed(
-                    title="Ошибка!",
-                    description=f"**Указан не правильный формат цвета!**",
-                    colour=discord.Color.green(),
+                emb = await ctx.bot.utils.create_error_embed(
+                    ctx, "Указан не правильный формат цвета!"
                 )
-                emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-                emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
                 await ctx.send(embed=emb)
-                await ctx.message.add_reaction("❌")
                 return
         else:
-            emb = discord.Embed(
-                title="Ошибка!",
-                description=f"**Указан не правильный формат цвета!**",
-                colour=discord.Color.green(),
+            emb = await ctx.bot.utils.create_error_embed(
+                ctx, "Указан не правильный формат цвета!"
             )
-            emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-            emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
             await ctx.send(embed=emb)
-            await ctx.message.add_reaction("❌")
             return
 
     @commands.command(
@@ -122,17 +112,10 @@ class FunEditImage(commands.Cog):
             "blur"
         )
         if filter.lower() not in filters:
-            emb = discord.Embed(
-                title="Ошибка!",
-                description=f"**Укажите один из этих фильтров: {', '.join(filters)}!**",
-                colour=discord.Color.green(),
+            emb = await ctx.bot.utils.create_error_embed(
+                ctx, f"Укажите один из этих фильтров: {', '.join(filters)}!"
             )
-            emb.set_author(
-                name=self.client.user.name, icon_url=self.client.user.avatar_url
-            )
-            emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
             await ctx.send(embed=emb)
-            await ctx.message.add_reaction("❌")
             return
 
         emb = discord.Embed(title=f"Эффект {filter}", colour=discord.Color.green())

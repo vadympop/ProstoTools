@@ -359,7 +359,12 @@ async def buy(ctx, item: str = None, num: int = None):
             elif embeds[1]:
                 await member.send(embed=embeds[1])
             elif embeds[2]:
-                await ctx.message.add_reaction("❌")
+                try:
+                    await ctx.message.add_reaction("❌")
+                except discord.errors.Forbidden:
+                    pass
+                except discord.errors.HTTPException:
+                    pass
                 await ctx.send(embed=embeds[2])
 
         elif (
@@ -373,7 +378,12 @@ async def buy(ctx, item: str = None, num: int = None):
             elif embeds[1]:
                 await member.send(embed=embeds[1])
             elif embeds[2]:
-                await ctx.message.add_reaction("❌")
+                try:
+                    await ctx.message.add_reaction("❌")
+                except discord.errors.Forbidden:
+                    pass
+                except discord.errors.HTTPException:
+                    pass
                 await ctx.send(embed=embeds[2])
 
         elif (
@@ -388,7 +398,12 @@ async def buy(ctx, item: str = None, num: int = None):
             elif embeds[1]:
                 await member.send(embed=embeds[1])
             elif embeds[2]:
-                await ctx.message.add_reaction("❌")
+                try:
+                    await ctx.message.add_reaction("❌")
+                except discord.errors.Forbidden:
+                    pass
+                except discord.errors.HTTPException:
+                    pass
                 await ctx.send(embed=embeds[2])
 
         elif (
@@ -404,7 +419,12 @@ async def buy(ctx, item: str = None, num: int = None):
             elif embeds[1]:
                 await member.send(embed=embeds[1])
             elif embeds[2]:
-                await ctx.message.add_reaction("❌")
+                try:
+                    await ctx.message.add_reaction("❌")
+                except discord.errors.Forbidden:
+                    pass
+                except discord.errors.HTTPException:
+                    pass
                 await ctx.send(embed=embeds[2])
 
         elif role is not None:
@@ -452,35 +472,16 @@ async def buy(ctx, item: str = None, num: int = None):
                     )
                     await ctx.send(embed=emb)
                 else:
-                    emb = discord.Embed(
-                        title="Ошибка!",
-                        description="**Вы уже имеете эту роль!**",
-                        colour=discord.Color.green(),
-                    )
-                    emb.set_author(
-                        name=ctx.bot.user.name,
-                        icon_url=ctx.bot.user.avatar_url,
-                    )
-                    emb.set_footer(
-                        text=FOOTER, icon_url=ctx.bot.user.avatar_url
+                    emb = await ctx.bot.utils.create_error_embed(
+                        ctx, f"Вы уже имеете эту роль!"
                     )
                     await ctx.send(embed=emb)
-                    await ctx.message.add_reaction("❌")
                     return
             else:
-                emb = discord.Embed(
-                    title="Ошибка!",
-                    description=f"**Укажите роль правильно, такой роли нету в списке продаваемых ролей!**",
-                    colour=discord.Color.green(),
-                )
-                emb.set_author(
-                    name=ctx.bot.user.name, icon_url=ctx.bot.user.avatar_url
-                )
-                emb.set_footer(
-                    text=FOOTER, icon_url=ctx.bot.user.avatar_url
+                emb = await ctx.bot.utils.create_error_embed(
+                    ctx, f"Укажите роль правильно, такой роли нету в списке продаваемых ролей!"
                 )
                 await ctx.send(embed=emb)
-                await ctx.message.add_reaction("❌")
                 return
 
         elif item == "метла" or item == "broom" or item == "metla":
@@ -529,19 +530,10 @@ async def buy(ctx, item: str = None, num: int = None):
                     )
                     await ctx.send(embed=emb)
             else:
-                emb = discord.Embed(
-                    title="Ошибка!",
-                    description=f"**У вас недостаточно коинов!**",
-                    colour=discord.Color.green(),
-                )
-                emb.set_author(
-                    name=ctx.bot.user.name, icon_url=ctx.bot.user.avatar_url
-                )
-                emb.set_footer(
-                    text=FOOTER, icon_url=ctx.bot.user.avatar_url
+                emb = await ctx.bot.utils.create_error_embed(
+                    ctx, "У вас не достаточно коинов!"
                 )
                 await ctx.send(embed=emb)
-                await ctx.message.add_reaction("❌")
                 return
         elif item == "швабра" or item == "mop":
             if data["coins"] >= 500:
@@ -574,17 +566,8 @@ async def buy(ctx, item: str = None, num: int = None):
                     await ctx.send(embed=emb)
                     return
             else:
-                await ctx.message.add_reaction("❌")
-                emb = discord.Embed(
-                    title="Ошибка!",
-                    description=f"**У вас недостаточно коинов!**",
-                    colour=discord.Color.green(),
-                )
-                emb.set_author(
-                    name=ctx.bot.user.name, icon_url=ctx.bot.user.avatar_url
-                )
-                emb.set_footer(
-                    text=FOOTER, icon_url=ctx.bot.user.avatar_url
+                emb = await ctx.bot.utils.create_error_embed(
+                    ctx, "У вас не достаточно коинов!"
                 )
                 await ctx.send(embed=emb)
                 return
@@ -716,31 +699,15 @@ async def buy(ctx, item: str = None, num: int = None):
                 )
                 await ctx.send(embed=emb)
             elif num is None:
-                await ctx.message.add_reaction("❌")
-                emb = discord.Embed(
-                    title="Ошибка!",
-                    description=f"**Вы не указали число покупаемых каналов!**",
-                    colour=discord.Color.green(),
-                )
-                emb.set_author(
-                    name=ctx.bot.user.name, icon_url=ctx.bot.user.avatar_url
-                )
-                emb.set_footer(
-                    text=FOOTER, icon_url=ctx.bot.user.avatar_url
+                emb = await ctx.bot.utils.create_error_embed(
+                    ctx, "Вы не указали число покупаемых каналов!"
                 )
                 await ctx.send(embed=emb)
                 return
 
     elif cur_state_prison:
-        await ctx.message.add_reaction("❌")
-        emb = discord.Embed(
-            title="Ошибка!",
-            description="**У вас заблокирование транзакции, так как вы в тюрме!**",
-            colour=discord.Color.green(),
+        emb = await ctx.bot.utils.create_error_embed(
+            ctx, "У вас заблокирование транзакции, так как вы в тюрьме!"
         )
-        emb.set_author(
-            name=ctx.bot.user.name, icon_url=ctx.bot.user.avatar_url
-        )
-        emb.set_footer(text=FOOTER, icon_url=ctx.bot.user.avatar_url)
         await ctx.send(embed=emb)
         return

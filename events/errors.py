@@ -21,7 +21,9 @@ class Errors(commands.Cog, name="Errors"):
 		if isinstance(error, commands.errors.CommandOnCooldown):
 			try:
 				await ctx.message.add_reaction("❌")
-			except:
+			except discord.errors.Forbidden:
+				pass
+			except discord.errors.HTTPException:
 				pass
 			retry_after = error.retry_after
 			if retry_after < 60:
@@ -61,7 +63,9 @@ class Errors(commands.Cog, name="Errors"):
 			ctx.command.reset_cooldown(ctx)
 			try:
 				await ctx.message.add_reaction("❌")
-			except:
+			except discord.errors.Forbidden:
+				pass
+			except discord.errors.HTTPException:
 				pass
 			emb = discord.Embed(
 				title="Ошибка!",
@@ -113,7 +117,9 @@ class Errors(commands.Cog, name="Errors"):
 			await self.client.database.set_error(error_id, repr(error), ctx.message.content)
 			try:
 				await ctx.message.add_reaction("❌")
-			except:
+			except discord.errors.Forbidden:
+				pass
+			except discord.errors.HTTPException:
 				pass
 			emb = discord.Embed(
 				title="Ошибка!",

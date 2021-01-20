@@ -39,7 +39,9 @@ class EventsCustomCommands(commands.Cog):
                         except discord.errors.HTTPException:
                             try:
                                 await message.add_reaction("❌")
-                            except:
+                            except discord.errors.Forbidden:
+                                pass
+                            except discord.errors.HTTPException:
                                 pass
                             emb = discord.Embed(
                                 title="Ошибка!",
@@ -53,7 +55,9 @@ class EventsCustomCommands(commands.Cog):
                     except jinja2.exceptions.TemplateSyntaxError as e:
                         try:
                             await message.add_reaction("❌")
-                        except:
+                        except discord.errors.Forbidden:
+                            pass
+                        except discord.errors.HTTPException:
                             pass
                         emb = discord.Embed(
                             title="Ошибка!",

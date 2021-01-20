@@ -170,33 +170,28 @@ class Different(commands.Cog, name="Different"):
 					break
 
 			if not state:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description=f"**У вас нет роли цвета!**",
-					colour=discord.Color.green(),
+				emb = await ctx.bot.utils.create_error_embed(
+					ctx, "У вас нет роли цвета!"
 				)
-				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
-				await ctx.message.add_reaction("❌")
 				return
 
-			await ctx.message.add_reaction("✅")
+			try:
+				await ctx.message.add_reaction("✅")
+			except discord.errors.Forbidden:
+				pass
+			except discord.errors.HTTPException:
+				pass
 			return
 
 		if color.startswith("#"):
 			hex = color[1:]
 			if len(hex) == 6:
 				if (ctx.author.top_role.position + 1) >= ctx.guild.me.top_role.position:
-					emb = discord.Embed(
-						title="Ошибка!",
-						description=f"**У меня не хватает прав на добавления роли к вам!**",
-						colour=discord.Color.green(),
+					emb = await ctx.bot.utils.create_error_embed(
+						ctx, "У меня не хватает прав на добавления роли к вам!"
 					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 					await ctx.send(embed=emb)
-					await ctx.message.add_reaction("❌")
 					return
 
 				for r in ctx.author.roles:
@@ -215,28 +210,23 @@ class Different(commands.Cog, name="Different"):
 					)
 					await role.edit(position=ctx.author.top_role.position+1)
 				await ctx.author.add_roles(role)
-				await ctx.message.add_reaction("✅")
+				try:
+					await ctx.message.add_reaction("✅")
+				except discord.errors.Forbidden:
+					pass
+				except discord.errors.HTTPException:
+					pass
 			else:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description=f"**Указан не правильный формат цвета!**",
-					colour=discord.Color.green(),
+				emb = await ctx.bot.utils.create_error_embed(
+					ctx, "Указан не правильный формат цвета!"
 				)
-				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
-				await ctx.message.add_reaction("❌")
 				return
 		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Указан не правильный формат цвета!**",
-				colour=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Указан не правильный формат цвета!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 	@commands.command(
@@ -269,27 +259,17 @@ class Different(commands.Cog, name="Different"):
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await member.send(embed=emb)
 			else:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description=f"**У вас нет необходимых предметов или не достаточно коинов!**",
-					colour=discord.Color.green(),
+				emb = await ctx.bot.utils.create_error_embed(
+					ctx, "У вас нет необходимых предметов или не достаточно коинов!"
 				)
-				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
-				await ctx.message.add_reaction("❌")
 				self.send.reset_cooldown(ctx)
 				return
 		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**У вас нет необходимых предметов!**",
-				colour=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "У вас нет необходимых предметов!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			self.send.reset_cooldown(ctx)
 			return
 
@@ -326,15 +306,10 @@ class Different(commands.Cog, name="Different"):
 			await prch.send(embed=emb)
 			await mrkl.send(embed=emb)
 		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Вы не правильно указали флаг!**",
-				colour=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Вы не правильно указали флаг!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			self.devs.reset_cooldown(ctx)
 			return
 
@@ -351,17 +326,10 @@ class Different(commands.Cog, name="Different"):
 			member = ctx.author
 
 		if member.bot:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Вы не можете просмотреть информацию о боте!**",
-				colour=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Вы не можете просмотреть информацию о боте!"
 			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		data = await self.client.database.sel_user(target=member)
@@ -640,18 +608,11 @@ class Different(commands.Cog, name="Different"):
 		idea_channel_id = data["idea_channel"]
 
 		if idea_channel_id is None:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Не указан канал идей. Обратитесь к администации сервера**",
-				colour=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Не указан канал идей. Обратитесь к администации сервера"
 			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 			self.idea.reset_cooldown(ctx)
-			await ctx.message.add_reaction("❌")
 			return
 		else:
 			if idea_channel_id in [channel.id for channel in ctx.guild.channels]:
@@ -666,18 +627,11 @@ class Different(commands.Cog, name="Different"):
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await idea_channel.send(embed=emb)
 			else:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description="**Канал идей удален. Обратитесь к администации сервера**",
-					colour=discord.Color.green(),
+				emb = await ctx.bot.utils.create_error_embed(
+					ctx, "Не указан канал идей. Обратитесь к администации сервера"
 				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
 				self.idea.reset_cooldown(ctx)
-				await ctx.message.add_reaction("❌")
 				return
 
 	@commands.command(
@@ -717,15 +671,10 @@ class Different(commands.Cog, name="Different"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await channel.send(embed=emb)
 		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Отказанно в доступе! Вы не имеете прав в указном канале**",
-				colour=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Отказанно в доступе! Вы не имеете прав в указаном канале"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			self.msgforw.reset_cooldown(ctx)
 			return
 
@@ -752,15 +701,10 @@ class Different(commands.Cog, name="Different"):
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def rnum(self, ctx, rnum1: int, rnum2: int):
 		if len(str(rnum1)) > 64 or len(str(rnum2)) > 64:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Укажите число меньше 64 в длинне!**",
-				colour=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Укажите число меньше 64 в длинне"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		emb = discord.Embed(
@@ -787,7 +731,12 @@ class Different(commands.Cog, name="Different"):
 			val = ("", ctx.author.id)
 
 			await self.client.database.execute(sql, val)
-			await ctx.message.add_reaction("✅")
+			try:
+				await ctx.message.add_reaction("✅")
+			except discord.errors.Forbidden:
+				pass
+			except discord.errors.HTTPException:
+				pass
 			return
 
 		if text is None:
@@ -804,7 +753,12 @@ class Different(commands.Cog, name="Different"):
 			return
 
 		if len(text) > 1000:
-			await ctx.message.add_reaction("❌")
+			try:
+				await ctx.message.add_reaction("❌")
+			except discord.errors.Forbidden:
+				pass
+			except discord.errors.HTTPException:
+				pass
 			return
 
 		await self.client.database.update(
@@ -812,7 +766,12 @@ class Different(commands.Cog, name="Different"):
 			where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
 			bio=text
 		)
-		await ctx.message.add_reaction("✅")
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 	@commands.command(
 		name="calc",
@@ -824,15 +783,10 @@ class Different(commands.Cog, name="Different"):
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def calc(self, ctx, *, exp: str = None):
 		if exp is None:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Укажите пример!**",
-				colour=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Укажите пример!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		link = "http://api.mathjs.org/v4/"
@@ -851,15 +805,10 @@ class Different(commands.Cog, name="Different"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		except:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Что-то пошло не так :(**",
-				colour=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Что-то пошло не так :("
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 	@commands.command(

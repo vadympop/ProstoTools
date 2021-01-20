@@ -54,7 +54,12 @@ class Utils(commands.Cog, name="Utils"):
 					where={"guild_id": ctx.guild.id},
 					voice_channel=json.dumps(data)
 				)
-				await ctx.message.add_reaction("✅")
+				try:
+					await ctx.message.add_reaction("✅")
+				except discord.errors.Forbidden:
+					pass
+				except discord.errors.HTTPException:
+					pass
 			else:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "На этом сервере приватные голосовые комнаты уже включены!"
@@ -68,17 +73,17 @@ class Utils(commands.Cog, name="Utils"):
 				where={"guild_id": ctx.guild.id},
 				voice_channel=json.dumps({})
 			)
-			await ctx.message.add_reaction("✅")
+			try:
+				await ctx.message.add_reaction("✅")
+			except discord.errors.Forbidden:
+				pass
+			except discord.errors.HTTPException:
+				pass
 		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вы не правильно указали действие! Укажите on - что бы включить, off - что бы выключить**",
-				color=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Вы не правильно указали действие! Укажите из этих вариантов: on, off!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 	@commands.command(
@@ -171,7 +176,12 @@ class Utils(commands.Cog, name="Utils"):
 				)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				message = await ctx.send(embed=emb)
-				await ctx.message.add_reaction("✅")
+				try:
+					await ctx.message.add_reaction("✅")
+				except discord.errors.Forbidden:
+					pass
+				except discord.errors.HTTPException:
+					pass
 
 				server_stats = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
 				server_stats.update({"message": [message.id, ctx.channel.id]})
@@ -188,17 +198,10 @@ class Utils(commands.Cog, name="Utils"):
 			return
 
 		if counter.lower() not in counters.keys():
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вы не правильно указали счетчик. Укажите из этих: bots, all, members, roles, channels**",
-				color=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Вы не правильно указали счетчик. Укажите из этих: bots, all, members, roles, channels"
 			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		async with ctx.typing():
@@ -252,7 +255,12 @@ class Utils(commands.Cog, name="Utils"):
 				where={"guild_id": ctx.guild.id},
 				server_stats=json.dumps(data)
 			)
-			await ctx.message.add_reaction("✅")
+			try:
+				await ctx.message.add_reaction("✅")
+			except discord.errors.Forbidden:
+				pass
+			except discord.errors.HTTPException:
+				pass
 
 	@commands.command(
 		aliases=["massrole"],
@@ -413,7 +421,12 @@ class Utils(commands.Cog, name="Utils"):
 		await ctx.author.send(
 			f"Ключ API сервера - {ctx.guild.name}: `{key}`\n**__Никому его не передавайте. Он даёт доступ к данным сервера__**"
 		)
-		await ctx.message.add_reaction("✅")
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 	@commands.command(
 		aliases=["regenerateapikey"],
@@ -431,7 +444,12 @@ class Utils(commands.Cog, name="Utils"):
 			where={"guild_id": ctx.guild.id},
 			api_key=str(uuid.uuid4())
 		)
-		await ctx.message.add_reaction("✅")
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 
 def setup(client):

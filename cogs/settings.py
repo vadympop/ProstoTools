@@ -360,15 +360,10 @@ class Settings(commands.Cog, name="Settings"):
 			return
 
 		if number >= 25:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Вы указали слишком большой лимит предупреждений!**",
-				colour=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Вы указали слишком большой лимит предупреждений!"
 			)
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		await self.client.database.update(
@@ -663,7 +658,12 @@ class Settings(commands.Cog, name="Settings"):
 			where={"guild_id": ctx.guild.id},
 			auto_mod=json.dumps(auto_mod)
 		)
-		await ctx.message.add_reaction("✅")
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 	@setting.command(
 		hidden=True,
@@ -943,7 +943,12 @@ class Settings(commands.Cog, name="Settings"):
 			where={"guild_id": ctx.guild.id},
 			auto_mod=json.dumps(auto_mod)
 		)
-		await ctx.message.add_reaction("✅")
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 	@setting.command(
 		hidden=True,
@@ -954,15 +959,10 @@ class Settings(commands.Cog, name="Settings"):
 	async def react_commands(self, ctx, action: str):
 		actions = ["on", "off", "true", "false", "0", "1"]
 		if action.lower() not in actions:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Вы не правильно указали действие! Укажите из этих вариантов: on(Вкл.), off(Выкл.), true(Вкл.), false(Выкл.), 0(Вкл.), 1(Выкл.)**",
-				colour=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Вы не правильно указали действие! Укажите из этих вариантов: on, off!"
 			)
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		data = await self.client.database.sel_guild(guild=ctx.guild)
@@ -1060,15 +1060,10 @@ class Settings(commands.Cog, name="Settings"):
 
 		multi = int(raw_multi)
 		if multi > 10000 or multi <= 0:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="Укажите множитель опыта в диапазоне от 1% до 10000%",
-				colour=discord.Color.green(),
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Укажите множитель опыта в диапазоне от 1% до 10000%!"
 			)
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		form = float(multi / 100)
@@ -1174,7 +1169,12 @@ class Settings(commands.Cog, name="Settings"):
 			where={"guild_id": ctx.guild.id},
 			audit=json.dumps(audit)
 		)
-		await ctx.message.add_reaction("✅")
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 	@setting.command(
 		hidden=True,
@@ -1203,7 +1203,12 @@ class Settings(commands.Cog, name="Settings"):
 				where={"guild_id": ctx.guild.id},
 				auto_reactions=json.dumps(auto_reactions)
 			)
-			await ctx.message.add_reaction("✅")
+			try:
+				await ctx.message.add_reaction("✅")
+			except discord.errors.Forbidden:
+				pass
+			except discord.errors.HTTPException:
+				pass
 			return
 		elif action.lower() == "off":
 			if channel is None:
@@ -1223,7 +1228,12 @@ class Settings(commands.Cog, name="Settings"):
 				where={"guild_id": ctx.guild.id},
 				auto_reactions=json.dumps(auto_reactions)
 			)
-			await ctx.message.add_reaction("✅")
+			try:
+				await ctx.message.add_reaction("✅")
+			except discord.errors.Forbidden:
+				pass
+			except discord.errors.HTTPException:
+				pass
 			return
 		else:
 			emb = await self.client.utils.create_error_embed(
@@ -1763,7 +1773,12 @@ class Settings(commands.Cog, name="Settings"):
 			where={"guild_id": ctx.guild.id},
 			rank_message=json.dumps(rank_message)
 		)
-		await ctx.message.add_reaction("✅")
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 
 def setup(client):

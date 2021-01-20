@@ -90,7 +90,12 @@ class Utils:
         )
         emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
         emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-        await ctx.message.add_reaction("❌")
+        try:
+            await ctx.message.add_reaction("❌")
+        except discord.errors.Forbidden:
+            pass
+        except discord.errors.HTTPException:
+            pass
         return emb
 
     async def build_help(self, ctx, prefix, groups, moder_roles):

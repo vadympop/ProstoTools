@@ -24,17 +24,10 @@ class FunOther(commands.Cog):
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def cr_qr(self, ctx, *, code_text: str):
         if len(code_text) > 6000:
-            emb = discord.Embed(
-                title="Ошибка!",
-                description="**Используйте текст меньше 6000 символов!**",
-                colour=discord.Color.green(),
+            emb = await ctx.bot.utils.create_error_embed(
+                ctx, "Используйте текст меньше 6000 символов!"
             )
-            emb.set_author(
-                name=self.client.user.name, icon_url=self.client.user.avatar_url
-            )
-            emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
             await ctx.send(embed=emb)
-            await ctx.message.add_reaction("❌")
             return
 
         img = qrcode.make(code_text)

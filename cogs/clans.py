@@ -33,7 +33,12 @@ class Clans(commands.Cog):
 			where={"guild_id": ctx.guild.id},
 			clans=json.dumps(data)
 		)
-		await ctx.message.add_reaction("✅")
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 	@commands.group(
 		help=f"""**Команды групы:** buy, members, accept-join-request, send-join-request, kick, reject-join-request, list-join-requests, list, use-invite, info, create, edit, leave, create-invite, trans-owner-ship, delete\n\n"""
@@ -50,39 +55,24 @@ class Clans(commands.Cog):
 
 		for clan in data:
 			if ctx.author.id in clan["members"]:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description="**Вы уже находитесь в одном из кланов сервера!**",
-					colour=discord.Color.green(),
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Вы уже находитесь в одном из кланов сервера!"
 				)
-				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
-				await ctx.message.add_reaction("❌")
 				return
 
 		if user_data["coins"] < 15000:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**У вас не достаточно коинов**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "У вас не достаточно коинов!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		if len(data) > 20:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Превышен лимит кланов на сервере!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Превышен лимит кланов на сервере!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		role = await ctx.guild.create_role(name="PT-[CLAN]-" + name)
@@ -152,15 +142,10 @@ class Clans(commands.Cog):
 		field = field.lower()
 
 		if user_clan == "":
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вас нету ни в одном клане сервера!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вас нету ни в одном клане сервера!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		for clan in data:
@@ -179,7 +164,12 @@ class Clans(commands.Cog):
 							text=self.FOOTER, icon_url=self.client.user.avatar_url
 						)
 						await ctx.send(embed=emb)
-						await ctx.message.add_reaction("✅")
+						try:
+							await ctx.message.add_reaction("✅")
+						except discord.errors.Forbidden:
+							pass
+						except discord.errors.HTTPException:
+							pass
 
 						clan[field] = value
 						await self.client.database.update(
@@ -188,32 +178,16 @@ class Clans(commands.Cog):
 							clans=json.dumps(data)
 						)
 					else:
-						emb = discord.Embed(
-							title="Ошибка!",
-							description=f"""**Укажите изменяемый параметр из этих: {', '.join(fields)}!**""",
-							colour=discord.Color.green(),
-						)
-						emb.set_author(
-							name=ctx.author.name, icon_url=ctx.author.avatar_url
-						)
-						emb.set_footer(
-							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						emb = await self.client.utils.create_error_embed(
+							ctx, f"Укажите изменяемый параметр из этих: {', '.join(fields)}!"
 						)
 						await ctx.send(embed=emb)
-						await ctx.message.add_reaction("❌")
 						return
 				else:
-					emb = discord.Embed(
-						title="Ошибка!",
-						description="**Вы не владелец указаного клана!**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Вы не владелец указаного клана!"
 					)
 					await ctx.send(embed=emb)
-					await ctx.message.add_reaction("❌")
 					return
 
 	@clan.command(
@@ -226,15 +200,10 @@ class Clans(commands.Cog):
 		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
 
 		if user_clan == "":
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вас нету ни в одном клане сервера!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вас нету ни в одном клане сервера!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		if (await self.client.database.sel_user(target=member))["clan"] != "":
@@ -245,15 +214,10 @@ class Clans(commands.Cog):
 			return
 
 		if member == ctx.author:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вы не можете передать права на владения клана себе!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вы не можете передать права на владения клана себе!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		for clan in data:
@@ -283,17 +247,10 @@ class Clans(commands.Cog):
 					)
 					return
 				else:
-					emb = discord.Embed(
-						title="Ошибка!",
-						description="**Вы не владелец указаного клана!**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Вы не владелец указаного клана!"
 					)
 					await ctx.send(embed=emb)
-					await ctx.message.add_reaction("❌")
 					return
 
 	@clan.command(usage="clan delete", description="**Удаляет клан**")
@@ -303,15 +260,10 @@ class Clans(commands.Cog):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if user_clan == "":
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вас нету ни в одном клане сервера!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вас нету ни в одном клане сервера!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		for clan in data:
@@ -335,32 +287,16 @@ class Clans(commands.Cog):
 							except AttributeError:
 								pass
 					except ValueError:
-						emb = discord.Embed(
-							title="Ошибка!",
-							description="**Клана с таким id не существует!**",
-							colour=discord.Color.green(),
-						)
-						emb.set_author(
-							name=ctx.author.name, icon_url=ctx.author.avatar_url
-						)
-						emb.set_footer(
-							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Клана с таким id не существует!"
 						)
 						await ctx.send(embed=emb)
-						await ctx.message.add_reaction("❌")
 						return
 				else:
-					emb = discord.Embed(
-						title="Ошибка!",
-						description="**Вы не владелец указаного клана!**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Вы не владелец указаного клана!"
 					)
 					await ctx.send(embed=emb)
-					await ctx.message.add_reaction("❌")
 					return
 
 		await self.client.database.update(
@@ -380,7 +316,12 @@ class Clans(commands.Cog):
 			where={"user_id": delete_clan["owner"], "guild_id": ctx.guild.id},
 			clan=""
 		)
-		await ctx.message.add_reaction("✅")
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 		if "clans" in audit.keys():
 			e = discord.Embed(
@@ -413,17 +354,11 @@ class Clans(commands.Cog):
 			if (await self.client.database.sel_user(target=ctx.author))["clan"] != "":
 				clan_id = (await self.client.database.sel_user(target=ctx.author))["clan"]
 			else:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description="**Вы не указали аргумент. Укажити аргумент - clan_id к указаной команде!**",
-					colour=discord.Color.green(),
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Вы не указали аргумент. Укажити аргумент - clan_id к указаной команде!"
 				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
-				await ctx.message.add_reaction("❌")
+				return
 
 		for clan in data:
 			if clan["id"] == clan_id:
@@ -447,15 +382,11 @@ class Clans(commands.Cog):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Клана с таким id не существует!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Клана с таким id не существует!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
+			return
 
 	@clan.command(
 		usage="clan kick [@Участник]",
@@ -465,27 +396,17 @@ class Clans(commands.Cog):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
 		if user_clan == "":
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вас нету ни в одном клане сервера!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вас нету ни в одном клане сервера!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		if member == ctx.author:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вы не можете кикнуть самого себя!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вы не можете кикнуть самого себя!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		for clan in data:
@@ -509,35 +430,24 @@ class Clans(commands.Cog):
 							where={"guild_id": ctx.guild.id},
 							clans=json.dumps(data)
 						)
-						await ctx.message.add_reaction("✅")
+						try:
+							await ctx.message.add_reaction("✅")
+						except discord.errors.Forbidden:
+							pass
+						except discord.errors.HTTPException:
+							pass
 						return
 					else:
-						emb = discord.Embed(
-							title="Ошибка!",
-							description="**В клане нету указаного участника!**",
-							colour=discord.Color.green(),
-						)
-						emb.set_author(
-							name=ctx.author.name, icon_url=ctx.author.avatar_url
-						)
-						emb.set_footer(
-							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						emb = await self.client.utils.create_error_embed(
+							ctx, "В клане нету указаного участника!"
 						)
 						await ctx.send(embed=emb)
-						await ctx.message.add_reaction("❌")
 						return
 				else:
-					emb = discord.Embed(
-						title="Ошибка!",
-						description="**Вы не владелец указаного клана!**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Вы не владелец указаного клана!"
 					)
 					await ctx.send(embed=emb)
-					await ctx.message.add_reaction("❌")
 					return
 
 	@clan.command(
@@ -583,17 +493,10 @@ class Clans(commands.Cog):
 			if user_clan != "":
 				clan_id = user_clan
 			else:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description="**Вы не указали аргумент. Укажити аргумент - clan_id к указаной команде!**",
-					colour=discord.Color.green(),
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Вы не указали аргумент. Укажити аргумент - clan_id к указаной команде!"
 				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
-				await ctx.message.add_reaction("❌")
 				return
 
 		for clan in data:
@@ -621,15 +524,11 @@ class Clans(commands.Cog):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Клана с таким id не существует!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Клана с таким id не существует!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
+			return
 
 	@clan.command(
 		usage="clan leave", description="**С помощью команды вы покидаете ваш клан**"
@@ -638,15 +537,10 @@ class Clans(commands.Cog):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
 		if user_clan == "":
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вас нету ни в одном клане сервера!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вас нету ни в одном клане сервера!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		for clan in data:
@@ -669,20 +563,18 @@ class Clans(commands.Cog):
 						where={"guild_id": ctx.guild.id},
 						clans=json.dumps(data)
 					)
-					await ctx.message.add_reaction("✅")
+					try:
+						await ctx.message.add_reaction("✅")
+					except discord.errors.Forbidden:
+						pass
+					except discord.errors.HTTPException:
+						pass
 					break
 				else:
-					emb = discord.Embed(
-						title="Ошибка!",
-						description="**Вы не можете покинуть свой клан!**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Вы не можете покинуть свой клан!"
 					)
 					await ctx.send(embed=emb)
-					await ctx.message.add_reaction("❌")
 					return
 
 	@clan.command(
@@ -695,15 +587,10 @@ class Clans(commands.Cog):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 
 		if user_clan == "":
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вас нету ни в одном клане сервера!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вас нету ни в одном клане сервера!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		for clan in data:
@@ -733,53 +620,26 @@ class Clans(commands.Cog):
 							clans=json.dumps(data)
 						)
 					else:
-						emb = discord.Embed(
-							title="Ошибка!",
-							description="**Указаный клан переполнен!**",
-							colour=discord.Color.green(),
-						)
-						emb.set_author(
-							name=ctx.author.name, icon_url=ctx.author.avatar_url
-						)
-						emb.set_footer(
-							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Указаный клан переполнен!"
 						)
 						await ctx.send(embed=emb)
-						await ctx.message.add_reaction("❌")
 						return
 				else:
 					if clan["owner"] == ctx.author.id:
 						if len(clan["members"]) < clan["size"]:
 							pass
 						else:
-							emb = discord.Embed(
-								title="Ошибка!",
-								description="**Указаный клан переполнен!**",
-								colour=discord.Color.green(),
-							)
-							emb.set_author(
-								name=ctx.author.name, icon_url=ctx.author.avatar_url
-							)
-							emb.set_footer(
-								text=self.FOOTER, icon_url=self.client.user.avatar_url
+							emb = await self.client.utils.create_error_embed(
+								ctx, "Указаный клан переполнен!"
 							)
 							await ctx.send(embed=emb)
-							await ctx.message.add_reaction("❌")
 							return
 					else:
-						emb = discord.Embed(
-							title="Ошибка!",
-							description="**Указаный клан приватный!**",
-							colour=discord.Color.green(),
-						)
-						emb.set_author(
-							name=ctx.author.name, icon_url=ctx.author.avatar_url
-						)
-						emb.set_footer(
-							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Указаный клан приватный!"
 						)
 						await ctx.send(embed=emb)
-						await ctx.message.add_reaction("❌")
 						return
 
 	@clan.command(
@@ -792,15 +652,10 @@ class Clans(commands.Cog):
 		state = False
 
 		if (await self.client.database.sel_user(target=ctx.author))["clan"] != "":
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вы уже находитесь в одном из кланов сервера!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вы уже находитесь в одном из кланов сервера!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		for clan in data:
@@ -817,29 +672,18 @@ class Clans(commands.Cog):
 					)
 					break
 				else:
-					emb = discord.Embed(
-						title="Ошибка!",
-						description="**Вы уже находитесь в этом клане!**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Вы уже находитесь в этом клане!"
 					)
 					await ctx.send(embed=emb)
-					await ctx.message.add_reaction("❌")
 					return
 
 		if not state:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Такого приглашения не существует!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Такого приглашения не существует!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
+			return
 
 	@clan.command(
 		name="send-join-request",
@@ -851,15 +695,10 @@ class Clans(commands.Cog):
 		state = False
 
 		if (await self.client.database.sel_user(target=ctx.author))["clan"] != "":
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вы уже находитесь в одном из кланов сервера!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вы уже находитесь в одном из кланов сервера!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		for clan in data:
@@ -886,44 +725,24 @@ class Clans(commands.Cog):
 							clans=json.dumps(data)
 						)
 					else:
-						emb = discord.Embed(
-							title="Ошибка!",
-							description="**Вы уже отправили запрос этому клану!**",
-							colour=discord.Color.green(),
-						)
-						emb.set_author(
-							name=ctx.author.name, icon_url=ctx.author.avatar_url
-						)
-						emb.set_footer(
-							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Вы уже отправили запрос этому клану!"
 						)
 						await ctx.send(embed=emb)
-						await ctx.message.add_reaction("❌")
 						return
 				else:
-					emb = discord.Embed(
-						title="Ошибка!",
-						description="**Указаный клан переполнен!**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Указаный клан переполнен!"
 					)
 					await ctx.send(embed=emb)
-					await ctx.message.add_reaction("❌")
 					return
 
 		if not state:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Клана с таким id не существует!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Клана с таким id не существует!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
+			return
 
 	@clan.command(
 		name="list-join-requests",
@@ -935,15 +754,10 @@ class Clans(commands.Cog):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 
 		if user_clan == "":
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вас нету ни в одном клане сервера!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вас нету ни в одном клане сервера!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		for clan in data:
@@ -966,17 +780,10 @@ class Clans(commands.Cog):
 					await ctx.send(embed=emb)
 					return
 				else:
-					emb = discord.Embed(
-						title="Ошибка!",
-						description="**Вы не владелец указаного клана!**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Вы не владелец указаного клана!"
 					)
 					await ctx.send(embed=emb)
-					await ctx.message.add_reaction("❌")
 					return
 
 	@clan.command(
@@ -989,15 +796,10 @@ class Clans(commands.Cog):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 
 		if user_clan == "":
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вас нету ни в одном клане сервера!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вас нету ни в одном клане сервера!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		for clan in data:
@@ -1016,9 +818,15 @@ class Clans(commands.Cog):
 						)
 						try:
 							await member.send(embed=emb)
-						except:
+						except discord.errors.Forbidden:
 							pass
-						await ctx.message.add_reaction("✅")
+
+						try:
+							await ctx.message.add_reaction("✅")
+						except discord.errors.Forbidden:
+							pass
+						except discord.errors.HTTPException:
+							pass
 						clan["join_requests"].remove(member.id)
 						clan["members"].append(member.id)
 						await self._add_member(ctx, clan["id"], member)
@@ -1028,32 +836,16 @@ class Clans(commands.Cog):
 							clans=json.dumps(data)
 						)
 					else:
-						emb = discord.Embed(
-							title="Ошибка!",
-							description="**Указаный участник не отправлял запрос на присоиденения к клану!**",
-							colour=discord.Color.green(),
-						)
-						emb.set_author(
-							name=ctx.author.name, icon_url=ctx.author.avatar_url
-						)
-						emb.set_footer(
-							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Указаный участник не отправлял запрос на присоиденения к клану!"
 						)
 						await ctx.send(embed=emb)
-						await ctx.message.add_reaction("❌")
 						return
 				else:
-					emb = discord.Embed(
-						title="Ошибка!",
-						description="**Вы не владелец указаного клана!**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Вы не владелец указаного клана!"
 					)
 					await ctx.send(embed=emb)
-					await ctx.message.add_reaction("❌")
 					return
 
 	@clan.command(
@@ -1066,15 +858,10 @@ class Clans(commands.Cog):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 
 		if user_clan == "":
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вас нету ни в одном клане сервера!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вас нету ни в одном клане сервера!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		for clan in data:
@@ -1093,9 +880,15 @@ class Clans(commands.Cog):
 						)
 						try:
 							await member.send(embed=emb)
-						except:
+						except discord.errors.Forbidden:
 							pass
-						await ctx.message.add_reaction("✅")
+
+						try:
+							await ctx.message.add_reaction("✅")
+						except discord.errors.Forbidden:
+							pass
+						except discord.errors.HTTPException:
+							pass
 
 						clan["join_requests"].remove(member.id)
 						await self.client.database.update(
@@ -1104,32 +897,16 @@ class Clans(commands.Cog):
 							clans=json.dumps(data)
 						)
 					else:
-						emb = discord.Embed(
-							title="Ошибка!",
-							description="**Указаный участник не отправлял запрос на присоиденения к клану!**",
-							colour=discord.Color.green(),
-						)
-						emb.set_author(
-							name=ctx.author.name, icon_url=ctx.author.avatar_url
-						)
-						emb.set_footer(
-							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Указаный участник не отправлял запрос на присоиденения к клану!"
 						)
 						await ctx.send(embed=emb)
-						await ctx.message.add_reaction("❌")
 						return
 				else:
-					emb = discord.Embed(
-						title="Ошибка!",
-						description="**Вы не владелец указаного клана!**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Вы не владелец указаного клана!"
 					)
 					await ctx.send(embed=emb)
-					await ctx.message.add_reaction("❌")
 					return
 
 	@clan.command(
@@ -1142,15 +919,10 @@ class Clans(commands.Cog):
 		item = item.lower()
 
 		if user_data["clan"] == "":
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Вас нету ни в одном клане сервера!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вас нету ни в одном клане сервера!"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			await ctx.message.add_reaction("❌")
 			return
 
 		for clan in data:
@@ -1205,51 +977,24 @@ class Clans(commands.Cog):
 								coins=user_data["coins"]
 							)
 						else:
-							emb = discord.Embed(
-								title="Ошибка!",
-								description="**У вас не достаточно коинов!**",
-								colour=discord.Color.green(),
-							)
-							emb.set_author(
-								name=ctx.author.name, icon_url=ctx.author.avatar_url
-							)
-							emb.set_footer(
-								text=self.FOOTER, icon_url=self.client.user.avatar_url
+							emb = await self.client.utils.create_error_embed(
+								ctx, "У вас не достаточно коинов!"
 							)
 							await ctx.send(embed=emb)
-							await ctx.message.add_reaction("❌")
 							return
 					else:
-						emb = discord.Embed(
-							title="Ошибка!",
-							description="**Клан уже имеет категорию!**",
-							colour=discord.Color.green(),
-						)
-						emb.set_author(
-							name=ctx.author.name, icon_url=ctx.author.avatar_url
-						)
-						emb.set_footer(
-							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Клан уже имеет категорию!"
 						)
 						await ctx.send(embed=emb)
-						await ctx.message.add_reaction("❌")
 						return
 				elif item == "size" or item == "размер":
 					if user_data["coins"] >= 7500:
 						if clan["size"] >= 25:
-							emb = discord.Embed(
-								title="Ошибка!",
-								description="**Клан достиг максимального размера!**",
-								colour=discord.Color.green(),
-							)
-							emb.set_author(
-								name=ctx.author.name, icon_url=ctx.author.avatar_url
-							)
-							emb.set_footer(
-								text=self.FOOTER, icon_url=self.client.user.avatar_url
+							emb = await self.client.utils.create_error_embed(
+								ctx, "Клан достиг максимального размера(25 участников)!"
 							)
 							await ctx.send(embed=emb)
-							await ctx.message.add_reaction("❌")
 							return
 
 						emb = discord.Embed(
@@ -1277,19 +1022,10 @@ class Clans(commands.Cog):
 							coins=user_data["coins"]
 						)
 					else:
-						emb = discord.Embed(
-							title="Ошибка!",
-							description="**У вас не достаточно коинов!**",
-							colour=discord.Color.green(),
-						)
-						emb.set_author(
-							name=ctx.author.name, icon_url=ctx.author.avatar_url
-						)
-						emb.set_footer(
-							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						emb = await self.client.utils.create_error_embed(
+							ctx, "У вас не достаточно коинов!"
 						)
 						await ctx.send(embed=emb)
-						await ctx.message.add_reaction("❌")
 						return
 				elif item == "color" or item == "colour" or item == "цвет":
 					colors = {
@@ -1317,19 +1053,10 @@ class Clans(commands.Cog):
 						"greyple": 0x99AAB5,
 					}
 					if color not in colors.keys():
-						emb = discord.Embed(
-							title="Ошибка!",
-							description=f"""**Указан не правильный цвет, укажите из этих: {', '.join(colors.keys())}!**""",
-							colour=discord.Color.green(),
-						)
-						emb.set_author(
-							name=ctx.author.name, icon_url=ctx.author.avatar_url
-						)
-						emb.set_footer(
-							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						emb = await self.client.utils.create_error_embed(
+							ctx, f"Указан не правильный цвет, укажите из этих: {', '.join(colors.keys())}!"
 						)
 						await ctx.send(embed=emb)
-						await ctx.message.add_reaction("❌")
 						return
 
 					if user_data["coins"] >= 5000:
@@ -1356,47 +1083,22 @@ class Clans(commands.Cog):
 								coins=user_data["coins"]
 							)
 						except:
-							emb = discord.Embed(
-								title="Ошибка!",
-								description="**Была удалена роль клана!**",
-								colour=discord.Color.green(),
-							)
-							emb.set_author(
-								name=ctx.author.name, icon_url=ctx.author.avatar_url
-							)
-							emb.set_footer(
-								text=self.FOOTER, icon_url=self.client.user.avatar_url
+							emb = await self.client.utils.create_error_embed(
+								ctx, f"Роль клана удалена!"
 							)
 							await ctx.send(embed=emb)
-							await ctx.message.add_reaction("❌")
 							return
 					else:
-						emb = discord.Embed(
-							title="Ошибка!",
-							description="**У вас не достаточно коинов!**",
-							colour=discord.Color.green(),
-						)
-						emb.set_author(
-							name=ctx.author.name, icon_url=ctx.author.avatar_url
-						)
-						emb.set_footer(
-							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						emb = await self.client.utils.create_error_embed(
+							ctx, "У вас не достаточно коинов!"
 						)
 						await ctx.send(embed=emb)
-						await ctx.message.add_reaction("❌")
 						return
 				else:
-					emb = discord.Embed(
-						title="Ошибка!",
-						description="**Вы указали не правильный предмет!**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Вы указали не правильный предмет!"
 					)
 					await ctx.send(embed=emb)
-					await ctx.message.add_reaction("❌")
 					return
 
 
