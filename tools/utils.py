@@ -102,7 +102,7 @@ class Utils:
         state = False
         exceptions = ("owner", "help", "jishaku")
         emb = discord.Embed(
-            title="**Доступние команды:**",
+            title="**Доступные команды:**",
             description=f'Префикс на этом сервере - `{prefix}`, если надо ввести названия чего-либо с пробелом, укажите его в двойных кавычках',
             colour=discord.Color.green()
         )
