@@ -1,5 +1,22 @@
 import discord
+import json
+from discord.utils import get
 from discord.ext import commands
+
+
+async def check_role(ctx):
+    data = json.loads(await ctx.bot.database.get_moder_roles(guild=ctx.guild))
+    roles = ctx.guild.roles[::-1]
+    data.append(roles[0].id)
+
+    if data != []:
+        for role_id in data:
+            role = get(ctx.guild.roles, id=role_id)
+            if role in ctx.author.roles:
+                return True
+        return ctx.author.guild_permissions.administrator
+    else:
+        return ctx.author.guild_permissions.administrator
 
 
 class ShowConfigs(commands.Cog):
@@ -59,6 +76,7 @@ class ShowConfigs(commands.Cog):
         usage="show-config server-stats",
         description="**Покажет настройки статистики сервера**"
     )
+    @commands.check(check_role)
     async def server_stats(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
         if data == {}:
@@ -94,6 +112,7 @@ class ShowConfigs(commands.Cog):
         usage="show-config ignored-channels",
         description="**Покажет игнорируемые каналы**"
     )
+    @commands.check(check_role)
     async def ignored_channels(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild))["ignored_channels"]
         if data == []:
@@ -119,6 +138,7 @@ class ShowConfigs(commands.Cog):
         usage="show-config auto-moderate",
         description="**Покажет настройки авто-модерации**"
     )
+    @commands.check(check_role)
     async def auto_moderate(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
         categories = {
@@ -186,6 +206,7 @@ class ShowConfigs(commands.Cog):
         usage="show-config auto-reactions",
         description="**Покажет настройки авто-реакций**"
     )
+    @commands.check(check_role)
     async def auto_reactions(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild))["auto_reactions"]
         if data == {}:
@@ -210,6 +231,7 @@ class ShowConfigs(commands.Cog):
         usage="show-config audit",
         description="**Покажет настройки аудита**"
     )
+    @commands.check(check_role)
     async def audit(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
         convert_categories = {
