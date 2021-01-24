@@ -607,6 +607,33 @@ class Different(commands.Cog, name="Different"):
 		await ctx.send(embed=emb)
 
 	@commands.command(
+		aliases=["inviteinfo"],
+		name="invite-info",
+		description="**Показывает информацию о приглашении**",
+		usage="invite-info [Код приглашения]",
+		help="**Примеры использования:**\n1. {Prefix}invite-info aGeFrt46\n\n**Пример 1:** Покажет информацию о приглашении с указаным кодом",
+	)
+	@commands.cooldown(2, 10, commands.BucketType.member)
+	async def invite_info(self, ctx, invite: discord.Invite):
+		print(invite.max_age)
+		print(invite.created_at)
+		max_age = "\nБесконечный: Да\n" if invite.max_age == 0 else f"\nБесконечный: Нет\nВремени до окончания: {datetime.timedelta(seconds=invite.max_age)}\n"
+		description = f"""[Ссылка на приглашения]({invite.url})
+Временное членство: {"Да" if invite.temporary else "Нет"}
+Использований: {invite.uses if invite.uses is not None else 0}
+Максимальное количество использований: {invite.max_uses if invite.max_uses is not None else "Не указано"}
+Канал: `#{invite.channel.name}`{max_age}
+"""
+		emb = discord.Embed(
+			title=f"Информация о приглашении - `{invite.code}`",
+			description=description,
+			colour=discord.Color.green()
+		)
+		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		await ctx.send(embed=emb)
+
+	@commands.command(
 		aliases=["idea", "guildidea"],
 		name="guild-idea",
 		description="**Отправляет вашу идею (Cooldown - 30мин)**",

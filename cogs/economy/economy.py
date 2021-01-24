@@ -1526,6 +1526,7 @@ class Economy(commands.Cog):
 			user_image_status = Image.open(
 				self.BACKGROUND[:-8] + statuses[member.status.name] + ".png"
 			).convert("RGBA")
+			levels_delta = round(level_exp - previus_level_exp)
 
 			if user_state_prison:
 				user_state_prison = "Сейчас в тюрме"
@@ -1592,7 +1593,7 @@ class Economy(commands.Cog):
 			draw_progress(img, progress_bar_percent)
 			idraw.text(
 				(get_width_info_exp(round(level_exp - previus_level_exp)), 250),
-				f"{round(level_exp - previus_level_exp)}/{round(level_exp - user_exp)} exp",
+				f"{levels_delta}/{round(levels_delta-(level_exp - user_exp))} exp",
 				font=midletext,
 				fill="#444",
 			)
