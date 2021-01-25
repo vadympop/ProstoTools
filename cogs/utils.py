@@ -315,6 +315,7 @@ class Utils(commands.Cog, name="Utils"):
 					if for_role in member.roles:
 						if role not in member.roles:
 							await member.add_roles(role)
+							await asyncio.sleep(5)
 
 				emb = discord.Embed(
 					title="Операция добавления роли проведенна успешно",
@@ -330,6 +331,7 @@ class Utils(commands.Cog, name="Utils"):
 					if for_role in member.roles:
 						if role in member.roles:
 							await member.remove_roles(role)
+							await asyncio.sleep(5)
 
 				emb = discord.Embed(
 					title="Операция снятия роли проведенна успешно",

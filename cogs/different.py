@@ -613,25 +613,36 @@ class Different(commands.Cog, name="Different"):
 		usage="invite-info [Код приглашения]",
 		help="**Примеры использования:**\n1. {Prefix}invite-info aGeFrt46\n\n**Пример 1:** Покажет информацию о приглашении с указаным кодом",
 	)
-	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def invite_info(self, ctx, invite: discord.Invite):
-		print(invite.max_age)
-		print(invite.created_at)
-		max_age = "\nБесконечный: Да\n" if invite.max_age == 0 else f"\nБесконечный: Нет\nВремени до окончания: {datetime.timedelta(seconds=invite.max_age)}\n"
-		description = f"""[Ссылка на приглашения]({invite.url})
+	@commands.cooldown(1, 60, commands.BucketType.member)
+	async def invite_info(self, ctx, invite_code: str):
+		async with ctx.typing():
+			invites = await ctx.guild.invites()
+			if invite_code not in [i.code for i in invites]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Я не смог найти указанное приглашения"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			for invite in invites:
+				if invite.code == invite_code:
+					max_age = "\nБесконечный: Да" if invite.max_age == 0 else f"\nБесконечный: Нет\nВремени до окончания: {datetime.timedelta(seconds=invite.max_age)}"
+					description = f"""[Ссылка на приглашения]({invite.url})
 Временное членство: {"Да" if invite.temporary else "Нет"}
 Использований: {invite.uses if invite.uses is not None else 0}
-Максимальное количество использований: {invite.max_uses if invite.max_uses is not None else "Не указано"}
+Максимальное количество использований: {invite.max_uses if invite.max_uses != 0 else "Не указано"}
 Канал: `#{invite.channel.name}`{max_age}
+Создан: `{invite.created_at.strftime("%d %B %Y %X")}`
 """
-		emb = discord.Embed(
-			title=f"Информация о приглашении - `{invite.code}`",
-			description=description,
-			colour=discord.Color.green()
-		)
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
+					emb = discord.Embed(
+						title=f"Информация о приглашении - `{invite.code}`",
+						description=description,
+						colour=discord.Color.green()
+					)
+					emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await ctx.send(embed=emb)
+					break
 
 	@commands.command(
 		aliases=["idea", "guildidea"],
