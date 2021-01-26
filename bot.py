@@ -52,7 +52,8 @@ extensions = (
 	"events.autoresponders",
 	"events.anti_flud",
 	"events.anti_invite",
-	"events.on_edit_command"
+	"events.on_edit_command",
+	"events.captcha"
 )
 
 
@@ -113,7 +114,7 @@ base_intents = discord.Intents(
 	emojis=True,
 	voice_states=True,
 	presences=True,
-	guild_messages=True,
+	messages=True,
 	guild_reactions=True
 )
 client = ProstoTools(intents=base_intents, prefix=get_prefix)

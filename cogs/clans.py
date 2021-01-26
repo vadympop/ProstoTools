@@ -598,7 +598,7 @@ class Clans(commands.Cog):
 				if clan["type"] == "public":
 					if len(clan["members"]) < clan["size"]:
 						new_invite = "".join(
-							random.choice(ascii_uppercase) for i in range(12)
+							random.choice(ascii_uppercase) for _ in range(12)
 						)
 
 						emb = discord.Embed(

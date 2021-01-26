@@ -543,12 +543,12 @@ class Moderate(commands.Cog, name="Moderate"):
 				await channel.send(embed=e)
 
 	@commands.command(
-		hidden=True,
+		brief="True",
 		description="**Банит учасника по указаной причине (Перманентно или на время)**",
 		usage="ban [@Участник] |Длительность| |Причина|",
 		help="**Примеры использования:**\n1. {Prefix}ban @Участник 10d Нарушения правил сервера\n2. {Prefix}ban 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}ban @Участник 10d\n4. {Prefix}ban 660110922865704980 10d\n5. {Prefix}ban @Участник\n6. {Prefix}ban 660110922865704980\n7. {Prefix}ban @Участник Нарушения правил сервера\n8. {Prefix}ban 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Банит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Банит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Банит упомянутого участника без причины на 10 дней\n**Пример 4:** Банит участника с указаным id без причины на 10 дней\n**Пример 5:** Перманентно банит упомянутого участника без причины\n**Пример 6:** Перманентно банит участника с указаным id без причины\n**Пример 7:** Перманентно банит упомянутого участника по причине\n`Нарушения правил сервера`\n**Пример 8:** Перманентно банит участника с указаным id по причине\n`Нарушения правил сервера`",
 	)
-	@commands.has_permissions(ban_members=True)
+	@commands.check(check_role)
 	async def ban(
 		self, ctx, member: discord.Member, *options: str
 	):
@@ -628,13 +628,13 @@ class Moderate(commands.Cog, name="Moderate"):
 
 	@commands.command(
 		aliases=["unban"],
-		hidden=True,
+		brief="True",
 		name="un-ban",
 		description="**Снимает бан из указаного учасника**",
 		usage="un-ban [@Пользователь]",
 		help="**Примеры использования:**\n1. {Prefix}un-ban @Ник+тэг\n2. {Prefix}un-ban 660110922865704980\n\n**Пример 1:** Разбанит указаного пользователя\n**Пример 2:** Разбанит пользователя с указаным id",
 	)
-	@commands.has_permissions(ban_members=True)
+	@commands.check(check_role)
 	async def unban(self, ctx, *, member: discord.User):
 		if member == ctx.author:
 			emb = await ctx.bot.utils.create_error_embed(

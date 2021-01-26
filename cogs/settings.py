@@ -1780,6 +1780,50 @@ class Settings(commands.Cog, name="Settings"):
 		except discord.errors.HTTPException:
 			pass
 
+	@setting.command(
+		hidden=True,
+		description="**Настройка каптчи при входе участника**",
+		usage="setting captcha [on/off]",
+	)
+	async def captcha(self, ctx, action: str):
+		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
+		if action.lower() == "on":
+			if auto_mod["captcha"]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Каптча уже включена!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			auto_mod["captcha"]["state"] = True
+		elif action.lower() == "off":
+			if not auto_mod["captcha"]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Каптча уже выключена!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			auto_mod["captcha"]["state"] = False
+		else:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Укажите одно из этих действий: on, off"
+			)
+			await ctx.send(embed=emb)
+			return
+
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			auto_mod=json.dumps(auto_mod)
+		)
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
+
 
 def setup(client):
 	client.add_cog(Settings(client))

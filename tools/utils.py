@@ -125,7 +125,8 @@ class Utils:
                                 if state or ctx.author == ctx.guild.owner or ctx.author.guild_permissions.administrator:
                                     commands += f" `{prefix}{command.name}` "
                         else:
-                            commands += f" `{prefix}{command.name}` "
+                            if ctx.author.guild_permissions.administrator:
+                                commands += f" `{prefix}{command.name}` "
                     else:
                         for c in command.commands:
                             if not c.hidden:

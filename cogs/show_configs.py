@@ -74,7 +74,8 @@ class ShowConfigs(commands.Cog):
     @show_config.command(
         name="server-stats",
         usage="show-config server-stats",
-        description="**Покажет настройки статистики сервера**"
+        description="**Покажет настройки статистики сервера**",
+        brief="True",
     )
     @commands.check(check_role)
     async def server_stats(self, ctx):
@@ -110,7 +111,8 @@ class ShowConfigs(commands.Cog):
     @show_config.command(
         name="ignored-channels",
         usage="show-config ignored-channels",
-        description="**Покажет игнорируемые каналы**"
+        description="**Покажет игнорируемые каналы**",
+        brief="True",
     )
     @commands.check(check_role)
     async def ignored_channels(self, ctx):
@@ -136,7 +138,8 @@ class ShowConfigs(commands.Cog):
     @show_config.command(
         name="auto-moderate",
         usage="show-config auto-moderate",
-        description="**Покажет настройки авто-модерации**"
+        description="**Покажет настройки авто-модерации**",
+        brief="True",
     )
     @commands.check(check_role)
     async def auto_moderate(self, ctx):
@@ -204,7 +207,8 @@ class ShowConfigs(commands.Cog):
     @show_config.command(
         name="auto-reactions",
         usage="show-config auto-reactions",
-        description="**Покажет настройки авто-реакций**"
+        description="**Покажет настройки авто-реакций**",
+        brief="True",
     )
     @commands.check(check_role)
     async def auto_reactions(self, ctx):
@@ -229,7 +233,8 @@ class ShowConfigs(commands.Cog):
 
     @show_config.command(
         usage="show-config audit",
-        description="**Покажет настройки аудита**"
+        description="**Покажет настройки аудита**",
+        brief="True",
     )
     @commands.check(check_role)
     async def audit(self, ctx):
