@@ -154,3 +154,6 @@ class Utils:
         emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
         emb.set_footer(text=f"Вызвал: {ctx.author.name}", icon_url=ctx.author.avatar_url)
         return emb
+
+    async def global_command_check(self, ctx):
+        return True

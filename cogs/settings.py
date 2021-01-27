@@ -696,7 +696,15 @@ class Settings(commands.Cog, name="Settings"):
 			auto_mod["anti_invite"] = {"state": False}
 
 		elif action.lower() == "setting":
-			settings = ("message", "punishment", "target-channel", "ignore-channel", "target-role", "ignore-role")
+			settings = (
+				"delete-message",
+				"message",
+				"punishment",
+				"target-channel",
+				"ignore-channel",
+				"target-role",
+				"ignore-role"
+			)
 			punishments = ("mute", "ban", "soft-ban", "warn", "kick")
 			if setting is None:
 				emb = await self.client.utils.create_error_embed(
@@ -708,7 +716,7 @@ class Settings(commands.Cog, name="Settings"):
 			if setting.lower() not in settings:
 				emb = await self.client.utils.create_error_embed(
 					ctx,
-					"Укажите одну из этих настроек: message, punishment, target-channel, ignore-channel, target-role, ignore-role!"
+					"Укажите одну из этих настроек: delete-message, message, punishment, target-channel, ignore-channel, target-role, ignore-role!"
 				)
 				await ctx.send(embed=emb)
 				return
@@ -727,7 +735,7 @@ class Settings(commands.Cog, name="Settings"):
 				await ctx.send(embed=emb)
 				return
 
-			if setting.lower() != "message" and len(options) < 2:
+			if setting.lower() != "message" and setting.lower() != "delete-message" and len(options) < 2:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Укажите значения для настройки!"
 				)
@@ -928,6 +936,31 @@ class Settings(commands.Cog, name="Settings"):
 				else:
 					emb = await self.client.utils.create_error_embed(
 						ctx, "**Укажите одно из этих действий: add, delete!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "delete-message":
+				if options[0].lower() == "on":
+					if "delete_message" in auto_mod["anti_invite"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Удаления сообщения уже включено"
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						auto_mod["anti_invite"].update({"delete_message": True})
+				elif options[0].lower() == "off":
+					if "delete_message" not in auto_mod["anti_invite"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Удаления сообщения уже выключено"
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						auto_mod["anti_invite"].pop("delete_message")
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: on, off!**",
 					)
 					await ctx.send(embed=emb)
 					return

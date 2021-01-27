@@ -131,6 +131,8 @@ def start_bot():
 		else:
 			logger.info(f"[PT-SYSTEM-COG]:::{extension} - Loaded")
 	client.load_extension("jishaku")
+	client.add_command(buy)
+	client.add_check(client.utils.global_command_check)
 
 
 @client.command()
@@ -176,5 +178,4 @@ async def reload(ctx, extension):
 
 if __name__ == "__main__":
 	start_bot()
-	client.add_command(buy)
 	client.run(client.config.TOKEN)

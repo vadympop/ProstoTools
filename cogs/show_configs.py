@@ -147,7 +147,8 @@ class ShowConfigs(commands.Cog):
         categories = {
             "anti_invite": "Анти-приглашения",
             "anti_flud": "Анти-флуд",
-            "react_commands": "Команды по реакциям"
+            "react_commands": "Команды по реакциям",
+            "captcha": "Каптча"
         }
         message_types = {
             "dm": "лс",
@@ -162,10 +163,10 @@ class ShowConfigs(commands.Cog):
         }
         settings = []
         for key, setting in data.items():
-            if key == "react_commands":
+            if key == "react_commands" or key == "captcha":
                 if setting:
                     settings.append(
-                        f"**{categories[key]}** - Включено"
+                        f"**{categories[key]}** - `Включено`"
                     )
                 else:
                     settings.append(
@@ -173,7 +174,7 @@ class ShowConfigs(commands.Cog):
                     )
             else:
                 if setting["state"]:
-                    message = ("Выключено"
+                    message = ("выключено"
                                if "message" not in data[key].keys()
                                else f"отправляеться в `{message_types[data[key]['message']['type']]}`, сообщения - `{data[key]['message']['text'][:30]}...`")
                     punishment = (f"тип наказания `{punishment_types[data[key]['punishment']['type']]}`, время наказания - `{data[key]['punishment']['time']}`"
@@ -192,6 +193,11 @@ class ShowConfigs(commands.Cog):
                                     if "ignore_roles" not in data[key].keys()
                                     else f"установлено {len(data[key]['ignore_roles'])} ролей")
                     info = f"**{categories[key]}**:\n1. Сообщения - {message}\n2. Наказания - {punishment}\n3. Целевые каналы - {target_channels}\n4. Игнорируемые каналы - {ignore_channels}\n5. Целевые роли - {target_roles}\n6. Игнорируемые роли - {ignore_roles}"
+                    if key == "anti_invite":
+                        delete_message = ("выключено"
+                                   if "delete_message" not in data[key].keys()
+                                   else f"включено")
+                        info += f"\n7. Удаления сообщений - {delete_message}"
                     settings.append(info)
                 else:
                     settings.append(

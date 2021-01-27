@@ -130,6 +130,9 @@ class EventsAntiInvite(commands.Cog):
                             type_punishment="temprole", time=times, member=message.author, role=role.id
                         )
 
+            if "delete_message" in data["auto_mod"]["anti_invite"].keys():
+                await message.delete()
+
             if "message" in data["auto_mod"]["anti_invite"].keys():
                 member_data = await self.client.database.sel_user(target=message.author)
                 member_data.update({"multi": data["exp_multi"]})
