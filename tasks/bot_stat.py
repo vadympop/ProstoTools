@@ -22,6 +22,8 @@ class TasksBotStat(commands.Cog):
             pass
         except pymysql.IntegrityError:
             pass
+        except OverflowError:
+            pass
 
     @tasks.loop(minutes=5)
     async def cpu_stat_loop(self):
