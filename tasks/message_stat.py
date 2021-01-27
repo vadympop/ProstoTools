@@ -1,5 +1,6 @@
 import discord
 import json
+import asyncio
 from discord.ext import commands, tasks
 
 
@@ -25,6 +26,8 @@ class TasksMessageStat(commands.Cog):
 						where={"guild_id": guild.id},
 						server_stats=json.dumps(data_guild["server_stats"])
 					)
+				except discord.errors.DiscordServerError:
+					pass
 				else:
 					if message is not None:
 						val = (guild.id, guild.id)
@@ -91,6 +94,7 @@ class TasksMessageStat(commands.Cog):
 							text=self.FOOTER, icon_url=self.client.user.avatar_url
 						)
 						await message.edit(embed=emb)
+						await asyncio.sleep(5)
 
 
 def setup(client):
