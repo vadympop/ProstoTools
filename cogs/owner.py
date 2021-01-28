@@ -8,7 +8,7 @@ class Owner(commands.Cog, name="Owner"):
 
 	@commands.command()
 	@commands.is_owner()
-	async def _tsh(self, ctx, *, message: str = None):
+	async def _sh(self, ctx, *, message: str = None):
 		data = await self.client.database.sel_user(ctx.author)
 		multi = (await self.client.database.sel_guild(ctx.guild))["exp_multi"]
 		data.update({"multi": multi})
@@ -24,9 +24,14 @@ class Owner(commands.Cog, name="Owner"):
 
 	@commands.command()
 	@commands.is_owner()
-	async def _rest_cd(self, ctx, *, command: str):
+	async def _rc(self, ctx, *, command: str):
 		command = self.client.get_command(command)
 		command.reset_cooldown(ctx)
+
+	@commands.command()
+	@commands.is_owner()
+	async def _ed(self, ctx):
+		pass
 
 
 def setup(client):

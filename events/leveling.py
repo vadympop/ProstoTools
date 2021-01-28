@@ -74,51 +74,34 @@ class EventsLeveling(commands.Cog):
 		exp_end = math.floor(9 * (lvl_member ** 2) + 50 * lvl_member + 125 * multi)
 		if exp_end < exp:
 			lvl_member += 1
-			if not guild_data["rank_message"]["state"]:
-				emb_lvl = discord.Embed(
-					title="Сообщения о повышении уровня",
-					description=f"Участник {message.author.mention} повысил свой уровень! Текущий уровень - `{lvl_member}`",
-					timestamp=datetime.datetime.utcnow(),
-					colour=discord.Color.green(),
-				)
-
-				emb_lvl.set_author(
-					name=message.author.name, icon_url=message.author.avatar_url
-				)
-				emb_lvl.set_footer(
-					text=self.FOOTER, icon_url=self.client.user.avatar_url
-				)
-				await message.channel.send(embed=emb_lvl)
-			else:
+			if guild_data["rank_message"]["state"]:
 				data["level"] = lvl_member
 				data["exp"] = exp
 				data["coins"] = coins
 				data["reputation"] = reputation
 				data.update({"multi": guild_data["exp_multi"]})
 				try:
+					text = await self.client.template_engine.render(
+						message,
+						message.author,
+						data,
+						guild_data["rank_message"]["text"]
+					)
+				except discord.errors.HTTPException:
 					try:
-						text = await self.client.template_engine.render(
-							message,
-							message.author,
-							data,
-							guild_data["rank_message"]["text"]
-						)
+						await message.add_reaction("❌")
+					except discord.errors.Forbidden:
+						pass
 					except discord.errors.HTTPException:
-						try:
-							await message.add_reaction("❌")
-						except discord.errors.Forbidden:
-							pass
-						except discord.errors.HTTPException:
-							pass
-						emb = discord.Embed(
-							title="Ошибка!",
-							description=f"**Во время выполнения кастомной команды пройзошла ошибка неизвестная ошибка!**",
-							colour=discord.Color.red(),
-						)
-						emb.set_author(name=message.author.name, icon_url=message.author.avatar_url)
-						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-						await message.channel.send(embed=emb)
-						return
+						pass
+					emb = discord.Embed(
+						title="Ошибка!",
+						description=f"**Во время выполнения кастомной команды пройзошла ошибка неизвестная ошибка!**",
+						colour=discord.Color.red(),
+					)
+					emb.set_author(name=message.author.name, icon_url=message.author.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					await message.channel.send(embed=emb)
 				except jinja2.exceptions.TemplateSyntaxError as e:
 					try:
 						await message.add_reaction("❌")
@@ -134,12 +117,11 @@ class EventsLeveling(commands.Cog):
 					emb.set_author(name=message.author.name, icon_url=message.author.avatar_url)
 					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 					await message.channel.send(embed=emb)
-					return
-
-				if guild_data["rank_message"]["type"] == "channel":
-					await message.channel.send(text)
-				elif guild_data["rank_message"]["type"] == "dm":
-					await message.author.send(text)
+				else:
+					if guild_data["rank_message"]["type"] == "channel":
+						await message.channel.send(text)
+					elif guild_data["rank_message"]["type"] == "dm":
+						await message.author.send(text)
 
 		try:
 			await self.client.database.update(
