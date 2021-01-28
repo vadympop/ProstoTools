@@ -375,6 +375,7 @@ class DB(AbcDatabase):
 						"state": False
 					},
 					"react_commands": False,
+					"captcha": {"state": False}
 				}
 			),
 			json.dumps([]),
