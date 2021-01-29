@@ -101,7 +101,7 @@ class Economy(commands.Cog):
 			self.repp.reset_cooldown(ctx)
 			return
 
-		reputation = await self.client.database.sel_user(target=member)["reputation"]
+		reputation = (await self.client.database.sel_user(target=member))["reputation"]
 
 		await self.client.database.update(
 			"users",
@@ -148,7 +148,7 @@ class Economy(commands.Cog):
 			self.repm.reset_cooldown(ctx)
 			return
 
-		reputation = await self.client.database.sel_user(target=member)["reputation"]
+		reputation = (await self.client.database.sel_user(target=member))["reputation"]
 
 		await self.client.database.update(
 			"users",
