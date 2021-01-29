@@ -890,6 +890,13 @@ class Economy(commands.Cog):
 			await ctx.send(embed=emb)
 			return
 
+		if member == ctx.author:
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Вы не можете применить эту команду к себе"
+			)
+			await ctx.send(embed=emb)
+			return
+
 		if num <= 0:
 			emb = await self.client.create_error_embed(ctx, "Укажите число добавляемых денег больше 0!")
 			await ctx.send(embed=emb)
@@ -941,7 +948,7 @@ class Economy(commands.Cog):
 				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
-				name="Модератором",
+				name="Модератор",
 				value=str(ctx.author),
 				inline=False,
 			)
@@ -981,6 +988,13 @@ class Economy(commands.Cog):
 		if member.bot:
 			emb = await ctx.bot.utils.create_error_embed(
 				ctx, "Вы не можете снимать деньги боту!"
+			)
+			await ctx.send(embed=emb)
+			return
+
+		if member == ctx.author:
+			emb = await ctx.bot.utils.create_error_embed(
+				ctx, "Вы не можете применить эту команду к себе"
 			)
 			await ctx.send(embed=emb)
 			return
@@ -1028,7 +1042,7 @@ class Economy(commands.Cog):
 				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
-				name="Модератором",
+				name="Модератор",
 				value=str(ctx.author),
 				inline=False,
 			)
@@ -1083,13 +1097,11 @@ class Economy(commands.Cog):
 				cur_money = data["money"] + num
 				prison = data["prison"]
 				items = data["items"]
-				state = False
 
 				if member == ctx.author:
 					if cur_money <= -5000:
 						items = []
 						prison = True
-						state = True
 
 				await self.client.database.update(
 					"users",
@@ -1098,24 +1110,11 @@ class Economy(commands.Cog):
 					items=json.dumps(items),
 					prison=str(prison)
 				)
-				return [state, data["money"]]
+				return [prison, cur_money]
 
 			if rand_num <= 40:
 				state = await rob_func(-10000, ctx.author)
 				if state[0]:
-					emb = discord.Embed(
-						description=f"**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Ваш текущий баланс: {state[1]}**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(
-						name=self.client.user.name, icon_url=self.client.user.avatar_url
-					)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
-					)
-					await ctx.author.send(embed=emb)
-					return
-				else:
 					emb = discord.Embed(
 						description=f"**Вас задержала полиция. Вы откупились потеряв 10000$**",
 						colour=discord.Color.green(),
@@ -1127,6 +1126,21 @@ class Economy(commands.Cog):
 						text=self.FOOTER, icon_url=self.client.user.avatar_url
 					)
 					await ctx.send(embed=emb)
+
+					emb = discord.Embed(
+						description=f"**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Ваш текущий баланс: {state[1]}**",
+						colour=discord.Color.green(),
+					)
+					emb.set_author(
+						name=self.client.user.name, icon_url=self.client.user.avatar_url
+					)
+					emb.set_footer(
+						text=self.FOOTER, icon_url=self.client.user.avatar_url
+					)
+					try:
+						await ctx.author.send(embed=emb)
+					except:
+						pass
 			elif rand_num > 40 and rand_num <= 80:
 				emb = discord.Embed(
 					description=f"**Вы не смогли ограбить указаного пользователя**",
@@ -1171,7 +1185,7 @@ class Economy(commands.Cog):
 		data = await self.client.database.sel_user(target=ctx.author)
 		cur_state_pr = data["prison"]
 
-		if cur_state_pr == False:
+		if not cur_state_pr:
 			rand_num = randint(1, 100)
 			cur_pets = data["pets"]
 			crime_shans = 80
@@ -1184,6 +1198,10 @@ class Economy(commands.Cog):
 				prison = data["prison"]
 				items = data["items"]
 
+				if cur_money <= -5000:
+					prison = True
+					items = []
+
 				await self.client.database.update(
 					"users",
 					where={"user_id": member.id, "guild_id": ctx.guild.id},
@@ -1191,10 +1209,7 @@ class Economy(commands.Cog):
 					items=json.dumps(items),
 					prison=str(prison)
 				)
-				if cur_money <= -5000:
-					prison = True
-					items = []
-					return [True, data["money"]]
+				return [prison, cur_money]
 
 			if rand_num <= 40:
 				state = await crime_func(-5000, ctx.author)
@@ -1330,9 +1345,10 @@ class Economy(commands.Cog):
 
 			return [items_content, roles_content, box_content, pets_content]
 
+		parsed_invertory = func_inv()
 		emb = discord.Embed(
 			title="Ваш инвертарь",
-			description=f"{func_inv()[0]}{func_inv()[1]}{func_inv()[2]}{func_inv()[3]}**Текстовые каналы:** {number}",
+			description=f"{parsed_invertory[0]}{parsed_invertory[1]}{parsed_invertory[2]}{parsed_invertory[3]}**Текстовые каналы:** {number}",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)

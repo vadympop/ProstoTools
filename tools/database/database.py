@@ -517,13 +517,13 @@ class DB(AbcDatabase):
 
 				if add_counter is None:
 					sql = """INSERT INTO bot_stats(count, timestamp, entity) VALUES( %s, %s, %s)"""
-					val = (new_main_count, datetime.datetime.now(), "all commands")
+					val = (new_main_count, datetime.datetime.utcnow(), "all commands")
 
 					await cur.execute(sql, val)
 					await conn.commit()
 
 				sql = """INSERT INTO bot_stats(count, timestamp, entity) VALUES( %s, %s, %s)"""
-				val = (new_count, datetime.datetime.now(), entity)
+				val = (new_count, datetime.datetime.utcnow(), entity)
 
 				await cur.execute(sql, val)
 				await conn.commit()

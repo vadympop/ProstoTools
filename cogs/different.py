@@ -447,7 +447,7 @@ class Different(commands.Cog, name="Different"):
 			)
 			embed1.add_field(
 				name="Uptime:",
-				value=str(datetime.datetime.now()-self.client.launched_at),
+				value=str(datetime.datetime.utcnow()-self.client.launched_at),
 				inline=False
 			)
 			embed1.add_field(

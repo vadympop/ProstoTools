@@ -37,7 +37,7 @@ class TasksPunishments(commands.Cog):
 								await member.remove_roles(mute_role)
 
 								emb = discord.Embed(
-									description=f"**Вы были размьючены на сервере `{guild.name}`**",
+									description=f"**Вы были размьючены на сервере** `{guild.name}`",
 									colour=discord.Color.green(),
 								)
 								emb.set_author(
@@ -93,7 +93,7 @@ class TasksPunishments(commands.Cog):
 									await guild.unban(user)
 
 									emb = discord.Embed(
-										description=f"**Вы были разбанены на сервере `{guild.name}`**",
+										description=f"**Вы были разбанены на сервере** `{guild.name}`",
 										colour=discord.Color.green(),
 									)
 									emb.set_author(
@@ -165,7 +165,7 @@ class TasksPunishments(commands.Cog):
 									)
 
 								emb = discord.Embed(
-									description=f"**Вы были размьючены в голосовых каналах на сервере `{guild.name}`**",
+									description=f"**Вы были размьючены в голосовых каналах на сервере** `{guild.name}`",
 									colour=discord.Color.green(),
 								)
 								emb.set_author(

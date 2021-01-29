@@ -67,9 +67,9 @@ class Utils:
         elif typetime in weeks:
             minutes = time * 60 * 60 * 24 * 7
         elif typetime in monthes:
-            minutes = time * 60 * 60 * 24 * 7 * calendar.mdays[datetime.datetime.now().month]
+            minutes = time * 60 * 60 * 24 * 7 * calendar.mdays[datetime.datetime.utcnow().month]
         elif typetime in years:
-            minutes = time * 60 * 60 * 24 * 7 * calendar.mdays[datetime.datetime.now().month] * 12
+            minutes = time * 60 * 60 * 24 * 7 * calendar.mdays[datetime.datetime.utcnow().month] * 12
         else:
             minutes = time
             
@@ -80,7 +80,7 @@ class Utils:
             return 0
 
         new_time = datetime.datetime.strptime(str_d, "%H:%M.%d.%m.%Y")
-        if new_time < datetime.datetime.now():
+        if new_time < datetime.datetime.utcnow():
             return 0
         return ((new_time-datetime.datetime(year=1970, month=1, day=1))-datetime.timedelta(hours=2)).total_seconds()
 

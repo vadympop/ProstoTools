@@ -83,7 +83,7 @@ class ProstoTools(commands.AutoShardedBot):
 		await self.change_presence(
 			status=discord.Status.online, activity=discord.Game(" p.help | p.invite ")
 		)
-		self.launched_at = datetime.datetime.now()
+		self.launched_at = datetime.datetime.utcnow()
 		await self.database.prepare()
 
 	async def on_disconnect(self):
