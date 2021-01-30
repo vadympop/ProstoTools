@@ -8,13 +8,11 @@ class Settings(commands.Cog, name="Settings"):
 	def __init__(self, client):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
-		self._names = []
-		for cog in self.client.cogs:
-			for command in self.client.get_cog(cog).get_commands():
-				for alias in command.aliases:
-					self._names.append(alias)
-				self._names.append(command.name)
-		self.commands = self._names
+		self.commands = [
+			command.name
+			for cog in self.client.cogs
+			for command in self.client.get_cog(cog).get_commands()
+		]
 
 	def find_custom_command(self, command_name: str, commands: list):
 		for command in commands:
@@ -42,10 +40,10 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.send(embed=emb)
 
 	@setting.command(
-		hidden=True,
 		description="**Настройка префикса**",
 		usage="setting prefix [Новый префикс]",
 	)
+	@commands.has_permissions(administrator=True)
 	async def prefix(self, ctx, prefix: str):
 		if len(prefix) > 3:
 			emb = discord.Embed(
@@ -73,12 +71,12 @@ class Settings(commands.Cog, name="Settings"):
 		await ctx.send(embed=emb)
 
 	@setting.command(
-		hidden=True,
 		aliases=["moder-role"],
 		name="moderation-role",
 		description="**Настройка ролей модераторов**",
 		usage="setting moderation-role [add(Добавляет указаную роль)/clear(Очищает список)/del(Удаляет указаную роль)] |@Роль|",
 	)
+	@commands.has_permissions(administrator=True)
 	async def moder_role(self, ctx, type_act: str, role: discord.Role = None):
 		data = await self.client.database.sel_guild(guild=ctx.guild)
 		cur_roles = data["moder_roles"]
@@ -165,11 +163,11 @@ class Settings(commands.Cog, name="Settings"):
 		)
 
 	@setting.command(
-		hidden=True,
 		name="ignore-channels",
 		description="**Игнорируемые каналы в системе уровней**",
 		usage="setting ignore-channels [Действие, add - добавляет канал в исключения, clear - очищает список исключений, delete - удаляет указаный канал из списка] [Id канала]",
 	)
+	@commands.has_permissions(administrator=True)
 	async def ignoredchannels(self, ctx, typech: str, channel: discord.TextChannel = None):
 		data = await self.client.database.sel_guild(guild=ctx.guild)
 		cur_ignchannel = data["ignored_channels"]
@@ -241,11 +239,11 @@ class Settings(commands.Cog, name="Settings"):
 		)
 
 	@setting.command(
-		hidden=True,
 		name="shop-role",
 		description="**Настройка магазина на сервере**",
 		usage="setting shop-role [clear - очищает список ролей, add - добавляет роль, delete - удаляет роль] [@Роль] [Стоимость роли]",
 	)
+	@commands.has_permissions(administrator=True)
 	async def shoplist(
 		self, ctx, cl_add: typing.Optional[str], role: discord.Role, cost: int
 	):
@@ -327,11 +325,11 @@ class Settings(commands.Cog, name="Settings"):
 		)
 
 	@setting.command(
-		hidden=True,
 		name="text-channels-category",
 		description="**Настройка категории приватных текстовых каналов**",
 		usage="setting text-channels-category [Id категории]",
 	)
+	@commands.has_permissions(administrator=True)
 	async def privatetextcategory(self, ctx, category: discord.CategoryChannel):
 		await self.client.database.update(
 			"guilds",
@@ -348,11 +346,11 @@ class Settings(commands.Cog, name="Settings"):
 		await ctx.send(embed=emb)
 
 	@setting.command(
-		hidden=True,
 		name="max-warns",
 		description="**Настройка максимального количества предупрежденний**",
 		usage="setting max-warns [Любое число]",
 	)
+	@commands.has_permissions(administrator=True)
 	async def maxwarns(self, ctx, number: int):
 		if number <= 0:
 			emb = await self.client.utils.create_error_embed(ctx, "Укажите максимальное количество предупреждений больше 0!")
@@ -381,11 +379,11 @@ class Settings(commands.Cog, name="Settings"):
 		await ctx.send(embed=emb)
 
 	@setting.command(
-		hidden=True,
 		name="anti-flud",
 		description="**Настройка анти-флуда(Бета-тест)**",
 		usage="setting anti-flud [on/off/setting] |Настройка| |Опции...|",
 	)
+	@commands.has_permissions(administrator=True)
 	async def anti_flud(self, ctx, action: str, setting: str = None, *options):
 		ons = ("on", "вкл", "включить", "+", "1")
 		offs = ("off", "выкл", "выключить", "-", "0")
@@ -666,11 +664,11 @@ class Settings(commands.Cog, name="Settings"):
 			pass
 
 	@setting.command(
-		hidden=True,
 		name="anti-invite",
 		description="**Настройка анти-приглашения(Бета-тест)**",
 		usage="setting anti-invite [on/off/setting] |Настройка| |Опции...|",
 	)
+	@commands.has_permissions(administrator=True)
 	async def anti_invite(self, ctx, action: str, setting: str = None, *options):
 		ons = ("on", "вкл", "включить", "+", "1")
 		offs = ("off", "выкл", "выключить", "-", "0")
@@ -984,11 +982,11 @@ class Settings(commands.Cog, name="Settings"):
 			pass
 
 	@setting.command(
-		hidden=True,
 		name="react-commands",
 		description="**Настройка команд по реакциям**",
 		usage="setting react-commands [on/off]",
 	)
+	@commands.has_permissions(administrator=True)
 	async def react_commands(self, ctx, action: str):
 		actions = ["on", "off", "true", "false", "0", "1"]
 		if action.lower() not in actions:
@@ -1026,11 +1024,11 @@ class Settings(commands.Cog, name="Settings"):
 		)
 
 	@setting.command(
-		hidden=True,
 		name="idea-channel",
 		description="**Настройка канала идей сервера**",
 		usage="setting idea-channel [Id канала]",
 	)
+	@commands.has_permissions(administrator=True)
 	async def ideachannel(self, ctx, channel: discord.TextChannel):
 		await self.client.database.update(
 			"guilds",
@@ -1047,11 +1045,11 @@ class Settings(commands.Cog, name="Settings"):
 		await ctx.send(embed=emb)
 
 	@setting.command(
-		hidden=True,
 		name="time-delete-channel",
 		description="**Через сколько минут будет удалять приватный текстовый канал**",
 		usage="setting time-delete-channel [Любое число]",
 	)
+	@commands.has_permissions(administrator=True)
 	async def timetextchannel(self, ctx, time: int):
 		if time <= 0:
 			emb = await self.client.create_error_embed(ctx, "Укажите время удаления приватных текстовых каналов больше 0!")
@@ -1073,12 +1071,12 @@ class Settings(commands.Cog, name="Settings"):
 		await ctx.send(embed=emb)
 
 	@setting.command(
-		hidden=True,
 		name="exp-multi",
 		aliases=["exp-multiplier"],
 		description="**Настройка множителя опыта на сервере**",
 		usage="setting exp-multi [Множитель%(Пример - 450%)]",
 	)
+	@commands.has_permissions(administrator=True)
 	async def expform(self, ctx, multiplier: str):
 		if not multiplier.endswith("%"):
 			emb = await self.client.utils.create_error_embed(ctx, "Указан неправильный формат множителя!")
@@ -1115,12 +1113,12 @@ class Settings(commands.Cog, name="Settings"):
 		await ctx.send(embed=emb)
 
 	@setting.command(
-		hidden=True,
 		name="set-audit",
 		aliases=["setaudit", "audit"],
 		description="**Настройка канала аудита**",
 		usage="setting logs [on/off] [Категория] |Канал|",
 	)
+	@commands.has_permissions(administrator=True)
 	async def set_audit(self, ctx, action: str, category: str, channel: discord.TextChannel = None):
 		ons = ("on", "вкл", "включить", "+", "1")
 		offs = ("off", "выкл", "выключить", "-", "0")
@@ -1210,12 +1208,12 @@ class Settings(commands.Cog, name="Settings"):
 			pass
 
 	@setting.command(
-		hidden=True,
 		name="auto-reactions",
 		aliases=["autoreactions"],
 		description="**Настройка авто-реакций**",
 		usage="setting auto-reactions [set/off] |Канал| |Эмодзи|",
 	)
+	@commands.has_permissions(administrator=True)
 	async def auto_reactions(self, ctx, action: str, channel: typing.Optional[discord.TextChannel], *, reactions: str = None):
 		auto_reactions = (await self.client.database.sel_guild(guild=ctx.guild))["auto_reactions"]
 		if action.lower() == "set":
@@ -1275,12 +1273,12 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.send(embed=emb)
 
 	@setting.command(
-		hidden=True,
 		name="custom-command",
 		aliases=["customcommand", "custom-commands", "customcommands"],
 		description="**Настройка кастомных команд**",
 		usage="setting custom-command [add/edit/delete/show] [Названия команды] |Опции|",
 	)
+	@commands.has_permissions(administrator=True)
 	async def custom_command(self, ctx, action: str, command_name: str = None, *options):
 		custom_commands = (await self.client.database.sel_guild(guild=ctx.guild))["custom_commands"]
 		if action.lower() == "add":
@@ -1572,12 +1570,12 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.send(embed=emb)
 
 	@setting.command(
-		hidden=True,
 		name="auto-responder",
 		aliases=["autoresponder", "auto-responders", "autoresponders"],
 		description="**Настройка авто-ответчиков**",
 		usage="setting auto-responder [add/edit/delete/show/list] [Названия авто-ответчика] |Текст авто-ответчика|",
 	)
+	@commands.has_permissions(administrator=True)
 	async def auto_responder(self, ctx, action: str, responder_name: str = None, *, text: str = None):
 		auto_responders = (await self.client.database.sel_guild(guild=ctx.guild))["autoresponders"]
 		if action.lower() == "add":
@@ -1751,12 +1749,12 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.send(embed=emb)
 
 	@setting.command(
-		hidden=True,
 		name="level-up-message",
 		aliases=["levelupmessage", "set-level-up-message", "setlevelupmessage"],
 		description="**Настройка авто-ответчиков**",
 		usage="setting level-up-message [channel/dm/off] |Текст|",
 	)
+	@commands.has_permissions(administrator=True)
 	async def level_up_message(self, ctx, type: str, *, text = None):
 		rank_message = (await self.client.database.sel_guild(guild=ctx.guild))["rank_message"]
 		if type.lower() == "dm":
@@ -1814,10 +1812,10 @@ class Settings(commands.Cog, name="Settings"):
 			pass
 
 	@setting.command(
-		hidden=True,
 		description="**Настройка каптчи при входе участника**",
 		usage="setting captcha [on/off]",
 	)
+	@commands.has_permissions(administrator=True)
 	async def captcha(self, ctx, action: str):
 		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
 		if action.lower() == "on":
@@ -1849,6 +1847,190 @@ class Settings(commands.Cog, name="Settings"):
 			"guilds",
 			where={"guild_id": ctx.guild.id},
 			auto_mod=json.dumps(auto_mod)
+		)
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
+
+	@setting.command(
+		description="**Настройка команд**",
+		usage="setting command [Названия команды] [Настройка] |Опции|",
+	)
+	@commands.has_permissions(administrator=True)
+	async def command(self, ctx, command_name: str, setting: str, *options):
+		commands_settings = (await self.client.database.sel_guild(guild=ctx.guild))["commands_settings"]
+		if command_name.lower() in ("help", "setting"):
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Нельзя управлять указаной командой!"
+			)
+			await ctx.send(embed=emb)
+			return
+
+		if command_name.lower() not in self.commands:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Такой команды не существует!"
+			)
+			await ctx.send(embed=emb)
+			return
+
+		if setting.lower() not in (
+				"on", "off", "ignore-channel", "ignore-role", "target-role", "target-channel"
+		):
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Укажите одно из этих действий: on, off, ignore-channel, ignore-role, target-role, target-channel"
+			)
+			await ctx.send(embed=emb)
+			return
+
+		if setting.lower() not in ("off", "on") and len(options) < 2:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Укажите значения!"
+			)
+			await ctx.send(embed=emb)
+			return
+
+		if setting.lower() == "on":
+			if commands_settings[command_name]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаная команда уже включена!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			commands_settings[command_name]["state"] = True
+		elif setting.lower() == "off":
+			if not commands_settings[command_name]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаная команда уже выключена!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			commands_settings[command_name]["state"] = False
+		elif setting.lower() == "target-channel":
+			channel_converter = commands.TextChannelConverter()
+			channel = await channel_converter.convert(ctx, options[1])
+			if options[0].lower() == "add":
+				commands_settings[command_name]["target_channels"].append(channel.id)
+			elif options[0].lower() == "delete":
+				try:
+					commands_settings[command_name]["target_channels"].remove(channel.id)
+				except ValueError:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**В списке каналов нету указаного канала!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			else:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите одно из этих действий: add, delete!**",
+				)
+				await ctx.send(embed=emb)
+				return
+		elif setting.lower() == "ignore-channel":
+			channel_converter = commands.TextChannelConverter()
+			channel = await channel_converter.convert(ctx, options[1])
+			if options[0].lower() == "add":
+				commands_settings[command_name]["ignore_channels"].append(channel.id)
+			elif options[0].lower() == "delete":
+				try:
+					commands_settings[command_name]["ignore_channels"].remove(channel.id)
+				except ValueError:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**В списке каналов нету указаного канала!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			else:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите одно из этих действий: add, delete!**",
+				)
+				await ctx.send(embed=emb)
+				return
+		elif setting.lower() == "target-role":
+			role_converter = commands.RoleConverter()
+			role = await role_converter.convert(ctx, options[1])
+
+			if role.is_integration():
+				emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
+				await ctx.send(embed=emb)
+				return
+
+			if role.is_bot_managed():
+				emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+				await ctx.send(embed=emb)
+				return
+
+			if role.is_premium_subscriber():
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указанная роль используеться для бустером сервера!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if options[0].lower() == "add":
+				commands_settings[command_name]["target_roles"].append(role.id)
+			elif options[0].lower() == "delete":
+				try:
+					commands_settings[command_name]["target_roles"].remove(role.id)
+				except ValueError:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**В списке ролей нету указаной роли!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			else:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите одно из этих действий: add, delete!**",
+				)
+				await ctx.send(embed=emb)
+				return
+		elif setting.lower() == "ignore-role":
+			role_converter = commands.RoleConverter()
+			role = await role_converter.convert(ctx, options[1])
+
+			if role.is_integration():
+				emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
+				await ctx.send(embed=emb)
+				return
+
+			if role.is_bot_managed():
+				emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+				await ctx.send(embed=emb)
+				return
+
+			if role.is_premium_subscriber():
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указанная роль используеться для бустером сервера!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if options[0].lower() == "add":
+				commands_settings[command_name]["ignore_roles"].append(role.id)
+			elif options[0].lower() == "delete":
+				try:
+					commands_settings[command_name]["ignore_roles"].remove(role.id)
+				except ValueError:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**В списке ролей нету указаной роли!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			else:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите одно из этих действий: add, delete!**",
+				)
+				await ctx.send(embed=emb)
+				return
+
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			commands_settings=json.dumps(commands_settings)
 		)
 		try:
 			await ctx.message.add_reaction("✅")

@@ -1,6 +1,8 @@
 import discord
 import datetime
 import calendar
+from discord import ext
+from tools.exceptions import *
 
 
 class Utils:
@@ -99,7 +101,6 @@ class Utils:
         return emb
 
     async def build_help(self, ctx, prefix, groups, moder_roles):
-        state = False
         exceptions = ("owner", "help", "jishaku")
         emb = discord.Embed(
             title="**Доступные команды:**",
@@ -112,38 +113,18 @@ class Utils:
                 commands = ""
                 for command in cog.get_commands():
                     if command.name not in groups:
-                        if not command.hidden:
-                            if command.brief != "True":
+                        try:
+                            if await command.can_run(ctx):
                                 commands += f" `{prefix}{command.name}` "
-                            else:
-                                for role_id in moder_roles:
-                                    role = ctx.guild.get_role(role_id)
-                                    if role in ctx.author.roles:
-                                        state = True
-                                        break
-
-                                if state or ctx.author == ctx.guild.owner or ctx.author.guild_permissions.administrator:
-                                    commands += f" `{prefix}{command.name}` "
-                        else:
-                            if ctx.author.guild_permissions.administrator:
-                                commands += f" `{prefix}{command.name}` "
+                        except ext.commands.CommandError:
+                            pass
                     else:
                         for c in command.commands:
-                            if not c.hidden:
-                                if c.brief != "True":
+                            try:
+                                if await c.can_run(ctx):
                                     commands += f" `{prefix}{command.name} {c.name}` "
-                                else:
-                                    for role_id in moder_roles:
-                                        role = ctx.guild.get_role(role_id)
-                                        if role in ctx.author.roles:
-                                            state = True
-                                            break
-
-                                    if state or ctx.author == ctx.guild.owner or ctx.author.guild_permissions.administrator:
-                                        commands += f" `{prefix}{command.name} {c.name}` "
-                            else:
-                                if ctx.author.guild_permissions.administrator:
-                                    commands += f" `{prefix}{command.name} {c.name}` "
+                            except ext.commands.CommandError:
+                                pass
 
                 if commands != "":
                     emb.add_field(
@@ -156,4 +137,29 @@ class Utils:
         return emb
 
     async def global_command_check(self, ctx):
+        commands_settings = (await self.client.database.sel_guild(guild=ctx.guild))["commands_settings"]
+        if ctx.command.name in commands_settings.keys():
+            if not commands_settings[ctx.command.name]["state"]:
+                raise CommandOff
+
+            if commands_settings[ctx.command.name]["target_channels"]:
+                if ctx.channel.id not in commands_settings[ctx.command.name]["target_channels"]:
+                    raise CommandTargetChannelRequired
+
+            if commands_settings[ctx.command.name]["target_roles"]:
+                state = False
+                for role in ctx.author.roles:
+                    if role.id in commands_settings[ctx.command.name]["target_roles"]:
+                        state = True
+
+                if not state:
+                    raise CommandTargetRoleRequired
+
+            if ctx.channel.id in commands_settings[ctx.command.name]["ignore_channels"]:
+                raise CommandChannelIgnored
+
+            for role in ctx.author.roles:
+                if role.id in commands_settings[ctx.command.name]["ignore_roles"]:
+                    raise CommandRoleIgnored
+
         return True

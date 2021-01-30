@@ -784,7 +784,6 @@ class Economy(commands.Cog):
 
 	@commands.command(
 		aliases=["removerole"],
-		hidden=True,
 		name="remove-role",
 		description="**Удаляет указаную роль из профиля пользователя(Объязательно используйте эту команду для снятия роли, а не простое удаление роли через сам дискорд!, Cooldown - 3 часа)",
 		usage="remove-role [@Участник] [@Роль]",
@@ -872,7 +871,6 @@ class Economy(commands.Cog):
 
 	@commands.command(
 		aliases=["addcash"],
-		hidden=True,
 		name="add-cash",
 		description="**Добавляет указаний тип валюты в профиль**",
 		usage="add-cash [@Участник] [Название валюты] [Количество]",
@@ -974,7 +972,6 @@ class Economy(commands.Cog):
 
 	@commands.command(
 		aliases=["removecash"],
-		hidden=True,
 		name="remove-cash",
 		description="**Удаляет указаний тип валюты из профиля**",
 		usage="remove-cash [@Участник] [Название валюты] [Количество]",
@@ -1270,12 +1267,12 @@ class Economy(commands.Cog):
 
 	@commands.command(
 		description="**Показывает ваш инвертарь**",
-		usage="invertory",
+		usage="inventory",
 		aliases=["inv"],
-		help="**Примеры использования:**\n1. {Prefix}invertory\n\n**Пример 1:** Показывает ваш инвертарь",
+		help="**Примеры использования:**\n1. {Prefix}inventory\n\n**Пример 1:** Показывает ваш инвертарь",
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def invertory(self, ctx):
+	async def inventory(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
 		PREFIX = str(await self.client.database.get_prefix(guild=ctx.guild))
 		number = data["text_channel"]

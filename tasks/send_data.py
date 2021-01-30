@@ -51,7 +51,6 @@ class TasksSendData(commands.Cog):
 
 	@tasks.loop(hours=6)
 	async def send_sdc_data_loop(self):
-		print(len(self.client.guilds))
 		if len(self.client.guilds) > 0:
 			print("Send to SDC")
 			if os.getenv("SDC_TOKEN") is not None:
@@ -66,7 +65,6 @@ class TasksSendData(commands.Cog):
 
 	@tasks.loop(hours=6)
 	async def send_boticord_data_loop(self):
-		print(len(self.client.guilds))
 		if len(self.client.guilds) > 0:
 			print("Send to Boticord")
 			if os.getenv("BOTICORD_TOKEN") is not None:
@@ -79,7 +77,7 @@ class TasksSendData(commands.Cog):
 					"users": len(self.client.users)
 				}
 				resp = await requests.post(url=self.boticord_api_url, data=data, headers=headers)
-				print(resp.status)
+				print(await resp.json())
 
 
 def setup(client):

@@ -1,5 +1,6 @@
 import discord
 import uuid
+from tools.exceptions import *
 from discord.ext import commands
 from discord.utils import get
 from colorama import *
@@ -101,6 +102,23 @@ class Errors(commands.Cog, name="Errors"):
 		elif isinstance(error, commands.errors.MemberNotFound):
 			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(ctx, "Указаный пользователь не найден!")
+			await ctx.send(embed=emb)
+		elif isinstance(error, CommandOff):
+			pass
+		elif isinstance(error, CommandTargetRoleRequired):
+			emb = await self.client.utils.create_error_embed(
+				ctx, "У вас нет необходимых ролей!"
+			)
+			await ctx.send(embed=emb)
+		elif isinstance(error, CommandTargetChannelRequired) or isinstance(error, CommandChannelIgnored):
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вы не можете использовать эту команду в этом канале!"
+			)
+			await ctx.send(embed=emb)
+		elif isinstance(error, CommandRoleIgnored):
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вы не можете использовать эту команду с вашей ролью!"
+			)
 			await ctx.send(embed=emb)
 		else:
 			ctx.command.reset_cooldown(ctx)

@@ -33,12 +33,18 @@ class EventsAntiFlud(commands.Cog):
         else:
             if data["auto_mod"]["anti_flud"]["state"]:
                 if "target_channels" in data["auto_mod"]["anti_flud"].keys():
-                    if message.channel.id not in data["auto_mod"]["anti_flud"]["target_channels"]:
-                        return
+                    if data["auto_mod"]["anti_flud"]["target_channels"]:
+                        if message.channel.id not in data["auto_mod"]["anti_flud"]["target_channels"]:
+                            return
 
                 if "target_roles" in data["auto_mod"]["anti_flud"].keys():
-                    for role in message.author.roles:
-                        if role.id not in data["auto_mod"]["anti_flud"]["target_roles"]:
+                    if data["auto_mod"]["anti_flud"]["target_roles"]:
+                        state = False
+                        for role in message.author.roles:
+                            if role.id in data["auto_mod"]["anti_flud"]["target_roles"]:
+                                state = True
+
+                        if not state:
                             return
 
                 if "ignore_channels" in data["auto_mod"]["anti_flud"].keys():

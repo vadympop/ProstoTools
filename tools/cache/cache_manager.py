@@ -1,5 +1,5 @@
 from aiocache import MemcachedCache
-from tools.abc import AbcCacheManager
+from tools.bases import AbcCacheManager
 
 
 class CacheManager(AbcCacheManager):

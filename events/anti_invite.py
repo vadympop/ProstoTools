@@ -42,12 +42,18 @@ class EventsAntiInvite(commands.Cog):
                 return
 
             if "target_channels" in data["auto_mod"]["anti_invite"].keys():
-                if message.channel.id not in data["auto_mod"]["anti_invite"]["target_channels"]:
-                    return
+                if data["auto_mod"]["anti_flud"]["target_channels"]:
+                    if message.channel.id not in data["auto_mod"]["anti_invite"]["target_channels"]:
+                        return
 
             if "target_roles" in data["auto_mod"]["anti_invite"].keys():
-                for role in message.author.roles:
-                    if role.id not in data["auto_mod"]["anti_invite"]["target_roles"]:
+                if data["auto_mod"]["anti_invite"]["target_roles"]:
+                    state = False
+                    for role in message.author.roles:
+                        if role.id in data["auto_mod"]["anti_invite"]["target_roles"]:
+                            state = True
+
+                    if not state:
                         return
 
             if "ignore_channels" in data["auto_mod"]["anti_invite"].keys():

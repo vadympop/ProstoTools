@@ -5,7 +5,7 @@ import typing
 import time
 import discord
 import aiomysql
-from tools.abc import AbcDatabase
+from tools.bases import AbcDatabase
 
 
 class DB(AbcDatabase):
@@ -357,7 +357,7 @@ class DB(AbcDatabase):
 	async def sel_guild(self, guild) -> dict:
 		sql_1 = """SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s"""
 		val_1 = (guild.id, guild.id)
-		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, audit, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcome, auto_roles, custom_commands, autoresponders, rank_message) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, audit, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcome, auto_roles, custom_commands, autoresponders, rank_message, commands_settings) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 		val_2 = (
 			guild.id,
 			"False",
@@ -389,7 +389,21 @@ class DB(AbcDatabase):
 			json.dumps({}),
 			json.dumps({
 				"state": False
-			})
+			}),
+			json.dumps(
+				{command: {
+					"state": True,
+					"ignore_channels": [],
+					"ignore_roles": [],
+					"target_roles": [],
+					"target_channels": []
+				} for command in [
+					command.name
+					for cog in self.client.cogs
+					for command in self.client.get_cog(cog).get_commands()
+					if cog.lower() not in ("owner", "help", "jishaku")
+				]}
+			)
 		)
 
 		async with self.pool.acquire() as conn:
@@ -429,7 +443,8 @@ class DB(AbcDatabase):
 			"custom_commands": json.loads(data[21]),
 			"autoresponders": json.loads(data[22]),
 			"audit": json.loads(data[23]),
-			"rank_message": json.loads(data[24])
+			"rank_message": json.loads(data[24]),
+			"commands_settings": json.loads(data[25])
 		}
 		return dict_data
 
