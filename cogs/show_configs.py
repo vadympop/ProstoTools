@@ -1,5 +1,6 @@
 import discord
 import json
+from Cybernator import Paginator
 from discord.utils import get
 from discord.ext import commands
 
@@ -23,6 +24,12 @@ class ShowConfigs(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.FOOTER = self.client.config.FOOTER_TEXT
+        self.commands = [
+            command.name
+            for cog in self.client.cogs
+            for command in self.client.get_cog(cog).get_commands()
+            if cog.lower() not in ("help", "owner", "jishaku")
+        ]
 
     @commands.group(
         name="show-config",
@@ -269,6 +276,85 @@ class ShowConfigs(commands.Cog):
         emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
         emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
         await ctx.send(embed=emb)
+
+    @commands.command(
+        aliases=["commandssettings", "commandsettings", "cs"],
+        name="commands-settings",
+        usage="commands-settings |Названия команды|",
+        help="**Примеры использования:**\n1. {Prefix}commands-settings\n2. {Prefix}commands-settings crime\n\n**Пример 1:** Покажет настройки всех команд\n**Пример 2:** Покажет настройки указаной команды",
+    )
+    async def commands_settings(self, ctx, command_name: str = None):
+        commands_settings = (await self.client.database.sel_guild(guild=ctx.guild))["commands_settings"]
+        if command_name is None:
+            pages = []
+            prefix = str(await ctx.bot.database.get_prefix(guild=ctx.guild))
+            start_embed = discord.Embed(
+                title="Справка по настройкам команд",
+                description=f"Для навигации используйте реакции ниже или\n`{prefix}commands-settings [Названия команды]`",
+                colour=discord.Color.green()
+            )
+            start_embed.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+            start_embed.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+
+            pages.append(start_embed)
+            for command_name, command_setting in commands_settings.items():
+                description = f"""
+Состояния: `{"Включена" if command_setting["state"] else "Выключена"}`
+Целевые роли: `{str(len(command_setting["target_roles"]))+" ролей" if command_setting["target_roles"] else "Не настроено"}` 
+Целевые каналы: `{str(len(command_setting["target_channels"]))+" каналов" if command_setting["target_channels"] else "Не настроено"}`
+Игнорируемые роли: `{str(len(command_setting["ignore_roles"]))+" ролей" if command_setting["ignore_roles"] else "Не настроено"}`
+Игнорируемые каналы: `{str(len(command_setting["ignore_channels"]))+" каналов" if command_setting["ignore_channels"] else "Не настроено"}`
+                """
+                emb = discord.Embed(
+                    title="Команда - "+command_name,
+                    description=description,
+                    colour=discord.Color.green()
+                )
+                emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+                emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+                pages.append(emb)
+
+            start_message = await ctx.send(embed=start_embed)
+            paginator = Paginator(
+                ctx=self.client,
+                message=start_message,
+                embeds=pages,
+                timeout=350,
+                only=ctx.author,
+                footer=False
+            )
+            await paginator.start()
+        else:
+            if command_name.lower() in ("help", "setting"):
+                emb = await self.client.utils.create_error_embed(
+                    ctx, "Вы не можете просмотреть настройки этой команды!"
+                )
+                await ctx.send(embed=emb)
+                return
+
+            if command_name.lower() not in self.commands:
+                emb = await self.client.utils.create_error_embed(
+                    ctx, "Такой команды не существует!"
+                )
+                await ctx.send(embed=emb)
+                return
+
+            command_setting = commands_settings[command_name]
+            description = f"""
+Состояния: `{"Включена" if command_setting["state"] else "Выключена"}`
+Целевые роли: `{str(len(command_setting["target_roles"])) + " ролей" if command_setting["target_roles"] else "Не настроено"}` 
+Целевые каналы: `{str(len(command_setting["target_channels"])) + " каналов" if command_setting["target_channels"] else "Не настроено"}`
+Игнорируемые роли: `{str(len(command_setting["ignore_roles"])) + " ролей" if command_setting["ignore_roles"] else "Не настроено"}`
+Игнорируемые каналы: `{str(len(command_setting["ignore_channels"])) + " каналов" if command_setting["ignore_channels"] else "Не настроено"}`
+            """
+            emb = discord.Embed(
+                title="Команда - " + command_name,
+                description=description,
+                colour=discord.Color.green()
+            )
+            emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+            emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+            await ctx.send(embed=emb)
 
 
 def setup(client):

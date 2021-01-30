@@ -12,6 +12,7 @@ class Settings(commands.Cog, name="Settings"):
 			command.name
 			for cog in self.client.cogs
 			for command in self.client.get_cog(cog).get_commands()
+			if cog.lower() not in ("help", "owner", "jishaku")
 		]
 
 	def find_custom_command(self, command_name: str, commands: list):
@@ -1862,14 +1863,15 @@ class Settings(commands.Cog, name="Settings"):
 	@commands.has_permissions(administrator=True)
 	async def command(self, ctx, command_name: str, setting: str, *options):
 		commands_settings = (await self.client.database.sel_guild(guild=ctx.guild))["commands_settings"]
-		if command_name.lower() in ("help", "setting"):
+		command_name = command_name.lower()
+		if command_name in ("help", "setting"):
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Нельзя управлять указаной командой!"
 			)
 			await ctx.send(embed=emb)
 			return
 
-		if command_name.lower() not in self.commands:
+		if command_name not in self.commands:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Такой команды не существует!"
 			)
