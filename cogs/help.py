@@ -111,9 +111,30 @@ class Help(commands.Cog, name="Help"):
 		for c in self.client.get_cog(cogs_aliases[cog_name.lower()]).get_commands():
 			if self.client.get_cog(cogs_aliases[cog_name.lower()]).qualified_name.lower() in cogs_group:
 				for command in c.commands:
-					self._check_command_permissions(ctx, emb_2, command, moder_roles, prefix)
+					try:
+						if await command.can_run(ctx):
+							emb_2.add_field(
+								name=f"{prefix}{command.usage}",
+								value=f"{command.description[2:-2]}.",
+								inline=False,
+							)
+					except commands.CommandError:
+						pass
 			else:
-				self._check_command_permissions(ctx, emb_2, c, moder_roles, prefix)
+				try:
+					if await c.can_run(ctx):
+						emb_2.add_field(
+							name=f"{prefix}{c.usage}",
+							value=f"{c.description[2:-2]}.",
+							inline=False,
+						)
+				except commands.CommandError:
+					pass
+
+		if len(emb_2.fields) <= 0:
+			emb_2.add_field(
+				name="Пусто", value="У вас нет прав на использования ни одной команды этой категории"
+			)
 		emb_2.set_author(
 			name=self.client.user.name, icon_url=self.client.user.avatar_url
 		)
