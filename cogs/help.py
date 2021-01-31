@@ -14,30 +14,6 @@ class Help(commands.Cog, name="Help"):
 				self._names.append(command.name)
 		self.commands = self._names
 
-	def _add_command_field(self, emb, c, prefix):
-		emb.add_field(
-			name=f"{prefix}{c.usage}",
-			value=f"{c.description[2:-2]}.",
-			inline=False,
-		)
-
-	def _check_command_permissions(self, ctx, emb, c, moder_roles, prefix):
-		if not c.hidden:
-			if c.brief != "True":
-				self._add_command_field(emb, c, prefix)
-			else:
-				state = False
-				for role_id in moder_roles:
-					if ctx.guild.get_role(role_id) in ctx.author.roles:
-						state = True
-						break
-
-				if state or ctx.guild.owner == ctx.author or ctx.author.guild_permissions.administrator:
-					self._add_command_field(emb, c, prefix)
-		else:
-			if ctx.guild.owner == ctx.author or ctx.author.guild_permissions.administrator:
-				self._add_command_field(emb, c, prefix)
-
 	@commands.command(
 		help="**Примеры использования:**\n1. {Prefix}help\n2. {Prefix}help moderate\n2. {Prefix}help ban\n\n**Пример 1:** Показывает список всех команд бота\n**Пример 2:** Показывает список всех указаной групы\n**Пример 3:** Показывает документацию по указаной команде"
 	)

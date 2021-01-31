@@ -28,7 +28,9 @@ class Settings(commands.Cog, name="Settings"):
 	async def setting(self, ctx):
 		if ctx.invoked_subcommand is None:
 			PREFIX = str(await self.client.database.get_prefix(ctx.guild))
-			commands = "\n".join([f"`{PREFIX}setting {c.name}`" for c in self.client.get_command("setting").commands])
+			commands = "\n".join(
+				[f"`{PREFIX}setting {c.name}`" for c in self.client.get_command("setting").commands]
+			)
 			emb = discord.Embed(
 				title="Команды настройки",
 				description=commands,

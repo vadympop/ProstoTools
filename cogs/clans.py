@@ -45,7 +45,21 @@ class Clans(commands.Cog):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def clan(self, ctx):
-		pass
+		if ctx.invoked_subcommand is None:
+			PREFIX = str(await self.client.database.get_prefix(ctx.guild))
+			commands = "\n".join(
+				[f"`{PREFIX}clan {c.name}`" for c in self.client.get_command("clan").commands]
+			)
+			emb = discord.Embed(
+				title="Команды кланов",
+				description=commands,
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
 
 	@clan.command(usage="clan create [Названия]", description="**Создаёт клан**")
 	async def create(self, ctx, *, name: str):
