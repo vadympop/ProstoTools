@@ -870,20 +870,20 @@ class Economy(commands.Cog):
 				await channel.send(embed=e)
 
 	@commands.command(
-		aliases=["addcash"],
-		name="add-cash",
-		description="**Добавляет указаний тип валюты в профиль**",
-		usage="add-cash [@Участник] [Название валюты] [Количество]",
-		help="**Примеры использования:**\n1. {Prefix}add-cash @Участник coins 1000\n2. {Prefix}add-cash 660110922865704980 coins 1000\n\n**Пример 1:** Добавляет 1000 коинов упомянутому участнику\n**Пример 2:** Добавляет 1000 коинов участнику с указаным id",
+		aliases=["addvalue"],
+		name="add-value",
+		description="**Добавляет указаный тип валюты в профиль**",
+		usage="add-value [@Участник] [Название валюты] [Количество]",
+		help="**Примеры использования:**\n1. {Prefix}add-value @Участник coins 1000\n2. {Prefix}add-value 660110922865704980 coins 1000\n\n**Пример 1:** Добавляет 1000 коинов упомянутому участнику\n**Пример 2:** Добавляет 1000 коинов участнику с указаным id",
 	)
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
-	async def add_cash(self, ctx, member: discord.Member, typem: str, num: int):
+	async def add_value(self, ctx, member: discord.Member, typem: str, num: int):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if member.bot:
 			emb = await ctx.bot.utils.create_error_embed(
-				ctx, "Вы не можете добавлять деньги боту!"
+				ctx, "Вы не можете изменять профиль бота!"
 			)
 			await ctx.send(embed=emb)
 			return
@@ -896,7 +896,7 @@ class Economy(commands.Cog):
 			return
 
 		if num <= 0:
-			emb = await self.client.create_error_embed(ctx, "Укажите число добавляемых денег больше 0!")
+			emb = await self.client.create_error_embed(ctx, "Укажите добавляемое значения больше 0!")
 			await ctx.send(embed=emb)
 			return
 
@@ -925,7 +925,7 @@ class Economy(commands.Cog):
 			return
 
 		emb = discord.Embed(
-			description=f"**Вы успешно добавили значений в профиль {member.name}**",
+			description=f"**Вы успешно добавили срадства в профиль {member.name}**",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
@@ -971,11 +971,11 @@ class Economy(commands.Cog):
 				await channel.send(embed=e)
 
 	@commands.command(
-		aliases=["removecash"],
-		name="remove-cash",
+		aliases=["removevalue"],
+		name="remove-value",
 		description="**Удаляет указаний тип валюты из профиля**",
-		usage="remove-cash [@Участник] [Название валюты] [Количество]",
-		help="**Примеры использования:**\n1. {Prefix}remove-cash @Участник coins 1000\n2. {Prefix}remove-cash 660110922865704980 coins 1000\n\n**Пример 1:** Отнимает 1000 коинов упомянутому участнику\n**Пример 2:** Отнимает 1000 коинов участнику с указаным id",
+		usage="remove-value [@Участник] [Название валюты] [Количество]",
+		help="**Примеры использования:**\n1. {Prefix}remove-value @Участник coins 1000\n2. {Prefix}remove-value 660110922865704980 coins 1000\n\n**Пример 1:** Отнимает 1000 коинов упомянутому участнику\n**Пример 2:** Отнимает 1000 коинов участнику с указаным id",
 	)
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
@@ -984,7 +984,7 @@ class Economy(commands.Cog):
 
 		if member.bot:
 			emb = await ctx.bot.utils.create_error_embed(
-				ctx, "Вы не можете снимать деньги боту!"
+				ctx, "Вы не можете изменять профиль бота!"
 			)
 			await ctx.send(embed=emb)
 			return
@@ -997,7 +997,7 @@ class Economy(commands.Cog):
 			return
 
 		if num <= 0:
-			emb = await self.client.create_error_embed(ctx, "Укажите число отнимаемых денег больше 0!")
+			emb = await self.client.create_error_embed(ctx, "Укажите отнимаемое значения больше 0!")
 			await ctx.send(embed=emb)
 			return
 
@@ -1018,7 +1018,7 @@ class Economy(commands.Cog):
 			return
 
 		emb = discord.Embed(
-			description=f"**Вы успешно отняли значений из профиля {member.name}**",
+			description=f"**Вы успешно отняли средста из профиля {member.name}**",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
