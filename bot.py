@@ -53,7 +53,8 @@ extensions = (
 	"events.anti_flud",
 	"events.anti_invite",
 	"events.on_edit_command",
-	"events.captcha"
+	"events.captcha",
+	"events.anti_caps"
 )
 
 

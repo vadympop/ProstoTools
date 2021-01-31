@@ -1,4 +1,3 @@
-import re
 import discord
 import time
 import json
@@ -6,14 +5,11 @@ import jinja2
 from discord.ext import commands
 
 
-class EventsAntiInvite(commands.Cog):
+class EventsAntiCaps(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
         self.FOOTER = self.client.config.FOOTER_TEXT
-        self.pattern = re.compile(
-            "discord\s?(?:(?:.|dot|(.)|(dot))\s?gg|(?:app)?\s?.\s?com\s?/\s?invite)\s?/\s?([A-Z0-9-]{2,18})", re.I
-        )
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -24,55 +20,48 @@ class EventsAntiInvite(commands.Cog):
             return
 
         data = await self.client.database.sel_guild(guild=message.guild)
-        if data["auto_mod"]["anti_invite"]["state"]:
-            finded_codes = re.findall(self.pattern, message.content)
-            try:
-                guild_invites_codes = [invite.code for invite in await message.guild.invites()]
-            except discord.errors.Forbidden:
+        if data["auto_mod"]["anti_caps"]["state"]:
+            content_without_spaces = message.content.replace(" ", "")
+            num_upper_chars = 0
+            for char in list(content_without_spaces):
+                if char.isupper():
+                    num_upper_chars += 1
+            upper_percent = (num_upper_chars/len(content_without_spaces))*100
+            if not upper_percent >= data["auto_mod"]["anti_caps"]["percent"]:
                 return
 
-            invites = [
-                invite
-                for item in finded_codes
-                for invite in item
-                if invite
-                if invite not in guild_invites_codes
-            ]
-            if invites == []:
-                return
-
-            if "target_channels" in data["auto_mod"]["anti_invite"].keys():
-                if data["auto_mod"]["anti_invite"]["target_channels"]:
-                    if message.channel.id not in data["auto_mod"]["anti_invite"]["target_channels"]:
+            if "target_channels" in data["auto_mod"]["anti_caps"].keys():
+                if data["auto_mod"]["anti_caps"]["target_channels"]:
+                    if message.channel.id not in data["auto_mod"]["anti_caps"]["target_channels"]:
                         return
 
-            if "target_roles" in data["auto_mod"]["anti_invite"].keys():
-                if data["auto_mod"]["anti_invite"]["target_roles"]:
+            if "target_roles" in data["auto_mod"]["anti_caps"].keys():
+                if data["auto_mod"]["anti_caps"]["target_roles"]:
                     state = False
                     for role in message.author.roles:
-                        if role.id in data["auto_mod"]["anti_invite"]["target_roles"]:
+                        if role.id in data["auto_mod"]["anti_caps"]["target_roles"]:
                             state = True
 
                     if not state:
                         return
 
-            if "ignore_channels" in data["auto_mod"]["anti_invite"].keys():
-                if message.channel.id in data["auto_mod"]["anti_invite"]["ignore_channels"]:
+            if "ignore_channels" in data["auto_mod"]["anti_caps"].keys():
+                if message.channel.id in data["auto_mod"]["anti_caps"]["ignore_channels"]:
                     return
 
-            if "ignore_roles" in data["auto_mod"]["anti_invite"].keys():
+            if "ignore_roles" in data["auto_mod"]["anti_caps"].keys():
                 for role in message.author.roles:
-                    if role.id in data["auto_mod"]["anti_invite"]["ignore_roles"]:
+                    if role.id in data["auto_mod"]["anti_caps"]["ignore_roles"]:
                         return
 
-            if "punishment" in data["auto_mod"]["anti_invite"].keys():
+            if "punishment" in data["auto_mod"]["anti_caps"].keys():
                 reason = "Авто-модерация: Приглашения"
-                type_punishment = data["auto_mod"]["anti_invite"]["punishment"]["type"]
+                type_punishment = data["auto_mod"]["anti_caps"]["punishment"]["type"]
                 if type_punishment == "mute":
                     await self.client.support_commands.main_mute(
                         ctx=message,
                         member=message.author,
-                        type_time=data["auto_mod"]["anti_invite"]["punishment"]["time"],
+                        type_time=data["auto_mod"]["anti_caps"]["punishment"]["time"],
                         reason=reason,
                         author=message.guild.me,
                         check_role=False,
@@ -91,7 +80,7 @@ class EventsAntiInvite(commands.Cog):
                         return
                 elif type_punishment == "ban":
                     ban_time = self.client.utils.time_to_num(
-                        data["auto_mod"]["anti_invite"]["punishment"]["time"]
+                        data["auto_mod"]["anti_caps"]["punishment"]["time"]
                     )
                     times = time.time() + ban_time[0]
                     try:
@@ -114,7 +103,7 @@ class EventsAntiInvite(commands.Cog):
                         )
                 elif type_punishment == "soft-ban":
                     softban_time = self.client.utils.time_to_num(
-                        data["auto_mod"]["anti_invite"]["punishment"]["time"]
+                        data["auto_mod"]["anti_caps"]["punishment"]["time"]
                     )
                     times = time.time() + softban_time[0]
                     overwrite = discord.PermissionOverwrite(
@@ -136,10 +125,10 @@ class EventsAntiInvite(commands.Cog):
                             type_punishment="temprole", time=times, member=message.author, role=role.id
                         )
 
-            if "delete_message" in data["auto_mod"]["anti_invite"].keys():
+            if "delete_message" in data["auto_mod"]["anti_caps"].keys():
                 await message.delete()
 
-            if "message" in data["auto_mod"]["anti_invite"].keys():
+            if "message" in data["auto_mod"]["anti_caps"].keys():
                 member_data = await self.client.database.sel_user(target=message.author)
                 member_data.update({"multi": data["exp_multi"]})
                 try:
@@ -148,7 +137,7 @@ class EventsAntiInvite(commands.Cog):
                             message,
                             message.author,
                             member_data,
-                            data["auto_mod"]["anti_invite"]["message"]["text"]
+                            data["auto_mod"]["anti_caps"]["message"]["text"]
                         )
                     except discord.errors.HTTPException:
                         try:
@@ -183,9 +172,9 @@ class EventsAntiInvite(commands.Cog):
                     await message.channel.send(embed=emb)
                     return
 
-                if data["auto_mod"]["anti_invite"]["message"]["type"] == "channel":
+                if data["auto_mod"]["anti_caps"]["message"]["type"] == "channel":
                     await message.channel.send(text)
-                elif data["auto_mod"]["anti_invite"]["message"]["type"] == "dm":
+                elif data["auto_mod"]["anti_caps"]["message"]["type"] == "dm":
                     try:
                         await message.author.send(text)
                     except discord.errors.Forbidden:
@@ -193,4 +182,4 @@ class EventsAntiInvite(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(EventsAntiInvite(client))
+    client.add_cog(EventsAntiCaps(client))

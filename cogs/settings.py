@@ -666,7 +666,7 @@ class Settings(commands.Cog, name="Settings"):
 
 	@setting.command(
 		name="anti-invite",
-		description="**Настройка анти-приглашения(Бета-тест)**",
+		description="**Настройка анти-приглашения**",
 		usage="setting anti-invite [on/off/setting] |Настройка| |Опции...|",
 	)
 	@commands.has_permissions(administrator=True)
@@ -1804,6 +1804,353 @@ class Settings(commands.Cog, name="Settings"):
 			"guilds",
 			where={"guild_id": ctx.guild.id},
 			rank_message=json.dumps(rank_message)
+		)
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
+
+	@setting.command(
+		name="anti-caps",
+		description="**Настройка анти-капса**",
+		usage="setting anti-caps [on/off/setting] |Настройка| |Опции...|",
+	)
+	@commands.has_permissions(administrator=True)
+	async def anti_caps(self, ctx, action: str, setting: str = None, *options):
+		ons = ("on", "вкл", "включить", "+", "1")
+		offs = ("off", "выкл", "выключить", "-", "0")
+		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
+		if action.lower() in ons:
+			if auto_mod["anti_caps"]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Анти-капс уже включен!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if setting is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите процент символов в верхнем регистре"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if not setting.isdigit():
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаные проценты строка! Укажите число!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if int(setting) > 100:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаный процент слишком большой! Укажите меньше 100%!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if int(setting) <= 0:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Указаный процент слишком маленький! Укажите больше 0%!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			auto_mod["anti_caps"]["state"] = True
+			auto_mod["anti_caps"]["percent"] = int(setting)
+
+		elif action.lower() in offs:
+			if not auto_mod["anti_caps"]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Анти-капс и так выключен!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			auto_mod["anti_caps"] = {"state": False}
+
+		elif action.lower() == "setting":
+			settings = (
+				"delete-message",
+				"message",
+				"punishment",
+				"target-channel",
+				"ignore-channel",
+				"target-role",
+				"ignore-role",
+			)
+			punishments = ("mute", "ban", "soft-ban", "warn", "kick")
+			if setting is None:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите изменяемую настройку!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if setting.lower() not in settings:
+				emb = await self.client.utils.create_error_embed(
+					ctx,
+					"Укажите одну из этих настроек: delete-message, message, punishment, target-channel, ignore-channel, target-role, ignore-role!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if not auto_mod["anti_caps"]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Сначала включите анти-капс!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if len(options) < 1:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите значения для настройки!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if setting.lower() not in ("message", "delete-message") and len(options) < 2:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите значения для настройки!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if setting.lower() == "message":
+				types = ("channel", "dm")
+				if options[0] == "off":
+					if "message" not in auto_mod["anti_caps"].keys():
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Сообщения не настроено!**",
+						)
+						await ctx.send(embed=emb)
+						return
+
+					auto_mod["anti_caps"].pop("message")
+				elif options[0] in types:
+					if len(options) < 2:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Укажите значения для настройки!"
+						)
+						await ctx.send(embed=emb)
+						return
+
+					auto_mod["anti_caps"].update({"message": {"type": options[0]}})
+					options = list(options)
+					options.pop(0)
+					auto_mod["anti_caps"]["message"].update({"text": " ".join(options)})
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите один из этих типов: dm, channel!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "punishment":
+				if options[0].lower() not in punishments:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих наказаний: mute, ban, soft-ban, warn, kick!**",
+					)
+					await ctx.send(embed=emb)
+					return
+
+				auto_mod["anti_caps"].update({"punishment": {
+					"type": options[0],
+					"time": options[1]
+				}})
+			elif setting.lower() == "target-channel":
+				channel_converter = commands.TextChannelConverter()
+				channel = await channel_converter.convert(ctx, options[1])
+				if options[0].lower() == "add":
+					if "target_channels" not in auto_mod["anti_caps"]:
+						auto_mod["anti_caps"].update({"target_channels": [channel.id]})
+					else:
+						auto_mod["anti_caps"]["target_channels"].append(channel.id)
+				elif options[0].lower() == "delete":
+					if "target_channels" not in auto_mod["anti_caps"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Список каналов пуст!**",
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						try:
+							auto_mod["anti_caps"]["target_channels"].remove(channel.id)
+						except ValueError:
+							emb = await self.client.utils.create_error_embed(
+								ctx, "**В списке каналов нету указаного канала!**",
+							)
+							await ctx.send(embed=emb)
+							return
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: add, delete!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "ignore-channel":
+				channel_converter = commands.TextChannelConverter()
+				channel = await channel_converter.convert(ctx, options[1])
+				if options[0].lower() == "add":
+					if "ignore_channels" not in auto_mod["anti_caps"]:
+						auto_mod["anti_caps"].update({"ignore_channels": [channel.id]})
+					else:
+						auto_mod["anti_caps"]["ignore_channels"].append(channel.id)
+				elif options[0].lower() == "delete":
+					if "ignore_channels" not in auto_mod["anti_caps"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Список каналов пуст!**",
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						try:
+							auto_mod["anti_caps"]["ignore_channels"].remove(channel.id)
+						except ValueError:
+							emb = await self.client.utils.create_error_embed(
+								ctx, "**В списке каналов нету указаного канала!**",
+							)
+							await ctx.send(embed=emb)
+							return
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: add, delete!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "target-role":
+				role_converter = commands.RoleConverter()
+				role = await role_converter.convert(ctx, options[1])
+
+				if role.is_integration():
+					emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
+					await ctx.send(embed=emb)
+					return
+
+				if role.is_bot_managed():
+					emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+					await ctx.send(embed=emb)
+					return
+
+				if role.is_premium_subscriber():
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Указанная роль используеться для бустером сервера!"
+					)
+					await ctx.send(embed=emb)
+					return
+
+				if options[0].lower() == "add":
+					if "target_roles" not in auto_mod["anti_caps"]:
+						auto_mod["anti_caps"].update({"target_roles": [role.id]})
+					else:
+						auto_mod["anti_caps"]["target_roles"].append(role.id)
+				elif options[0].lower() == "delete":
+					if "target_roles" not in auto_mod["anti_caps"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Список ролей пуст!**",
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						try:
+							auto_mod["anti_caps"]["target_roles"].remove(role.id)
+						except ValueError:
+							emb = await self.client.utils.create_error_embed(
+								ctx, "**В списке ролей нету указаной роли!**",
+							)
+							await ctx.send(embed=emb)
+							return
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: add, delete!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "ignore-role":
+				role_converter = commands.RoleConverter()
+				role = await role_converter.convert(ctx, options[1])
+
+				if role.is_integration():
+					emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
+					await ctx.send(embed=emb)
+					return
+
+				if role.is_bot_managed():
+					emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется ботом!")
+					await ctx.send(embed=emb)
+					return
+
+				if role.is_premium_subscriber():
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Указанная роль используеться для бустером сервера!"
+					)
+					await ctx.send(embed=emb)
+					return
+
+				if options[0].lower() == "add":
+					if "ignore_roles" not in auto_mod["anti_caps"]:
+						auto_mod["anti_caps"].update({"ignore_roles": [role.id]})
+					else:
+						auto_mod["anti_caps"]["ignore_roles"].append(role.id)
+				elif options[0].lower() == "delete":
+					if "ignore_roles" not in auto_mod["anti_caps"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "**Список ролей пуст!**",
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						try:
+							auto_mod["anti_caps"]["ignore_roles"].remove(role.id)
+						except ValueError:
+							emb = await self.client.utils.create_error_embed(
+								ctx, "**В списке ролей нету указаной роли!**",
+							)
+							await ctx.send(embed=emb)
+							return
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: add, delete!**",
+					)
+					await ctx.send(embed=emb)
+					return
+			elif setting.lower() == "delete-message":
+				if options[0].lower() == "on":
+					if "delete_message" in auto_mod["anti_caps"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Удаления сообщения уже включено"
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						auto_mod["anti_caps"].update({"delete_message": True})
+				elif options[0].lower() == "off":
+					if "delete_message" not in auto_mod["anti_caps"]:
+						emb = await self.client.utils.create_error_embed(
+							ctx, "Удаления сообщения уже выключено"
+						)
+						await ctx.send(embed=emb)
+						return
+					else:
+						auto_mod["anti_caps"].pop("delete_message")
+				else:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Укажите одно из этих действий: on, off!**",
+					)
+					await ctx.send(embed=emb)
+					return
+		else:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Укажите одно из этих действий: on, off, setting!**",
+			)
+			await ctx.send(embed=emb)
+			return
+
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			auto_mod=json.dumps(auto_mod)
 		)
 		try:
 			await ctx.message.add_reaction("✅")

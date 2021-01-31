@@ -368,12 +368,9 @@ class DB(AbcDatabase):
 			json.dumps([]),
 			json.dumps(
 				{
-					"anti_flud": {
-						"state": False
-					},
-					"anti_invite": {
-						"state": False
-					},
+					"anti_flud": {"state": False},
+					"anti_invite": {"state": False},
+					"anti_caps": {"state": False},
 					"react_commands": False,
 					"captcha": {"state": False}
 				}
