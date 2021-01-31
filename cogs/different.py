@@ -419,7 +419,7 @@ class Different(commands.Cog, name="Different"):
 				"[API](https://api.prosto-tools.ml/)",
 				"[Документация](https://docs.prosto-tools.ml/)",
 				"[SDC](https://bots.server-discord.com/700767394154414142)",
-				"[Boticord](https://boticord.top/bot/700767394154414142)",
+				"[Boticord](https://boticord.top/bot/pt)",
 				"[TBL](https://top-bots.xyz/bot/700767394154414142)",
 				"[TopBots](https://bots.topcord.ru/bots/700767394154414142)",
 			]
@@ -697,7 +697,7 @@ class Different(commands.Cog, name="Different"):
 			"[API](https://api.prosto-tools.ml/)",
 			"[Документация](https://docs.prosto-tools.ml/)",
 			"[SDC](https://bots.server-discord.com/700767394154414142)",
-			"[Boticord](https://boticord.top/bot/700767394154414142)",
+			"[Boticord](https://boticord.top/bot/pt)",
 			"[TBL](https://top-bots.xyz/bot/700767394154414142)",
 			"[TopBots](https://bots.topcord.ru/bots/700767394154414142)",
 		]
