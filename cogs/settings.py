@@ -349,37 +349,87 @@ class Settings(commands.Cog, name="Settings"):
 		await ctx.send(embed=emb)
 
 	@setting.command(
-		name="max-warns",
 		description="**Настройка максимального количества предупрежденний**",
-		usage="setting max-warns [Любое число]",
+		usage="setting warns [count/punishment] [Опции...]",
 	)
 	@commands.has_permissions(administrator=True)
-	async def maxwarns(self, ctx, number: int):
-		if number <= 0:
-			emb = await self.client.utils.create_error_embed(ctx, "Укажите максимальное количество предупреждений больше 0!")
-			await ctx.send(embed=emb)
-			return
+	async def warns(self, ctx, action: str, *options):
+		warns_settings = (await self.client.database.sel_guild(guild=ctx.guild))["warns_settings"]
+		if action.lower() == "count":
+			if len(options) <= 0:
+				emb = await ctx.bot.utils.create_error_embed(
+					ctx, "Укажите максимальное количество предупреждений!"
+				)
+				await ctx.send(embed=emb)
+				return
 
-		if number >= 25:
-			emb = await ctx.bot.utils.create_error_embed(
-				ctx, "Вы указали слишком большой лимит предупреждений!"
+			number = list(options).pop(0)
+
+			if not number.isdigit():
+				emb = await ctx.bot.utils.create_error_embed(
+					ctx, "Укажите число!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if number <= 0:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите максимальное количество предупреждений больше 0!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if number >= 25:
+				emb = await ctx.bot.utils.create_error_embed(
+					ctx, "Вы указали слишком большой лимит предупреждений!"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			warns_settings.update({"max": number})
+			await self.client.database.update(
+				"guilds",
+				where={"guild_id": ctx.guild.id},
+				warns_settings=json.dumps(warns_settings)
 			)
+
+			emb = discord.Embed(
+				description=f"**Вы успешно настроили максимальное количество предупрежденний! Новое значения - `{number}`**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-			return
+		elif action.lower() == "punishment":
+			punishments = ("mute", "ban", "soft-ban", "kick")
+			if options[0].lower() not in punishments:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите одно из этих наказаний: mute, ban, soft-ban, kick!**",
+				)
+				await ctx.send(embed=emb)
+				return
 
-		await self.client.database.update(
-			"guilds",
-			where={"guild_id": ctx.guild.id},
-			max_warns=number
-		)
+			if len(options) < 2:
+				list(options).append("-")
 
-		emb = discord.Embed(
-			description=f"**Вы успешно настроили максимальное количество предупрежденний! Новое значения - `{number}`**",
-			colour=discord.Color.green(),
-		)
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
+			warns_settings.update({"punishment": {
+				"type": options[0],
+				"time": options[1]
+			}})
+
+			await self.client.database.update(
+				"guilds",
+				where={"guild_id": ctx.guild.id},
+				warns_settings=json.dumps(warns_settings)
+			)
+
+			emb = discord.Embed(
+				description=f"**Вы успешно настроили наказания после максимального количества предупреждений**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
 
 	@setting.command(
 		name="anti-flud",
@@ -391,6 +441,7 @@ class Settings(commands.Cog, name="Settings"):
 		ons = ("on", "вкл", "включить", "+", "1")
 		offs = ("off", "выкл", "выключить", "-", "0")
 		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
+		options = list(options)
 		if action.lower() in ons:
 			if auto_mod["anti_flud"]["state"]:
 				emb = await self.client.utils.create_error_embed(
@@ -443,13 +494,6 @@ class Settings(commands.Cog, name="Settings"):
 				await ctx.send(embed=emb)
 				return
 
-			if setting.lower() != "message" and len(options) < 2:
-				emb = await self.client.utils.create_error_embed(
-					ctx, "Укажите значения для настройки!"
-				)
-				await ctx.send(embed=emb)
-				return
-
 			if setting.lower() == "message":
 				types = ("channel", "dm")
 				if options[0] == "off":
@@ -487,11 +531,21 @@ class Settings(commands.Cog, name="Settings"):
 					await ctx.send(embed=emb)
 					return
 
+				if len(options) < 2:
+					options.append(None)
+
 				auto_mod["anti_flud"].update({"punishment": {
 					"type": options[0],
 					"time": options[1]
 				}})
 			elif setting.lower() == "target-channel":
+				if len(options) < 2:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите значения для настройки!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				channel_converter = commands.TextChannelConverter()
 				channel = await channel_converter.convert(ctx, options[1])
 				if options[0].lower() == "add":
@@ -522,6 +576,13 @@ class Settings(commands.Cog, name="Settings"):
 					await ctx.send(embed=emb)
 					return
 			elif setting.lower() == "ignore-channel":
+				if len(options) < 2:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите значения для настройки!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				channel_converter = commands.TextChannelConverter()
 				channel = await channel_converter.convert(ctx, options[1])
 				if options[0].lower() == "add":
@@ -552,6 +613,13 @@ class Settings(commands.Cog, name="Settings"):
 					await ctx.send(embed=emb)
 					return
 			elif setting.lower() == "target-role":
+				if len(options) < 2:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите значения для настройки!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				role_converter = commands.RoleConverter()
 				role = await role_converter.convert(ctx, options[1])
 
@@ -600,6 +668,13 @@ class Settings(commands.Cog, name="Settings"):
 					await ctx.send(embed=emb)
 					return
 			elif setting.lower() == "ignore-role":
+				if len(options) < 2:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите значения для настройки!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				role_converter = commands.RoleConverter()
 				role = await role_converter.convert(ctx, options[1])
 
@@ -676,6 +751,7 @@ class Settings(commands.Cog, name="Settings"):
 		ons = ("on", "вкл", "включить", "+", "1")
 		offs = ("off", "выкл", "выключить", "-", "0")
 		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
+		options = list(options)
 		if action.lower() in ons:
 			if auto_mod["anti_invite"]["state"]:
 				emb = await self.client.utils.create_error_embed(
@@ -736,13 +812,6 @@ class Settings(commands.Cog, name="Settings"):
 				await ctx.send(embed=emb)
 				return
 
-			if setting.lower() != "message" and setting.lower() != "delete-message" and len(options) < 2:
-				emb = await self.client.utils.create_error_embed(
-					ctx, "Укажите значения для настройки!"
-				)
-				await ctx.send(embed=emb)
-				return
-
 			if setting.lower() == "message":
 				types = ("channel", "dm")
 				if options[0] == "off":
@@ -780,11 +849,21 @@ class Settings(commands.Cog, name="Settings"):
 					await ctx.send(embed=emb)
 					return
 
+				if len(options) < 2:
+					options.append(None)
+
 				auto_mod["anti_invite"].update({"punishment": {
 					"type": options[0],
 					"time": options[1]
 				}})
 			elif setting.lower() == "target-channel":
+				if len(options) < 2:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите значения для настройки!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				channel_converter = commands.TextChannelConverter()
 				channel = await channel_converter.convert(ctx, options[1])
 				if options[0].lower() == "add":
@@ -815,6 +894,13 @@ class Settings(commands.Cog, name="Settings"):
 					await ctx.send(embed=emb)
 					return
 			elif setting.lower() == "ignore-channel":
+				if len(options) < 2:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите значения для настройки!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				channel_converter = commands.TextChannelConverter()
 				channel = await channel_converter.convert(ctx, options[1])
 				if options[0].lower() == "add":
@@ -845,6 +931,13 @@ class Settings(commands.Cog, name="Settings"):
 					await ctx.send(embed=emb)
 					return
 			elif setting.lower() == "target-role":
+				if len(options) < 2:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите значения для настройки!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				role_converter = commands.RoleConverter()
 				role = await role_converter.convert(ctx, options[1])
 
@@ -893,6 +986,13 @@ class Settings(commands.Cog, name="Settings"):
 					await ctx.send(embed=emb)
 					return
 			elif setting.lower() == "ignore-role":
+				if len(options) < 2:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите значения для настройки!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				role_converter = commands.RoleConverter()
 				role = await role_converter.convert(ctx, options[1])
 
@@ -1824,6 +1924,7 @@ class Settings(commands.Cog, name="Settings"):
 		ons = ("on", "вкл", "включить", "+", "1")
 		offs = ("off", "выкл", "выключить", "-", "0")
 		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
+		options = list(options)
 		if action.lower() in ons:
 			if auto_mod["anti_caps"]["state"]:
 				emb = await self.client.utils.create_error_embed(
@@ -1913,13 +2014,6 @@ class Settings(commands.Cog, name="Settings"):
 				await ctx.send(embed=emb)
 				return
 
-			if setting.lower() not in ("message", "delete-message") and len(options) < 2:
-				emb = await self.client.utils.create_error_embed(
-					ctx, "Укажите значения для настройки!"
-				)
-				await ctx.send(embed=emb)
-				return
-
 			if setting.lower() == "message":
 				types = ("channel", "dm")
 				if options[0] == "off":
@@ -1957,11 +2051,21 @@ class Settings(commands.Cog, name="Settings"):
 					await ctx.send(embed=emb)
 					return
 
+				if len(options) < 2:
+					options.append(None)
+
 				auto_mod["anti_caps"].update({"punishment": {
 					"type": options[0],
 					"time": options[1]
 				}})
 			elif setting.lower() == "target-channel":
+				if len(options) < 2:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите значения для настройки!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				channel_converter = commands.TextChannelConverter()
 				channel = await channel_converter.convert(ctx, options[1])
 				if options[0].lower() == "add":
@@ -1992,6 +2096,13 @@ class Settings(commands.Cog, name="Settings"):
 					await ctx.send(embed=emb)
 					return
 			elif setting.lower() == "ignore-channel":
+				if len(options) < 2:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите значения для настройки!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				channel_converter = commands.TextChannelConverter()
 				channel = await channel_converter.convert(ctx, options[1])
 				if options[0].lower() == "add":
@@ -2022,6 +2133,13 @@ class Settings(commands.Cog, name="Settings"):
 					await ctx.send(embed=emb)
 					return
 			elif setting.lower() == "target-role":
+				if len(options) < 2:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите значения для настройки!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				role_converter = commands.RoleConverter()
 				role = await role_converter.convert(ctx, options[1])
 
@@ -2070,6 +2188,13 @@ class Settings(commands.Cog, name="Settings"):
 					await ctx.send(embed=emb)
 					return
 			elif setting.lower() == "ignore-role":
+				if len(options) < 2:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите значения для настройки!"
+					)
+					await ctx.send(embed=emb)
+					return
+
 				role_converter = commands.RoleConverter()
 				role = await role_converter.convert(ctx, options[1])
 

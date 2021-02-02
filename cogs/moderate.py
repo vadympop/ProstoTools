@@ -1249,7 +1249,8 @@ class Moderate(commands.Cog, name="Moderate"):
 		async with ctx.typing():
 			data = await self.client.database.sel_user(target=member)
 			info = await self.client.database.sel_guild(guild=ctx.guild)
-			max_warns = int(info["max_warns"])
+			max_warns = int(info["warns_settings"]["max"])
+			warn_punishment = info["warns_settings"]["punishment"]
 
 			cur_lvl = data["level"]
 			cur_coins = data["coins"]
@@ -1305,24 +1306,87 @@ class Moderate(commands.Cog, name="Moderate"):
 				if cur_coins < 0:
 					cur_coins = 0
 
-				await self.client.support_commands.main_mute(
-					ctx=ctx.message,
-					member=member,
-					reason=reason,
-					check_role=False,
-					author=ctx.author,
-					type_time="2h",
-				)
+				if warn_punishment is not None:
+					if warn_punishment["type"] == "mute":
+						await self.client.support_commands.main_mute(
+							ctx=ctx,
+							member=member,
+							type_time=warn_punishment["time"],
+							reason=reason,
+							author=ctx.author,
+						)
+					elif warn_punishment["type"] == "kick":
+						try:
+							await member.kick(reason=reason)
+						except discord.errors.Forbidden:
+							pass
+					elif warn_punishment["type"] == "ban":
+						ban_time = self.client.utils.time_to_num(
+							data["auto_mod"]["anti_invite"]["punishment"]["time"]
+						)
+						times = time.time() + ban_time[0]
+						try:
+							await member.ban(reason=reason)
+						except discord.errors.Forbidden:
+							pass
+						else:
+							if ban_time > 0:
+								await self.client.database.update(
+									"users",
+									where={"user_id": member.id, "guild_id": ctx.guild.id},
+									money=0,
+									coins=0,
+									reputation=-100,
+									items=json.dumps([]),
+									clan=""
+								)
+								await self.client.database.set_punishment(
+									type_punishment="ban", time=times, member=member
+								)
+					elif warn_punishment["type"] == "soft-ban":
+						softban_time = self.client.utils.time_to_num(
+							data["auto_mod"]["anti_invite"]["punishment"]["time"]
+						)
+						times = time.time() + softban_time[0]
+						overwrite = discord.PermissionOverwrite(
+							connect=False, view_channel=False, send_messages=False
+						)
+						role = discord.utils.get(
+							ctx.guild.roles, name=self.SOFTBAN_ROLE
+						)
+						if role is None:
+							role = await ctx.guild.create_role(name=self.SOFTBAN_ROLE)
+
+						await member.edit(voice_channel=None)
+						for channel in ctx.guild.channels:
+							await channel.set_permissions(role, overwrite=overwrite)
+
+						await member.add_roles(role)
+						if softban_time[0] > 0:
+							await self.client.database.set_punishment(
+								type_punishment="temprole", time=times, member=member, role=role.id
+							)
+
 				emb = discord.Embed(
-					description=f"`{member}`({member.mention}) **Достиг максимального значения предупреждений и был замючен на 2 часа**",
+					description=f"**{member}**({member.mention}) Достиг максимальное количество предупреждений и получил наказания\nId предупреждения: {warn_id}\nКоличество предупреждений: `{len(cur_warns)+1}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
 					colour=discord.Color.green(),
 					timestamp=datetime.datetime.utcnow()
 				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
+
+				emb = discord.Embed(
+					description=f"Вы достигли максимальное количество предупреждений и получили наказания\nСервер: `{ctx.guild.name}`\nId предупреждения: {warn_id}\nКоличество предупреждений: `{len(cur_warns)+1}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
+					colour=discord.Color.green(),
+					timestamp=datetime.datetime.utcnow()
+				)
+				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				try:
+					await member.send(embed=emb)
+				except:
+					pass
 
 				for warn_id in [warn["id"] for warn in cur_warns]:
 					await self.client.database.del_warn(ctx.guild.id, warn_id)

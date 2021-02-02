@@ -100,11 +100,11 @@ class Utils:
             pass
         return emb
 
-    async def build_help(self, ctx, prefix, groups, moder_roles):
+    async def build_help(self, ctx, prefix, groups):
         exceptions = ("owner", "help", "jishaku")
         emb = discord.Embed(
             title="**Доступные команды:**",
-            description=f'Префикс на этом сервере - `{prefix}`, если надо ввести названия чего-либо с пробелом, укажите его в двойных кавычках',
+            description=f'Префикс на этом сервере - `{prefix}`. Показаны только те команды которые вы можете выполнить',
             colour=discord.Color.green()
         )
         for soft_cog_name in self.client.cogs:

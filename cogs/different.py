@@ -436,7 +436,7 @@ class Different(commands.Cog, name="Different"):
 				name="Создатель бота:", value="𝚅𝚢𝚝𝚑𝚘𝚗.𝚕𝚞𝚒#9339", inline=False
 			)
 			embed1.add_field(
-				name="Проект был созданн с помощью:",
+				name="Проект был создан с помощью:",
 				value=f"discord.py, sanic\ndiscord.py: {discord.__version__}, sanic: {sanic.__version__}",
 				inline=False,
 			)

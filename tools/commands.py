@@ -3,7 +3,6 @@ import json
 import typing
 import time
 import datetime
-from datetime import datetime
 from discord.utils import get
 
 
@@ -21,10 +20,9 @@ class Commands:
 		member: discord.Member,
 		author: discord.User,
 		type_time: str = None,
-		check_role: bool = True,
 		reason: str = "Причина не указана",
 		message: bool = True,
-	) -> typing.Union[discord.Embed, bool]:
+	) -> typing.Union[discord.Embed, bool, None]:
 		client = self.client
 		overwrite = discord.PermissionOverwrite(send_messages=False)
 
@@ -35,17 +33,6 @@ class Commands:
 		role = get(ctx.guild.roles, name=self.MUTE_ROLE)
 		if not role:
 			role = await ctx.guild.create_role(name=self.MUTE_ROLE)
-
-		if check_role:
-			if role in member.roles:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description=f"**Указаный пользователь уже замьючен!**",
-					colour=discord.Color.green(),
-				)
-				emb.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-				return
 
 		await member.add_roles(role)
 		for channel in ctx.guild.text_channels:
@@ -94,38 +81,27 @@ class Commands:
 			prison=str(prison)
 		)
 
-		if mute_time[0] <= 0:
-			if message:
-				if reason:
-					emb = discord.Embed(
-						description=f"**{member.mention} Был перманентно замьючен по причине {reason}**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-				elif not reason:
-					emb = discord.Embed(
-						description=f"**{member.mention} Был перманентно замьючен**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-		elif mute_time[0] != 0:
-			if message:
-				if reason:
-					emb = discord.Embed(
-						description=f"**{member.mention} Был замьючен по причине {reason} на {mute_time[1]}{mute_time[2]}**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-				elif not reason:
-					emb = discord.Embed(
-						description=f"**{member.mention} Был замьючен на {mute_time[1]}{mute_time[2]}**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-					emb.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
+		if message:
+			description_time = str(mute_time[1]) + str(mute_time[2]) if mute_time[0] != 0 else "Перманентно"
+			emb = discord.Embed(
+				description=f"**{member}**({member.mention}) Был замьючен\nВремя: `{description_time}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
+				colour=discord.Color.green(),
+				timestamp=datetime.datetime.utcnow()
+			)
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+
+			emb = discord.Embed(
+				description=f"Вы были замьчены на сервере\nСервер: `{ctx.guild.name}`\nВремя: `{description_time}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
+				colour=discord.Color.green(),
+				timestamp=datetime.datetime.utcnow()
+			)
+			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			try:
+				await member.send(embed=emb)
+			except:
+				pass
 
 		if mute_time[0] > 0:
 			await self.client.database.set_punishment(
@@ -149,7 +125,8 @@ class Commands:
 
 		data = await self.client.database.sel_user(target=member)
 		info = await self.client.database.sel_guild(guild=ctx.guild)
-		max_warns = int(info["max_warns"])
+		max_warns = int(info["warns_settings"]["max"])
+		warn_punishment = info["warns_settings"]["punishment"]
 		cur_lvl = data["level"]
 		cur_coins = data["coins"]
 		cur_money = data["money"]
@@ -161,7 +138,7 @@ class Commands:
 			target=member,
 			reason=reason,
 			author=author.id,
-			time=str(datetime.today()),
+			time=str(datetime.datetime.utcnow()),
 		)
 
 		if cur_lvl <= 3:
@@ -192,36 +169,98 @@ class Commands:
 				warn_id=[warn for warn in cur_warns if not warn["state"]][0]["id"]
 			)
 
-		if len(cur_warns) >= max_warns:
-			await self.main_mute(
-				ctx,
-				member=member,
-				author=author,
-				type_time="2h",
-				check_role=False,
-				message=False,
-			)
-			emb_ctx = discord.Embed(
-				description=f"**{member.mention} Достиг максимального значения предупреждения и был замьючен на 2 часа.**",
-				colour=discord.Color.green(),
-			)
-			emb_ctx.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-			emb_ctx.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-		else:
-			emb_member = discord.Embed(
-				description=f"**Вы были предупреждены {author.mention} по причине {reason}. Предупрежденний `{len(cur_warns)}`, id - `{warn_id}`**",
-				colour=discord.Color.green(),
-			)
-			emb_member.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb_member.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
-			await member.send(embed=emb_member)
+		if len([warn for warn in cur_warns if warn["state"]]) >= max_warns:
+			cur_coins -= 1000
 
+			if cur_reputation < -100:
+				cur_reputation = -100
+
+			if cur_coins < 0:
+				cur_coins = 0
+
+			if warn_punishment is not None:
+				if warn_punishment["type"] == "mute":
+					await self.client.support_commands.main_mute(
+						ctx=ctx,
+						member=member,
+						type_time=warn_punishment["time"],
+						reason=reason,
+						author=ctx.author,
+					)
+				elif warn_punishment["type"] == "kick":
+					try:
+						await member.kick(reason=reason)
+					except discord.errors.Forbidden:
+						pass
+				elif warn_punishment["type"] == "ban":
+					ban_time = self.client.utils.time_to_num(
+						data["auto_mod"]["anti_invite"]["punishment"]["time"]
+					)
+					times = time.time() + ban_time[0]
+					try:
+						await member.ban(reason=reason)
+					except discord.errors.Forbidden:
+						pass
+
+					if ban_time > 0:
+						await self.client.database.update(
+							"users",
+							where={"user_id": member.id, "guild_id": ctx.guild.id},
+							money=0,
+							coins=0,
+							reputation=-100,
+							items=json.dumps([]),
+							clan=""
+						)
+						await self.client.database.set_punishment(
+							type_punishment="ban", time=times, member=member
+						)
+				elif warn_punishment["type"] == "soft-ban":
+					softban_time = self.client.utils.time_to_num(
+						data["auto_mod"]["anti_invite"]["punishment"]["time"]
+					)
+					times = time.time() + softban_time[0]
+					overwrite = discord.PermissionOverwrite(
+						connect=False, view_channel=False, send_messages=False
+					)
+					role = discord.utils.get(
+						ctx.guild.roles, name=self.SOFTBAN_ROLE
+					)
+					if role is None:
+						role = await ctx.guild.create_role(name=self.SOFTBAN_ROLE)
+
+					await member.edit(voice_channel=None)
+					for channel in ctx.guild.channels:
+						await channel.set_permissions(role, overwrite=overwrite)
+
+					await member.add_roles(role)
+					if softban_time[0] > 0:
+						await self.client.database.set_punishment(
+							type_punishment="temprole", time=times, member=member, role=role.id
+						)
+
+			for warn_id in [warn["id"] for warn in cur_warns]:
+				await self.client.database.del_warn(ctx.guild.id, warn_id)
+		else:
 			emb_ctx = discord.Embed(
-				description=f"**Пользователь {member.mention} получил предупреждения по причине {reason}. Количество предупрежденний - `{len(cur_warns)}`, id - `{warn_id}`**",
+				description=f"**{member}**({member.mention}) Получил предупреждения\nId предупреждения: {warn_id}\nКоличество предупреждений: `{len(cur_warns) + 1}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
 				colour=discord.Color.green(),
+				timestamp=datetime.datetime.utcnow()
 			)
 			emb_ctx.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb_ctx.set_footer(text=self.FOOTER, icon_url=client.user.avatar_url)
+			emb_ctx.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+
+			emb_member = discord.Embed(
+				description=f"Вы получили предупреждения на сервере\nСервер: `{ctx.guild.name}`\nId предупреждения: {warn_id}\nКоличество предупреждений: `{len(cur_warns) + 1}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
+				colour=discord.Color.green(),
+				timestamp=datetime.datetime.utcnow()
+			)
+			emb_member.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+			emb_member.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			try:
+				await member.send(embed=emb_member)
+			except:
+				pass
 
 		await self.client.database.update(
 			"users",

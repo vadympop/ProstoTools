@@ -2,7 +2,7 @@ import uuid
 import datetime
 import json
 import typing
-import time
+import time as tm
 import discord
 import aiomysql
 from tools.bases import AbcDatabase
@@ -31,6 +31,40 @@ class DB(AbcDatabase):
 		if "pool" in self.__dict__:
 			self.pool.close()
 			await self.pool.wait_closed()
+
+	async def add_giveaway(
+			self,
+			channel_id: int,
+			message_id: int,
+			creator: discord.Member,
+			num_winners: int,
+			time: int,
+			name: str,
+			prize: int
+	) -> None:
+		async with self.pool.acquire() as conn:
+			async with conn.cursor() as cur:
+				sql = """INSERT INTO giveaways(guild_id, channel_id, message_id, creator_id, num_winners, time, name, prize) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"""
+				val = (creator.guild.id, channel_id, message_id, creator.id, num_winners, time, name, prize)
+				await cur.execute(sql, val)
+				await conn.commit()
+
+	async def del_giveaway(self, giveaway_id: int) -> None:
+		async with self.pool.acquire() as conn:
+			async with conn.cursor() as cur:
+				await cur.execute(
+					"""DELETE FROM giveaways WHERE id = %s""", (giveaway_id,)
+				)
+				await conn.commit()
+
+	async def get_giveaways(self, guild_id: int) -> list:
+		async with self.pool.acquire() as conn:
+			async with conn.cursor() as cur:
+				await cur.execute(
+					"""SELECT * FROM giveaways WHERE guild_id = %s""", (guild_id,)
+				)
+				data = await cur.fetchall()
+		return data
 
 	async def set_reminder(
 		self,
@@ -262,7 +296,7 @@ class DB(AbcDatabase):
 					data = await cur.fetchone()
 				else:
 					await cur.execute(
-						f"""SELECT * FROM punishments WHERE time < {float(time.time())}"""
+						f"""SELECT * FROM punishments WHERE time < {float(tm.time())}"""
 					)
 					data = await cur.fetchall()
 		return data
@@ -357,7 +391,7 @@ class DB(AbcDatabase):
 	async def sel_guild(self, guild) -> dict:
 		sql_1 = """SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s"""
 		val_1 = (guild.id, guild.id)
-		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, audit, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcome, auto_roles, custom_commands, autoresponders, rank_message, commands_settings) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, audit, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcome, auto_roles, custom_commands, autoresponders, rank_message, commands_settings, warns_settings) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 		val_2 = (
 			guild.id,
 			"False",
@@ -400,7 +434,8 @@ class DB(AbcDatabase):
 					for command in self.client.get_cog(cog).get_commands()
 					if cog.lower() not in ("owner", "help", "jishaku")
 				]}
-			)
+			),
+			json.dumps({"max": 3, "punishment": None})
 		)
 
 		async with self.pool.acquire() as conn:
@@ -420,28 +455,28 @@ class DB(AbcDatabase):
 			"purge": int(data[1]),
 			"all_message": int(data[2]),
 			"textchannels_category": int(data[3]),
-			"max_warns": int(data[4]),
-			"exp_multi": float(data[5]),
-			"idea_channel": int(data[6]),
-			"timedelete_textchannel": int(data[7]),
-			"donate": data[8] == "True",
-			"prefix": str(data[9]),
-			"api_key": data[10],
-			"server_stats": json.loads(data[11]),
-			"voice_channel": json.loads(data[12]),
-			"shop_list": json.loads(data[13]),
-			"ignored_channels": json.loads(data[14]),
-			"auto_mod": json.loads(data[15]),
+			"exp_multi": float(data[4]),
+			"idea_channel": int(data[5]),
+			"timedelete_textchannel": int(data[6]),
+			"donate": data[7] == "True",
+			"prefix": str(data[8]),
+			"api_key": data[9],
+			"server_stats": json.loads(data[10]),
+			"voice_channel": json.loads(data[11]),
+			"shop_list": json.loads(data[12]),
+			"ignored_channels": json.loads(data[13]),
+			"auto_mod": json.loads(data[14]),
 			"clans": json.loads(data[16]),
-			"moder_roles": json.loads(data[17]),
-			"auto_reactions": json.loads(data[18]),
-			"welcome": json.loads(data[19]),
-			"auto_roles": json.loads(data[20]),
-			"custom_commands": json.loads(data[21]),
-			"autoresponders": json.loads(data[22]),
-			"audit": json.loads(data[23]),
-			"rank_message": json.loads(data[24]),
-			"commands_settings": json.loads(data[25])
+			"moder_roles": json.loads(data[16]),
+			"auto_reactions": json.loads(data[17]),
+			"welcome": json.loads(data[18]),
+			"auto_roles": json.loads(data[19]),
+			"custom_commands": json.loads(data[20]),
+			"autoresponders": json.loads(data[21]),
+			"audit": json.loads(data[22]),
+			"rank_message": json.loads(data[23]),
+			"commands_settings": json.loads(data[24]),
+			"warns_settings": json.loads(data[25])
 		}
 		return dict_data
 

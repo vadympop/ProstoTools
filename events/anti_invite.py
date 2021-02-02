@@ -70,16 +70,16 @@ class EventsAntiInvite(commands.Cog):
                 type_punishment = data["auto_mod"]["anti_invite"]["punishment"]["type"]
                 if type_punishment == "mute":
                     await self.client.support_commands.main_mute(
-                        ctx=message,
+                        ctx=await self.client.get_context(message),
                         member=message.author,
                         type_time=data["auto_mod"]["anti_invite"]["punishment"]["time"],
                         reason=reason,
                         author=message.guild.me,
-                        check_role=False,
                         message=False
                     )
                 elif type_punishment == "warn":
-                    await self.client.support_commands.main_mute(
+                    await self.client.support_commands.main_warn(
+                        ctx=await self.client.get_context(message),
                         member=message.author,
                         reason=reason,
                         author=message.guild.me

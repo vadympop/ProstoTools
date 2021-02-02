@@ -65,7 +65,7 @@ class ShowConfigs(commands.Cog):
             main_settings = f"""Префикс - `{data['prefix']}`
     Канал идей - `{idea_channel}`
     Категория приватных текстовых каналов - `{category}`
-    Максимальное количество предупрежденний - `{data['max_warns']}`
+    Максимальное количество предупрежденний - `{data['warns_settings']["max"]}`
     Множитель опыта - `{data['exp_multi'] * 100}%`
     Время удаления приватного текстового канала - `{data['timedelete_textchannel']}мин`
     Сообщения о повышении уровня - `{rank_message}`
@@ -152,7 +152,8 @@ class ShowConfigs(commands.Cog):
             "anti_invite": "Анти-приглашения",
             "anti_flud": "Анти-флуд",
             "react_commands": "Команды по реакциям",
-            "captcha": "Каптча"
+            "captcha": "Каптча",
+            "anti_caps": "Анти-капс"
         }
         message_types = {
             "dm": "лс",
@@ -181,23 +182,26 @@ class ShowConfigs(commands.Cog):
                     message = ("выключено"
                                if "message" not in data[key].keys()
                                else f"отправляеться в `{message_types[data[key]['message']['type']]}`, сообщения - `{data[key]['message']['text'][:30]}...`")
-                    punishment = (f"тип наказания `{punishment_types[data[key]['punishment']['type']]}`, время наказания - `{data[key]['punishment']['time']}`"
+                    punishment_time = ((f", время наказания - `{data[key]['punishment']['time']}`" if data[key]['punishment']['time'] is not None else "")
+                                       if "punishment" in data[key].keys()
+                                       else "")
+                    punishment = (f"""тип наказания `{punishment_types[data[key]['punishment']['type']]}`{punishment_time}"""
                                   if "punishment" in data[key].keys()
-                                  else "наказания не установлено")
-                    target_roles = ("целевые роли не настроены"
+                                  else "не установлено")
+                    target_roles = ("не настроено"
                                     if "target_roles" not in data[key].keys()
                                     else f"установлено {len(data[key]['target_roles'])} ролей")
-                    target_channels = ("целевые каналы не настроены"
+                    target_channels = ("не настроено"
                                     if "target_channels" not in data[key].keys()
                                     else f"установлено {len(data[key]['target_channels'])} каналов")
-                    ignore_channels = ("игнорируемые каналы не настроены"
+                    ignore_channels = ("не настроено"
                                     if "ignore_channels" not in data[key].keys()
                                     else f"установлено {len(data[key]['ignore_channels'])} каналов")
-                    ignore_roles = ("игнорируемые роли не настроены"
+                    ignore_roles = ("не настроено"
                                     if "ignore_roles" not in data[key].keys()
                                     else f"установлено {len(data[key]['ignore_roles'])} ролей")
                     info = f"**{categories[key]}**:\n1. Сообщения - {message}\n2. Наказания - {punishment}\n3. Целевые каналы - {target_channels}\n4. Игнорируемые каналы - {ignore_channels}\n5. Целевые роли - {target_roles}\n6. Игнорируемые роли - {ignore_roles}"
-                    if key == "anti_invite":
+                    if key == "anti_invite" or key == "anti_caps":
                         delete_message = ("выключено"
                                    if "delete_message" not in data[key].keys()
                                    else f"включено")

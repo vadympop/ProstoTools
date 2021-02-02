@@ -30,7 +30,7 @@ class Giveaways(commands.Cog):
     async def create(self, ctx, type_time: str, winners: int, channel: discord.TextChannel = None):
         await ctx.send("Введите названия розыгрыша")
         try:
-            await self.client.wait_for(
+            name_msg = await self.client.wait_for(
                 "message",
                 check=lambda m: m.channel == ctx.channel and m.author == ctx.author,
                 timeout=120
@@ -40,7 +40,7 @@ class Giveaways(commands.Cog):
         else:
             await ctx.send("Введите приз розыгрыша")
             try:
-                await self.client.wait_for(
+                prize_msg = await self.client.wait_for(
                     "message",
                     check=lambda m: m.channel == ctx.channel and m.author == ctx.author,
                     timeout=120
@@ -51,9 +51,28 @@ class Giveaways(commands.Cog):
                 if channel is None:
                     channel = ctx.channel
 
-                await channel.send("Yeah")
-                await self.client.database.add_giveaway()
+                message = await channel.send("Yeah")
+                await self.client.database.add_giveaway(
+                    channel_id=channel.id,
+                    message_id=message.id,
+                    creator=ctx.author,
+                    num_winners=winners,
+                    time=self.client.utils.time_to_num(type_time),
+                    name=name_msg.content,
+                    prize=prize_msg.content
+                )
 
+    @giveaway.command()
+    async def delete(self, ctx, giveaway_id: int):
+        pass
+
+    @giveaway.command()
+    async def end(self, ctx, giveaway_id: int):
+        pass
+
+    @giveaway.command()
+    async def list(self, ctx):
+        pass
 
 def setup(client):
     client.add_cog(Giveaways(client))

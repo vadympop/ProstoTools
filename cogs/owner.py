@@ -41,7 +41,10 @@ class Owner(commands.Cog, name="Owner"):
 					)
 					for guild in guilds:
 						json_data = json.loads(guild[1])
-						json_data.update(json.loads(key))
+						if json_data is not None:
+							json_data.update(json.loads(key))
+						else:
+							json_data = json.loads(key)
 						await self.client.database.execute(
 							f"""UPDATE guilds SET {column} = %s WHERE guild_id = {guild[0]}""",
 							(json.dumps(json_data),)

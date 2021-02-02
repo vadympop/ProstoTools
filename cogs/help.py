@@ -18,9 +18,8 @@ class Help(commands.Cog, name="Help"):
 		help="**Примеры использования:**\n1. {Prefix}help\n2. {Prefix}help moderate\n2. {Prefix}help ban\n\n**Пример 1:** Показывает список всех команд бота\n**Пример 2:** Показывает список всех указаной групы\n**Пример 3:** Показывает документацию по указаной команде"
 	)
 	async def help(self, ctx, cog_name: str = None):
-		cogs_group = ("settings", "works", "clans", "showconfigs")
-		commands_group = ("setting", "work", "clan", "show-config")
-		moder_roles = (await self.client.database.sel_guild(guild=ctx.guild))["moder_roles"]
+		cogs_group = ("settings", "works", "clans", "showconfigs", "giveaways")
+		commands_group = ("setting", "work", "clan", "show-config", "giveaway")
 		prefix = str(await self.client.database.get_prefix(guild=ctx.guild))
 		cogs_aliases = {
 			"economy": "Economy",
@@ -33,11 +32,12 @@ class Help(commands.Cog, name="Help"):
 			"settings": "Settings",
 			"utils": "Utils",
 			"works": "Works",
-			"showconfigs": "ShowConfigs"
+			"showconfigs": "ShowConfigs",
+			"giveaways": "Giveaways"
 		}
 
 		if cog_name is None:
-			emb = await self.client.utils.build_help(ctx, prefix, commands_group, moder_roles)
+			emb = await self.client.utils.build_help(ctx, prefix, commands_group)
 			await ctx.send(embed=emb)
 			return
 
@@ -81,7 +81,7 @@ class Help(commands.Cog, name="Help"):
 
 		emb_2 = discord.Embed(
 			title=f"Категория команд - {cogs_aliases[cog_name.lower()]}",
-			description="[Пример] - требуется, |Пример| - необязательно",
+			description="[Пример] - требуется, |Пример| - необязательно. Показаны только те команды которые вы можете выполнить",
 			colour=discord.Color.green(),
 		)
 		for c in self.client.get_cog(cogs_aliases[cog_name.lower()]).get_commands():
@@ -109,7 +109,7 @@ class Help(commands.Cog, name="Help"):
 
 		if len(emb_2.fields) <= 0:
 			emb_2.add_field(
-				name="Пусто", value="У вас нет прав на использования ни одной команды этой категории"
+				name="Пусто", value="Вы не можете выполнить ни одну команду из этой категории"
 			)
 		emb_2.set_author(
 			name=self.client.user.name, icon_url=self.client.user.avatar_url

@@ -55,10 +55,9 @@ class EventsReactionsCmds(commands.Cog):
 								pass
 						elif reaction.name == "🤐":
 							emb = await self.client.support_commands.main_mute(
-								ctx=message,
+								ctx=await self.client.get_context(message),
 								member=member,
 								reason="Команды по реакциям: Нарушения правил",
-								check_role=True,
 							)
 							await message.channel.send(embed=emb)
 						elif reaction.name == "💀":
