@@ -54,7 +54,6 @@ extensions = (
 	"events.autoresponders",
 	"events.anti_flud",
 	"events.anti_invite",
-	"events.on_edit_command",
 	"events.captcha",
 	"events.anti_caps"
 )
@@ -93,6 +92,9 @@ class ProstoTools(commands.AutoShardedBot):
 		logger.info(
 			f"[PT-SYSTEM-LOGGING]:::{self.user.name} is disconnected from discord server"
 		)
+
+	async def on_message_edit(self, before, after):
+		await self.process_commands(after)
 
 	def txt_dump(self, filename, filecontent):
 		with open(filename, "w+", encoding="utf-8") as f:
