@@ -24,6 +24,7 @@ class Commands:
 		message: bool = True,
 	) -> typing.Union[discord.Embed, bool, None]:
 		client = self.client
+		reason = reason[:1024]
 		overwrite = discord.PermissionOverwrite(send_messages=False)
 
 		mute_time = self.client.utils.time_to_num(type_time)
@@ -122,6 +123,7 @@ class Commands:
 		self, ctx, member: discord.Member, author: discord.User, reason: str = None
 	) -> discord.Embed:
 		client = self.client
+		reason = reason[:1024]
 
 		data = await self.client.database.sel_user(target=member)
 		info = await self.client.database.sel_guild(guild=ctx.guild)
@@ -137,8 +139,7 @@ class Commands:
 		warn_id = await self.client.database.set_warn(
 			target=member,
 			reason=reason,
-			author=author.id,
-			time=str(datetime.datetime.utcnow()),
+			author=author.id
 		)
 
 		if cur_lvl <= 3:
@@ -165,7 +166,6 @@ class Commands:
 
 		if len(cur_warns) >= 20:
 			await self.client.database.del_warn(
-				guild_id=ctx.guild.id,
 				warn_id=[warn for warn in cur_warns if not warn["state"]][0]["id"]
 			)
 
@@ -240,7 +240,7 @@ class Commands:
 						)
 
 			for warn_id in [warn["id"] for warn in cur_warns]:
-				await self.client.database.del_warn(ctx.guild.id, warn_id)
+				await self.client.database.del_warn(warn_id)
 		else:
 			emb_ctx = discord.Embed(
 				description=f"**{member}**({member.mention}) Получил предупреждения\nId предупреждения: {warn_id}\nКоличество предупреждений: `{len(cur_warns) + 1}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",

@@ -170,7 +170,7 @@ class DB(AbcDatabase):
 					kwargs["target"].guild.id,
 					kwargs["reason"],
 					"True",
-					str(datetime.datetime.today()),
+					tm.time(),
 					kwargs["author"],
 					new_num,
 				)
@@ -179,7 +179,7 @@ class DB(AbcDatabase):
 				await conn.commit()
 		return new_id
 
-	async def del_warn(self, guild_id: int, warn_id: int) -> typing.Union[bool, tuple]:
+	async def del_warn(self, warn_id: int) -> typing.Union[bool, tuple]:
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
 				await cur.execute(
@@ -215,8 +215,8 @@ class DB(AbcDatabase):
 					kwargs["target"].id,
 					kwargs["target"].guild.id,
 					kwargs["reason"],
-					str(datetime.datetime.fromtimestamp(kwargs["timestamp"])),
-					str(datetime.datetime.today()),
+					kwargs["timestamp"],
+					tm.time(),
 					kwargs["author"],
 				)
 
@@ -238,7 +238,7 @@ class DB(AbcDatabase):
 					state = False
 		return state
 
-	async def get_mutes(self, guild_id):
+	async def get_mutes(self, guild_id: int):
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
 				await cur.execute(
@@ -246,6 +246,16 @@ class DB(AbcDatabase):
 					(guild_id, guild_id),
 				)
 				data = await cur.fetchall()
+		return data
+
+	async def get_mute(self, guild_id: int, member_id: int):
+		async with self.pool.acquire() as conn:
+			async with conn.cursor() as cur:
+				await cur.execute(
+					("""SELECT * FROM mutes WHERE guild_id = %s AND member_id = %s"""),
+					(guild_id, member_id),
+				)
+				data = await cur.fetchone()
 		return data
 
 	async def set_punishment(

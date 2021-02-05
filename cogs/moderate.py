@@ -7,6 +7,7 @@ import uuid
 import datetime
 from discord.ext import commands
 from discord.utils import get
+from tools.paginator import Paginator
 
 
 async def check_role(ctx):
@@ -269,6 +270,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	@commands.check(check_role)
 	async def kick(self, ctx, member: discord.Member, *, reason: str = "Причина не указана"):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+		reason = reason[:1024]
 
 		if member == ctx.author:
 			emb = await ctx.bot.utils.create_error_embed(
@@ -401,6 +403,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			reason = "Причина не указана"
 			softban_time = [0, 0]
 
+		reason = reason[:1024]
 		emb = discord.Embed(
 			description=f"**{member}**({member.mention}) Был апаратно забанен\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
@@ -594,6 +597,8 @@ class Moderate(commands.Cog, name="Moderate"):
 			reason = "Причина не указана"
 			ban_time = [0, 0]
 
+		reason = reason[:1024]
+
 		await member.ban(reason=reason)
 		emb = discord.Embed(
 			description=f"**{member}**(`{member.id}`) Был забанен\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
@@ -737,6 +742,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			reason = "Причина не указана"
 			vmute_time = [0, 0]
 
+		reason = reason[:1024]
 		overwrite = discord.PermissionOverwrite(connect=False)
 		role = get(ctx.guild.roles, name=self.VMUTE_ROLE)
 
@@ -944,6 +950,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			reason = "Причина не указана"
 			mute_time = [0, 0]
 
+		reason = reason[:1024]
 		data = await self.client.database.sel_user(target=member)
 		role = get(ctx.guild.roles, name=self.MUTE_ROLE)
 		if role is None:
@@ -1170,7 +1177,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			warns = (await self.client.database.sel_user(target=member))["warns"]
 			warns_ids = [warn["id"] for warn in warns]
 			for warn_id in warns_ids:
-				await self.client.database.del_warn(ctx.guild.id, warn_id)
+				await self.client.database.del_warn(warn_id)
 
 			emb = discord.Embed(
 				description=f"**У пользователя** `{member}`({member.mention}) **были сняты предупреждения**",
@@ -1210,6 +1217,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	@commands.check(check_role)
 	async def warn(self, ctx, member: discord.Member, *, reason: str = "Причина не указана"):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+		reason = reason[:1024]
 
 		if member == ctx.author:
 			emb = await ctx.bot.utils.create_error_embed(
@@ -1263,7 +1271,6 @@ class Moderate(commands.Cog, name="Moderate"):
 				target=member,
 				reason=reason,
 				author=ctx.author.id,
-				time=str(datetime.datetime.utcnow()),
 			)
 
 			if cur_lvl <= 3:
@@ -1293,7 +1300,6 @@ class Moderate(commands.Cog, name="Moderate"):
 
 			if len(cur_warns) >= 20:
 				await self.client.database.del_warn(
-					guild_id=ctx.guild.id,
 					warn_id=[warn for warn in cur_warns if not warn["state"]][0]["id"]
 				)
 
@@ -1389,7 +1395,7 @@ class Moderate(commands.Cog, name="Moderate"):
 					pass
 
 				for warn_id in [warn["id"] for warn in cur_warns]:
-					await self.client.database.del_warn(ctx.guild.id, warn_id)
+					await self.client.database.del_warn(warn_id)
 			else:
 				emb = discord.Embed(
 					description=f"**{member}**({member.mention}) Получил предупреждения\nId предупреждения: {warn_id}\nКоличество предупреждений: `{len(cur_warns)+1}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
@@ -1456,7 +1462,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def rem_warn(self, ctx, warn_id: int):
-		data = await self.client.database.del_warn(ctx.guild.id, warn_id)
+		data = await self.client.database.del_warn(warn_id)
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if data is None:
@@ -1520,44 +1526,40 @@ class Moderate(commands.Cog, name="Moderate"):
 			await ctx.send(embed=emb)
 			return
 
-		data = await self.client.database.sel_user(target=member)
-		warns = data["warns"]
+		data = (await self.client.database.sel_user(target=member))["warns"]
+		if data != []:
+			embeds = []
+			warns = []
+			for warn in data:
+				warn_time = datetime.datetime.fromtimestamp(warn["time"]).strftime("%d %B %Y %X")
+				author = str(ctx.guild.get_member(warn["author"]))
+				warn_state = "Да" if warn["state"] else "Нет"
+				text = f"""Активный: **{warn_state}**\nId: `{warn["id"]}`\nПричина: **{warn["reason"][:256]}**\nАвтор: `{author}`\nВремя мьюта: `{warn_time}`"""
+				warns.append(text)
 
-		if warns == []:
-			emb = discord.Embed(
-				title=f"Предупреждения пользователя - `{member}`",
-				description="Список предупреждений пуст.",
-				colour=discord.Color.green(),
-			)
+			grouped_warns = [warns[x:x + 5] for x in range(0, len(warns), 5)]
+			for group in grouped_warns:
+				emb = discord.Embed(
+					title=f"Предупреждения пользователя - `{member}`",
+					description="\n\n".join(group),
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				embeds.append(emb)
+
+			message = await ctx.send(embed=embeds[0])
+			paginator = Paginator(ctx, message, embeds, footer=True)
+			await paginator.start()
 		else:
 			emb = discord.Embed(
 				title=f"Предупреждения пользователя - `{member}`",
+				description="Список предупреждений пуст",
 				colour=discord.Color.green(),
 			)
-
-		for warn in warns:
-			id_warn = warn["id"]
-			time_warn = warn["time"]
-			author_warn = str(ctx.guild.get_member(warn["author"]))
-			reason = warn["reason"]
-			state = warn["state"]
-
-			if state:
-				emb.add_field(
-					value=f"**Причина:** {reason}",
-					name=f"Id - {id_warn}, время - {time_warn}, автор - {author_warn}",
-					inline=False,
-				)
-			elif not state:
-				emb.add_field(
-					value=f"~~**Причина:** {reason}~~",
-					name=f"Не активный - |Id - {id_warn}, время - {time_warn}, автор - {author_warn}|",
-					inline=False,
-				)
-
-		emb.set_author(name=member.name, icon_url=member.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
 
 
 def setup(client):

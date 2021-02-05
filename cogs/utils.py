@@ -2,6 +2,8 @@ import discord
 import json
 import asyncio
 import uuid
+import datetime
+from tools.paginator import Paginator
 from discord.ext import commands
 from discord.utils import get
 
@@ -377,30 +379,66 @@ class Utils(commands.Cog, name="Utils"):
 		aliases=["mutes-list", "listmutes", "muteslist", "mutes"],
 		name="list-mutes",
 		description="Показывает все мьюты на сервере",
-		usage="list-mutes",
+		usage="list-mutes |@Участник|",
 		help="**Примеры использования:**\n1. {Prefix}list-mutes\n\n**Пример 1:** Показывает все мьюты на сервере",
 	)
 	@commands.check(check_role)
 	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def mutes(self, ctx):
-		data = await self.client.database.get_mutes(ctx.guild.id)
+	async def mutes(self, ctx, member: discord.Member = None):
+		if member is None:
+			data = await self.client.database.get_mutes(ctx.guild.id)
+			if data != ():
+				embeds = []
+				for mute in data:
+					member = ctx.guild.get_member(mute[1])
+					author = ctx.guild.get_member(mute[6])
+					mute_time = datetime.datetime.fromtimestamp(mute[5]).strftime("%d %B %Y %X")
+					active_to = datetime.datetime.fromtimestamp(mute[4]).strftime("%d %B %Y %X")
+					emb = discord.Embed(
+						title="Список мьютов сервера",
+						description=f"Пользователь: `{member}`\nПричина: **{mute[3][:256]}**\nАвтор: `{author}`\nВремя мьюта: `{mute_time}`\nАктивный до: `{active_to}`",
+						colour=discord.Color.green(),
+					)
+					emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					embeds.append(emb)
 
-		if data != ():
-			mutes = "\n\n".join(
-				f"**Пользователь:** `{ctx.guild.get_member(mute[1])}`, **Причина:** `{mute[3]}`\n**Автор:** {str(ctx.guild.get_member(mute[6]))}, **Время мьюта:** `{mute[5]}`\n**Активный до**: `{mute[4]}`"
-				for mute in data
-			)
+				message = await ctx.send(embed=embeds[0])
+				paginator = Paginator(ctx, message, embeds, footer=True)
+				await paginator.start()
+			else:
+				emb = discord.Embed(
+					title="Список мьютов сервера",
+					description="На сервере нету мьютов",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
 		else:
-			mutes = "На сервере нету мьютов"
-
-		emb = discord.Embed(
-			title="Список всех мьютов на сервере",
-			description=mutes,
-			colour=discord.Color.green(),
-		)
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
+			data = await self.client.database.get_mute(ctx.guild.id, member.id)
+			if data is None:
+				emb = discord.Embed(
+					title=f"Информация о мьюте участника `{member}`",
+					description="У указаного участника нету активного мьюта",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
+			else:
+				member = ctx.guild.get_member(data[1])
+				author = ctx.guild.get_member(data[6])
+				mute_time = datetime.datetime.fromtimestamp(data[5]).strftime("%d %B %Y %X")
+				active_to = datetime.datetime.fromtimestamp(data[4]).strftime("%d %B %Y %X")
+				emb = discord.Embed(
+					title=f"Информация о мьюте участника `{member}`",
+					description=f"Причина: **{data[3][:256]}**\nАвтор: `{author}`\nВремя мьюта: `{mute_time}`\nАктивный до: `{active_to}`",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
 
 	@commands.command(
 		aliases=["apikey", "api_key"],
