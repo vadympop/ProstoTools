@@ -11,10 +11,10 @@ class Config:
 	DEF_PROFILE_BG = './data/images/lime.png'
 	FONT = './data/fonts/a_AlternaSw.ttf'
 	SAVE_IMG = './data/images/usercard.png'
-	BOT_NAME = 'ProstoTools.exe'
+	BOT_NAME = 'ProstoTools'
 	BOT_ID = 700767394154414142
 	HELP_SERVER = 'https://discord.gg/6SHKgj43r9'
-	FOOTER_TEXT = 'ProstoTools.exe || Copyright 2020-2021'
+	FOOTER_TEXT = 'ProstoTools || Copyright 2020-2021'
 	MUTE_ROLE = 'PT-MUTED'
 	VMUTE_ROLE = 'PT-VMUTED'
 	SOFTBAN_ROLE = 'PT-SOFT-BANNED'
