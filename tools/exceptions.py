@@ -5,11 +5,11 @@ class CommandOff(commands.CommandError):
     pass
 
 
-class CommandTargetRoleRequired(commands.CommandError):
+class CommandRoleRequired(commands.CommandError):
     pass
 
 
-class CommandTargetChannelRequired(commands.CommandError):
+class CommandChannelRequired(commands.CommandError):
     pass
 
 

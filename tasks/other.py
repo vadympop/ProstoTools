@@ -9,8 +9,8 @@ class TasksOther(commands.Cog):
 	def __init__(self, client):
 		self.client = client
 		self.update_messages_loop.start()
-		self.reminders_loop.start()
 		self.channel_loop.start()
+		self.reminders_loop.start()
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@tasks.loop(seconds=30.0)
@@ -36,7 +36,7 @@ class TasksOther(commands.Cog):
 					)
 					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 					if float(reminder_time) <= float(time.time()):
-						await self.client.database.del_reminder(member, reminder[0])
+						await self.client.database.del_reminder(reminder[2], reminder[0])
 						if member is not None and channel is not None:
 							if channel in guild.channels:
 								await channel.send(embed=emb, content=member.mention)

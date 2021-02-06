@@ -31,14 +31,13 @@ class EventsJoin(commands.Cog):
 			if not member.bot:
 				await self.client.database.sel_user(target=member)
 
-		guild_owner_bot = self.client.get_guild(717776571406090310)
-		channel = guild_owner_bot.text_channels[3]
 		emb_info = discord.Embed(
 			title=f"Бот добавлен на новый сервер, всего серверов - {len(self.client.guilds)}",
+			colour=discord.Color.green(),
 			description=f"Названия сервера - `{guild.name}`\nАйди сервера - `{guild.id}`\nВладелец - `{guild.owner}`\nКол-во участников - `{guild.member_count}`",
 		)
 		emb_info.set_thumbnail(url=guild.icon_url)
-		await channel.send(embed=emb_info)
+		await self.client.get_guild(717776571406090310).get_channel(737685906873647165).send(embed=emb_info)
 
 
 def setup(client):

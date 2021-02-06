@@ -33,7 +33,8 @@ class Help(commands.Cog, name="Help"):
 			"utils": "Utils",
 			"works": "Works",
 			"showconfigs": "ShowConfigs",
-			"giveaways": "Giveaways"
+			"giveaways": "Giveaways",
+			"information": "Information"
 		}
 
 		if cog_name is None:

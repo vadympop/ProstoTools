@@ -1,6 +1,6 @@
 import discord
 import json
-from Cybernator import Paginator
+from tools.paginator import Paginator
 from discord.utils import get
 from discord.ext import commands
 
@@ -320,12 +320,11 @@ class ShowConfigs(commands.Cog):
 
             start_message = await ctx.send(embed=start_embed)
             paginator = Paginator(
-                ctx=self.client,
+                ctx=ctx,
                 message=start_message,
                 embeds=pages,
                 timeout=350,
-                only=ctx.author,
-                footer=False
+                footer=True
             )
             await paginator.start()
         else:

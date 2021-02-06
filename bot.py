@@ -32,6 +32,7 @@ extensions = (
 	"cogs.works",
 	"cogs.show_configs",
 	"cogs.giveaways",
+	"cogs.information",
 	"cogs.settings",
 	"cogs.help",
 	"tasks.message_stat",
@@ -55,7 +56,8 @@ extensions = (
 	"events.anti_flud",
 	"events.anti_invite",
 	"events.captcha",
-	"events.anti_caps"
+	"events.anti_caps",
+	"events.status_reminders"
 )
 
 

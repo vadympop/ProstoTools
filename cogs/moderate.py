@@ -1133,6 +1133,7 @@ class Moderate(commands.Cog, name="Moderate"):
 					await member.send(embed=emb)
 				except:
 					pass
+				break
 
 		if "moderate" in audit.keys():
 			e = discord.Embed(

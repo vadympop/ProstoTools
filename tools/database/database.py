@@ -66,6 +66,69 @@ class DB(AbcDatabase):
 				data = await cur.fetchall()
 		return data
 
+	async def set_status_reminder(self, target_id: int, member_id: int, wait_for: str, type: str):
+		if await self.get_status_reminder(
+				target_id=target_id,
+				member_id=member_id
+		) is not None:
+			return False
+
+		async with self.pool.acquire() as conn:
+			async with conn.cursor() as cur:
+				await cur.execute(
+					f"""SELECT id FROM status_reminders WHERE member_id = {member_id}"""
+				)
+				ids = await cur.fetchall()
+				if len(ids) > 20:
+					return False
+
+				await cur.execute(
+					"""INSERT INTO status_reminders (target_id, member_id, wait_for, type) VALUES (%s, %s, %s, %s)""",
+					(target_id, member_id, wait_for, type)
+				)
+				await conn.commit()
+				await cur.execute("""SELECT LAST_INSERT_ID() FROM status_reminders""")
+				data = (await cur.fetchone())[0]
+
+		return data
+
+	async def get_status_reminder(self, target_id: int = None, member_id: int = None):
+		async with self.pool.acquire() as conn:
+			async with conn.cursor() as cur:
+				if member_id is None and target_id is not None:
+					await cur.execute(
+						f"""SELECT * FROM status_reminders WHERE target_id = {target_id}""",
+					)
+					data = await cur.fetchall()
+				elif member_id is not None and target_id is None:
+					await cur.execute(
+						f"""SELECT * FROM status_reminders WHERE member_id = {member_id}""",
+					)
+					data = await cur.fetchall()
+				else:
+					await cur.execute(
+						"""SELECT * FROM status_reminders WHERE target_id = %s AND member_id = %s""",
+						(target_id, member_id)
+					)
+					data = await cur.fetchone()
+		return data
+
+	async def del_status_reminder(self, status_reminder_id: int):
+		async with self.pool.acquire() as conn:
+			async with conn.cursor() as cur:
+				await cur.execute(
+					f"""SELECT id FROM status_reminders"""
+				)
+				reminders_ids = await cur.fetchall()
+				if status_reminder_id not in [item[0] for item in reminders_ids]:
+					return False
+				else:
+					await cur.execute(
+						f"""DELETE FROM status_reminders WHERE id = {status_reminder_id}""",
+					)
+					await conn.commit()
+					return True
+
 	async def set_reminder(
 		self,
 		member: discord.Member,
@@ -76,30 +139,20 @@ class DB(AbcDatabase):
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
 				await cur.execute(
-					("""SELECT id FROM reminders WHERE user_id = %s AND user_id = %s"""),
-					(member.id, member.id),
+					f"""SELECT id FROM reminders WHERE user_id = {member.id}""",
 				)
-				data = await cur.fetchall()
-				limit_data = len(data) + 1
+				reminders = await cur.fetchall()
+				limit_data = len(reminders) + 1
 				if limit_data >= 25:
 					return False
-				await cur.execute(
-					("""SELECT id FROM reminders WHERE guild_id = %s AND guild_id = %s"""),
-					(member.guild.id, member.guild.id),
-				)
-				db_ids = await cur.fetchall()
-				ids = [str(reminder[0]) for reminder in db_ids]
-				ids.reverse()
-				try:
-					new_id = int(ids[0]) + 1
-				except:
-					new_id = 1
-
-				sql = """INSERT INTO reminders VALUES (%s, %s, %s, %s, %s, %s)"""
-				val = (new_id, member.id, member.guild.id, channel.id, time, text)
+				sql = """INSERT INTO reminders (user_id, guild_id, channel_id, time, text) VALUES (%s, %s, %s, %s, %s)"""
+				val = (member.id, member.guild.id, channel.id, time, text)
 
 				await cur.execute(sql, val)
 				await conn.commit()
+
+				await cur.execute("""SELECT LAST_INSERT_ID() FROM reminders""")
+				new_id = (await cur.fetchone())[0]
 		return new_id
 
 	async def get_reminder(self, target: discord.Member = None) -> list:
@@ -116,56 +169,35 @@ class DB(AbcDatabase):
 					data = await cur.fetchall()
 		return data
 
-	async def del_reminder(self, member: discord.Member, reminder_id: int) -> bool:
+	async def del_reminder(self, guild_id: int, reminder_id: int) -> bool:
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
 				await cur.execute(
-					f"""SELECT * FROM reminders WHERE guild_id = {member.guild.id}"""
+					f"""SELECT id FROM reminders WHERE guild_id = {guild_id}"""
 				)
-				reminders = await cur.fetchall()
-				state = False
-				for reminder in reminders:
-					if reminder[0] == reminder_id:
-						if reminder[1] == member.id:
-							await cur.execute(
-								("""DELETE FROM reminders WHERE id = %s AND guild_id = %s"""),
-								(reminder_id, member.guild.id),
-							)
-							await conn.commit()
-							state = True
-							break
-		return state
+				reminders_ids = await cur.fetchall()
+				if reminder_id not in [item[0] for item in reminders_ids]:
+					return False
+				else:
+					await cur.execute(
+						("""DELETE FROM reminders WHERE id = %s AND guild_id = %s"""),
+						(reminder_id, guild_id),
+					)
+					await conn.commit()
+					return True
 
 	async def set_warn(self, **kwargs) -> int:
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
 				await cur.execute(
-					("""SELECT id FROM warns WHERE guild_id = %s AND guild_id = %s"""),
-					(kwargs["target"].guild.id, kwargs["target"].guild.id),
-				)
-				db_ids = await cur.fetchall()
-				ids = [warn[0] for warn in db_ids]
-				ids.reverse()
-				try:
-					new_id = int(ids[0]) + 1
-				except:
-					new_id = 1
-
-				await cur.execute(
 					("""SELECT num FROM warns WHERE user_id = %s AND guild_id = %s"""),
 					(kwargs["target"].id, kwargs["target"].guild.id),
 				)
 				db_nums = await cur.fetchall()
-				nums = [num[0] for num in db_nums]
-				nums.reverse()
-				try:
-					new_num = nums[0] + 1
-				except:
-					new_num = 1
+				new_num = len(db_nums)+1
 
-				sql = """INSERT INTO warns VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
+				sql = """INSERT INTO warns(user_id, guild_id, reason, state, time, author, num) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
 				val = (
-					new_id,
 					kwargs["target"].id,
 					kwargs["target"].guild.id,
 					kwargs["reason"],
@@ -174,12 +206,14 @@ class DB(AbcDatabase):
 					kwargs["author"],
 					new_num,
 				)
-
 				await cur.execute(sql, val)
 				await conn.commit()
+
+				await cur.execute("""SELECT LAST_INSERT_ID() FROM warns""")
+				new_id = (await cur.fetchone())[0]
 		return new_id
 
-	async def del_warn(self, warn_id: int) -> typing.Union[bool, tuple]:
+	async def del_warn(self, warn_id: int) -> tuple:
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
 				await cur.execute(
@@ -188,30 +222,16 @@ class DB(AbcDatabase):
 				await conn.commit()
 
 				await cur.execute(
-					("""SELECT user_id FROM warns WHERE id = %s AND id = %s"""),
-					(warn_id, warn_id),
+					f"""SELECT user_id FROM warns WHERE id = {warn_id}"""
 				)
 				data = await cur.fetchone()
 		return data
 
-	async def set_mute(self, **kwargs) -> None:
+	async def set_mute(self, **kwargs) -> int:
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
-				await cur.execute(
-					("""SELECT id FROM mutes WHERE guild_id = %s AND guild_id = %s"""),
-					(kwargs["target"].guild.id, kwargs["target"].guild.id),
-				)
-				db_ids = await cur.fetchall()
-				ids = [mute[0] for mute in db_ids]
-				ids.reverse()
-				try:
-					new_id = int(ids[0]) + 1
-				except:
-					new_id = 1
-
-				sql = """INSERT INTO mutes VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+				sql = """INSERT INTO mutes (user_id, guild_id, reason, active_to, time, author) VALUES (%s, %s, %s, %s, %s, %s)"""
 				val = (
-					new_id,
 					kwargs["target"].id,
 					kwargs["target"].guild.id,
 					kwargs["reason"],
@@ -219,31 +239,27 @@ class DB(AbcDatabase):
 					tm.time(),
 					kwargs["author"],
 				)
-
 				await cur.execute(sql, val)
 				await conn.commit()
 
-	async def del_mute(self, member_id: int, guild_id: int) -> bool:
+				await cur.execute("""SELECT LAST_INSERT_ID() FROM mutes""")
+				new_id = (await cur.fetchone())[0]
+		return new_id
+
+	async def del_mute(self, member_id: int, guild_id: int) -> None:
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
-				try:
-					await cur.execute(
-						("""DELETE FROM mutes WHERE user_id = %s AND guild_id = %s"""),
-						(member_id, guild_id),
-					)
-					await conn.commit()
-
-					state = True
-				except:
-					state = False
-		return state
+				await cur.execute(
+					("""DELETE FROM mutes WHERE user_id = %s AND guild_id = %s"""),
+					(member_id, guild_id),
+				)
+				await conn.commit()
 
 	async def get_mutes(self, guild_id: int):
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
 				await cur.execute(
-					("""SELECT * FROM mutes WHERE guild_id = %s AND guild_id = %s"""),
-					(guild_id, guild_id),
+					f"""SELECT * FROM mutes WHERE guild_id = {guild_id}""",
 				)
 				data = await cur.fetchall()
 		return data
@@ -320,9 +336,7 @@ class DB(AbcDatabase):
 					await self.del_mute(member.id, member.guild.id)
 
 				await cur.execute(
-					(
-						"""DELETE FROM punishments WHERE member_id = %s AND guild_id = %s AND type = %s"""
-					),
+					"""DELETE FROM punishments WHERE member_id = %s AND guild_id = %s AND type = %s""",
 					(member.id, guild_id, type_punishment),
 				)
 				await conn.commit()

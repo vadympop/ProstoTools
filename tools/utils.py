@@ -144,7 +144,7 @@ class Utils:
 
             if commands_settings[ctx.command.name]["target_channels"]:
                 if ctx.channel.id not in commands_settings[ctx.command.name]["target_channels"]:
-                    raise CommandTargetChannelRequired
+                    raise CommandChannelRequired
 
             if commands_settings[ctx.command.name]["target_roles"]:
                 state = False
@@ -153,7 +153,7 @@ class Utils:
                         state = True
 
                 if not state:
-                    raise CommandTargetRoleRequired
+                    raise CommandRoleRequired
 
             if ctx.channel.id in commands_settings[ctx.command.name]["ignore_channels"]:
                 raise CommandChannelIgnored

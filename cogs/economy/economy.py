@@ -1258,7 +1258,7 @@ class Economy(commands.Cog):
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
 		elif cur_state_pr:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не забыли? Вы сейчас в тюрме!"
 			)
 			await ctx.send(embed=emb)

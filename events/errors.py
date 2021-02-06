@@ -105,12 +105,12 @@ class Errors(commands.Cog, name="Errors"):
 			await ctx.send(embed=emb)
 		elif isinstance(error, CommandOff):
 			pass
-		elif isinstance(error, CommandTargetRoleRequired):
+		elif isinstance(error, CommandRoleRequired):
 			emb = await self.client.utils.create_error_embed(
 				ctx, "У вас нет необходимых ролей!"
 			)
 			await ctx.send(embed=emb)
-		elif isinstance(error, CommandTargetChannelRequired) or isinstance(error, CommandChannelIgnored):
+		elif isinstance(error, CommandChannelRequired) or isinstance(error, CommandChannelIgnored):
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете использовать эту команду в этом канале!"
 			)
