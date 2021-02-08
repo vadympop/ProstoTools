@@ -2,6 +2,7 @@ import discord
 import datetime
 import sanic
 import psutil as ps
+import humanize
 from discord.ext import commands
 
 
@@ -10,23 +11,7 @@ class Information(commands.Cog):
         self.client = client
         self.FOOTER = self.client.config.FOOTER_TEXT
         self.HELP_SERVER = self.client.config.HELP_SERVER
-
-    def bytes_to_human(self, number, typer=None):
-        if typer == "system":
-            symbols = ("KБ", "МБ", "ГБ", "TБ", "ПБ", "ЭБ", "ЗБ", "ИБ")
-        else:
-            symbols = ("K", "M", "G", "T", "P", "E", "Z", "Y")
-
-        prefix = {}
-        for i, s in enumerate(symbols):
-            prefix[s] = 1 << (i + 1) * 10
-
-        for s in reversed(symbols):
-            if number >= prefix[s]:
-                value = float(number) / prefix[s]
-                return "%.1f%s" % (value, s)
-
-        return f"{number}B"
+        humanize.i18n.activate("ru_RU")
 
     @commands.command(
         aliases=["userinfo", "user"],
@@ -139,8 +124,8 @@ class Information(commands.Cog):
                 inline=False,
             )
             embed1.add_field(
-                name="Uptime:",
-                value=str(datetime.datetime.utcnow() - self.client.launched_at),
+                name="Бот запущен:",
+                value=humanize.naturaltime(datetime.datetime.utcnow() - self.client.launched_at).capitalize(),
                 inline=False
             )
             embed1.add_field(
@@ -178,7 +163,7 @@ class Information(commands.Cog):
             )
             embed2.add_field(
                 name="Использование RAM",
-                value=f'Доступно: {self.bytes_to_human(mem.available, "system")}\nИспользуется: {self.bytes_to_human(mem.used, "system")} ({mem.percent}%)\nВсего: {self.bytes_to_human(mem.total, "system")}',
+                value=f'Доступно: {humanize.naturalsize(mem.available)}\nИспользуется: {humanize.naturalsize(mem.used)} ({mem.percent}%)\nВсего: {humanize.naturalsize(mem.total)}',
                 inline=True,
             )
             embed2.add_field(
@@ -192,17 +177,17 @@ class Information(commands.Cog):
                 embed2.add_field(name="‎‎‎‎", value=f"```{disk.device}```", inline=False)
                 embed2.add_field(
                     name="Всего на диске",
-                    value=self.bytes_to_human(usage.total, "system"),
+                    value=humanize.naturalsize(usage.total),
                     inline=True,
                 )
                 embed2.add_field(
                     name="Свободное место на диске",
-                    value=self.bytes_to_human(usage.free, "system"),
+                    value=humanize.naturalsize(usage.free),
                     inline=True,
                 )
                 embed2.add_field(
                     name="Используемое дисковое пространство",
-                    value=self.bytes_to_human(usage.used, "system"),
+                    value=humanize.naturalsize(usage.used),
                     inline=True,
                 )
             await ctx.send(embed=embed2)
