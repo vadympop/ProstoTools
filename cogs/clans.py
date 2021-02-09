@@ -89,7 +89,7 @@ class Clans(commands.Cog):
 			await ctx.send(embed=emb)
 			return
 
-		role = await ctx.guild.create_role(name="PT-[CLAN]-" + name)
+		role = await ctx.guild.create_role(name="PT-CLAN-" + name)
 		await ctx.author.add_roles(role)
 		coins = user_data["coins"] - 15000
 		new_id = str(uuid.uuid4())
