@@ -291,7 +291,7 @@ class ShowConfigs(commands.Cog):
         commands_settings = (await self.client.database.sel_guild(guild=ctx.guild))["commands_settings"]
         if command_name is None:
             pages = []
-            prefix = str(await ctx.bot.database.get_prefix(guild=ctx.guild))
+            prefix = str(await self.client.database.get_prefix(guild=ctx.guild))
             start_embed = discord.Embed(
                 title="Справка по настройкам команд",
                 description=f"Для навигации используйте реакции ниже или\n`{prefix}commands-settings [Названия команды]`",

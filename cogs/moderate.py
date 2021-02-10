@@ -139,7 +139,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		self, ctx, member: discord.Member, role: discord.Role, type_time: str
 	):
 		if member == ctx.author:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете применить эту команду к себе"
 			)
 			await ctx.send(embed=emb)
@@ -161,14 +161,14 @@ class Moderate(commands.Cog, name="Moderate"):
 			return
 
 		if role >= ctx.guild.me.top_role:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Указаная роль выше моей роли!"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if ctx.author.top_role <= role and ctx.author != ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете выдать роль которая выше вашей роли!"
 			)
 			await ctx.send(embed=emb)
@@ -273,28 +273,28 @@ class Moderate(commands.Cog, name="Moderate"):
 		reason = reason[:1024]
 
 		if member == ctx.author:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете применить эту команду к себе"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member == ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете выгнать владельца сервера"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member.top_role >= ctx.guild.me.top_role:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Я не могу выгнать этого участника!"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете можете выгнать участника который имеет больше прав чем у вас!"
 			)
 			await ctx.send(embed=emb)
@@ -362,28 +362,28 @@ class Moderate(commands.Cog, name="Moderate"):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if member == ctx.author:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете применить эту команду к себе"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member == ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете забанить владельца сервера!"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member.top_role >= ctx.guild.me.top_role:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Я не могу забанить этого участника"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
-			emb = ctx.bot.utils.create_error_embed(
+			emb = self.client.utils.create_error_embed(
 				ctx, "Вы не можете можете забанить участника который имеет больше прав чем у вас!"
 			)
 			await ctx.send(embed=emb)
@@ -484,14 +484,14 @@ class Moderate(commands.Cog, name="Moderate"):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if member == ctx.author:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете применить эту команду к себе"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member.top_role >= ctx.guild.me.top_role:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Я не могу разбанить этого участника!"
 			)
 			await ctx.send(embed=emb)
@@ -556,28 +556,28 @@ class Moderate(commands.Cog, name="Moderate"):
 		self, ctx, member: discord.Member, *options: str
 	):
 		if member == ctx.author:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете применить эту команду к себе"
 			)
 			await ctx.send(embed=emb)
 			return
 		
 		if member == ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете забанить владельца сервера!"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member.top_role >= ctx.guild.me.top_role:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Я не могу забанить этого участника!"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете можете забанить участника который имеет больше прав чем у вас!"
 			)
 			await ctx.send(embed=emb)
@@ -643,7 +643,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	@commands.check(check_role)
 	async def unban(self, ctx, *, member: discord.User):
 		if member == ctx.author:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете применить эту команду к себе"
 			)
 			await ctx.send(embed=emb)
@@ -701,28 +701,28 @@ class Moderate(commands.Cog, name="Moderate"):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if member == ctx.author:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете применить эту команду к себе"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member == ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете замьютить в голосовых каналах владельца сервера!"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member.top_role >= ctx.guild.me.top_role:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Я не могу замьютить этого участника в голосовых каналах!"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете можете замьютить участника который имеет больше прав чем у вас!"
 			)
 			await ctx.send(embed=emb)
@@ -821,21 +821,21 @@ class Moderate(commands.Cog, name="Moderate"):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if member == ctx.author:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете применить эту команду к себе"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member == ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете размьють в голосовых каналах владельца сервера!"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member.top_role >= ctx.guild.me.top_role:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Я не могу размьютить этого участника в голосовых каналах!"
 			)
 			await ctx.send(embed=emb)
@@ -909,28 +909,28 @@ class Moderate(commands.Cog, name="Moderate"):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if member == ctx.author:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете применить эту команду к себе"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member == ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете замьютить владельца сервера!"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member.top_role >= ctx.guild.me.top_role:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Я не могу замьютить этого участника!"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете можете замьютить участника который имеет больше прав чем у вас!"
 			)
 			await ctx.send(embed=emb)
@@ -957,7 +957,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			role = await ctx.guild.create_role(name=self.MUTE_ROLE)
 
 		if role in member.roles:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Указаный пользователь уже замьючен!"
 			)
 			await ctx.send(embed=emb)
@@ -1086,21 +1086,21 @@ class Moderate(commands.Cog, name="Moderate"):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if member == ctx.author:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете применить эту команду к себе"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member == ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете размьютить владельца сервера"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member.top_role >= ctx.guild.me.top_role:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Я не могу размьютить этого участника"
 			)
 			await ctx.send(embed=emb)
@@ -1168,7 +1168,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if member == ctx.author:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете применить эту команду к себе"
 			)
 			await ctx.send(embed=emb)
@@ -1221,35 +1221,35 @@ class Moderate(commands.Cog, name="Moderate"):
 		reason = reason[:1024]
 
 		if member == ctx.author:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете применить эту команду к себе"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member == ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете дать предупреждения владельцу сервера!"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member.top_role >= ctx.guild.me.top_role:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете дать предупреждения этому участника!"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете можете дать предупреждения участнику который имеет больше прав чем у вас!"
 			)
 			await ctx.send(embed=emb)
 			return
 
 		if member.bot:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете дать предупреждения боту!"
 			)
 			await ctx.send(embed=emb)
@@ -1521,7 +1521,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			member = ctx.author
 
 		if member.bot:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете просмотреть предупреждения бота!"
 			)
 			await ctx.send(embed=emb)

@@ -28,13 +28,13 @@ class FunEditImage(commands.Cog):
                 emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
                 await ctx.send(embed=emb)
             else:
-                emb = await ctx.bot.utils.create_error_embed(
+                emb = await self.client.utils.create_error_embed(
                     ctx, "Указан не правильный формат цвета!"
                 )
                 await ctx.send(embed=emb)
                 return
         else:
-            emb = await ctx.bot.utils.create_error_embed(
+            emb = await self.client.utils.create_error_embed(
                 ctx, "Указан не правильный формат цвета!"
             )
             await ctx.send(embed=emb)
@@ -112,7 +112,7 @@ class FunEditImage(commands.Cog):
             "blur"
         )
         if filter.lower() not in filters:
-            emb = await ctx.bot.utils.create_error_embed(
+            emb = await self.client.utils.create_error_embed(
                 ctx, f"Укажите один из этих фильтров: {', '.join(filters)}!"
             )
             await ctx.send(embed=emb)

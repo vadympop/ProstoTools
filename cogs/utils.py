@@ -81,7 +81,7 @@ class Utils(commands.Cog, name="Utils"):
 			except discord.errors.HTTPException:
 				pass
 		else:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не правильно указали действие! Укажите из этих вариантов: on, off!"
 			)
 			await ctx.send(embed=emb)
@@ -198,7 +198,7 @@ class Utils(commands.Cog, name="Utils"):
 			return
 
 		if counter.lower() not in counters.keys():
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не правильно указали счетчик. Укажите из этих: bots, all, members, roles, channels"
 			)
 			await ctx.send(embed=emb)

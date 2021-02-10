@@ -357,7 +357,7 @@ class Settings(commands.Cog, name="Settings"):
 		warns_settings = (await self.client.database.sel_guild(guild=ctx.guild))["warns_settings"]
 		if action.lower() == "count":
 			if len(options) <= 0:
-				emb = await ctx.bot.utils.create_error_embed(
+				emb = await self.client.utils.create_error_embed(
 					ctx, "Укажите максимальное количество предупреждений!"
 				)
 				await ctx.send(embed=emb)
@@ -366,7 +366,7 @@ class Settings(commands.Cog, name="Settings"):
 			number = list(options).pop(0)
 
 			if not number.isdigit():
-				emb = await ctx.bot.utils.create_error_embed(
+				emb = await self.client.utils.create_error_embed(
 					ctx, "Укажите число!"
 				)
 				await ctx.send(embed=emb)
@@ -380,7 +380,7 @@ class Settings(commands.Cog, name="Settings"):
 				return
 
 			if number >= 25:
-				emb = await ctx.bot.utils.create_error_embed(
+				emb = await self.client.utils.create_error_embed(
 					ctx, "Вы указали слишком большой лимит предупреждений!"
 				)
 				await ctx.send(embed=emb)
@@ -1093,7 +1093,7 @@ class Settings(commands.Cog, name="Settings"):
 	async def react_commands(self, ctx, action: str):
 		actions = ["on", "off", "true", "false", "0", "1"]
 		if action.lower() not in actions:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не правильно указали действие! Укажите из этих вариантов: on, off!"
 			)
 			await ctx.send(embed=emb)
@@ -1194,7 +1194,7 @@ class Settings(commands.Cog, name="Settings"):
 
 		multi = int(raw_multi)
 		if multi > 10000 or multi <= 0:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Укажите множитель опыта в диапазоне от 1% до 10000%!"
 			)
 			await ctx.send(embed=emb)

@@ -26,7 +26,7 @@ class Information(commands.Cog):
             member = ctx.author
 
         if member.bot:
-            emb = await ctx.bot.utils.create_error_embed(
+            emb = await self.client.utils.create_error_embed(
                 ctx, "Вы не можете просмотреть информацию о боте!"
             )
             await ctx.send(embed=emb)

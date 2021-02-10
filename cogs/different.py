@@ -285,7 +285,7 @@ class Different(commands.Cog, name="Different"):
 					break
 
 			if not state:
-				emb = await ctx.bot.utils.create_error_embed(
+				emb = await self.client.utils.create_error_embed(
 					ctx, "У вас нет роли цвета!"
 				)
 				await ctx.send(embed=emb)
@@ -303,7 +303,7 @@ class Different(commands.Cog, name="Different"):
 			hex = color[1:]
 			if len(hex) == 6:
 				if (ctx.author.top_role.position + 1) >= ctx.guild.me.top_role.position:
-					emb = await ctx.bot.utils.create_error_embed(
+					emb = await self.client.utils.create_error_embed(
 						ctx, "У меня не хватает прав на добавления роли к вам!"
 					)
 					await ctx.send(embed=emb)
@@ -332,13 +332,13 @@ class Different(commands.Cog, name="Different"):
 				except discord.errors.HTTPException:
 					pass
 			else:
-				emb = await ctx.bot.utils.create_error_embed(
+				emb = await self.client.utils.create_error_embed(
 					ctx, "Указан не правильный формат цвета!"
 				)
 				await ctx.send(embed=emb)
 				return
 		else:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Указан не правильный формат цвета!"
 			)
 			await ctx.send(embed=emb)
@@ -374,14 +374,14 @@ class Different(commands.Cog, name="Different"):
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await member.send(embed=emb)
 			else:
-				emb = await ctx.bot.utils.create_error_embed(
+				emb = await self.client.utils.create_error_embed(
 					ctx, "У вас нет необходимых предметов или не достаточно коинов!"
 				)
 				await ctx.send(embed=emb)
 				self.send.reset_cooldown(ctx)
 				return
 		else:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "У вас нет необходимых предметов!"
 			)
 			await ctx.send(embed=emb)
@@ -421,7 +421,7 @@ class Different(commands.Cog, name="Different"):
 			await prch.send(embed=emb)
 			await mrkl.send(embed=emb)
 		else:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не правильно указали флаг!"
 			)
 			await ctx.send(embed=emb)
@@ -463,7 +463,7 @@ class Different(commands.Cog, name="Different"):
 		idea_channel_id = data["idea_channel"]
 
 		if idea_channel_id is None:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Не указан канал идей. Обратитесь к администации сервера"
 			)
 			await ctx.send(embed=emb)
@@ -482,7 +482,7 @@ class Different(commands.Cog, name="Different"):
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await idea_channel.send(embed=emb)
 			else:
-				emb = await ctx.bot.utils.create_error_embed(
+				emb = await self.client.utils.create_error_embed(
 					ctx, "Не указан канал идей. Обратитесь к администации сервера"
 				)
 				await ctx.send(embed=emb)
@@ -509,7 +509,7 @@ class Different(commands.Cog, name="Different"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await channel.send(embed=emb)
 		else:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Отказанно в доступе! Вы не имеете прав в указаном канале"
 			)
 			await ctx.send(embed=emb)
@@ -539,7 +539,7 @@ class Different(commands.Cog, name="Different"):
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def rnum(self, ctx, rnum1: int, rnum2: int):
 		if len(str(rnum1)) > 64 or len(str(rnum2)) > 64:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Укажите число меньше 64 в длинне"
 			)
 			await ctx.send(embed=emb)
@@ -621,7 +621,7 @@ class Different(commands.Cog, name="Different"):
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def calc(self, ctx, *, exp: str = None):
 		if exp is None:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Укажите пример!"
 			)
 			await ctx.send(embed=emb)
@@ -643,7 +643,7 @@ class Different(commands.Cog, name="Different"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		except:
-			emb = await ctx.bot.utils.create_error_embed(
+			emb = await self.client.utils.create_error_embed(
 				ctx, "Что-то пошло не так :("
 			)
 			await ctx.send(embed=emb)

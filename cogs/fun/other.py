@@ -24,7 +24,7 @@ class FunOther(commands.Cog):
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def cr_qr(self, ctx, *, code_text: str):
         if len(code_text) > 6000:
-            emb = await ctx.bot.utils.create_error_embed(
+            emb = await self.client.utils.create_error_embed(
                 ctx, "Используйте текст меньше 6000 символов!"
             )
             await ctx.send(embed=emb)
