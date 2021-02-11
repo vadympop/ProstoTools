@@ -55,7 +55,7 @@ class Errors(commands.Cog, name="Errors"):
 				f"**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указаной команде!**\n\n{ctx.command.help.format(Prefix=PREFIX)}\n[Документация](https://docs.prosto-tools.ml/)"
 				if ctx.command.help is not None
 				else "**Указан не правильный аргумент!\n[Документация](https://docs.prosto-tools.ml/)**",
-				bolf=False
+				bold=False
 			)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.CommandNotFound):

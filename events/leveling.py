@@ -2,7 +2,6 @@ import discord
 import json
 import jinja2
 import math
-import datetime
 import pymysql
 from discord.ext import commands
 from discord.utils import get
@@ -44,24 +43,73 @@ class EventsLeveling(commands.Cog):
 			all_message=all_message
 		)
 
-		if ignored_channels != []:
-			if message.channel.id in ignored_channels:
-				return
-
-		rand_number_1 = randint(1, 5)
-		exp_first = rand_number_1
-		coins_first = exp_first // 2 + 1
-
-		exp_member = data["exp"]
-		coins_member = data["coins"]
-		pets_member = data["pets"]
-		if "hamster" in pets_member:
-			coins_first += math.ceil(coins_first*70/100)
-		exp = exp_first + exp_member
-		coins = coins_first + coins_member
 		reputation = data["reputation"]
 		messages = data["messages"]
+		exp = data["exp"]
+		coins = data["coins"]
 		lvl_member = data["level"]
+
+		if message.channel.id not in ignored_channels:
+			added_exp = randint(1, 5)
+			added_coins = added_exp // 2 + 1
+
+			pets_member = data["pets"]
+			if "hamster" in pets_member:
+				added_coins += math.ceil(added_coins*70/100)
+			exp += added_exp
+			coins += added_coins
+
+			exp_end = math.floor(9 * (lvl_member ** 2) + 50 * lvl_member + 125 * multi)
+			if exp_end < exp:
+				lvl_member += 1
+				if guild_data["rank_message"]["state"]:
+					data["level"] = lvl_member
+					data["exp"] = exp
+					data["coins"] = coins
+					data["reputation"] = reputation
+					data.update({"multi": guild_data["exp_multi"]})
+					try:
+						text = await self.client.template_engine.render(
+							message,
+							message.author,
+							data,
+							guild_data["rank_message"]["text"]
+						)
+					except discord.errors.HTTPException:
+						try:
+							await message.add_reaction("❌")
+						except discord.errors.Forbidden:
+							pass
+						except discord.errors.HTTPException:
+							pass
+						emb = discord.Embed(
+							title="Ошибка!",
+							description=f"**Во время выполнения кастомной команды пройзошла ошибка неизвестная ошибка!**",
+							colour=discord.Color.red(),
+						)
+						emb.set_author(name=message.author.name, icon_url=message.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await message.channel.send(embed=emb)
+					except jinja2.exceptions.TemplateSyntaxError as e:
+						try:
+							await message.add_reaction("❌")
+						except discord.errors.Forbidden:
+							pass
+						except discord.errors.HTTPException:
+							pass
+						emb = discord.Embed(
+							title="Ошибка!",
+							description=f"Во время выполнения кастомной команды пройзошла ошибка:\n```{repr(e)}```",
+							colour=discord.Color.red(),
+						)
+						emb.set_author(name=message.author.name, icon_url=message.author.avatar_url)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+						await message.channel.send(embed=emb)
+					else:
+						if guild_data["rank_message"]["type"] == "channel":
+							await message.channel.send(text)
+						elif guild_data["rank_message"]["type"] == "dm":
+							await message.author.send(text)
 
 		messages[0] = int(messages[0])+1
 		messages[1] = int(messages[1])+1
@@ -74,70 +122,15 @@ class EventsLeveling(commands.Cog):
 		if reputation >= 100:
 			reputation = 100
 
-		exp_end = math.floor(9 * (lvl_member ** 2) + 50 * lvl_member + 125 * multi)
-		if exp_end < exp:
-			lvl_member += 1
-			if guild_data["rank_message"]["state"]:
-				data["level"] = lvl_member
-				data["exp"] = exp
-				data["coins"] = coins
-				data["reputation"] = reputation
-				data.update({"multi": guild_data["exp_multi"]})
-				try:
-					text = await self.client.template_engine.render(
-						message,
-						message.author,
-						data,
-						guild_data["rank_message"]["text"]
-					)
-				except discord.errors.HTTPException:
-					try:
-						await message.add_reaction("❌")
-					except discord.errors.Forbidden:
-						pass
-					except discord.errors.HTTPException:
-						pass
-					emb = discord.Embed(
-						title="Ошибка!",
-						description=f"**Во время выполнения кастомной команды пройзошла ошибка неизвестная ошибка!**",
-						colour=discord.Color.red(),
-					)
-					emb.set_author(name=message.author.name, icon_url=message.author.avatar_url)
-					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-					await message.channel.send(embed=emb)
-				except jinja2.exceptions.TemplateSyntaxError as e:
-					try:
-						await message.add_reaction("❌")
-					except discord.errors.Forbidden:
-						pass
-					except discord.errors.HTTPException:
-						pass
-					emb = discord.Embed(
-						title="Ошибка!",
-						description=f"Во время выполнения кастомной команды пройзошла ошибка:\n```{repr(e)}```",
-						colour=discord.Color.red(),
-					)
-					emb.set_author(name=message.author.name, icon_url=message.author.avatar_url)
-					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-					await message.channel.send(embed=emb)
-				else:
-					if guild_data["rank_message"]["type"] == "channel":
-						await message.channel.send(text)
-					elif guild_data["rank_message"]["type"] == "dm":
-						await message.author.send(text)
-
-		try:
-			await self.client.database.update(
-				"users",
-				where={"user_id": message.author.id, "guild_id": message.guild.id},
-				exp=exp,
-				coins=coins,
-				reputation=reputation,
-				messages=json.dumps(messages),
-				level=lvl_member
-			)
-		except pymysql.err.InternalError:
-			pass
+		await self.client.database.update(
+			"users",
+			where={"user_id": message.author.id, "guild_id": message.guild.id},
+			exp=exp,
+			coins=coins,
+			reputation=reputation,
+			messages=json.dumps(messages),
+			level=lvl_member
+		)
 
 
 def setup(client):
