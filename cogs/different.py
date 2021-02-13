@@ -614,7 +614,7 @@ class Different(commands.Cog, name="Different"):
 	@commands.command(
 		name="calc",
 		aliases=["calculator", "c"],
-		description="Выполняет математические операции",
+		description="**Выполняет математические операции**",
 		usage="calc [Операция]",
 		help="**Примеры использования:**\n1. {Prefix}calc 2+1\n\n**Пример 1:** Вычислит уравнения `2+1`",
 	)

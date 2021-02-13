@@ -378,7 +378,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.command(
 		aliases=["mutes-list", "listmutes", "muteslist", "mutes"],
 		name="list-mutes",
-		description="Показывает все мьюты на сервере",
+		description="**Показывает все мьюты на сервере**",
 		usage="list-mutes |@Участник|",
 		help="**Примеры использования:**\n1. {Prefix}list-mutes\n\n**Пример 1:** Показывает все мьюты на сервере",
 	)
