@@ -1,5 +1,4 @@
 import os
-import json
 from tools.http import async_requests as requests
 from discord.ext import commands, tasks
 
@@ -17,32 +16,41 @@ class TasksSendData(commands.Cog):
 	@tasks.loop(hours=6)
 	async def send_data_loop(self):
 		if len(self.client.guilds) > 0:
+			allowed_cogs = (
+				"Clans",
+				"Different",
+				"Economy",
+				"Games",
+				"Moderate",
+				"Settings",
+				"Utils",
+				"Works",
+				"FunOther",
+				"FunEditImage",
+				"FunRandomImage",
+				"Information"
+			)
 			data = {
 				"guilds": [guild.id for guild in self.client.guilds],
 				"users": [user.id for user in self.client.users],
 				"channels": [channel.id for channel in self.client.get_all_channels()],
 				"commands": {
-					cog_name: {
-						command.name: {
+					"commands": [
+						{
+							"name": command.name,
 							"description": command.description,
-							"usage": command.usage
+							"usage": command.usage,
+							"category": command.cog_name
 						}
-						for command in self.client.get_cog(cog_name).get_commands()
-					}
-					for cog_name in self.client.cogs if cog_name in (
-						"Clans",
-						"Different",
-						"Economy",
-						"Games",
-						"Moderate",
-						"Settings",
-						"Utils",
-						"Works",
-						"FunOther",
-						"FunEditImage",
-						"FunRandomImage"
-					)
-				},
+						for command in self.client.commands
+						if command.cog_name in allowed_cogs
+					],
+					"cogs": [
+						cog_name
+						for cog_name in self.client.cogs
+						if cog_name in allowed_cogs
+					]
+				}
 			}
 			headers = {
 				"Authorization": os.getenv("BOT_TOKEN")
@@ -52,7 +60,6 @@ class TasksSendData(commands.Cog):
 	@tasks.loop(hours=6)
 	async def send_sdc_data_loop(self):
 		if len(self.client.guilds) > 0:
-			print("Send to SDC")
 			if os.getenv("SDC_TOKEN") is not None:
 				headers = {
 					"Authorization": f"SDC {os.getenv('SDC_TOKEN')}"
@@ -66,7 +73,6 @@ class TasksSendData(commands.Cog):
 	@tasks.loop(hours=6)
 	async def send_boticord_data_loop(self):
 		if len(self.client.guilds) > 0:
-			print("Send to Boticord")
 			if os.getenv("BOTICORD_TOKEN") is not None:
 				headers = {
 					"Authorization": os.getenv('BOTICORD_TOKEN')
