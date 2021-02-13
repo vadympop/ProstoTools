@@ -84,7 +84,7 @@ class Information(commands.Cog):
         name="info-bot",
         aliases=["botinfo", "infobot", "bot-info", "about", "bot"],
         usage="info-bot",
-        description="Подробная информация о боте",
+        description="**Подробная информация о боте**",
         help="**Примеры использования:**\n1. {Prefix}info-bot\n2. {Prefix}info-bot system\n\n**Пример 1:** Покажет информацию обо мне\n**Пример 2:** Покажет информацию о моей системе",
     )
     @commands.cooldown(2, 10, commands.BucketType.member)
@@ -351,7 +351,7 @@ class Information(commands.Cog):
     @commands.command(
         name="c-help",
         aliases=["chelp"],
-        description="Помощь по кастомным командам",
+        description="**Помощь по кастомным командам**",
         usage="chelp",
         help="**Примеры использования:**\n1. {Prefix}chelp\n\n**Пример 1:** Показывает помощь по кастомным командам",
     )
