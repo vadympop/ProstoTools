@@ -391,7 +391,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		options = list(options)
 		if len(options) > 0:
-			if not options[0].isalpha():
+			if options[0].isdigit():
 				type_time = options.pop(0)
 				softban_time = self.client.utils.time_to_num(type_time)
 				times = time.time() + softban_time[0]
@@ -585,7 +585,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		options = list(options)
 		if len(options) > 0:
-			if not options[0].isalpha():
+			if options[0].isdigit():
 				type_time = options.pop(0)
 				ban_time = self.client.utils.time_to_num(type_time)
 				times = time.time() + ban_time[0]
@@ -730,7 +730,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		options = list(options)
 		if len(options) > 0:
-			if not options[0].isalpha():
+			if options[0].isdigit():
 				type_time = options.pop(0)
 				vmute_time = self.client.utils.time_to_num(type_time)
 				times = time.time() + vmute_time[0]
@@ -938,7 +938,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		options = list(options)
 		if len(options) > 0:
-			if not options[0].isalpha():
+			if options[0].isdigit():
 				type_time = options.pop(0)
 				mute_time = self.client.utils.time_to_num(type_time)
 				times = time.time() + mute_time[0]
