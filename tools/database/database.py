@@ -476,11 +476,9 @@ class DB(AbcDatabase):
 
 		dict_data = {
 			"guild_id": int(data[0]),
-			"purge": int(data[1]),
 			"all_message": int(data[2]),
 			"textchannels_category": int(data[3]),
 			"exp_multi": float(data[4]),
-			"idea_channel": int(data[5]),
 			"timedelete_textchannel": int(data[6]),
 			"donate": data[7] == "True",
 			"prefix": str(data[8]),

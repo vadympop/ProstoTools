@@ -451,45 +451,6 @@ class Different(commands.Cog, name="Different"):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		aliases=["idea", "guildidea"],
-		name="guild-idea",
-		description="**Отправляет вашу идею (Cooldown - 30мин)**",
-		usage="guild-idea [Ваша идея]",
-		help="**Примеры использования:**\n1. {Prefix}guild-idea I have an idea\n\n**Пример 1:** Отправит идею `I have an idea` в настроеный канал дял идей сервера",
-	)
-	@commands.cooldown(1, 7200, commands.BucketType.member)
-	async def idea(self, ctx, *, text: str):
-		data = await self.client.database.sel_guild(guild=ctx.guild)
-		idea_channel_id = data["idea_channel"]
-
-		if idea_channel_id is None:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Не указан канал идей. Обратитесь к администации сервера"
-			)
-			await ctx.send(embed=emb)
-			self.idea.reset_cooldown(ctx)
-			return
-		else:
-			if idea_channel_id in [channel.id for channel in ctx.guild.channels]:
-				idea_channel = self.client.get_channel(int(idea_channel_id))
-				emb = discord.Embed(
-					title="Новая идея!",
-					description=f"**От {ctx.author.mention} прийшла идея: {text}**",
-					colour=discord.Color.green(),
-				)
-				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-				emb.set_thumbnail(url=ctx.author.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await idea_channel.send(embed=emb)
-			else:
-				emb = await self.client.utils.create_error_embed(
-					ctx, "Не указан канал идей. Обратитесь к администации сервера"
-				)
-				await ctx.send(embed=emb)
-				self.idea.reset_cooldown(ctx)
-				return
-
-	@commands.command(
 		aliases=["msg-f", "msg-forward", "msgf", "msg-forw"],
 		name="message-forward",
 		description="**Перенаправляет ваше сообщения в указаный канал(Cooldown - 2 мин)**",

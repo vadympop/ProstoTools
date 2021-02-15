@@ -22,7 +22,7 @@ class Settings(commands.Cog, name="Settings"):
 		return None
 
 	@commands.group(
-		help=f"""**Команды групы:** anti-invite, level-up-message, time-delete-channel, shop-role, exp-multi, text-channels-category, set-audit, idea-channel, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions, auto-responder\n\n"""
+		help=f"""**Команды групы:** anti-invite, level-up-message, time-delete-channel, shop-role, exp-multi, text-channels-category, set-audit, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions, auto-responder\n\n"""
 	)
 	@commands.has_permissions(administrator=True)
 	async def setting(self, ctx):
@@ -1125,27 +1125,6 @@ class Settings(commands.Cog, name="Settings"):
 			where={"guild_id": ctx.guild.id},
 			auto_mod=json.dumps(settings)
 		)
-
-	@setting.command(
-		name="idea-channel",
-		description="**Настройка канала идей сервера**",
-		usage="setting idea-channel [Id канала]",
-	)
-	@commands.has_permissions(administrator=True)
-	async def ideachannel(self, ctx, channel: discord.TextChannel):
-		await self.client.database.update(
-			"guilds",
-			where={"guild_id": ctx.guild.id},
-			idea_channel=channel.id
-		)
-
-		emb = discord.Embed(
-			description=f"**Вы успешно настроили канал идей! Новий канал - {channel.name}**",
-			colour=discord.Color.green(),
-		)
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
 
 	@setting.command(
 		name="time-delete-channel",

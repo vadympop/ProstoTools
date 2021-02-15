@@ -39,12 +39,6 @@ class ShowConfigs(commands.Cog):
     async def show_config(self, ctx):
         if ctx.invoked_subcommand is None:
             data = await self.client.database.sel_guild(guild=ctx.guild)
-            idea_channel_obj = ctx.guild.get_channel(data['idea_channel'])
-            if idea_channel_obj is None:
-                idea_channel = "Не указан"
-            else:
-                idea_channel = "#"+idea_channel_obj.name
-
             category_obj = ctx.guild.get_channel(data["textchannels_category"])
             if category_obj is None:
                 category = "Не указана"
@@ -63,7 +57,6 @@ class ShowConfigs(commands.Cog):
                 voice_channel = f"Включены({channel.name})" if channel is not None else f"Включены"
 
             main_settings = f"""Префикс - `{data['prefix']}`
-    Канал идей - `{idea_channel}`
     Категория приватных текстовых каналов - `{category}`
     Максимальное количество предупрежденний - `{data['warns_settings']["max"]}`
     Множитель опыта - `{data['exp_multi'] * 100}%`
