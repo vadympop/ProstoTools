@@ -71,34 +71,26 @@ class Economy(commands.Cog):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		name="+rep",
-		aliases=["+reputation", "repp"],
-		description="**Добавления репутации(от 1 до 5) указаному пользователю(Cooldown 1 час)**",
-		usage="+rep [@Участник] [Число репутации]",
-		help="**Примеры использования:**\n1. {Prefix}+rep @Участник 1\n2. {Prefix}+rep 660110922865704980 1\n\n**Пример 1:** Даст упомянутому участнику одну репутацию\n**Пример 2:** Даст участнику с указаным id одну репутацию",
+		aliases=["reputation"],
+		description="**Добавления репутации указаному пользователю(Cooldown 1 час)**",
+		usage="rep [@Участник]",
+		help="**Примеры использования:**\n1. {Prefix}rep @Участник\n2. {Prefix}rep 660110922865704980\n\n**Пример 1:** Добавит репутацию упомянутому участнику\n**Пример 2:** Добавит репутацию участнику с указаным id",
 	)
 	@commands.cooldown(1, 3600, commands.BucketType.member)
-	async def repp(self, ctx, member: discord.Member, num: int):
+	async def rep(self, ctx, member: discord.Member):
 		if member == ctx.author:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете изменять свою репутацию!"
 			)
 			await ctx.send(embed=emb)
-			self.repp.reset_cooldown(ctx)
-			return
-		elif num < 1 or num > 5:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы указали число добавляемой репутацию в неправильном диапазоне!"
-			)
-			await ctx.send(embed=emb)
-			self.repp.reset_cooldown(ctx)
+			self.rep.reset_cooldown(ctx)
 			return
 		elif member.bot:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете менять репутацию бота!"
 			)
 			await ctx.send(embed=emb)
-			self.repp.reset_cooldown(ctx)
+			self.rep.reset_cooldown(ctx)
 			return
 
 		reputation = (await self.client.database.sel_user(target=member))["reputation"]
@@ -106,63 +98,14 @@ class Economy(commands.Cog):
 		await self.client.database.update(
 			"users",
 			where={"user_id": member.id, "guild_id": ctx.guild.id},
-			reputation=reputation+num
+			reputation=reputation+1
 		)
-
-		emb = discord.Embed(
-			description="**Вы успешно добавили репутация к указаному пользователю!**",
-			colour=discord.Color.green(),
-		)
-		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
-
-	@commands.command(
-		name="-rep",
-		aliases=["-reputation", "repm"],
-		description="**Отнимает репутацию(от 1 до 3) указаному пользователю(Cooldown 1 час)**",
-		usage="-rep [@Участник] [Число репутации]",
-		help="**Примеры использования:**\n1. {Prefix}-rep @Участник 1\n2. {Prefix}-rep 660110922865704980 1\n\n**Пример 1:** Отнимет упомянутому участнику одну репутацию\n**Пример 2:** Отнимет участнику с указаным id одну репутацию",
-	)
-	@commands.cooldown(1, 3600, commands.BucketType.member)
-	async def repm(self, ctx, member: discord.Member, num: int):
-		if member == ctx.author:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете изменять свою репутацию!"
-			)
-			await ctx.send(embed=emb)
-			self.repm.reset_cooldown(ctx)
-			return
-		elif num < 1 or num > 3:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы указали число убавляемой репутацию в неправильном диапазоне!"
-			)
-			await ctx.send(embed=emb)
-			self.repm.reset_cooldown(ctx)
-			return
-		elif member.bot:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете менять репутацию бота!"
-			)
-			await ctx.send(embed=emb)
-			self.repm.reset_cooldown(ctx)
-			return
-
-		reputation = (await self.client.database.sel_user(target=member))["reputation"]
-
-		await self.client.database.update(
-			"users",
-			where={"user_id": member.id, "guild_id": ctx.guild.id},
-			reputation=reputation-num
-		)
-
-		emb = discord.Embed(
-			description="**Вы успешно убавили репутация к указаному пользователю!**",
-			colour=discord.Color.green(),
-		)
-		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 	@commands.command(
 		description="**Ежедневная награда**",
