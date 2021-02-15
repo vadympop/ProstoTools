@@ -445,20 +445,7 @@ class DB(AbcDatabase):
 			json.dumps({
 				"state": False
 			}),
-			json.dumps(
-				{command: {
-					"state": True,
-					"ignore_channels": [],
-					"ignore_roles": [],
-					"target_roles": [],
-					"target_channels": []
-				} for command in [
-					command.name
-					for cog in self.client.cogs
-					for command in self.client.get_cog(cog).get_commands()
-					if cog.lower() not in ("owner", "help", "jishaku")
-				]}
-			),
+			json.dumps({}),
 			json.dumps({"max": 3, "punishment": None})
 		)
 
@@ -509,15 +496,13 @@ class DB(AbcDatabase):
 				return cached_guild
 
 		return (await self.execute(
-			"""SELECT prefix FROM guilds WHERE guild_id = %s""",
-			(guild.id),
+			f"""SELECT prefix FROM guilds WHERE guild_id = {guild.id}""",
 			fetchone=True
 		))[0]
 
 	async def get_moder_roles(self, guild: discord.Guild):
 		return (await self.execute(
-			"""SELECT moderators FROM guilds WHERE guild_id = %s""",
-			(guild.id),
+			f"""SELECT moderators FROM guilds WHERE guild_id = {guild.id}""",
 			fetchone=True
 		))[0]
 

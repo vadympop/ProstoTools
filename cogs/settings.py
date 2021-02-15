@@ -2347,6 +2347,18 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.send(embed=emb)
 			return
 
+		if command_name not in commands_settings.keys():
+			commands_settings.update(
+				{
+					command_name: {
+						"state": True,
+						"ignore_channels": [],
+						"ignore_roles": [],
+						"target_roles": [],
+						"target_channels": []
+					}
+				})
+
 		if setting.lower() == "on":
 			if commands_settings[command_name]["state"]:
 				emb = await self.client.utils.create_error_embed(
