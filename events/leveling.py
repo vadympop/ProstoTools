@@ -43,7 +43,6 @@ class EventsLeveling(commands.Cog):
 			all_message=all_message
 		)
 
-		reputation = data["reputation"]
 		messages = data["messages"]
 		exp = data["exp"]
 		coins = data["coins"]
@@ -66,7 +65,6 @@ class EventsLeveling(commands.Cog):
 					data["level"] = lvl_member
 					data["exp"] = exp
 					data["coins"] = coins
-					data["reputation"] = reputation
 					data.update({"multi": guild_data["exp_multi"]})
 					try:
 						text = await self.client.template_engine.render(
@@ -111,23 +109,14 @@ class EventsLeveling(commands.Cog):
 						elif guild_data["rank_message"]["type"] == "dm":
 							await message.author.send(text)
 
-		messages[0] = int(messages[0])+1
 		messages[1] = int(messages[1])+1
 		messages[2] = message.content
-
-		if messages[0] >= 150:
-			reputation += 1
-			messages[0] = 0
-
-		if reputation >= 100:
-			reputation = 100
 
 		await self.client.database.update(
 			"users",
 			where={"user_id": message.author.id, "guild_id": message.guild.id},
 			exp=exp,
 			coins=coins,
-			reputation=reputation,
 			messages=json.dumps(messages),
 			level=lvl_member
 		)
