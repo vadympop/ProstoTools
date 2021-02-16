@@ -1,10 +1,12 @@
 import discord
+import jinja2
 from discord.ext import commands
 
 
 class EventsLeave(commands.Cog):
 	def __init__(self, client):
 		self.client = client
+		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.Cog.listener()
 	async def on_guild_remove(self, guild):
@@ -34,6 +36,47 @@ class EventsLeave(commands.Cog):
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):
 		await self.client.database.execute(f"""DELETE FROM reminders WHERE user_id = {member.id}""")
+		guild_data = await self.client.database.sel_guild(guild=member.guild)
+		member_data = await self.client.database.sel_user(target=member)
+		member_data.update({"multi": guild_data["exp_multi"]})
+		try:
+			try:
+				if guild_data["welcomer"]["leave"]["type"] == "dm":
+					await member.send(
+						await self.client.template_engine.render(
+							None, member, member_data, guild_data["welcomer"]["leave"]["text"]
+						)
+					)
+				elif guild_data["welcomer"]["leave"]["type"] == "channel":
+					channel = member.guild.get_channel(
+						guild_data["welcomer"]["leave"]["channel"]
+					)
+					if channel is not None:
+						await channel.send(
+							await self.client.template_engine.render(
+								None, member, member_data, guild_data["welcomer"]["leave"]["text"]
+							)
+						)
+			except discord.errors.HTTPException:
+				emb = discord.Embed(
+					title="Ошибка!",
+					description=f"**Во время выполнения кастомной команды пройзошла ошибка неизвестная ошибка!**",
+					colour=discord.Color.red(),
+				)
+				emb.set_author(name=member.name, icon_url=member.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await member.send(embed=emb)
+				return
+		except jinja2.exceptions.TemplateSyntaxError as e:
+			emb = discord.Embed(
+				title="Ошибка!",
+				description=f"Во время выполнения кастомной команды пройзошла ошибка:\n```{repr(e)}```",
+				colour=discord.Color.red(),
+			)
+			emb.set_author(name=member.name, icon_url=member.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await member.send(embed=emb)
+			return
 
 
 def setup(client):

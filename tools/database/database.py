@@ -415,7 +415,7 @@ class DB(AbcDatabase):
 	async def sel_guild(self, guild) -> dict:
 		sql_1 = """SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s"""
 		val_1 = (guild.id, guild.id)
-		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, audit, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcome, auto_roles, custom_commands, autoresponders, rank_message, commands_settings, warns_settings) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, audit, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcomer, auto_roles, custom_commands, autoresponders, rank_message, commands_settings, warns_settings) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 		val_2 = (
 			guild.id,
 			"False",
@@ -438,7 +438,10 @@ class DB(AbcDatabase):
 			json.dumps({}),
 			json.dumps([]),
 			json.dumps({}),
-			json.dumps({}),
+			json.dumps({
+				"join": {"state": False},
+				"leave": {"state": False}
+			}),
 			json.dumps({}),
 			json.dumps([]),
 			json.dumps({}),
@@ -478,7 +481,7 @@ class DB(AbcDatabase):
 			"clans": json.loads(data[13]),
 			"moder_roles": json.loads(data[14]),
 			"auto_reactions": json.loads(data[15]),
-			"welcome": json.loads(data[16]),
+			"welcomer": json.loads(data[16]),
 			"auto_roles": json.loads(data[17]),
 			"custom_commands": json.loads(data[18]),
 			"autoresponders": json.loads(data[19]),

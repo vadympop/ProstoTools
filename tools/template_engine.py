@@ -1,20 +1,24 @@
 import discord
 import math
 import random
+import typing
 from jinja2 import Template
 from asyncinit import asyncinit
 
 client = None
 
 
-async def render(message: discord.Message, member: discord.Member, data: dict, render_text: str):
+async def render(
+		message: typing.Union[discord.Message, None],
+		member: discord.Member,
+		data: dict,
+		render_text: str
+):
 	template = Template(render_text, autoescape=False)
 	context = {
 		"member": Member(member, data),
 		"guild": await Guild(member.guild),
-		"channel": Channel(message.channel),
 		"bot": User(client.user),
-		"message": await Message(message),
 		"len": len,
 		"math": math,
 		"round": round,
@@ -36,6 +40,11 @@ async def render(message: discord.Message, member: discord.Member, data: dict, r
 		"replace": lambda msg, old, new: msg.replace(old, new),
 		"contains": lambda msg, word: True if word in msg.split(" ") else False,
 	}
+	if message is not None:
+		context.update({
+			"message": await Message(message),
+			"channel": Channel(message.channel),
+		})
 	result = template.render(context)
 	return result
 

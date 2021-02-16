@@ -19,15 +19,17 @@ class EventsLeveling(commands.Cog):
 	async def on_message(self, message):
 		if message.author.bot:
 			return
+
 		if message.guild is None:
 			return
 
-		role = get(message.guild.roles, name=self.MUTE_ROLE)
-		if role in message.author.roles:
-			try:
-				await message.delete()
-			except discord.errors.NotFound:
-				pass
+		if message.author != message.guild.owner:
+			role = get(message.guild.roles, name=self.MUTE_ROLE)
+			if role in message.author.roles:
+				try:
+					await message.delete()
+				except discord.errors.NotFound:
+					pass
 
 		guild_data = await self.client.database.sel_guild(guild=message.guild)
 		data = await self.client.database.sel_user(target=message.author)

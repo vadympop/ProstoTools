@@ -2506,6 +2506,150 @@ class Settings(commands.Cog, name="Settings"):
 		except discord.errors.HTTPException:
 			pass
 
+	@setting.command(
+		description="**Настройка системы приветствий**",
+		usage="setting welcomer [channel/dm/off] |Текст|",
+	)
+	@commands.has_permissions(administrator=True)
+	async def welcomer(self, ctx, type: str, *options):
+		welcomer_settings = (await self.client.database.sel_guild(guild=ctx.guild))["welcomer"]
+		options = list(options)
+		if type.lower() == "dm":
+			if len(options) <= 0:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите текст!**",
+				)
+				await ctx.send(embed=emb)
+				return
+
+			welcomer_settings["join"].update({
+				"state": True,
+				"type": "dm",
+				"text": " ".join(options)
+			})
+		elif type.lower() == "channel":
+			if len(options) <= 0:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите канал!**",
+				)
+				await ctx.send(embed=emb)
+				return
+
+			channel_converter = commands.TextChannelConverter()
+			channel = await channel_converter.convert(ctx, options.pop(0))
+			if len(options) <= 0:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите текст!**",
+				)
+				await ctx.send(embed=emb)
+				return
+
+			welcomer_settings["join"].update({
+				"state": True,
+				"type": "channel",
+				"channel": channel.id,
+				"text": " ".join(options)
+			})
+		elif type.lower() == "off":
+			if not welcomer_settings["join"]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Система приветствий уже выключена!**",
+				)
+				await ctx.send(embed=emb)
+				return
+
+			welcomer_settings["join"].update({"state": False})
+		else:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Укажите одно из этих действий: off, dm, channel!**",
+			)
+			await ctx.send(embed=emb)
+			return
+
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			welcomer=json.dumps(welcomer_settings)
+		)
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
+
+	@setting.command(
+		description="**Настройка системы прощаний**",
+		usage="setting leaver [channel/dm/off] |Текст|",
+	)
+	@commands.has_permissions(administrator=True)
+	async def leaver(self, ctx, type: str, *options):
+		leaver_settings = (await self.client.database.sel_guild(guild=ctx.guild))["welcomer"]
+		options = list(options)
+		if type.lower() == "dm":
+			if len(options) <= 0:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите текст!**",
+				)
+				await ctx.send(embed=emb)
+				return
+
+			leaver_settings["leave"].update({
+				"state": True,
+				"type": "dm",
+				"text": " ".join(options)
+			})
+		elif type.lower() == "channel":
+			if len(options) <= 0:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите канал!**",
+				)
+				await ctx.send(embed=emb)
+				return
+
+			channel_converter = commands.TextChannelConverter()
+			channel = await channel_converter.convert(ctx, options.pop(0))
+			if len(options) <= 0:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Укажите текст!**",
+				)
+				await ctx.send(embed=emb)
+				return
+
+			leaver_settings["leave"].update({
+				"state": True,
+				"type": "channel",
+				"channel": channel.id,
+				"text": " ".join(options)
+			})
+		elif type.lower() == "off":
+			if not leaver_settings["leave"]["state"]:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Система прощаний уже выключена!**",
+				)
+				await ctx.send(embed=emb)
+				return
+
+			leaver_settings["leave"].update({"state": False})
+		else:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Укажите одно из этих действий: off, dm, channel!**",
+			)
+			await ctx.send(embed=emb)
+			return
+
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			welcomer=json.dumps(leaver_settings)
+		)
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
+
 
 def setup(client):
 	client.add_cog(Settings(client))
