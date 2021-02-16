@@ -13,6 +13,29 @@ class Information(commands.Cog):
         self.HELP_SERVER = self.client.config.HELP_SERVER
         humanize.i18n.activate("ru_RU")
 
+    def _get_bio(self, data: dict):
+        if data["bio"] == "":
+            return ""
+        else:
+            return f"""\n\n**Краткая информация о пользователе:**\n{data['bio']}\n\n"""
+
+    def _get_activity(self, activity: discord.Activity):
+        if activity is None:
+            return ""
+
+        if isinstance(activity, discord.Game):
+            return f"\n**Пользовательский статус:** {activity.name}"
+
+        if activity.emoji is not None and activity.emoji.is_unicode_emoji():
+            activity_info = f"\n**Пользовательский статус:** {activity.emoji} {activity.name}"
+        else:
+            if activity.emoji in self.client.emojis:
+                activity_info = f"\n**Пользовательский статус:** {activity.emoji} {activity.name}"
+            else:
+                activity_info = f"\n**Пользовательский статус:** {activity.name}"
+
+        return activity_info
+
     @commands.command(
         aliases=["userinfo", "user"],
         name="user-info",
@@ -25,47 +48,35 @@ class Information(commands.Cog):
         if member is None:
             member = ctx.author
 
-        if member.bot:
-            emb = await self.client.utils.create_error_embed(
-                ctx, "Вы не можете просмотреть информацию о боте!"
-            )
-            await ctx.send(embed=emb)
-            return
-
-        data = await self.client.database.sel_user(target=member)
-        all_message = data["messages"][1]
-        joined_at = datetime.datetime.strftime(member.joined_at, "%d %B %Y %X")
-        created_at = datetime.datetime.strftime(member.created_at, "%d %B %Y %X")
-
-        get_bio = (
-            lambda: ""
-            if data["bio"] == ""
-            else f"""\n\n**Краткая информация о пользователе:**\n{data['bio']}\n\n"""
-        )
-        activity = member.activity
-
-        def get_activity():
-            if activity is None:
-                return ""
-
-            if activity.emoji is not None and activity.emoji.is_unicode_emoji():
-                activity_info = (
-                    f"\n**Пользовательский статус:** {activity.emoji} {activity.name}"
-                )
-            else:
-                if activity.emoji in self.client.emojis:
-                    activity_info = f"\n**Пользовательский статус:** {activity.emoji} {activity.name}"
-                else:
-                    activity_info = f"\n**Пользовательский статус:** {activity.name}"
-
-            return activity_info
-
         statuses = {
             "dnd": "<:dnd:730391353929760870> - Не беспокоить",
             "online": "<:online:730393440046809108> - В сети",
             "offline": "<:offline:730392846573633626> - Не в сети",
             "idle": "<:sleep:730390502972850256> - Отошёл",
         }
+        joined_at = datetime.datetime.strftime(member.joined_at, "%d %B %Y %X")
+        created_at = datetime.datetime.strftime(member.created_at, "%d %B %Y %X")
+
+        if not member.bot:
+            data = await self.client.database.sel_user(target=member)
+            all_message = data["messages"][1]
+            description = f"""
+{self._get_bio(data)}**Имя пользователя:** {member}
+**Статус:** {statuses[member.status.name]}{self._get_activity(member.activity)}
+**Id пользователя:** {member.id}
+**Акаунт создан:** {created_at}
+**Присоиденился:** {joined_at}
+**Сообщений:** {all_message}
+**Вызванно команд:** {data["num_commands"]}
+"""
+        else:
+            description = f"""
+**Имя бота:** {member}
+**Статус:** {statuses[member.status.name]}{self._get_activity(member.activity)}
+**Id бота:** {member.id}
+**Акаунт создан:** {created_at}
+**Присоиденился:** {joined_at}
+"""
 
         emb = discord.Embed(
             title=f"Информация о пользователе - {member}", colour=discord.Color.green()
@@ -75,7 +86,7 @@ class Information(commands.Cog):
         emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
         emb.add_field(
             name="Основная информация",
-            value=f"""{get_bio()}**Имя пользователя:** {member}\n**Статус:** {statuses[member.status.name]}{get_activity()}\n**Id пользователя:** {member.id}\n**Акаунт созданн:** {created_at}\n**Присоиденился:** {joined_at}\n**Сообщений:** {all_message}\n**Вызванно команд:** {data["num_commands"]}""",
+            value=description,
             inline=False,
         )
         await ctx.send(embed=emb)
@@ -292,7 +303,7 @@ class Information(commands.Cog):
 
         emb.add_field(
             name=f"Основная информация",
-            value=f"**Название сервера:** {ctx.guild.name}\n**Id сервера:** {ctx.guild.id}\n**Регион сервера:** {regions[ctx.guild.region.name]}\n**Уровень верификации:** {verifications[ctx.guild.verification_level.name]}\n**Всего сообщений:** {all_message}\n**Владелец сервера:** {ctx.guild.owner.name + ctx.guild.owner.discriminator}\n**Созданн:** {created_at}",
+            value=f"**Название сервера:** {ctx.guild.name}\n**Id сервера:** {ctx.guild.id}\n**Регион сервера:** {regions[ctx.guild.region.name]}\n**Уровень верификации:** {verifications[ctx.guild.verification_level.name]}\n**Всего сообщений:** {all_message}\n**Владелец сервера:** {ctx.guild.owner.name + ctx.guild.owner.discriminator}\n**Создан:** {created_at}",
             inline=False,
         )
         emb.add_field(

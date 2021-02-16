@@ -1421,7 +1421,7 @@ class Settings(commands.Cog, name="Settings"):
 			)
 
 			emb = discord.Embed(
-				description=f"**Успешно созданна новая команда - `{command_name}`**",
+				description=f"**Успешно создана новая команда - `{command_name}`**",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)

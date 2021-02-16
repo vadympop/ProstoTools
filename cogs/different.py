@@ -69,7 +69,7 @@ class Different(commands.Cog, name="Different"):
 				return
 
 			emb = discord.Embed(
-				title=f"Созданно новое напоминая #{reminder_id}",
+				title=f"Создано новое напоминая #{reminder_id}",
 				description=f"**Текст напоминая:**\n```{text}```\n**Действует до:**\n`{datetime.datetime.fromtimestamp(times).strftime('%d %B %Y %X')}`",
 				colour=discord.Color.green(),
 			)
@@ -214,7 +214,7 @@ class Different(commands.Cog, name="Different"):
 
 		invert_convert_statuses = {k: x for x, k in convert_statuses.items()}
 		emb = discord.Embed(
-			title=f"Созданно новое напоминая статуса #{state}",
+			title=f"Создано новое напоминая статуса #{state}",
 			description=f"Смотрит за: `{member}`\nЖдет статус: `{invert_convert_statuses[status.lower()]}`",
 			colour=discord.Color.green(),
 		)

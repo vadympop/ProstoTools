@@ -110,7 +110,7 @@ class Clans(commands.Cog):
 		)
 
 		emb = discord.Embed(
-			title=f"Успешно созданн новый клан",
+			title=f"Успешно создан новый клан",
 			description=f"**Id -** `{new_id}`\n**Названия -** `{name}`",
 			colour=discord.Color.green(),
 		)
@@ -616,7 +616,7 @@ class Clans(commands.Cog):
 						)
 
 						emb = discord.Embed(
-							description=f"""**Для клана - `{clan['name']}` было созданно новое приглашения - `{new_invite}`**""",
+							description=f"""**Для клана - `{clan['name']}` было создано новое приглашения - `{new_invite}`**""",
 							colour=discord.Color.green(),
 						)
 						emb.set_author(
