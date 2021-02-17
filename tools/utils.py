@@ -1,6 +1,8 @@
 import discord
 import datetime
 import calendar
+import typing
+import random
 from discord import ext
 from tools.exceptions import *
 
@@ -162,4 +164,58 @@ class Utils:
                 if role.id in commands_settings[ctx.command.name]["ignore_roles"]:
                     raise CommandRoleIgnored
 
+        return True
+
+    async def end_giveaway(self, giveaway: tuple) -> bool:
+        guild = self.client.get_guild(giveaway[1])
+        if guild is None:
+            await self.client.database.del_giveaway(giveaway[0])
+            return False
+
+        channel = guild.get_channel(giveaway[2])
+        if channel is None:
+            await self.client.database.del_giveaway(giveaway[0])
+            return False
+
+        try:
+            message = await channel.fetch_message(giveaway[3])
+        except discord.errors.NotFound:
+            await self.client.database.del_giveaway(giveaway[0])
+            return False
+
+        message_reactions = message.reactions
+        if "🎉" not in [str(r.emoji) for r in message_reactions]:
+            await self.client.database.del_giveaway(giveaway[0])
+            return False
+
+        reacted_users = []
+        for reaction in message_reactions:
+            if str(reaction.emoji) == "🎉":
+                reacted_users = await reaction.users().flatten()
+                break
+
+        for user in reacted_users:
+            if user.bot:
+                reacted_users.remove(user)
+
+        winners = []
+        for _ in range(giveaway[5]):
+            if reacted_users == []:
+                break
+
+            winner = random.choice(reacted_users)
+            winners.append(winner)
+            reacted_users.remove(winner)
+
+        if winners == []:
+            winners_str = "Не удалось определыть победителей!"
+        else:
+            winners_str = ", ".join([u.mention for u in winners])
+        message.embeds[0].colour = discord.Color.green()
+        message.embeds[0].description = f"**Розыгрыш окончен!**\n\nПобедители: {winners_str}\nОрганизатор: {guild.get_member(giveaway[4])}\nПриз:\n>>> {giveaway[8]}"
+        await message.edit(content="⏰ Розыгрыш окончен!", embed=message.embeds[0])
+        await channel.send(
+            f"**Розыгрыш** {message.jump_url} **окончен**\n**Победители:** {winners_str}"
+        )
+        await self.client.database.del_giveaway(giveaway[0])
         return True

@@ -1,5 +1,8 @@
 import discord
 import asyncio
+import time as tm
+import datetime
+from tools.paginator import Paginator
 from discord.ext import commands
 
 
@@ -28,7 +31,18 @@ class Giveaways(commands.Cog):
 
     @giveaway.command()
     async def create(self, ctx, type_time: str, winners: int, channel: discord.TextChannel = None):
-        await ctx.send("Введите названия розыгрыша")
+        if channel is None:
+            channel = ctx.channel
+
+        if winners > 20:
+            await ctx.send(
+                f":toolbox: **Настройки розыгрыша**\n*Победителей:* `{winners}`\n*Канал:* {channel.mention}\n>>> **Укажите число победителей не больше чем 20!**"
+            )
+            return
+
+        await ctx.send(
+            f":toolbox: **Настройки розыгрыша**\n*Победителей:* `{winners}`\n*Канал:* {channel.mention}\n>>> **Введите названия розыгрыша**"
+        )
         try:
             name_msg = await self.client.wait_for(
                 "message",
@@ -36,9 +50,19 @@ class Giveaways(commands.Cog):
                 timeout=120
             )
         except asyncio.TimeoutError:
-            await ctx.send("Время вышло!")
+            await ctx.send(
+                f":toolbox: Настройки розыгрыша**\n*Победителей:* `{winners}`\n*Канал:* {channel.mention}\n>>> **Время вышло!**"
+            )
         else:
-            await ctx.send("Введите приз розыгрыша")
+            if len(name_msg.content) >= 256:
+                await ctx.send(
+                    f":toolbox: **Настройки розыгрыша**\n*Победителей:* `{winners}`\n*Канал:* {channel.mention}\n>>> **Укажите названия меньше 256 символов!**"
+                )
+                return
+
+            await ctx.send(
+                f":toolbox: **Настройки розыгрыша**\n*Победителей:* `{winners}`\n*Канал:* {channel.mention}\n*Названия:* `{name_msg.content}`\n>>> **Введите приз розыгрыша**"
+            )
             try:
                 prize_msg = await self.client.wait_for(
                     "message",
@@ -46,33 +70,128 @@ class Giveaways(commands.Cog):
                     timeout=120
                 )
             except asyncio.TimeoutError:
-                await ctx.send("Время вышло!")
+                await ctx.send(
+                    f":toolbox: **Настройки розыгрыша**\n*Победителей:* `{winners}`\n*Канал:* {channel.mention}\n*Названия:* `{name_msg.content}`\n>>> **Время вышло!**"
+                )
             else:
-                if channel is None:
-                    channel = ctx.channel
+                if len(prize_msg.content) >= 1024:
+                    await ctx.send(
+                        f":toolbox: **Настройки розыгрыша**\n*Победителей:* `{winners}`\n*Канал:* {channel.mention}\n*Названия:* `{name_msg.content}`\n>>> **Укажите приз меньше 1024 символов!**"
+                    )
+                    return
 
-                message = await channel.send("Yeah")
-                await self.client.database.add_giveaway(
+                end_time = tm.time()+self.client.utils.time_to_num(type_time)[0]
+                emb = discord.Embed(
+                    description=f"Добавь :tada: что бы участвовать\nОрганизатор: {ctx.author.mention}\nПриз:\n>>> {prize_msg.content}",
+                    colour=discord.Color.blurple(),
+                    timestamp=datetime.datetime.fromtimestamp(end_time)
+                )
+                emb.set_author(name=name_msg.content)
+                emb.set_footer(text=f"{winners} Победителей. Заканчивается в")
+                message = await channel.send(embed=emb)
+                try:
+                    await message.add_reaction("🎉")
+                except discord.errors.Forbidden:
+                    await ctx.send(
+                        f":toolbox: **Настройки розыгрыша**\n*Победителей:* `{winners}`\n*Канал:* {channel.mention}\n*Названия:* `{name_msg.content}`\n*Приз:* `{prize_msg.content}`\n>>> **Я не могу поставить реакцию на сообщения! Создание розыгрыша прервано!**"
+                    )
+                    return
+                except discord.errors.HTTPException:
+                    await ctx.send(
+                        f":toolbox: **Настройки розыгрыша**\n*Победителей:* `{winners}`\n*Канал:* {channel.mention}\n*Названия:* `{name_msg.content}`\n*Приз:* `{prize_msg.content}`\n>>> **Сообщения удалено! Создание розыгрыша прервано!**"
+                    )
+                    return
+
+                giveaway_id = await self.client.database.add_giveaway(
                     channel_id=channel.id,
                     message_id=message.id,
                     creator=ctx.author,
                     num_winners=winners,
-                    time=self.client.utils.time_to_num(type_time),
+                    time=end_time,
                     name=name_msg.content,
                     prize=prize_msg.content
+                )
+                await ctx.send(
+                    f":toolbox: **Настройки розыгрыша**\n*Победителей:* `{winners}`\n*Канал:* {channel.mention}\n*Названия:* `{name_msg.content}`\n*Приз:* `{prize_msg.content}`\n>>> **Успешно создан новый розыгрыш** #`{giveaway_id}` **!**"
                 )
 
     @giveaway.command()
     async def delete(self, ctx, giveaway_id: int):
-        pass
+        ids = [giveaway[0] for giveaway in (await self.client.database.get_giveaways(ctx.guild.id))]
+        if giveaway_id not in ids:
+            emb = await self.client.utils.create_error_embed(
+                ctx, "**Розыгрыша с указанным id не существует**"
+            )
+            await ctx.send(embed=emb)
+            return
+
+        await self.client.database.del_giveaway(giveaway_id)
+        try:
+            await ctx.message.add_reaction("✅")
+        except discord.errors.Forbidden:
+            pass
+        except discord.errors.HTTPException:
+            pass
 
     @giveaway.command()
     async def end(self, ctx, giveaway_id: int):
-        pass
+        data = await self.client.database.get_giveaway(giveaway_id)
+        if data is None:
+            emb = await self.client.utils.create_error_embed(
+                ctx, "**Розыгрыша с указанным id не существует**"
+            )
+            await ctx.send(embed=emb)
+            return
+
+        state = await self.client.utils.end_giveaway(data)
+        if not state:
+            emb = await self.client.utils.create_error_embed(
+                ctx,
+                "Окончания розыгрыша прервано, розыгрыш был удален! Проверьте эти причины ошибки:\n1. Канал с розыгрышем удален\n2. Сообщения розыгрыша удалено\n3. На сообщении нету :tada: реакции",
+                bold=False
+            )
+            await ctx.send(embed=emb)
+            return
+
+        try:
+            await ctx.message.add_reaction("✅")
+        except discord.errors.Forbidden:
+            pass
+        except discord.errors.HTTPException:
+            pass
 
     @giveaway.command()
     async def list(self, ctx):
-        pass
+        data = await self.client.database.get_giveaways(ctx.guild.id)
+        if data != []:
+            embeds = []
+            for giveaway in data:
+                active_to = datetime.datetime.fromtimestamp(giveaway[6]).strftime("%d %B %Y %X")
+                creator = str(ctx.guild.get_member(giveaway[4]))
+                message_link = f"https://discord.com/channels/{giveaway[1]}/{giveaway[2]}/{giveaway[3]}"
+                description = f"""[Сообщения]({message_link})\nId: `{giveaway[0]}`\nНазвание: `{giveaway[7]}`\nКанал: {ctx.guild.get_channel(giveaway[2])}\nОрганизатор: `{creator}`\nДействует до: `{active_to}`\nПобедителей: `{giveaway[5]}`\nПриз:\n>>> {giveaway[8]}"""
+                emb = discord.Embed(
+                    title=f"Все розыгрышы этого сервера",
+                    description=description,
+                    colour=discord.Color.green(),
+                )
+                emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+                emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+                embeds.append(emb)
+
+            message = await ctx.send(embed=embeds[0])
+            paginator = Paginator(ctx, message, embeds, footer=True)
+            await paginator.start()
+        else:
+            emb = discord.Embed(
+                title=f"Все розыгрышы этого сервера",
+                description="Список розыгрышей пуст",
+                colour=discord.Color.green(),
+            )
+            emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+            emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+            await ctx.send(embed=emb)
+
 
 def setup(client):
     client.add_cog(Giveaways(client))

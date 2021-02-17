@@ -44,26 +44,45 @@ class DB(AbcDatabase):
 	) -> None:
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
-				sql = """INSERT INTO giveaways(guild_id, channel_id, message_id, creator_id, num_winners, time, name, prize) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"""
-				val = (creator.guild.id, channel_id, message_id, creator.id, num_winners, time, name, prize)
-				await cur.execute(sql, val)
+				await cur.execute(
+					"""INSERT INTO giveaways(guild_id, channel_id, message_id, creator_id, num_winners, name, prize, time) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)""",
+					(creator.guild.id, channel_id, message_id, creator.id, num_winners, name, prize, time)
+				)
 				await conn.commit()
+
+				await cur.execute("""SELECT LAST_INSERT_ID() FROM giveaways""")
+				new_id = (await cur.fetchone())[0]
+		return new_id
 
 	async def del_giveaway(self, giveaway_id: int) -> None:
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
 				await cur.execute(
-					"""DELETE FROM giveaways WHERE id = %s""", (giveaway_id,)
+					f"""DELETE FROM giveaways WHERE id = {giveaway_id}"""
 				)
 				await conn.commit()
 
-	async def get_giveaways(self, guild_id: int) -> list:
+	async def get_giveaways(self, guild_id: int = None) -> list:
+		async with self.pool.acquire() as conn:
+			async with conn.cursor() as cur:
+				if guild_id is not None:
+					await cur.execute(
+						f"""SELECT * FROM giveaways WHERE guild_id = {guild_id}"""
+					)
+				else:
+					await cur.execute(
+						f"""SELECT * FROM giveaways"""
+					)
+				data = await cur.fetchall()
+		return data
+
+	async def get_giveaway(self, giveaway_id: int):
 		async with self.pool.acquire() as conn:
 			async with conn.cursor() as cur:
 				await cur.execute(
-					"""SELECT * FROM giveaways WHERE guild_id = %s""", (guild_id,)
+					f"""SELECT * FROM giveaways WHERE id = {giveaway_id}"""
 				)
-				data = await cur.fetchall()
+				data = await cur.fetchone()
 		return data
 
 	async def set_status_reminder(self, target_id: int, member_id: int, wait_for: str, type: str):
