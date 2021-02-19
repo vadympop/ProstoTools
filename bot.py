@@ -67,7 +67,7 @@ class ProstoTools(commands.AutoShardedBot):
 			command_prefix=prefix,
 			intents=intents,
 			allowed_mentions=discord.AllowedMentions(users=True, everyone=False, roles=False),
-			max_messages=500,
+			max_messages=1500,
 			case_insensitive=True
 		)
 		self.remove_command("help")

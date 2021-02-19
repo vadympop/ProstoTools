@@ -1,11 +1,14 @@
 import discord
 import datetime
+import uuid
+import os
 from discord.ext import commands
 
 
 class EventsAudit(commands.Cog):
 	def __init__(self, client):
 		self.client = client
+		self.TEMP_PATH = self.client.config.TEMP_PATH
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.Cog.listener()
@@ -123,40 +126,91 @@ class EventsAudit(commands.Cog):
 		await channel.send(embed=e)
 
 	@commands.Cog.listener()
-	async def on_message_delete(self, message):
-		if message.author.bot:
-			return
-
-		audit = (await self.client.database.sel_guild(guild=message.guild))["audit"]
+	async def on_raw_bulk_message_delete(self, payload):
+		guild = self.client.get_guild(payload.guild_id)
+		audit = (await self.client.database.sel_guild(guild=guild))["audit"]
 		if "message_delete" not in audit.keys():
 			return
-		channel = self.client.get_channel(audit["message_delete"])
+
+		channel = guild.get_channel(audit["message_delete"])
 		if channel is None:
 			return
 
-		if len(message.content) > 1000:
-			return
+		payload_channel = guild.get_channel(payload.channel_id)
+		deleted_messages = ""
+		delete_messages_fp = self.TEMP_PATH + str(uuid.uuid4()) + ".txt"
+		for message in payload.cached_messages:
+			if message.author.bot:
+				continue
+
+			deleted_messages += f"""\n{message.created_at.strftime("%H:%M:%S %d-%m-%Y")} -- {str(message.author)}\n{message.content}\n\n"""
+
+		self.client.txt_dump(delete_messages_fp, deleted_messages)
 		e = discord.Embed(
-			colour=discord.Color.orange(), timestamp=datetime.datetime.utcnow()
+			description=f"Удалено `{len(payload.cached_messages)}` сообщений",
+			colour=discord.Color.orange(),
+			timestamp=datetime.datetime.utcnow(),
 		)
 		e.add_field(
-			name="Удалённое сообщение",
-			value=f"```{message.content}```"
-			if message.content
-			else "Сообщения отсутствует ",
+			name=f"Канал",
+			value=f"`{payload_channel.name}`",
 			inline=False,
 		)
-		e.add_field(
-			name="Автор сообщения", value=f"`{str(message.author)}`", inline=False
-		)
-		e.add_field(name="Канал", value=f"`{message.channel.name}`", inline=False)
-		e.add_field(name="Id Сообщения", value=f"`{message.id}`", inline=False)
 		e.set_author(
-			name="Журнал аудита | Удаление сообщения",
-			icon_url=message.author.avatar_url,
+			name="Журнал аудита | Массовое удаления сообщений",
+			icon_url=self.client.user.avatar_url,
 		)
-		e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await channel.send(embed=e)
+		e.set_footer(
+			text=self.FOOTER, icon_url=self.client.user.avatar_url
+		)
+		channel = guild.get_channel(audit["moderate"])
+		await channel.send(
+			embed=e, file=discord.File(fp=delete_messages_fp)
+		)
+		os.remove(
+			"/home/PROSTO-TOOLS-DiscordBot" + delete_messages_fp[1:]
+		)
+
+	@commands.Cog.listener()
+	async def on_raw_message_delete(self, payload):
+		guild = self.client.get_guild(payload.guild_id)
+		channel = guild.get_channel(payload.channel_id)
+		message = payload.cached_message
+
+		if message is not None:
+			if message.author.bot:
+				return
+
+			audit = (await self.client.database.sel_guild(guild=message.guild))["audit"]
+			if "message_delete" not in audit.keys():
+				return
+			channel = self.client.get_channel(audit["message_delete"])
+			if channel is None:
+				return
+
+			if len(message.content) > 1000:
+				return
+			e = discord.Embed(
+				colour=discord.Color.orange(), timestamp=datetime.datetime.utcnow()
+			)
+			e.add_field(
+				name="Удалённое сообщение",
+				value=f"```{message.content}```"
+				if message.content
+				else "Сообщения отсутствует ",
+				inline=False,
+			)
+			e.add_field(
+				name="Автор сообщения", value=f"`{str(message.author)}`", inline=False
+			)
+			e.add_field(name="Канал", value=f"`{message.channel.name}`", inline=False)
+			e.add_field(name="Id Сообщения", value=f"`{message.id}`", inline=False)
+			e.set_author(
+				name="Журнал аудита | Удаление сообщения",
+				icon_url=message.author.avatar_url,
+			)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await channel.send(embed=e)
 
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):

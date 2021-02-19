@@ -28,7 +28,6 @@ async def check_role(ctx):
 class Moderate(commands.Cog, name="Moderate"):
 	def __init__(self, client):
 		self.client = client
-		self.TEMP_PATH = self.client.config.TEMP_PATH
 		self.MUTE_ROLE = self.client.config.MUTE_ROLE
 		self.VMUTE_ROLE = self.client.config.VMUTE_ROLE
 		self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
@@ -52,12 +51,9 @@ class Moderate(commands.Cog, name="Moderate"):
 			return
 
 		number = 0
-		delete_messages = ""
 		delete_messages_objs = []
-		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 		if member is None:
 			async with ctx.typing():
-				delete_messages_fp = self.TEMP_PATH + str(uuid.uuid4()) + ".txt"
 				num_channel_messages = len(await ctx.channel.history().flatten())
 				async for msg in ctx.channel.history():
 					if (datetime.datetime.utcnow()-msg.created_at) >= datetime.timedelta(weeks=2):
@@ -67,8 +63,6 @@ class Moderate(commands.Cog, name="Moderate"):
 						await ctx.send(embed=emb)
 						return
 
-					if "moderate" in audit.keys():
-						delete_messages += f"""\n{msg.created_at.strftime("%H:%M:%S %d-%m-%Y")} -- {str(msg.author)}\n{msg.content}\n\n"""
 					delete_messages_objs.append(msg)
 					number += 1
 					if number >= amount or number >= num_channel_messages:
@@ -82,32 +76,6 @@ class Moderate(commands.Cog, name="Moderate"):
 							text=self.FOOTER, icon_url=self.client.user.avatar_url
 						)
 						await ctx.send(embed=emb)
-
-						if "moderate" in audit.keys():
-							self.client.txt_dump(delete_messages_fp, delete_messages)
-							e = discord.Embed(
-								colour=discord.Color.orange(), timestamp=datetime.datetime.utcnow()
-							)
-							e.add_field(
-								name=f"Модератор {str(ctx.author)}",
-								value=f"Удалил {number} сообщений",
-								inline=False,
-							)
-							e.set_author(
-								name="Журнал аудита | Модерация",
-								icon_url=ctx.author.avatar_url,
-							)
-							e.set_footer(
-								text=self.FOOTER, icon_url=self.client.user.avatar_url
-							)
-							channel = ctx.guild.get_channel(audit["moderate"])
-							if channel is not None:
-								await channel.send(
-									embed=e, file=discord.File(fp=delete_messages_fp)
-								)
-							os.remove(
-								"/home/PROSTO-TOOLS-DiscordBot"+delete_messages_fp[1:]
-							)
 						break
 
 		elif member is not None and member in ctx.guild.members:
