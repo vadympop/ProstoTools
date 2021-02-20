@@ -1,8 +1,7 @@
 import asyncio
-import time
-import json
 import discord
 import jinja2
+from tools import TimeConverter
 from discord.ext import commands
 
 
@@ -11,6 +10,7 @@ class EventsAntiFlud(commands.Cog):
         self.client = client
         self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
         self.FOOTER = self.client.config.FOOTER_TEXT
+        self.time_converter = TimeConverter()
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -59,73 +59,55 @@ class EventsAntiFlud(commands.Cog):
                 if "punishment" in data["auto_mod"]["anti_flud"].keys():
                     reason = "Авто-модерация: Флуд"
                     type_punishment = data["auto_mod"]["anti_flud"]["punishment"]["type"]
+                    ctx = await self.client.get_context(message)
+                    expiry_in = None
+                    if data["auto_mod"]["anti_flud"]["punishment"]["time"] is not None:
+                        try:
+
+                            expiry_in = await self.time_converter.convert(
+                                ctx, data["auto_mod"]["anti_flud"]["punishment"]["time"]
+                            )
+                        except commands.BadArgument:
+                            pass
+
                     if type_punishment == "mute":
-                        await self.client.support_commands.main_mute(
-                            ctx=await self.client.get_context(message),
+                        await self.client.support_commands.mute(
+                            ctx=ctx,
                             member=message.author,
-                            type_time=data["auto_mod"]["anti_flud"]["punishment"]["time"],
-                            reason=reason,
                             author=message.guild.me,
-                            message=False
+                            expiry_in=expiry_in,
+                            reason=reason,
                         )
                     elif type_punishment == "warn":
-                        await self.client.support_commands.main_warn(
-                            ctx=await self.client.get_context(message),
+                        await self.client.support_commands.warn(
+                            ctx=ctx,
                             member=message.author,
+                            author=message.guild.me,
                             reason=reason,
-                            author=message.guild.me
                         )
                     elif type_punishment == "kick":
-                        try:
-                            await message.author.kick(reason=reason)
-                        except discord.errors.Forbidden:
-                            return
+                        await self.client.support_commands.kick(
+                            ctx=ctx,
+                            member=message.author,
+                            author=message.guild.me,
+                            reason=reason
+                        )
                     elif type_punishment == "ban":
-                        ban_time = self.client.utils.time_to_num(
-                            data["auto_mod"]["anti_flud"]["punishment"]["time"]
+                        await self.client.support_commands.ban(
+                            ctx=ctx,
+                            member=message.author,
+                            author=message.guild.me,
+                            expiry_in=expiry_in,
+                            reason=reason,
                         )
-                        times = time.time() + ban_time[0]
-                        try:
-                            await message.author.ban(reason=reason)
-                        except discord.errors.Forbidden:
-                            return
-
-                        if ban_time > 0:
-                            await self.client.database.update(
-                                "users",
-                                where={"user_id": message.author.id, "guild_id": message.guild.id},
-                                money=0,
-                                coins=0,
-                                reputation=-100,
-                                items=json.dumps([]),
-                                clan=""
-                            )
-                            await self.client.database.set_punishment(
-                                type_punishment="ban", time=times, member=message.author
-                            )
                     elif type_punishment == "soft-ban":
-                        softban_time = self.client.utils.time_to_num(
-                            data["auto_mod"]["anti_flud"]["punishment"]["time"]
+                        await self.client.support_commands.soft_ban(
+                            ctx=ctx,
+                            member=message.author,
+                            author=message.guild.me,
+                            expiry_in=expiry_in,
+                            reason=reason,
                         )
-                        times = time.time() + softban_time[0]
-                        overwrite = discord.PermissionOverwrite(
-                            connect=False, view_channel=False, send_messages=False
-                        )
-                        role = discord.utils.get(
-                            message.guild.roles, name=self.SOFTBAN_ROLE
-                        )
-                        if role is None:
-                            role = await message.guild.create_role(name=self.SOFTBAN_ROLE)
-
-                        await message.author.edit(voice_channel=None)
-                        for channel in message.guild.channels:
-                            await channel.set_permissions(role, overwrite=overwrite)
-
-                        await message.author.add_roles(role)
-                        if softban_time[0] > 0:
-                            await self.client.database.set_punishment(
-                                type_punishment="temprole", time=times, member=message.author, role=role.id
-                            )
 
                 if "message" in data["auto_mod"]["anti_flud"].keys():
                     member_data.update({"multi": data["exp_multi"]})

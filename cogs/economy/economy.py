@@ -1066,21 +1066,7 @@ class Economy(commands.Cog):
 						text=self.FOOTER, icon_url=self.client.user.avatar_url
 					)
 					await ctx.send(embed=emb)
-
-					emb = discord.Embed(
-						description=f"**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Ваш текущий баланс: {state[1]}**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(
-						name=self.client.user.name, icon_url=self.client.user.avatar_url
-					)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
-					)
-					try:
-						await ctx.author.send(embed=emb)
-					except:
-						pass
+					self.client.dispatch("prison", ctx.author, state[1])
 			elif rand_num > 40 and rand_num <= 80:
 				emb = discord.Embed(
 					description=f"**Вы не смогли ограбить указаного пользователя**",
@@ -1154,18 +1140,7 @@ class Economy(commands.Cog):
 			if rand_num <= 40:
 				state = await crime_func(-5000, ctx.author)
 				if state[0]:
-					emb = discord.Embed(
-						description=f"**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Ваш текущий баланс: {state[1]}**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(
-						name=self.client.user.name, icon_url=self.client.user.avatar_url
-					)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
-					)
-					await ctx.author.send(embed=emb)
-					return
+					self.client.dispatch("prison", ctx.author, state[1])
 				else:
 					emb = discord.Embed(
 						description=f"**Вас задержала полиция. Вы откупились потеряв 10000$**",

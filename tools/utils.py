@@ -1,8 +1,8 @@
 import discord
 import datetime
 import calendar
-import typing
 import random
+from dateutil.relativedelta import relativedelta
 from discord import ext
 from tools.exceptions import *
 
@@ -78,6 +78,13 @@ class Utils:
             minutes = time
             
         return minutes, time, typetime
+
+    def relativedelta_to_timestamp(self, delta: relativedelta) -> int:
+        return int((delta+datetime.datetime.now()).timestamp())
+
+    def relativedelta_to_timedelta(self, delta: relativedelta) -> datetime.timedelta:
+        now = datetime.datetime.now()
+        return now+delta-now
 
     def date_to_time(self, date: list, str_d: str):
         if len(date) != 4:

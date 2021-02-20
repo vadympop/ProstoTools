@@ -3,7 +3,7 @@ import datetime
 from tools.http import RandomAPI
 from tools.cache import CacheManager
 from tools.database import DB
-from tools import Utils, Commands, template_engine as temp_eng
+from tools import Utils, SupportCommands, template_engine as temp_eng
 from cogs.economy.buy_cmd import buy
 from loguru import logger
 from colorama import *
@@ -49,7 +49,6 @@ extensions = (
 	"events.leveling",
 	"events.audit",
 	"events.other",
-	"events.reactions_commands",
 	"events.auto_reactions",
 	"events.custom_commands",
 	"events.autoresponders",
@@ -76,7 +75,7 @@ class ProstoTools(commands.AutoShardedBot):
 		self.database = DB(client=self)
 		self.utils = Utils(client=self)
 		self.random_api = RandomAPI()
-		self.support_commands = Commands(client=self)
+		self.support_commands = SupportCommands(client=self)
 		self.template_engine = temp_eng
 		self.template_engine.client = self
 
