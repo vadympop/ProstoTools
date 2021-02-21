@@ -12,73 +12,6 @@ class Utils:
         self.client = client
         self.FOOTER = self.client.config.FOOTER_TEXT
 
-    def time_to_num(self, str_time: str):
-        if str_time is not None:
-            try:
-                time = int("".join(char for char in list(str_time) if char.isdigit()))
-                typetime = str(str_time.replace(str(time), ""))
-            except ValueError:
-                return [0, 0]
-        else:
-            typetime = None
-            time = 0
-
-        minutes = [
-            "m",
-            "min",
-            "mins",
-            "minute",
-            "minutes",
-            "м",
-            "мин",
-            "минута",
-            "минуту",
-            "минуты",
-            "минут",
-        ]
-        hours = ["h", "hour", "hours", "ч", "час", "часа", "часов"]
-        days = ["d", "day", "days", "д", "день", "дня", "дней"]
-        weeks = [
-            "w",
-            "week",
-            "weeks",
-            "н",
-            "нед",
-            "неделя",
-            "недели",
-            "недель",
-            "неделю",
-        ]
-        monthes = [
-            "m",
-            "month",
-            "monthes",
-            "mo",
-            "mos",
-            "months",
-            "мес",
-            "месяц",
-            "месяца",
-            "месяцев",
-        ]
-        years = ["y", "year", "years", "г", "год", "года", "лет"]
-        if typetime in minutes:
-            minutes = time * 60
-        elif typetime in hours:
-            minutes = time * 60 * 60
-        elif typetime in days:
-            minutes = time * 60 * 60 * 24
-        elif typetime in weeks:
-            minutes = time * 60 * 60 * 24 * 7
-        elif typetime in monthes:
-            minutes = time * 60 * 60 * 24 * 7 * calendar.mdays[datetime.datetime.utcnow().month]
-        elif typetime in years:
-            minutes = time * 60 * 60 * 24 * 7 * calendar.mdays[datetime.datetime.utcnow().month] * 12
-        else:
-            minutes = time
-            
-        return minutes, time, typetime
-
     def relativedelta_to_timestamp(self, delta: relativedelta) -> int:
         return int((delta+datetime.datetime.now()).timestamp())
 
@@ -215,7 +148,7 @@ class Utils:
             reacted_users.remove(winner)
 
         if winners == []:
-            winners_str = "Не удалось определыть победителей!"
+            winners_str = "Не удалось определить победителей!"
         else:
             winners_str = ", ".join([u.mention for u in winners])
         message.embeds[0].colour = discord.Color.green()

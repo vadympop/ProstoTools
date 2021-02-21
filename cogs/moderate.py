@@ -303,8 +303,8 @@ class Moderate(commands.Cog, name="Moderate"):
 		if len(options) > 0:
 			try:
 				expiry_in = await self.time_converter.convert(ctx, options[0])
-				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
 				options.pop(0)
+				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
 			except commands.BadArgument:
 				reason = " ".join(options)
 		else:
@@ -432,8 +432,8 @@ class Moderate(commands.Cog, name="Moderate"):
 		if len(options) > 0:
 			try:
 				expiry_in = await self.time_converter.convert(ctx, options[0])
-				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
 				options.pop(0)
+				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
 			except commands.BadArgument:
 				reason = " ".join(options)
 		else:
@@ -543,18 +543,22 @@ class Moderate(commands.Cog, name="Moderate"):
 			return
 
 		options = list(options)
+		expiry_in = None
 		if len(options) > 0:
-			if options[0].isdigit():
-				type_time = options.pop(0)
-				vmute_time = self.client.utils.time_to_num(type_time)
-				times = time.time() + vmute_time[0]
+			try:
+				expiry_in = await self.time_converter.convert(ctx, options[0])
+				options.pop(0)
 				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
-			else:
+			except commands.BadArgument:
 				reason = " ".join(options)
-				vmute_time = [0, 0]
 		else:
 			reason = "Причина не указана"
-			vmute_time = [0, 0]
+
+		delta = None
+		if expiry_in is not None:
+			delta = humanize.naturaldelta(
+				self.client.utils.relativedelta_to_timedelta(expiry_in)
+			)
 
 		reason = reason[:1024]
 		overwrite = discord.PermissionOverwrite(connect=False)
@@ -568,7 +572,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		await member.add_roles(role)
 		await member.edit(voice_channel=None)
 
-		description_time = str(vmute_time[1])+str(vmute_time[2]) if vmute_time[0] != 0 else "Перманентно"
+		description_time = delta if delta is not None else "Перманентно"
 		emb = discord.Embed(
 			description=f"**{member}**({member.mention}) Был замьючен в голосовых каналах\nВремя: `{description_time}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
@@ -590,9 +594,12 @@ class Moderate(commands.Cog, name="Moderate"):
 		except:
 			pass
 
-		if vmute_time[0] > 0:
+		if expiry_in is not None:
 			await self.client.database.set_punishment(
-				type_punishment="vmute", time=times, member=member, role_id=int(role.id)
+				type_punishment="vmute",
+				time=self.client.utils.relativedelta_to_timestamp(expiry_in),
+				member=member,
+				role_id=int(role.id)
 			)
 
 		if "moderate" in audit.keys():
@@ -603,8 +610,8 @@ class Moderate(commands.Cog, name="Moderate"):
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}",
-				value=f"На {vmute_time[1]} {vmute_time[2]}"
-				if vmute_time[0] != 0
+				value=f"На {delta}"
+				if delta is not None
 				else "Перманентно",
 				inline=False,
 			)
@@ -751,8 +758,8 @@ class Moderate(commands.Cog, name="Moderate"):
 		if len(options) > 0:
 			try:
 				expiry_in = await self.time_converter.convert(ctx, options[0])
-				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
 				options.pop(0)
+				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
 			except commands.BadArgument:
 				reason = " ".join(options)
 		else:

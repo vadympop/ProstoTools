@@ -2,6 +2,7 @@ import time
 import datetime
 import discord
 import requests
+from tools import TimeConverter
 from discord.ext import commands
 from discord.utils import get
 from tools.paginator import Paginator
@@ -12,6 +13,7 @@ class Different(commands.Cog, name="Different"):
 	def __init__(self, client):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
+		self.time_converter = TimeConverter()
 
 	@commands.command(
 		name="reminder",
@@ -40,20 +42,21 @@ class Different(commands.Cog, name="Different"):
 				return
 
 			if type_time.split(".")[0] == type_time:
-				reminder_time = self.client.utils.time_to_num(type_time)
-				if reminder_time[0] <= 0:
+				try:
+					expiry_in = await self.time_converter.convert(ctx, type_time)
+				except commands.BadArgument:
 					emb = await self.client.utils.create_error_embed(
-						ctx, "**Укажите время больше 0!**",
+						ctx, "**Время указано в неправильном формате!**",
 					)
 					await ctx.send(embed=emb)
 					return
 
-				times = time.time() + reminder_time[0]
+				times = self.client.utils.relativedelta_to_timestamp(expiry_in)
 			else:
 				times = self.client.utils.date_to_time(type_time.split("."), type_time)
 				if times == 0:
 					emb = await self.client.utils.create_error_embed(
-						ctx, "Указан не правильный формат времени! Укажите так: ЧЧ:ММ.ДД.ММ.ГГГГ"
+						ctx, "**Время указано в неправильном формате! Укажите так: ЧЧ:ММ.ДД.ММ.ГГГГ**"
 					)
 					await ctx.send(embed=emb)
 					return

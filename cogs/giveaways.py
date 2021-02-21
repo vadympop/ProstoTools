@@ -2,6 +2,7 @@ import discord
 import asyncio
 import time as tm
 import datetime
+from tools import TimeConverter
 from tools.paginator import Paginator
 from discord.ext import commands
 
@@ -30,7 +31,7 @@ class Giveaways(commands.Cog):
             await ctx.send(embed=emb)
 
     @giveaway.command()
-    async def create(self, ctx, type_time: str, winners: int, channel: discord.TextChannel = None):
+    async def create(self, ctx, expiry_in: TimeConverter, winners: int, channel: discord.TextChannel = None):
         if channel is None:
             channel = ctx.channel
 
@@ -80,7 +81,7 @@ class Giveaways(commands.Cog):
                     )
                     return
 
-                end_time = tm.time()+self.client.utils.time_to_num(type_time)[0]
+                end_time = self.client.utils.relativedelta_to_timestamp(expiry_in)
                 emb = discord.Embed(
                     description=f"Добавь :tada: что бы участвовать\nОрганизатор: {ctx.author.mention}\nПриз:\n>>> {prize_msg.content}",
                     colour=discord.Color.blurple(),
