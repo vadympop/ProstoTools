@@ -54,7 +54,7 @@ class TasksSendData(commands.Cog):
 				}
 			}
 			headers = {
-				"Authorization": os.getenv("API_KEY") or "wwptBCeRD8tJcT5jYppDRTRxxYkRP7Zc94HYvQBj"
+				"Authorization": os.getenv("API_KEY")
 			}
 			await requests.post(url=self.api_url + "private/client", json=data, headers=headers)
 
