@@ -31,16 +31,17 @@ class TasksSendData(commands.Cog):
 				"Information"
 			)
 			data = {
-				"guilds": [guild.id for guild in self.client.guilds],
-				"users": [user.id for user in self.client.users],
-				"channels": [channel.id for channel in self.client.get_all_channels()],
+				"guilds": len([guild.id for guild in self.client.guilds]),
+				"users": len([user.id for user in self.client.users]),
+				"channels": len([channel.id for channel in self.client.get_all_channels()]),
 				"commands": {
 					"commands": [
 						{
 							"name": command.name,
-							"description": command.description,
+							"description": command.description.replace("\n", "/n"),
 							"usage": command.usage,
-							"category": command.cog_name
+							"category": command.cog_name,
+							"help": command.help.replace("\n", "/n")
 						}
 						for command in self.client.commands
 						if command.cog_name in allowed_cogs
@@ -53,7 +54,7 @@ class TasksSendData(commands.Cog):
 				}
 			}
 			headers = {
-				"Authorization": os.getenv("API_KEY")
+				"Authorization": os.getenv("API_KEY") or "wwptBCeRD8tJcT5jYppDRTRxxYkRP7Zc94HYvQBj"
 			}
 			await requests.post(url=self.api_url + "private/client", json=data, headers=headers)
 

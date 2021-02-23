@@ -1,6 +1,5 @@
 import discord
 import asyncio
-import time as tm
 import datetime
 from tools import TimeConverter
 from tools.paginator import Paginator
@@ -12,7 +11,11 @@ class Giveaways(commands.Cog):
         self.client = client
         self.FOOTER = self.client.config.FOOTER_TEXT
 
-    @commands.group()
+    @commands.group(
+        usage="clan [Команда]",
+        description="**Категория команд - розыгрыши**",
+        help=f"""**Команды групы:** create, end, delete, list\n\n"""
+    )
     async def giveaway(self, ctx):
         if ctx.invoked_subcommand is None:
             PREFIX = str(await self.client.database.get_prefix(ctx.guild))
@@ -30,7 +33,10 @@ class Giveaways(commands.Cog):
             emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
             await ctx.send(embed=emb)
 
-    @giveaway.command()
+    @giveaway.command(
+        usage="giveaway create [Время] [Кол-во победителей] |Канал|",
+        description="**Создаёт розыгрыш**"
+    )
     async def create(self, ctx, expiry_in: TimeConverter, winners: int, channel: discord.TextChannel = None):
         if channel is None:
             channel = ctx.channel
@@ -116,7 +122,10 @@ class Giveaways(commands.Cog):
                     f":toolbox: **Настройки розыгрыша**\n*Победителей:* `{winners}`\n*Канал:* {channel.mention}\n*Названия:* `{name_msg.content}`\n*Приз:* `{prize_msg.content}`\n>>> **Успешно создан новый розыгрыш** #`{giveaway_id}` **!**"
                 )
 
-    @giveaway.command()
+    @giveaway.command(
+        usage="giveaway delete [Id розыгрыша]",
+        description="**Удаляет розыгрыш**"
+    )
     async def delete(self, ctx, giveaway_id: int):
         ids = [giveaway[0] for giveaway in (await self.client.database.get_giveaways(ctx.guild.id))]
         if giveaway_id not in ids:
@@ -134,7 +143,10 @@ class Giveaways(commands.Cog):
         except discord.errors.HTTPException:
             pass
 
-    @giveaway.command()
+    @giveaway.command(
+        usage="giveaway end [Id розыгрыша]",
+        description="**Заканчивает розыгрыш**"
+    )
     async def end(self, ctx, giveaway_id: int):
         data = await self.client.database.get_giveaway(giveaway_id)
         if data is None:
@@ -161,7 +173,10 @@ class Giveaways(commands.Cog):
         except discord.errors.HTTPException:
             pass
 
-    @giveaway.command()
+    @giveaway.command(
+        usage="giveaway list",
+        description="**Покажет список всех розыгрышей на сервере**"
+    )
     async def list(self, ctx):
         data = await self.client.database.get_giveaways(ctx.guild.id)
         if data != []:

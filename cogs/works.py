@@ -10,6 +10,8 @@ class Works(commands.Cog, name="Works"):
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.group(
+		usage="work [Команда]",
+		description="**Категория команд - работы**",
 		help=f"""**Команды групы:** barman, treasurehunter, cleaner, windowasher, loader\n\n"""
 	)
 	@commands.cooldown(2, 7200, commands.BucketType.member)

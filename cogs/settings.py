@@ -22,6 +22,8 @@ class Settings(commands.Cog, name="Settings"):
 		return None
 
 	@commands.group(
+		usage="setting [Команда]",
+		description="**Категория команд - настройки**",
 		help=f"""**Команды групы:** anti-invite, level-up-message, time-delete-channel, shop-role, exp-multi, text-channels-category, set-audit, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions, auto-responder\n\n"""
 	)
 	@commands.has_permissions(administrator=True)

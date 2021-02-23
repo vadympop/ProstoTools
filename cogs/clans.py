@@ -41,6 +41,8 @@ class Clans(commands.Cog):
 			pass
 
 	@commands.group(
+		usage="clan [Команда]",
+		description="**Категория команда - кланы**",
 		help=f"""**Команды групы:** buy, members, accept-join-request, send-join-request, kick, reject-join-request, list-join-requests, list, use-invite, info, create, edit, leave, create-invite, trans-owner-ship, delete\n\n"""
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)

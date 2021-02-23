@@ -33,6 +33,8 @@ class ShowConfigs(commands.Cog):
 
     @commands.group(
         name="show-config",
+        usage="show-config |Команда|",
+        description="**Категория команд - конфиг**",
         help="**Команды групы:** server-stats, ignored-channels, auto-moderate, auto-reactions, audit",
     )
     @commands.cooldown(2, 10, commands.BucketType.member)
