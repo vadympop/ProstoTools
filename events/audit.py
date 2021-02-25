@@ -29,12 +29,12 @@ class EventsAudit(commands.Cog):
 					for role in before.roles:
 						if role not in after.roles:
 							name = "Была убрана роль"
-							value = f"@{role.name}(`{role.id}`)"
+							value = f"{role.mention}(`{role.id}`)"
 				elif len(before.roles) < len(after.roles):
 					for role in after.roles:
 						if role not in before.roles:
 							name = "Была добавлена роль"
-							value = f"@{role.name}(`{role.id}`)"
+							value = f"{role.mention}(`{role.id}`)"
 
 				e = discord.Embed(
 					description=f"У пользователя `{str(after)}` были изменены роли",
@@ -201,9 +201,9 @@ class EventsAudit(commands.Cog):
 				inline=False,
 			)
 			e.add_field(
-				name="Автор сообщения", value=f"`{str(message.author)}`", inline=False
+				name="Автор сообщения", value=f"`{message.mention}`", inline=False
 			)
-			e.add_field(name="Канал", value=f"`{message.channel.name}`", inline=False)
+			e.add_field(name="Канал", value=f"`{message.channel.mention}`", inline=False)
 			e.add_field(name="Id Сообщения", value=f"`{message.id}`", inline=False)
 			e.set_author(
 				name="Журнал аудита | Удаление сообщения",
@@ -238,8 +238,8 @@ class EventsAudit(commands.Cog):
 		e.add_field(
 			name="Новое соодержиое", value=f"```{after.content}```", inline=False
 		)
-		e.add_field(name="Автор", value=f"`{str(before.author)}`", inline=False)
-		e.add_field(name="Канал", value=f"`{before.channel.name}`", inline=False)
+		e.add_field(name="Автор", value=f"`{before.author.mention}`", inline=False)
+		e.add_field(name="Канал", value=f"`{before.channel.mention}`", inline=False)
 		e.add_field(name="Id Сообщения", value=f"`{before.id}`", inline=False)
 		e.set_author(
 			name="Журнал аудита | Изменение сообщения",
