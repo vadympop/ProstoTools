@@ -304,13 +304,13 @@ class Economy(commands.Cog):
 			await self.client.database.update(
 				"users",
 				where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-				transantions=json.dumps(cur_transantions1),
+				transantions=cur_transantions1,
 				money=cur_money1-num
 			)
 			await self.client.database.update(
 				"users",
 				where={"user_id": member.id, "guild_id": ctx.guild.id},
-				transantions=json.dumps(cur_transantions2),
+				transantions=cur_transantions2,
 				money=data2["money"]+num
 			)
 
@@ -715,8 +715,8 @@ class Economy(commands.Cog):
 			await self.client.database.update(
 				"users",
 				where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-				items=json.dumps(items),
-				pets=json.dumps(pets),
+				items=items,
+				pets=pets,
 				money=money
 			)
 		elif not state:
@@ -772,7 +772,7 @@ class Economy(commands.Cog):
 			await self.client.database.update(
 				"users",
 				where={"user_id": member.id, "guild_id": ctx.guild.id},
-				items=json.dumps(items),
+				items=items,
 			)
 
 			emb = discord.Embed(
@@ -1047,7 +1047,7 @@ class Economy(commands.Cog):
 					"users",
 					where={"user_id": member.id, "guild_id": ctx.guild.id},
 					money=cur_money,
-					items=json.dumps(items),
+					items=items,
 					prison=str(prison)
 				)
 				return [prison, cur_money]
@@ -1132,7 +1132,7 @@ class Economy(commands.Cog):
 					"users",
 					where={"user_id": member.id, "guild_id": ctx.guild.id},
 					money=cur_money,
-					items=json.dumps(items),
+					items=items,
 					prison=str(prison)
 				)
 				return [prison, cur_money]

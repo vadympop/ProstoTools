@@ -1,14 +1,11 @@
 import discord
-import json
 import time
-
 from discord.ext import commands, tasks
 
 
 class TasksOther(commands.Cog):
 	def __init__(self, client):
 		self.client = client
-		self.update_messages_loop.start()
 		self.channel_loop.start()
 		self.reminders_loop.start()
 		self.FOOTER = self.client.config.FOOTER_TEXT
@@ -26,16 +23,16 @@ class TasksOther(commands.Cog):
 				if guild is not None:
 					member = guild.get_member(int(reminder[1]))
 					channel = guild.get_channel(int(reminder[3]))
-					emb = discord.Embed(
-						title="Напоминания!",
-						description=f"**Текст**:\n```{reminder[5]}```",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(
-						name=self.client.user.name, icon_url=self.client.user.avatar_url
-					)
-					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 					if float(reminder_time) <= float(time.time()):
+						emb = discord.Embed(
+							title="Напоминания!",
+							description=f"**Текст**:\n```{reminder[5]}```",
+							colour=discord.Color.green(),
+						)
+						emb.set_author(
+							name=self.client.user.name, icon_url=self.client.user.avatar_url
+						)
+						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 						await self.client.database.del_reminder(reminder[2], reminder[0])
 						if member is not None and channel is not None:
 							if channel in guild.channels:
@@ -69,22 +66,6 @@ class TasksOther(commands.Cog):
 								delete_channel = guild.get_channel(int(channel[4]))
 								if delete_channel is not None:
 									await delete_channel.delete()
-
-	@tasks.loop(seconds=86400)
-	async def update_messages_loop(self):
-		try:
-			data = await self.client.database.execute("""SELECT user_id, guild_id, messages FROM users""")
-		except AttributeError:
-			pass
-		else:
-			for profile in data:
-				if profile != []:
-					all_message = json.loads(profile[2])[1]
-					await self.client.database.update(
-						"users",
-						where={"user_id": profile[0], "guild_id": profile[1]},
-						messages=json.dumps([0, all_message, None])
-					)
 
 
 def setup(client):

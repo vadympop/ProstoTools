@@ -164,7 +164,7 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			moderators=json.dumps(cur_roles)
+			moderators=cur_roles
 		)
 
 	@setting.command(
@@ -240,7 +240,7 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			ignored_channels=json.dumps(cur_ignchannel)
+			ignored_channels=cur_ignchannel
 		)
 
 	@setting.command(
@@ -326,7 +326,7 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			shop_list=json.dumps(shoplist)
+			shop_list=shoplist
 		)
 
 	@setting.command(
@@ -392,7 +392,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				warns_settings=json.dumps(warns_settings)
+				warns_settings=warns_settings
 			)
 
 			emb = discord.Embed(
@@ -422,7 +422,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				warns_settings=json.dumps(warns_settings)
+				warns_settings=warns_settings
 			)
 
 			emb = discord.Embed(
@@ -734,7 +734,7 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			auto_mod=json.dumps(auto_mod)
+			auto_mod=auto_mod
 		)
 		try:
 			await ctx.message.add_reaction("✅")
@@ -1077,7 +1077,7 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			auto_mod=json.dumps(auto_mod)
+			auto_mod=auto_mod
 		)
 		try:
 			await ctx.message.add_reaction("✅")
@@ -1125,7 +1125,7 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			auto_mod=json.dumps(settings)
+			auto_mod=settings
 		)
 
 	@setting.command(
@@ -1282,7 +1282,7 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			audit=json.dumps(audit)
+			audit=audit
 		)
 		try:
 			await ctx.message.add_reaction("✅")
@@ -1316,7 +1316,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				auto_reactions=json.dumps(auto_reactions)
+				auto_reactions=auto_reactions
 			)
 			try:
 				await ctx.message.add_reaction("✅")
@@ -1341,7 +1341,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				auto_reactions=json.dumps(auto_reactions)
+				auto_reactions=auto_reactions
 			)
 			try:
 				await ctx.message.add_reaction("✅")
@@ -1419,7 +1419,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				custom_commands=json.dumps(custom_commands)
+				custom_commands=custom_commands
 			)
 
 			emb = discord.Embed(
@@ -1473,7 +1473,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				custom_commands=json.dumps(custom_commands)
+				custom_commands=custom_commands
 			)
 
 			emb = discord.Embed(
@@ -1637,7 +1637,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				custom_commands=json.dumps(custom_commands)
+				custom_commands=custom_commands
 			)
 
 			emb = discord.Embed(
@@ -1702,7 +1702,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				autoresponders=json.dumps(auto_responders)
+				autoresponders=auto_responders
 			)
 
 			emb = discord.Embed(
@@ -1804,7 +1804,7 @@ class Settings(commands.Cog, name="Settings"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				autoresponders=json.dumps(auto_responders)
+				autoresponders=auto_responders
 			)
 
 			emb = discord.Embed(
@@ -1886,7 +1886,7 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			rank_message=json.dumps(rank_message)
+			rank_message=rank_message
 		)
 		try:
 			await ctx.message.add_reaction("✅")
@@ -2258,7 +2258,7 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			auto_mod=json.dumps(auto_mod)
+			auto_mod=auto_mod
 		)
 		try:
 			await ctx.message.add_reaction("✅")
@@ -2302,7 +2302,7 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			auto_mod=json.dumps(auto_mod)
+			auto_mod=auto_mod
 		)
 		try:
 			await ctx.message.add_reaction("✅")
@@ -2499,7 +2499,7 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			commands_settings=json.dumps(commands_settings)
+			commands_settings=commands_settings
 		)
 		try:
 			await ctx.message.add_reaction("✅")
@@ -2571,7 +2571,7 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			welcomer=json.dumps(welcomer_settings)
+			welcomer=welcomer_settings
 		)
 		try:
 			await ctx.message.add_reaction("✅")
@@ -2643,7 +2643,7 @@ class Settings(commands.Cog, name="Settings"):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			welcomer=json.dumps(leaver_settings)
+			welcomer=leaver_settings
 		)
 		try:
 			await ctx.message.add_reaction("✅")

@@ -31,7 +31,7 @@ class Clans(commands.Cog):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			clans=json.dumps(data)
+			clans=data
 		)
 		try:
 			await ctx.message.add_reaction("✅")
@@ -123,7 +123,7 @@ class Clans(commands.Cog):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			clans=json.dumps(data)
+			clans=data
 		)
 		await self.client.database.update(
 			"users",
@@ -191,7 +191,7 @@ class Clans(commands.Cog):
 						await self.client.database.update(
 							"guilds",
 							where={"guild_id": ctx.guild.id},
-							clans=json.dumps(data)
+							clans=data
 						)
 					else:
 						emb = await self.client.utils.create_error_embed(
@@ -254,7 +254,7 @@ class Clans(commands.Cog):
 					await self.client.database.update(
 						"guilds",
 						where={"guild_id": ctx.guild.id},
-						clans=json.dumps(data)
+						clans=data
 					)
 					await self.client.database.update(
 						"users",
@@ -318,7 +318,7 @@ class Clans(commands.Cog):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			clans=json.dumps(data)
+			clans=data
 		)
 		for member_id in delete_clan["members"]:
 			await self.client.database.update(
@@ -444,7 +444,7 @@ class Clans(commands.Cog):
 						await self.client.database.update(
 							"guilds",
 							where={"guild_id": ctx.guild.id},
-							clans=json.dumps(data)
+							clans=data
 						)
 						try:
 							await ctx.message.add_reaction("✅")
@@ -577,7 +577,7 @@ class Clans(commands.Cog):
 					await self.client.database.update(
 						"guilds",
 						where={"guild_id": ctx.guild.id},
-						clans=json.dumps(data)
+						clans=data
 					)
 					try:
 						await ctx.message.add_reaction("✅")
@@ -633,7 +633,7 @@ class Clans(commands.Cog):
 						await self.client.database.update(
 							"guilds",
 							where={"guild_id": ctx.guild.id},
-							clans=json.dumps(data)
+							clans=data
 						)
 					else:
 						emb = await self.client.utils.create_error_embed(
@@ -684,7 +684,7 @@ class Clans(commands.Cog):
 					await self.client.database.update(
 						"guilds",
 						where={"guild_id": ctx.guild.id},
-						clans=json.dumps(data)
+						clans=data
 					)
 					break
 				else:
@@ -738,7 +738,7 @@ class Clans(commands.Cog):
 						await self.client.database.update(
 							"guilds",
 							where={"guild_id": ctx.guild.id},
-							clans=json.dumps(data)
+							clans=data
 						)
 					else:
 						emb = await self.client.utils.create_error_embed(
@@ -849,7 +849,7 @@ class Clans(commands.Cog):
 						await self.client.database.update(
 							"guilds",
 							where={"guild_id": ctx.guild.id},
-							clans=json.dumps(data)
+							clans=data
 						)
 					else:
 						emb = await self.client.utils.create_error_embed(
@@ -910,7 +910,7 @@ class Clans(commands.Cog):
 						await self.client.database.update(
 							"guilds",
 							where={"guild_id": ctx.guild.id},
-							clans=json.dumps(data)
+							clans=data
 						)
 					else:
 						emb = await self.client.utils.create_error_embed(
@@ -985,7 +985,7 @@ class Clans(commands.Cog):
 							await self.client.database.update(
 								"guilds",
 								where={"guild_id": ctx.guild.id},
-								clans=json.dumps(data)
+								clans=data
 							)
 							await self.client.database.update(
 								"users",
@@ -1030,7 +1030,7 @@ class Clans(commands.Cog):
 						await self.client.database.update(
 							"guilds",
 							where={"guild_id": ctx.guild.id},
-							clans=json.dumps(data)
+							clans=data
 						)
 						await self.client.database.update(
 							"users",

@@ -81,7 +81,7 @@ async def buy(ctx, item: str = None, num: int = None):
                 items=json.dumps(cur_items),
                 prison=prison,
                 money=cur_money,
-                transantions=json.dumps(cur_transantions)
+                transantions=cur_transantions
             )
             return prison_state
 
@@ -97,7 +97,7 @@ async def buy(ctx, item: str = None, num: int = None):
             await ctx.bot.database.update(
                 "users",
                 where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-                items=json.dumps(cur_items),
+                items=cur_items,
                 coins=coins_member,
             )
 
@@ -128,11 +128,11 @@ async def buy(ctx, item: str = None, num: int = None):
             await ctx.bot.database.update(
                 "users",
                 where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-                items=json.dumps(cur_items),
+                items=cur_items,
                 prison=prison,
                 money=cur_money,
                 text_channel=num_textchannels,
-                transantions=json.dumps(cur_transantions)
+                transantions=cur_transantions
             )
 
             return prison_state
@@ -220,7 +220,7 @@ async def buy(ctx, item: str = None, num: int = None):
                         await ctx.bot.database.update(
                             "users",
                             where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-                            items=json.dumps(cur_items),
+                            items=cur_items,
                             prison=str(prison),
                             money=cur_money,
                         )
@@ -340,7 +340,7 @@ async def buy(ctx, item: str = None, num: int = None):
                         await ctx.bot.database.update(
                             "users",
                             where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-                            items=json.dumps(cur_items),
+                            items=cur_items,
                             prison=str(prison),
                             money=cur_money,
                         )

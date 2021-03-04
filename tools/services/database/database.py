@@ -17,7 +17,7 @@ class DB(AbcDatabase):
 		self.DB_PASSWORD = self.client.config.DB_PASSWORD
 		self.DB_DATABASE = self.client.config.DB_DATABASE
 
-	async def prepare(self):
+	async def run(self):
 		self.pool = await aiomysql.create_pool(
 			host=self.DB_HOST,
 			user=self.DB_USER,
@@ -26,11 +26,6 @@ class DB(AbcDatabase):
 			port=3306,
 			autocommit=True
 		)
-
-	async def close(self):
-		if "pool" in self.__dict__:
-			self.pool.close()
-			await self.pool.wait_closed()
 
 	async def add_giveaway(
 			self,
@@ -172,6 +167,7 @@ class DB(AbcDatabase):
 
 				await cur.execute("""SELECT LAST_INSERT_ID() FROM reminders""")
 				new_id = (await cur.fetchone())[0]
+
 		return new_id
 
 	async def get_reminder(self, target: discord.Member = None) -> list:
@@ -360,10 +356,14 @@ class DB(AbcDatabase):
 				)
 				await conn.commit()
 
-	async def sel_user(self, target, check: bool = True) -> dict:
+	async def sel_user(self, target: discord.Member, check: bool = True) -> dict:
+		cached_user = await self.cache.get(f"u{target.guild.id}/{target.id}")
+		if cached_user is not None:
+			return cached_user
+
 		sql_1 = """SELECT * FROM users WHERE user_id = %s AND guild_id = %s"""
 		val_1 = (target.id, target.guild.id)
-		sql_2 = """INSERT INTO users (user_id, guild_id, prison, profile, items, pets, clan, messages, transantions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+		sql_2 = """INSERT INTO users (user_id, guild_id, prison, profile, items, pets, clan, transantions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 		val_2 = (
 			target.id,
 			target.guild.id,
@@ -372,7 +372,6 @@ class DB(AbcDatabase):
 			json.dumps([]),
 			json.dumps([]),
 			"",
-			json.dumps([0, 0, None]),
 			json.dumps([]),
 			"",
 		)
@@ -418,20 +417,23 @@ class DB(AbcDatabase):
 				"coins": int(data[5]),
 				"text_channel": int(data[6]),
 				"reputation": int(data[7]),
-				"num_commands": int(data[8]),
-				"prison": data[9] == "True",
-				"profile": str(data[10]),
-				"bio": str(data[11]),
-				"clan": str(data[12]),
-				"items": json.loads(data[13]),
-				"pets": json.loads(data[14]),
+				"prison": data[8] == "True",
+				"profile": str(data[9]),
+				"bio": str(data[10]),
+				"clan": str(data[11]),
+				"items": json.loads(data[12]),
+				"pets": json.loads(data[13]),
 				"warns": warns,
-				"messages": json.loads(data[15]),
-				"transantions": json.loads(data[16]),
+				"transantions": json.loads(data[14]),
 			}
+			await self.cache.set(f"u{target.guild.id}/{target.id}", dict_data)
 			return dict_data
 
 	async def sel_guild(self, guild) -> dict:
+		cached_guild = await self.cache.get(f"g{guild.id}")
+		if cached_guild is not None:
+			return cached_guild
+
 		sql_1 = """SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s"""
 		val_1 = (guild.id, guild.id)
 		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, audit, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcomer, auto_roles, custom_commands, autoresponders, rank_message, commands_settings, warns_settings) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
@@ -485,42 +487,42 @@ class DB(AbcDatabase):
 
 		dict_data = {
 			"guild_id": int(data[0]),
-			"all_message": int(data[1]),
-			"textchannels_category": int(data[2]),
-			"exp_multi": float(data[3]),
-			"timedelete_textchannel": int(data[4]),
-			"donate": data[5] == "True",
-			"prefix": str(data[6]),
-			"api_key": data[7],
-			"server_stats": json.loads(data[8]),
-			"voice_channel": json.loads(data[9]),
-			"shop_list": json.loads(data[10]),
-			"ignored_channels": json.loads(data[11]),
-			"auto_mod": json.loads(data[12]),
-			"clans": json.loads(data[13]),
-			"moder_roles": json.loads(data[14]),
-			"auto_reactions": json.loads(data[15]),
-			"welcomer": json.loads(data[16]),
-			"auto_roles": json.loads(data[17]),
-			"custom_commands": json.loads(data[18]),
-			"autoresponders": json.loads(data[19]),
-			"audit": json.loads(data[20]),
-			"rank_message": json.loads(data[21]),
-			"commands_settings": json.loads(data[22]),
-			"warns_settings": json.loads(data[23])
+			"textchannels_category": int(data[1]),
+			"exp_multi": float(data[2]),
+			"timedelete_textchannel": int(data[3]),
+			"donate": data[4] == "True",
+			"prefix": str(data[5]),
+			"api_key": data[6],
+			"server_stats": json.loads(data[7]),
+			"voice_channel": json.loads(data[8]),
+			"shop_list": json.loads(data[9]),
+			"ignored_channels": json.loads(data[10]),
+			"auto_mod": json.loads(data[11]),
+			"clans": json.loads(data[12]),
+			"moder_roles": json.loads(data[13]),
+			"auto_reactions": json.loads(data[14]),
+			"welcomer": json.loads(data[15]),
+			"auto_roles": json.loads(data[16]),
+			"custom_commands": json.loads(data[17]),
+			"autoresponders": json.loads(data[18]),
+			"audit": json.loads(data[19]),
+			"rank_message": json.loads(data[20]),
+			"commands_settings": json.loads(data[21]),
+			"warns_settings": json.loads(data[22])
 		}
+		await self.cache.set(f"g{guild.id}", dict_data)
 		return dict_data
 
 	async def get_prefix(self, guild: discord.Guild):
-		cached_guild = await self.cache.get(str(guild.id))
-		if await self.cache.exists(str(guild.id)):
-			if cached_guild is not None:
-				return cached_guild
+		cached_prefix = await self.cache.get(f"g{guild.id}")
+		if cached_prefix is not None:
+			return cached_prefix["prefix"]
 
-		return (await self.execute(
+		db_prefix = (await self.execute(
 			f"""SELECT prefix FROM guilds WHERE guild_id = {guild.id}""",
 			fetchone=True
 		))[0]
+		return db_prefix
 
 	async def get_moder_roles(self, guild: discord.Guild):
 		return (await self.execute(
@@ -547,13 +549,23 @@ class DB(AbcDatabase):
 		values = []
 		for key, value in kwargs.items():
 			columns.append(f"{key} = %s")
-			values.append(value)
-		query = ", ".join(columns)
-		if "prefix" in kwargs.keys():
-			await self.cache.set(str(where['guild_id']), kwargs["prefix"])
+			values.append(json.dumps(value))
 
+		if "guild_id" in where.keys() and "user_id" not in where.keys():
+			key = f"g{where['guild_id']}"
+		elif "guild_id" in where.keys() and "user_id" in where.keys():
+			key = f"u{where['guild_id']}/{where['user_id']}"
+		else:
+			raise KeyError("An invalid where's keys were provided")
+
+		query = ", ".join(columns)
+		where_statement = ' AND '.join([
+			f"{key} = {value}"
+			for key, value in where.items()
+		])
+		await self.cache.update(key, kwargs)
 		await self.execute(
-			f"""UPDATE {table} SET {query} WHERE {' AND '.join([f"{key} = {value}" for key, value in where.items()])}""",
+			f"""UPDATE {table} SET {query} WHERE {where_statement}""",
 			values
 		)
 

@@ -1,6 +1,6 @@
-import asyncio
 import discord
 import jinja2
+import time as tm
 from tools import TimeConverter
 from discord.ext import commands
 
@@ -11,6 +11,46 @@ class EventsAntiFlud(commands.Cog):
         self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
         self.FOOTER = self.client.config.FOOTER_TEXT
         self.time_converter = TimeConverter()
+        self.messages = {}
+
+    def update(self, key: str, message: discord.Message):
+        if key not in self.messages.keys():
+            self.messages.update({
+                key: [{
+                    "time": tm.time(),
+                    "content": message.content
+                }]
+            })
+        else:
+            self.messages[key].append({
+                "time": tm.time(),
+                "content": message.content
+            })
+
+        if len(self.messages[key]) > 10:
+            self.messages[key].pop(0)
+
+    def remove(self, key: str, items: list):
+        for item in items:
+            try:
+                self.messages[key].remove(item)
+            except KeyError:
+                pass
+
+        if not len(self.messages[key]):
+            self.messages.pop(key)
+
+    def get_after(self, key: str, time: int, limit: int = 5) -> list:
+        return [message for message in self.messages[key] if message["time"] >= time][limit:]
+
+    def get_same_by_content(self, items: list) -> list:
+        same = []
+        [
+            same.append(item)
+            for item in items
+            if item["content"].lower() not in [i["content"].lower() for i in same]
+        ]
+        return same
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -20,17 +60,17 @@ class EventsAntiFlud(commands.Cog):
         if message.author.bot:
             return
 
-        data = await self.client.database.sel_guild(guild=message.guild)
-        member_data = await self.client.database.sel_user(target=message.author)
-        try:
-            await self.client.wait_for(
-                "message",
-                check=lambda m: m.content == member_data["messages"][2] and m.channel == message.channel,
-                timeout=2.0,
-            )
-        except asyncio.TimeoutError:
-            pass
-        else:
+        key = f"{message.guild.id}/{message.author.id}"
+        self.update(key, message)
+        messages_after = self.get_after(
+            key, int(tm.time()-10)
+        )
+        if not messages_after:
+            return
+
+        if len(self.get_same_by_content(messages_after)) == 1:
+            self.remove(f"{message.guild.id}/{message.author.id}", messages_after)
+            data = await self.client.database.sel_guild(guild=message.guild)
             if data["auto_mod"]["anti_flud"]["state"]:
                 if "target_channels" in data["auto_mod"]["anti_flud"].keys():
                     if data["auto_mod"]["anti_flud"]["target_channels"]:
@@ -110,6 +150,7 @@ class EventsAntiFlud(commands.Cog):
                         )
 
                 if "message" in data["auto_mod"]["anti_flud"].keys():
+                    member_data = await self.client.database.sel_user(target=message.author)
                     member_data.update({"multi": data["exp_multi"]})
                     try:
                         try:

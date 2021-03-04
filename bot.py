@@ -1,8 +1,8 @@
 import discord
 import datetime
 from tools.http import RandomAPI
-from tools.cache import CacheManager
-from tools.database import DB
+from tools.services.cache import CacheManager
+from tools.services.database import DB
 from tools import Utils, SupportCommands, template_engine as temp_eng
 from cogs.economy.buy_cmd import buy
 from loguru import logger
@@ -48,7 +48,6 @@ extensions = (
 	"events.leave",
 	"events.leveling",
 	"events.audit",
-	"events.other",
 	"events.auto_reactions",
 	"events.custom_commands",
 	"events.autoresponders",
@@ -84,10 +83,15 @@ class ProstoTools(commands.AutoShardedBot):
 			f"[PT-SYSTEM-LOGGING]:::{self.user.name} is connected to discord server"
 		)
 		await self.change_presence(
-			status=discord.Status.online, activity=discord.Game(" p.help | p.invite ")
+			status=discord.Status.online,
+			activity=discord.Activity(
+				type=discord.ActivityType.playing,
+				name=" p.help | p.invite "
+			)
 		)
 		self.launched_at = datetime.datetime.utcnow()
-		await self.database.prepare()
+		await self.cache.run()
+		await self.database.run()
 
 	async def on_disconnect(self):
 		logger.info(
@@ -96,6 +100,12 @@ class ProstoTools(commands.AutoShardedBot):
 
 	async def on_message_edit(self, before, after):
 		await self.process_commands(after)
+
+	async def on_command(self, ctx):
+		if ctx.guild is None:
+			return
+
+		await self.database.add_amout_command(entity=ctx.command.name)
 
 	def txt_dump(self, filename, filecontent):
 		with open(filename, "w+", encoding="utf-8") as f:

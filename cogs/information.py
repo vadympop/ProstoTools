@@ -59,15 +59,12 @@ class Information(commands.Cog):
 
         if not member.bot:
             data = await self.client.database.sel_user(target=member)
-            all_message = data["messages"][1]
             description = f"""
 {self._get_bio(data)}**Имя пользователя:** {member}
 **Статус:** {statuses[member.status.name]}{self._get_activity(member.activity)}
 **Id пользователя:** {member.id}
 **Акаунт создан:** {created_at}
 **Присоиденился:** {joined_at}
-**Сообщений:** {all_message}
-**Вызванно команд:** {data["num_commands"]}
 """
         else:
             description = f"""
@@ -240,7 +237,6 @@ class Information(commands.Cog):
     async def serverinfo(self, ctx):
         data = await self.client.database.sel_guild(guild=ctx.guild)
         created_at = datetime.datetime.strftime(ctx.guild.created_at, "%d %B %Y %X")
-        all_message = data["all_message"]
         verifications = {
             "none": ":white_circle: — Нет верификации",
             "low": ":green_circle: — Маленькая верификация",
@@ -303,7 +299,7 @@ class Information(commands.Cog):
 
         emb.add_field(
             name=f"Основная информация",
-            value=f"**Название сервера:** {ctx.guild.name}\n**Id сервера:** {ctx.guild.id}\n**Регион сервера:** {regions[ctx.guild.region.name]}\n**Уровень верификации:** {verifications[ctx.guild.verification_level.name]}\n**Всего сообщений:** {all_message}\n**Владелец сервера:** {ctx.guild.owner.name + ctx.guild.owner.discriminator}\n**Создан:** {created_at}",
+            value=f"**Название сервера:** {ctx.guild.name}\n**Id сервера:** {ctx.guild.id}\n**Регион сервера:** {regions[ctx.guild.region.name]}\n**Уровень верификации:** {verifications[ctx.guild.verification_level.name]}\n**Владелец сервера:** {ctx.guild.owner}\n**Создан:** {created_at}",
             inline=False,
         )
         emb.add_field(

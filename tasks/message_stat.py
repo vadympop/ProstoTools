@@ -24,7 +24,7 @@ class TasksMessageStat(commands.Cog):
 					await self.client.database.update(
 						"guilds",
 						where={"guild_id": guild.id},
-						server_stats=json.dumps(data_guild["server_stats"])
+						server_stats=data_guild["server_stats"]
 					)
 				except discord.errors.DiscordServerError:
 					pass

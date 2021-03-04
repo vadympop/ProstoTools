@@ -75,7 +75,6 @@ class Rank:
 		self.coins = data["coins"]
 		self.bio = data["bio"]
 		self.reputation = data["reputation"]
-		self.count_messages = data["messages"][1]
 
 	def __str__(self):
 		return client.get_user(self._id).name + client.get_user(self._id).discriminator

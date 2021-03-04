@@ -53,7 +53,7 @@ class Utils(commands.Cog, name="Utils"):
 				await self.client.database.update(
 					"guilds",
 					where={"guild_id": ctx.guild.id},
-					voice_channel=json.dumps(data)
+					voice_channel=data
 				)
 				try:
 					await ctx.message.add_reaction("✅")
@@ -72,7 +72,7 @@ class Utils(commands.Cog, name="Utils"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				voice_channel=json.dumps({})
+				voice_channel={}
 			)
 			try:
 				await ctx.message.add_reaction("✅")
@@ -188,7 +188,7 @@ class Utils(commands.Cog, name="Utils"):
 				await self.client.database.update(
 					"guilds",
 					where={"guild_id": ctx.guild.id},
-					server_stats=json.dumps(server_stats)
+					server_stats=server_stats
 				)
 			await asyncio.sleep(10)
 			try:
@@ -253,7 +253,7 @@ class Utils(commands.Cog, name="Utils"):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				server_stats=json.dumps(data)
+				server_stats=data
 			)
 			try:
 				await ctx.message.add_reaction("✅")

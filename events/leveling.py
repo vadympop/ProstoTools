@@ -34,18 +34,9 @@ class EventsLeveling(commands.Cog):
 		guild_data = await self.client.database.sel_guild(guild=message.guild)
 		data = await self.client.database.sel_user(target=message.author)
 
-		all_message = guild_data["all_message"]
 		multi = guild_data["exp_multi"]
 		ignored_channels = guild_data["ignored_channels"]
-		all_message += 1
 
-		await self.client.database.update(
-			"guilds",
-			where={"guild_id": message.guild.id},
-			all_message=all_message
-		)
-
-		messages = data["messages"]
 		exp = data["exp"]
 		coins = data["coins"]
 		lvl_member = data["level"]
@@ -111,15 +102,11 @@ class EventsLeveling(commands.Cog):
 						elif guild_data["rank_message"]["type"] == "dm":
 							await message.author.send(text)
 
-		messages[1] = int(messages[1])+1
-		messages[2] = message.content
-
 		await self.client.database.update(
 			"users",
 			where={"user_id": message.author.id, "guild_id": message.guild.id},
 			exp=exp,
 			coins=coins,
-			messages=json.dumps(messages),
 			level=lvl_member
 		)
 
