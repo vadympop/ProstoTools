@@ -27,6 +27,30 @@ class EventsCustomCommands(commands.Cog):
                 commands_names = [c["name"] for c in guild_data["custom_commands"]]
                 if command in commands_names:
                     custom_command_data = self.find_custom_command(command, guild_data["custom_commands"])
+                    if "target_channels" in custom_command_data.keys():
+                        if custom_command_data["target_channels"]:
+                            if message.channel.id not in custom_command_data["target_channels"]:
+                                return
+
+                    if "target_roles" in custom_command_data.keys():
+                        if custom_command_data["target_roles"]:
+                            state = False
+                            for role in message.author.roles:
+                                if role.id in custom_command_data["target_roles"]:
+                                    state = True
+
+                            if not state:
+                                return
+
+                    if "ignore_channels" in custom_command_data.keys():
+                        if message.channel.id in custom_command_data["ignore_channels"]:
+                            return
+
+                    if "ignore_roles" in custom_command_data.keys():
+                        for role in message.author.roles:
+                            if role.id in custom_command_data["ignore_roles"]:
+                                return
+
                     member_data = await self.client.database.sel_user(target=message.author)
                     member_data.update({"multi": guild_data["exp_multi"]})
                     try:

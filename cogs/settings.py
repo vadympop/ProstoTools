@@ -1415,7 +1415,14 @@ class Settings(commands.Cog, name="Settings"):
 				await ctx.send(embed=emb)
 				return
 
-			custom_commands.append({"name": command_name, "code": " ".join(options)})
+			custom_commands.append({
+				"name": command_name,
+				"code": " ".join(options),
+				"target_roles": [],
+				"target_channels": [],
+				"ignore_roles": [],
+				"ignore_channels": []
+			})
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
