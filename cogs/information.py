@@ -235,7 +235,6 @@ class Information(commands.Cog):
     )
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def serverinfo(self, ctx):
-        data = await self.client.database.sel_guild(guild=ctx.guild)
         created_at = datetime.datetime.strftime(ctx.guild.created_at, "%d %B %Y %X")
         verifications = {
             "none": ":white_circle: — Нет верификации",

@@ -277,8 +277,8 @@ class Economy(commands.Cog):
 		cur_state_pr1 = data1["prison"]
 		cur_state_pr2 = data2["prison"]
 		cur_money1 = data1["money"]
-		cur_transantions1 = data1["transantions"]
-		cur_transantions2 = data2["transantions"]
+		cur_transactions1 = data1["transactions"]
+		cur_transactions2 = data2["transactions"]
 
 		if not cur_state_pr1 and not cur_state_pr2 and cur_money1 > num:
 			info_transantion_1 = {
@@ -298,19 +298,19 @@ class Economy(commands.Cog):
 				"guild_id": ctx.guild.id,
 			}
 
-			cur_transantions1.append(info_transantion_1)
-			cur_transantions2.append(info_transantion_2)
+			cur_transactions1.append(info_transantion_1)
+			cur_transactions2.append(info_transantion_2)
 
 			await self.client.database.update(
 				"users",
 				where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-				transantions=cur_transantions1,
+				transactions=cur_transactions1,
 				money=cur_money1-num
 			)
 			await self.client.database.update(
 				"users",
 				where={"user_id": member.id, "guild_id": ctx.guild.id},
-				transantions=cur_transantions2,
+				transactions=cur_transactions2,
 				money=data2["money"]+num
 			)
 
@@ -363,9 +363,9 @@ class Economy(commands.Cog):
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def trans(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		transantions = data["transantions"]
+		transactions = data["transactions"]
 
-		if transantions == []:
+		if transactions == []:
 			emb = discord.Embed(
 				title=f"Транзакции пользователя - `{ctx.author}`",
 				description="Пользователь не совершал транзакций",
@@ -377,7 +377,7 @@ class Economy(commands.Cog):
 				colour=discord.Color.green(),
 			)
 
-		for transantion in transantions:
+		for transantion in transactions:
 			transantion_id = transantion["id"]
 			transantion_time = transantion["time"]
 			transantion_to = get(ctx.guild.members, id=transantion["to"])

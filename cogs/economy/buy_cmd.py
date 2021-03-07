@@ -51,7 +51,7 @@ async def buy(ctx, item: str = None, num: int = None):
         async def buy_func(func_item, func_cost):
             cur_money = data["money"] - func_cost
             cur_items = data["items"]
-            cur_transantions = data["transantions"]
+            cur_transactions = data["transactions"]
             prison = "False"
             prison_state = False
 
@@ -73,7 +73,7 @@ async def buy(ctx, item: str = None, num: int = None):
                 "id": str(uuid.uuid4()),
                 "guild_id": ctx.guild.id,
             }
-            cur_transantions.append(info_transantion)
+            cur_transactions.append(info_transantion)
 
             await ctx.bot.database.update(
                 "users",
@@ -81,7 +81,7 @@ async def buy(ctx, item: str = None, num: int = None):
                 items=json.dumps(cur_items),
                 prison=prison,
                 money=cur_money,
-                transantions=cur_transantions
+                transactions=cur_transactions
             )
             return prison_state
 
@@ -103,7 +103,7 @@ async def buy(ctx, item: str = None, num: int = None):
 
         async def buy_text_channel(func_cost, num):
             cost = func_cost * num
-            cur_transantions = data["transantions"]
+            cur_transactions = data["transactions"]
             cur_money = data["money"] - cost
             num_textchannels = data["text_channel"] + num
             cur_items = data["items"]
@@ -123,7 +123,7 @@ async def buy(ctx, item: str = None, num: int = None):
                 "id": str(uuid.uuid4()),
                 "guild_id": ctx.guild.id,
             }
-            cur_transantions.append(info_transantion)
+            cur_transactions.append(info_transantion)
 
             await ctx.bot.database.update(
                 "users",
@@ -132,7 +132,7 @@ async def buy(ctx, item: str = None, num: int = None):
                 prison=prison,
                 money=cur_money,
                 text_channel=num_textchannels,
-                transantions=cur_transantions
+                transactions=cur_transactions
             )
 
             return prison_state

@@ -363,7 +363,7 @@ class DB(AbcDatabase):
 
 		sql_1 = """SELECT * FROM users WHERE user_id = %s AND guild_id = %s"""
 		val_1 = (target.id, target.guild.id)
-		sql_2 = """INSERT INTO users (user_id, guild_id, prison, profile, items, pets, clan, transantions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+		sql_2 = """INSERT INTO users (user_id, guild_id, prison, profile, items, pets, clan, transactions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 		val_2 = (
 			target.id,
 			target.guild.id,
@@ -424,7 +424,7 @@ class DB(AbcDatabase):
 				"items": json.loads(data[12]),
 				"pets": json.loads(data[13]),
 				"warns": warns,
-				"transantions": json.loads(data[14]),
+				"transactions": json.loads(data[14]),
 			}
 			await self.cache.set(f"u{target.guild.id}/{target.id}", dict_data)
 			return dict_data
