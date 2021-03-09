@@ -46,8 +46,13 @@ class Paginator:
                         "raw_reaction_add", check=self.emoji_checker
                     )
                 )
+                remove_reaction = asyncio.ensure_future(
+                    self.ctx.bot.wait_for(
+                        "raw_reaction_remove", check=self.emoji_checker
+                    )
+                )
                 done, pending = await asyncio.wait(
-                    (add_reaction, add_reaction),
+                    (add_reaction, remove_reaction),
                     return_when=asyncio.FIRST_COMPLETED,
                     timeout=self.timeout,
                 )
@@ -61,13 +66,19 @@ class Paginator:
                 payload = done.pop().result()
                 user = self.ctx.guild.get_member(payload.user_id)
                 if user is not None:
-                    await self.message.remove_reaction(
-                        payload.emoji, user
-                    )
+                    try:
+                        await self.message.remove_reaction(
+                            payload.emoji, user
+                        )
+                    except discord.Forbidden:
+                        pass
                 await self.pagination(payload.emoji)
             except asyncio.TimeoutError:
                 if self.message.guild:
-                    await self.message.clear_reactions()
+                    try:
+                        await self.message.clear_reactions()
+                    except discord.Forbidden:
+                        pass
                 else:
                     pass
                 break
