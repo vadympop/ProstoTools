@@ -31,9 +31,9 @@ class TasksSendData(commands.Cog):
 				"Information"
 			)
 			data = {
-				"guilds": len([guild.id for guild in self.client.guilds]),
-				"users": len([user.id for user in self.client.users]),
-				"channels": len([channel.id for channel in self.client.get_all_channels()]),
+				"guilds": [guild.id for guild in self.client.guilds],
+				"users": [user.id for user in self.client.users],
+				"channels": [channel.id for channel in self.client.get_all_channels()],
 				"commands": {
 					"commands": [
 						{
