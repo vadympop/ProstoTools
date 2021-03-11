@@ -16,14 +16,16 @@ class TasksBotStat(commands.Cog):
         try:
             ping = round(self.client.latency * 1000)
             await self.client.database.add_amout_command(entity="ping", add_counter=int(ping))
-        except AttributeError:
-            pass
-        except ValueError:
-            pass
-        except pymysql.IntegrityError:
-            pass
-        except OverflowError:
-            pass
+        except Exception as e:
+            print(repr(e))
+        # except AttributeError:
+        #     pass
+        # except ValueError:
+        #     pass
+        # except pymysql.IntegrityError:
+        #     pass
+        # except OverflowError:
+        #     pass
 
     @tasks.loop(minutes=5)
     async def cpu_stat_loop(self):
