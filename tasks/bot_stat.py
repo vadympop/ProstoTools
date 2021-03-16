@@ -1,5 +1,4 @@
 import psutil as ps
-import pymysql
 from discord.ext import commands, tasks
 
 
@@ -13,37 +12,19 @@ class TasksBotStat(commands.Cog):
 
     @tasks.loop(minutes=10)
     async def ping_stat_loop(self):
-        try:
-            ping = round(self.client.latency * 1000)
-            await self.client.database.add_amout_command(entity="ping", add_counter=int(ping))
-        except Exception as e:
-            print(repr(e))
-        # except AttributeError:
-        #     pass
-        # except ValueError:
-        #     pass
-        # except pymysql.IntegrityError:
-        #     pass
-        # except OverflowError:
-        #     pass
+        await self.client.wait_until_ready()
+        ping = round(self.client.latency * 1000)
+        await self.client.database.add_amout_command(entity="ping", add_counter=int(ping))
 
     @tasks.loop(minutes=5)
     async def cpu_stat_loop(self):
-        try:
-            await self.client.database.add_amout_command(entity="cpu", add_counter=ps.cpu_percent())
-        except AttributeError:
-            pass
-        except pymysql.IntegrityError:
-            pass
+        await self.client.wait_until_ready()
+        await self.client.database.add_amout_command(entity="cpu", add_counter=ps.cpu_percent())
 
     @tasks.loop(minutes=5)
     async def memory_stat_loop(self):
-        try:
-            await self.client.database.add_amout_command(entity="memory", add_counter=self.mem.percent)
-        except AttributeError:
-            pass
-        except pymysql.IntegrityError:
-            pass
+        await self.client.wait_until_ready()
+        await self.client.database.add_amout_command(entity="memory", add_counter=self.mem.percent)
 
 
 def setup(client):
