@@ -78,7 +78,7 @@ class ProstoTools(commands.AutoShardedBot):
 		self.template_engine = temp_eng
 		self.template_engine.client = self
 
-	async def on_ready(self):
+	async def on_connect(self):
 		logger.info(
 			f"[PT-SYSTEM-LOGGING]:::{self.user.name} is connected to discord server"
 		)
@@ -92,6 +92,11 @@ class ProstoTools(commands.AutoShardedBot):
 		self.launched_at = datetime.datetime.utcnow()
 		await self.cache.run()
 		await self.database.run()
+
+	async def on_ready(self):
+		logger.info(
+			f"[PT-SYSTEM-LOGGING]:::{self.user.name} is fully prepared to work"
+		)
 
 	async def on_disconnect(self):
 		logger.info(
