@@ -42,7 +42,7 @@ class SupportCommands:
 
 		description_time = delta if delta is not None else "Перманентно"
 		emb = discord.Embed(
-			description=f"**{member}**({member.mention}) Был замьючен\nВремя: `{description_time}`\nМодератор: `{author}`\nПричина: **{reason}**",
+			description=f"**{member}**({member.mention}) Был замьючен\nДлительность: `{description_time}`\nМодератор: `{author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
 			timestamp=datetime.datetime.utcnow()
 		)
@@ -51,7 +51,7 @@ class SupportCommands:
 		await ctx.send(embed=emb)
 
 		emb = discord.Embed(
-			description=f"Вы были замьчены на сервере\nСервер: `{ctx.guild.name}`\nВремя: `{description_time}`\nМодератор: `{author}`\nПричина: **{reason}**",
+			description=f"Вы были замьчены на сервере\nСервер: `{ctx.guild.name}`\nДлительность: `{description_time}`\nМодератор: `{author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
 			timestamp=datetime.datetime.utcnow()
 		)
@@ -80,7 +80,7 @@ class SupportCommands:
 			)
 			e.add_field(
 				name=f"Модератором {str(author)}",
-				value=f"На {delta}"
+				value=f"Длительность: {delta}"
 				if delta is not None
 				else "Перманентно",
 				inline=False,
@@ -320,7 +320,7 @@ class SupportCommands:
 			)
 			e.add_field(
 				name=f"Модератором {str(author)}",
-				value=f"На {delta}"
+				value=f"Длительность: {delta}"
 				if delta is not None
 				else "Перманентно",
 				inline=False,
