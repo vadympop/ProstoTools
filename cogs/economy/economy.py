@@ -735,7 +735,7 @@ class Economy(commands.Cog):
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	@commands.has_permissions(administrator=True)
 	async def remove_role(self, ctx, member: discord.Member, role: discord.Role):
-		audit = await self.client.database.sel_guild(guild=ctx.guild)["audit"]
+		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if member.bot:
 			emb = await self.client.utils.create_error_embed(
@@ -777,7 +777,7 @@ class Economy(commands.Cog):
 
 			emb = discord.Embed(
 				title="Успех!",
-				description=f"**Снятия роли прошло успешно, роль - {role.mention} была удаленна из эго профиля!**",
+				description=f"**Снятия роли прошло успешно, роль - {role.mention} была удаленна из его профиля!**",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -900,7 +900,7 @@ class Economy(commands.Cog):
 			)
 			e.add_field(
 				name="Количество",
-				value=num,
+				value=str(num),
 				inline=False,
 			)
 			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)

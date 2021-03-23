@@ -18,8 +18,8 @@ class Help(commands.Cog, name="Help"):
 		help="**Примеры использования:**\n1. {Prefix}help\n2. {Prefix}help moderate\n2. {Prefix}help ban\n\n**Пример 1:** Показывает список всех команд бота\n**Пример 2:** Показывает список всех указаной групы\n**Пример 3:** Показывает документацию по указаной команде"
 	)
 	async def help(self, ctx, cog_name: str = None):
-		cogs_group = ("settings", "works", "clans", "showconfigs", "giveaways")
-		commands_group = ("setting", "work", "clan", "show-config", "giveaway")
+		cogs_group = ("settings", "works", "clans", "showconfigs", "giveaways", "reminders")
+		commands_group = ("setting", "work", "clan", "show-config", "giveaway", "reminder")
 		prefix = str(await self.client.database.get_prefix(guild=ctx.guild))
 		cogs_aliases = {
 			"economy": "Economy",
@@ -34,7 +34,8 @@ class Help(commands.Cog, name="Help"):
 			"works": "Works",
 			"showconfigs": "ShowConfigs",
 			"giveaways": "Giveaways",
-			"information": "Information"
+			"information": "Information",
+			"reminders": "Reminders"
 		}
 
 		if cog_name is None:

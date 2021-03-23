@@ -33,6 +33,8 @@ extensions = (
 	"cogs.show_configs",
 	"cogs.giveaways",
 	"cogs.information",
+	"cogs.reminders",
+	"cogs.status_reminders",
 	"cogs.settings",
 	"cogs.help",
 	"tasks.message_stat",

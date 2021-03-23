@@ -10,7 +10,12 @@ class Reminders(commands.Cog):
         self.client = client
         self.FOOTER = self.client.config.FOOTER_TEXT
 
-    @commands.group()
+    @commands.group(
+        usage="reminder [Команда]",
+        description="**Категория команд - напоминания**",
+        help=f"""**Команды групы:** create, delete, list\n\n"""
+    )
+    @commands.cooldown(2, 10, commands.BucketType.member)
     async def reminder(self, ctx):
         if ctx.invoked_subcommand is None:
             PREFIX = str(await self.client.database.get_prefix(ctx.guild))
@@ -28,7 +33,12 @@ class Reminders(commands.Cog):
             emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
             await ctx.send(embed=emb)
 
-    @reminder.command()
+    @reminder.command(
+        aliases=["add", "c"],
+        description="**Создаст напоминания**",
+        usage="reminder create [Время] [Текст]",
+        help="**Полезное:**\nВремя можно указывать в таких форматах: ЧЧ:ММ.ДД.ММ.ГГГГ - 10:30.12.12.2050, кол-воТип - 10m\n\n**Примеры использования:**\n1. {Prefix}reminder create 1h Example reminder text\n2. {Prefix}reminder create 10:30.12.12.2050 Example reminder text\n\n**Пример 1:** Напомнит `Example reminder text` через 1 час\n**Пример 2:** Напомнит `Example reminder text` в 10:30 12.12.2050\n",
+    )
     async def create(self, ctx, expiry_at: Expiry, *, text: str):
         reminder_id = await self.client.database.set_reminder(
             member=ctx.author, channel=ctx.channel, time=expiry_at.timestamp(), text=text
@@ -49,7 +59,12 @@ class Reminders(commands.Cog):
         emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
         await ctx.send(embed=emb)
 
-    @reminder.command()
+    @reminder.command(
+        aliases=["del", "d"],
+        description="**Удалит напоминание**",
+        usage="reminder delete [Id]",
+        help="**Примеры использования:**\n1. {Prefix}reminder delete 1\n\n**Пример 1:** Удалит напоминания с id - `1`",
+    )
     async def delete(self, ctx, reminder_id: int):
         state = await self.client.database.del_reminder(ctx.guild.id, reminder_id)
         if state:
@@ -68,7 +83,12 @@ class Reminders(commands.Cog):
             await ctx.send(embed=emb)
             return
 
-    @reminder.command()
+    @reminder.command(
+        aliases=["list", "l"],
+        description="**Покажет список ваших напоминаний**",
+        usage="reminder list",
+        help="**Примеры использования:**\n1. {Prefix}reminder list\n\n**Пример 1:** Покажет список ваших напоминаний",
+    )
     async def list(self, ctx):
         data = await self.client.database.get_reminder(target=ctx.author)
         if data != ():
