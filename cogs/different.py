@@ -1,8 +1,7 @@
-import time
 import datetime
 import discord
 import requests
-from tools import TimeConverter
+from tools.converters import Expiry
 from discord.ext import commands
 from discord.utils import get
 from tools.paginator import Paginator
@@ -13,137 +12,91 @@ class Different(commands.Cog, name="Different"):
 	def __init__(self, client):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
-		self.time_converter = TimeConverter()
 
-	@commands.command(
-		name="reminder",
-		aliases=["remin"],
-		description="**Работа с напоминаниями**",
-		usage="reminder [create/list/delete] |Время| |Текст|",
-		help="**Полезное:**\nВремя можно указывать в таких форматах: ЧЧ:ММ.ДД.ММ.ГГГГ - 10:30.12.12.2050, кол-воТип - 10m\n\n**Примеры использования:**\n1. {Prefix}reminder create 1h Example reminder text\n2. {Prefix}reminder list\n3. {Prefix}reminder delete 1\n4. {Prefix}reminder create 10:30.12.12.2050 Example reminder text\n\n**Пример 1:** Напомнит `Example reminder text` через 1 час\n**Пример 2:** Покажет список ваших напоминаний\n**Пример 3:** Удалит напоминания с id - `1`\n**Пример 4:** Напомнит `Example reminder text` в 10:30 12.12.2050\n",
-	)
-	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def reminder(
-		self, ctx, action: str, type_time: str = None, *, text: str = None
-	):
-		if action == "create":
-			if type_time is None:
-				emb = await self.client.utils.create_error_embed(
-					ctx, "**Укажите время напоминая!**",
-				)
-				await ctx.send(embed=emb)
-				return
+	@commands.group()
+	async def reminder(self, ctx):
+		pass
 
-			if text is None:
-				emb = await self.client.utils.create_error_embed(
-					ctx, "**Укажите текст напоминания!**",
-				)
-				await ctx.send(embed=emb)
-				return
-
-			if type_time.split(".")[0] == type_time:
-				try:
-					expiry_in = await self.time_converter.convert(ctx, type_time)
-				except commands.BadArgument:
-					emb = await self.client.utils.create_error_embed(
-						ctx, "**Время указано в неправильном формате!**",
-					)
-					await ctx.send(embed=emb)
-					return
-
-				times = self.client.utils.relativedelta_to_timestamp(expiry_in)
-			else:
-				times = self.client.utils.date_to_time(type_time.split("."), type_time)
-				if times == 0:
-					emb = await self.client.utils.create_error_embed(
-						ctx, "**Время указано в неправильном формате! Укажите так: ЧЧ:ММ.ДД.ММ.ГГГГ**"
-					)
-					await ctx.send(embed=emb)
-					return
-
-			reminder_id = await self.client.database.set_reminder(
-				member=ctx.author, channel=ctx.channel, time=times, text=text
+	@reminder.command()
+	async def create(self, ctx, expiry_at: Expiry, *, text: str):
+		reminder_id = await self.client.database.set_reminder(
+			member=ctx.author, channel=ctx.channel, time=expiry_at.timestamp(), text=text
+		)
+		if not reminder_id:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Превишен лимит напоминалок(25)!**",
 			)
-			if not reminder_id:
-				emb = await self.client.utils.create_error_embed(
-					ctx, "**Превишен лимит напоминалок(25)!**",
-				)
-				await ctx.send(embed=emb)
-				return
+			await ctx.send(embed=emb)
+			return
 
+		emb = discord.Embed(
+			title=f"Создано новое напоминая #{reminder_id}",
+			description=f"**Текст напоминая:**\n```{text}```\n**Действует до:**\n`{expiry_at.strftime('%d %B %Y %X')}`",
+			colour=discord.Color.green(),
+		)
+		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		await ctx.send(embed=emb)
+
+	@reminder.command()
+	async def delete(self, ctx, reminder_id: int):
+		state = await self.client.database.del_reminder(ctx.guild.id, reminder_id)
+		if state:
 			emb = discord.Embed(
-				title=f"Создано новое напоминая #{reminder_id}",
-				description=f"**Текст напоминая:**\n```{text}```\n**Действует до:**\n`{datetime.datetime.fromtimestamp(times).strftime('%d %B %Y %X')}`",
+				description=f"Напоминания `#{reminder_id}` было успешно удалено",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-		elif action == "list":
-			data = await self.client.database.get_reminder(target=ctx.author)
-			if data != ():
-				embeds = []
-				for reminder in data:
-					active_to = datetime.datetime.fromtimestamp(reminder[4]).strftime('%d %B %Y %X')
-					emb = discord.Embed(
-						title="Список напоминаний",
-						description=f"Id: **{reminder[0]}**\nДействует до: `{active_to}`\nТекст:\n>>> {reminder[5][:1024]}",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-					embeds.append(emb)
-
-				message = await ctx.send(embed=embeds[0])
-				paginator = Paginator(ctx, message, embeds, footer=True)
-				await paginator.start()
-			else:
-				emb = discord.Embed(
-					title="Список напоминаний",
-					description="У вас нету напоминаний",
-					colour=discord.Color.green(),
-				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await ctx.send(embed=emb)
-		elif action == "delete":
-			if type_time is not None:
-				if type_time.isdigit():
-					state = await self.client.database.del_reminder(ctx.guild.id, int(type_time))
-					if state:
-						emb = discord.Embed(
-							description=f"Напоминания `#{type_time}` было успешно удалено",
-							colour=discord.Color.green(),
-						)
-						emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-						emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-						await ctx.send(embed=emb)
-						return
-					else:
-						emb = await self.client.utils.create_error_embed(
-							ctx, "**Напоминания с таким id не существует!**"
-						)
-						await ctx.send(embed=emb)
-						return
-				else:
-					emb = await self.client.utils.create_error_embed(
-						ctx, "**Указаное id - строка!**"
-					)
-					await ctx.send(embed=emb)
-					return
-			elif type_time is None:
-				emb = await self.client.utils.create_error_embed(
-					ctx, "**Укажите id напоминания!**"
-				)
-				await ctx.send(embed=emb)
-				return
+			return
 		else:
 			emb = await self.client.utils.create_error_embed(
-				ctx, "**Укажите одно из этих действий: create, list, delete!**",
+				ctx, "**Напоминания с таким id не существует!**"
 			)
 			await ctx.send(embed=emb)
+			return
+
+	@reminder.command()
+	async def list(self, ctx):
+		data = await self.client.database.get_reminder(target=ctx.author)
+		if data != ():
+			embeds = []
+			for reminder in data:
+				active_to = datetime.datetime.fromtimestamp(reminder[4]).strftime('%d %B %Y %X')
+				emb = discord.Embed(
+					title="Список напоминаний",
+					description=f"Id: **{reminder[0]}**\nДействует до: `{active_to}`\nТекст:\n>>> {reminder[5][:1024]}",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				embeds.append(emb)
+
+			message = await ctx.send(embed=embeds[0])
+			paginator = Paginator(ctx, message, embeds, footer=True)
+			await paginator.start()
+		else:
+			emb = discord.Embed(
+				title="Список напоминаний",
+				description="У вас нету напоминаний",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+
+	# @commands.command(
+	# 	aliases=["remin"],
+	# 	description="**Работа с напоминаниями**",
+	# 	usage="reminder [create/list/delete] |Время| |Текст|",
+	# 	help="**Полезное:**\nВремя можно указывать в таких форматах: ЧЧ:ММ.ДД.ММ.ГГГГ - 10:30.12.12.2050, кол-воТип - 10m\n\n**Примеры использования:**\n1. {Prefix}reminder create 1h Example reminder text\n2. {Prefix}reminder list\n3. {Prefix}reminder delete 1\n4. {Prefix}reminder create 10:30.12.12.2050 Example reminder text\n\n**Пример 1:** Напомнит `Example reminder text` через 1 час\n**Пример 2:** Покажет список ваших напоминаний\n**Пример 3:** Удалит напоминания с id - `1`\n**Пример 4:** Напомнит `Example reminder text` в 10:30 12.12.2050\n",
+	# )
+	# @commands.cooldown(2, 10, commands.BucketType.member)
+	# async def reminder(self, ctx):
+	# 	pass
 
 	@commands.group(
 		name="status-reminder",

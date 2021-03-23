@@ -1,7 +1,8 @@
 import discord
 import jinja2
 import time as tm
-from tools import TimeConverter
+from tools.utils.other import process_converters
+from tools.converters import Expiry
 from discord.ext import commands
 
 
@@ -10,7 +11,6 @@ class EventsAntiFlud(commands.Cog):
         self.client = client
         self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
         self.FOOTER = self.client.config.FOOTER_TEXT
-        self.time_converter = TimeConverter()
         self.messages = {}
 
     def update(self, key: str, message: discord.Message):
@@ -100,22 +100,18 @@ class EventsAntiFlud(commands.Cog):
                     reason = "Авто-модерация: Флуд"
                     type_punishment = data["auto_mod"]["anti_flud"]["punishment"]["type"]
                     ctx = await self.client.get_context(message)
-                    expiry_in = None
+                    expiry_at = None
                     if data["auto_mod"]["anti_flud"]["punishment"]["time"] is not None:
-                        try:
-
-                            expiry_in = await self.time_converter.convert(
-                                ctx, data["auto_mod"]["anti_flud"]["punishment"]["time"]
-                            )
-                        except commands.BadArgument:
-                            pass
+                        expiry_at = await process_converters(
+                            ctx, Expiry.__args__, data["auto_mod"]["anti_flud"]["punishment"]["time"]
+                        )
 
                     if type_punishment == "mute":
                         await self.client.support_commands.mute(
                             ctx=ctx,
                             member=message.author,
                             author=message.guild.me,
-                            expiry_in=expiry_in,
+                            expiry_at=expiry_at,
                             reason=reason,
                         )
                     elif type_punishment == "warn":
@@ -137,7 +133,7 @@ class EventsAntiFlud(commands.Cog):
                             ctx=ctx,
                             member=message.author,
                             author=message.guild.me,
-                            expiry_in=expiry_in,
+                            expiry_at=expiry_at,
                             reason=reason,
                         )
                     elif type_punishment == "soft-ban":
@@ -145,7 +141,7 @@ class EventsAntiFlud(commands.Cog):
                             ctx=ctx,
                             member=message.author,
                             author=message.guild.me,
-                            expiry_in=expiry_in,
+                            expiry_at=expiry_at,
                             reason=reason,
                         )
 

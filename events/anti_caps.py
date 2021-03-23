@@ -1,6 +1,7 @@
 import discord
 import jinja2
-from tools import TimeConverter
+from tools.utils.other import process_converters
+from tools.converters import Expiry
 from discord.ext import commands
 
 
@@ -9,7 +10,6 @@ class EventsAntiCaps(commands.Cog):
         self.client = client
         self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
         self.FOOTER = self.client.config.FOOTER_TEXT
-        self.time_converter = TimeConverter()
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -26,6 +26,7 @@ class EventsAntiCaps(commands.Cog):
             for char in list(content_without_spaces):
                 if char.isupper():
                     num_upper_chars += 1
+
             upper_percent = (num_upper_chars/len(content_without_spaces))*100
             if not upper_percent >= data["auto_mod"]["anti_caps"]["percent"]:
                 return
@@ -58,20 +59,18 @@ class EventsAntiCaps(commands.Cog):
                 reason = "Авто-модерация: Приглашения"
                 type_punishment = data["auto_mod"]["anti_caps"]["punishment"]["type"]
                 ctx = await self.client.get_context(message)
-                expiry_in = None
+                expiry_at = None
                 if data["auto_mod"]["anti_caps"]["punishment"]["time"] is not None:
-                    try:
-                        expiry_in = await self.time_converter.convert(
-                            ctx, data["auto_mod"]["anti_caps"]["punishment"]["time"]
-                        )
-                    except commands.BadArgument:
-                        pass
+                    expiry_at = await process_converters(
+                        ctx, Expiry.__args__, data["auto_mod"]["anti_caps"]["punishment"]["time"]
+                    )
+
                 if type_punishment == "mute":
                     await self.client.support_commands.mute(
                         ctx=ctx,
                         member=message.author,
                         author=message.guild.me,
-                        expiry_in=expiry_in,
+                        expiry_at=expiry_at,
                         reason=reason,
                     )
                 elif type_punishment == "warn":
@@ -93,7 +92,7 @@ class EventsAntiCaps(commands.Cog):
                         ctx=ctx,
                         member=message.author,
                         author=message.guild.me,
-                        expiry_in=expiry_in,
+                        expiry_at=expiry_at,
                         reason=reason,
                     )
                 elif type_punishment == "soft-ban":
@@ -101,7 +100,7 @@ class EventsAntiCaps(commands.Cog):
                         ctx=ctx,
                         member=message.author,
                         author=message.guild.me,
-                        expiry_in=expiry_in,
+                        expiry_at=expiry_at,
                         reason=reason,
                     )
 

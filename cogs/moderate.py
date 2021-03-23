@@ -1,10 +1,11 @@
 import discord
 import json
 import typing
-import time
 import datetime
 import humanize
-from tools import TimeConverter, Paginator
+from tools.utils.other import process_converters
+from tools.converters import Expiry
+from tools import Paginator
 from discord.ext import commands
 from discord.utils import get
 
@@ -31,7 +32,6 @@ class Moderate(commands.Cog, name="Moderate"):
 		self.VMUTE_ROLE = self.client.config.VMUTE_ROLE
 		self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
 		self.FOOTER = self.client.config.FOOTER_TEXT
-		self.time_converter = TimeConverter()
 
 	@commands.command(
 		description="**Удаляет указаное число сообщений**",
@@ -103,7 +103,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def temprole(
-		self, ctx, member: discord.Member, role: discord.Role, expiry_in: TimeConverter
+		self, ctx, member: discord.Member, role: discord.Role, expiry_at: Expiry
 	):
 		if member == ctx.author:
 			emb = await self.client.utils.create_error_embed(
@@ -142,9 +142,9 @@ class Moderate(commands.Cog, name="Moderate"):
 			return
 
 		await member.add_roles(role)
-		delta = humanize.naturaldelta(expiry_in)
+		delta = humanize.naturaldelta(expiry_at+datetime.timedelta(seconds=1))
 		emb = discord.Embed(
-			description=f"**{member}**({member.mention}) Была виданна роль\nРоль: `{role.name}`\nВремя: `{delta}`",
+			description=f"**{member}**({member.mention}) Была виданна роль\nРоль: `{role.name}`\nДлительность: `{delta}`",
 			colour=discord.Color.green(),
 			timestamp=datetime.datetime.utcnow()
 		)
@@ -154,7 +154,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		await self.client.database.set_punishment(
 			type_punishment="temprole",
-			time=expiry_in,
+			time=expiry_at.timestamp(),
 			member=member,
 			role_id=int(role.id),
 		)
@@ -299,10 +299,10 @@ class Moderate(commands.Cog, name="Moderate"):
 			return
 
 		options = list(options)
-		expiry_in = None
+		expiry_at = None
 		if len(options) > 0:
 			try:
-				expiry_in = await self.time_converter.convert(ctx, options[0])
+				expiry_at = await process_converters(ctx, Expiry.__args__, options[0])
 				options.pop(0)
 				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
 			except commands.BadArgument:
@@ -314,7 +314,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			ctx=ctx,
 			member=member,
 			author=ctx.author,
-			expiry_in=expiry_in,
+			expiry_at=expiry_at,
 			reason=reason[:1024]
 		)
 
@@ -428,10 +428,10 @@ class Moderate(commands.Cog, name="Moderate"):
 			return
 
 		options = list(options)
-		expiry_in = None
+		expiry_at = None
 		if len(options) > 0:
 			try:
-				expiry_in = await self.time_converter.convert(ctx, options[0])
+				expiry_at = await process_converters(ctx, Expiry.__args__, options[0])
 				options.pop(0)
 				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
 			except commands.BadArgument:
@@ -443,7 +443,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			ctx=ctx,
 			member=member,
 			author=ctx.author,
-			expiry_in=expiry_in,
+			expiry_at=expiry_at,
 			reason=reason[:1024]
 		)
 
@@ -543,10 +543,10 @@ class Moderate(commands.Cog, name="Moderate"):
 			return
 
 		options = list(options)
-		expiry_in = None
+		expiry_at = None
 		if len(options) > 0:
 			try:
-				expiry_in = await self.time_converter.convert(ctx, options[0])
+				expiry_at = await process_converters(ctx, Expiry.__args__, options[0])
 				options.pop(0)
 				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
 			except commands.BadArgument:
@@ -555,10 +555,8 @@ class Moderate(commands.Cog, name="Moderate"):
 			reason = "Причина не указана"
 
 		delta = None
-		if expiry_in is not None:
-			delta = humanize.naturaldelta(
-				self.client.utils.relativedelta_to_timedelta(expiry_in)
-			)
+		if expiry_at is not None:
+			delta = humanize.naturaldelta(expiry_at+datetime.timedelta(seconds=1))
 
 		reason = reason[:1024]
 		overwrite = discord.PermissionOverwrite(connect=False)
@@ -574,7 +572,7 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		description_time = delta if delta is not None else "Перманентно"
 		emb = discord.Embed(
-			description=f"**{member}**({member.mention}) Был замьючен в голосовых каналах\nВремя: `{description_time}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
+			description=f"**{member}**({member.mention}) Был замьючен в голосовых каналах\nДлительность: `{description_time}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
 			timestamp=datetime.datetime.utcnow()
 		)
@@ -583,7 +581,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		await ctx.send(embed=emb)
 
 		emb = discord.Embed(
-			description=f"Вы были замьчены в голосовых каналах на сервере\nСервер: `{ctx.guild.name}`\nВремя: `{description_time}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
+			description=f"Вы были замьчены в голосовых каналах на сервере\nСервер: `{ctx.guild.name}`\nДлительность: `{description_time}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
 			timestamp=datetime.datetime.utcnow()
 		)
@@ -594,10 +592,10 @@ class Moderate(commands.Cog, name="Moderate"):
 		except:
 			pass
 
-		if expiry_in is not None:
+		if expiry_at is not None:
 			await self.client.database.set_punishment(
 				type_punishment="vmute",
-				time=self.client.utils.relativedelta_to_timestamp(expiry_in),
+				time=expiry_at.timestamp(),
 				member=member,
 				role_id=int(role.id)
 			)
@@ -754,10 +752,10 @@ class Moderate(commands.Cog, name="Moderate"):
 			return
 
 		options = list(options)
-		expiry_in = None
+		expiry_at = None
 		if len(options) > 0:
 			try:
-				expiry_in = await self.time_converter.convert(ctx, options[0])
+				expiry_at = await process_converters(ctx, Expiry.__args__, options[0])
 				options.pop(0)
 				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
 			except commands.BadArgument:
@@ -769,7 +767,7 @@ class Moderate(commands.Cog, name="Moderate"):
 			ctx=ctx,
 			member=member,
 			author=ctx.author,
-			expiry_in=expiry_in,
+			expiry_at=expiry_at,
 			reason=reason[:1024]
 		)
 

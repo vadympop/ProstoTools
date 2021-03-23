@@ -1,8 +1,5 @@
 import discord
-import datetime
-import calendar
 import random
-from dateutil.relativedelta import relativedelta
 from discord import ext
 from tools.exceptions import *
 
@@ -11,22 +8,6 @@ class Utils:
     def __init__(self, client):
         self.client = client
         self.FOOTER = self.client.config.FOOTER_TEXT
-
-    def relativedelta_to_timestamp(self, delta: relativedelta) -> int:
-        return int((delta+datetime.datetime.now()).timestamp())
-
-    def relativedelta_to_timedelta(self, delta: relativedelta) -> datetime.timedelta:
-        now = datetime.datetime.now()
-        return now+delta-now
-
-    def date_to_time(self, date: list, str_d: str):
-        if len(date) != 4:
-            return 0
-
-        new_time = datetime.datetime.strptime(str_d, "%H:%M.%d.%m.%Y")
-        if new_time < datetime.datetime.utcnow():
-            return 0
-        return ((new_time-datetime.datetime(year=1970, month=1, day=1))-datetime.timedelta(hours=2)).total_seconds()
 
     async def create_error_embed(self, ctx, error_msg: str, bold: bool = True):
         emb = discord.Embed(

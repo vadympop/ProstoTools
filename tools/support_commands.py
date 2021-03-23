@@ -1,9 +1,8 @@
 import discord
 import datetime
 import humanize
-from discord.ext import commands
-from dateutil.relativedelta import relativedelta
-from tools.time_converter import TimeConverter
+from tools.utils.other import process_converters
+from tools.converters import Expiry
 from discord.utils import get
 
 
@@ -14,15 +13,12 @@ class SupportCommands:
 		self.VMUTE_ROLE = self.client.config.VMUTE_ROLE
 		self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
 		self.FOOTER = self.client.config.FOOTER_TEXT
-		self.time_converter = TimeConverter()
 
-	async def mute(self, ctx, member: discord.Member, author: discord.Member, expiry_in: relativedelta, reason: str):
+	async def mute(self, ctx, member: discord.Member, author: discord.Member, expiry_at: datetime.datetime, reason: str):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 		delta = None
-		if expiry_in is not None:
-			delta = humanize.naturaldelta(
-				self.client.utils.relativedelta_to_timedelta(expiry_in)
-			)
+		if expiry_at is not None:
+			delta = humanize.naturaldelta(expiry_at+datetime.timedelta(seconds=1))
 
 		role = get(ctx.guild.roles, name=self.MUTE_ROLE)
 		if role is None:
@@ -62,10 +58,10 @@ class SupportCommands:
 		except:
 			pass
 
-		if expiry_in is not None:
+		if expiry_at is not None:
 			await self.client.database.set_punishment(
 				type_punishment="mute",
-				time=self.client.utils.relativedelta_to_timestamp(expiry_in),
+				time=expiry_at.timestamp(),
 				member=member,
 				role_id=int(role.id),
 				reason=reason,
@@ -119,20 +115,17 @@ class SupportCommands:
 
 		if len([warn for warn in cur_warns if warn["state"]]) >= max_warns:
 			if warn_punishment is not None:
-				expiry_in = None
+				expiry_at = None
 				if warn_punishment["time"] is not None:
-					try:
-						expiry_in = await self.time_converter.convert(
-							ctx, warn_punishment["time"]
-						)
-					except commands.BadArgument:
-						pass
+					expiry_at = await process_converters(
+						ctx, Expiry.__args__, warn_punishment["time"]
+					)
 
 				if warn_punishment["type"] == "mute":
 					await self.mute(
 						ctx=ctx,
 						member=member,
-						expiry_in=expiry_in,
+						expiry_at=expiry_at,
 						reason=reason,
 						author=author,
 					)
@@ -147,7 +140,7 @@ class SupportCommands:
 					await self.ban(
 						ctx=ctx,
 						member=member,
-						expiry_in=expiry_in,
+						expiry_at=expiry_at,
 						reason=reason,
 						author=author,
 					)
@@ -156,7 +149,7 @@ class SupportCommands:
 						ctx=ctx,
 						member=member,
 						author=author,
-						expiry_in=expiry_in,
+						expiry_at=expiry_at,
 						reason=reason
 					)
 
@@ -231,7 +224,7 @@ class SupportCommands:
 			if channel is not None:
 				await channel.send(embed=e)
 
-	async def ban(self, ctx, member: discord.Member, author: discord.Member, expiry_in: relativedelta, reason: str):
+	async def ban(self, ctx, member: discord.Member, author: discord.Member, expiry_at: datetime.datetime, reason: str):
 		await member.ban(reason=reason)
 		emb = discord.Embed(
 			description=f"**{member}**(`{member.id}`) Был забанен\nМодератор: `{author}`\nПричина: **{reason}**",
@@ -254,20 +247,18 @@ class SupportCommands:
 		except:
 			pass
 
-		if expiry_in is not None:
+		if expiry_at is not None:
 			await self.client.database.set_punishment(
 				type_punishment="ban",
-				time=self.client.utils.relativedelta_to_timestamp(expiry_in),
+				time=expiry_at.timestamp(),
 				member=member
 			)
 
-	async def soft_ban(self, ctx, member: discord.Member, author: discord.Member, expiry_in: relativedelta, reason: str):
+	async def soft_ban(self, ctx, member: discord.Member, author: discord.Member, expiry_at: datetime.datetime, reason: str):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 		delta = None
-		if expiry_in is not None:
-			delta = humanize.naturaldelta(
-				self.client.utils.relativedelta_to_timedelta(expiry_in)
-			)
+		if expiry_at is not None:
+			delta = humanize.naturaldelta(expiry_at+datetime.timedelta(seconds=1))
 
 		emb = discord.Embed(
 			description=f"**{member}**({member.mention}) Был апаратно забанен\nМодератор: `{author}`\nПричина: **{reason}**",
@@ -304,10 +295,10 @@ class SupportCommands:
 
 		await member.add_roles(role)
 
-		if expiry_in is not None:
+		if expiry_at is not None:
 			await self.client.database.set_punishment(
 				type_punishment="temprole",
-				time=self.client.utils.relativedelta_to_timestamp(expiry_in),
+				time=expiry_at.timestamp(),
 				member=member,
 				role=role.id
 			)
