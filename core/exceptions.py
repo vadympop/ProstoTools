@@ -1,21 +1,45 @@
 from discord.ext import commands
 
 
-class CommandOff(commands.CommandError):
+class ProstoToolsException(commands.CommandError):
     pass
 
 
-class CommandRoleRequired(commands.CommandError):
+class CommandOff(ProstoToolsException):
     pass
 
 
-class CommandChannelRequired(commands.CommandError):
+class CommandRoleRequired(ProstoToolsException):
     pass
 
 
-class CommandRoleIgnored(commands.CommandError):
+class CommandChannelRequired(ProstoToolsException):
     pass
 
 
-class CommandChannelIgnored(commands.CommandError):
+class CommandRoleIgnored(ProstoToolsException):
+    pass
+
+
+class CommandChannelIgnored(ProstoToolsException):
+    pass
+
+
+class RoleHigherThanYour(ProstoToolsException):
+    pass
+
+
+class RoleHigherThanMy(ProstoToolsException):
+    pass
+
+
+class TakeActionWithMe(ProstoToolsException):
+    pass
+
+
+class TakeActionWithYourself(ProstoToolsException):
+    pass
+
+
+class TakeActionWithOwner(ProstoToolsException):
     pass

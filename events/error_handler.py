@@ -1,8 +1,8 @@
 import discord
 import uuid
+import humanize
 from core.exceptions import *
 from discord.ext import commands
-from discord.utils import get
 from colorama import *
 
 init()
@@ -11,13 +11,21 @@ init()
 class Errors(commands.Cog, name="Errors"):
 	def __init__(self, client):
 		self.client = client
+		self.ignored = (
+			commands.errors.CommandNotFound,
+			commands.errors.NotOwner,
+			CommandOff
+		)
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, error):
 		if ctx.guild is None:
 			return
+
 		PREFIX = str(await self.client.database.get_prefix(guild=ctx.guild))
+		if isinstance(error, self.ignored):
+			return
 
 		if isinstance(error, commands.errors.CommandOnCooldown):
 			try:
@@ -26,25 +34,13 @@ class Errors(commands.Cog, name="Errors"):
 				pass
 			except discord.errors.HTTPException:
 				pass
-			retry_after = error.retry_after
-			if retry_after < 60:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description=f"**Кулдавн в команде еще не прошёл! Подождите {int(retry_after)} секунд**",
-					colour=discord.Color.green(),
-				)
-			elif 60 < retry_after < 1800:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description=f"**Кулдавн в команде еще не прошёл! Подождите {int(retry_after / 60)} минут**",
-					colour=discord.Color.green(),
-				)
-			elif retry_after > 1800:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description=f"**Кулдавн в команде еще не прошёл! Подождите {int(retry_after / 60 / 24)} часа**",
-					colour=discord.Color.green(),
-				)
+
+			retry = humanize.precisedelta(error.retry_after, minimum_unit='seconds')
+			emb = discord.Embed(
+				title="Ошибка!",
+				description=f"**Кулдавн в команде еще не прошёл! Подождите {retry}**",
+				colour=discord.Color.green(),
+			)
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
@@ -58,10 +54,6 @@ class Errors(commands.Cog, name="Errors"):
 				bold=False
 			)
 			await ctx.send(embed=emb)
-		elif isinstance(error, commands.errors.CommandNotFound):
-			pass
-		elif isinstance(error, commands.errors.NotOwner):
-			pass
 		elif isinstance(error, commands.errors.MissingPermissions) or isinstance(error, commands.errors.CheckFailure):
 			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(
@@ -89,8 +81,6 @@ class Errors(commands.Cog, name="Errors"):
 			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(ctx, "Указаный пользователь не найден!")
 			await ctx.send(embed=emb)
-		elif isinstance(error, CommandOff):
-			pass
 		elif isinstance(error, CommandRoleRequired):
 			emb = await self.client.utils.create_error_embed(
 				ctx, "У вас нет необходимых ролей!"
@@ -106,6 +96,31 @@ class Errors(commands.Cog, name="Errors"):
 				ctx, "Вы не можете использовать эту команду с вашей ролью!"
 			)
 			await ctx.send(embed=emb)
+		elif isinstance(error, RoleHigherThanYour):
+			emb = await self.client.utils.create_error_embed(
+				ctx, "В указанного пользователя роль выше чем ваша!"
+			)
+			await ctx.send(embed=emb)
+		elif isinstance(error, RoleHigherThanMy):
+			emb = await self.client.utils.create_error_embed(
+				ctx, "В указанного пользователя роль выше чем моя!"
+			)
+			await ctx.send(embed=emb)
+		elif isinstance(error, TakeActionWithYourself):
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вы не можете применить эту команду к себе!"
+			)
+			await ctx.send(embed=emb)
+		elif isinstance(error, TakeActionWithMe):
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вы не можете взаимодействовать с ботом в этой команде!"
+			)
+			await ctx.send(embed=emb)
+		elif isinstance(error, TakeActionWithOwner):
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вы не можете взаимодействовать с владельцем сервера в этой команде!"
+			)
+			await ctx.send(embed=emb)
 		else:
 			ctx.command.reset_cooldown(ctx)
 			if isinstance(error.original, discord.errors.Forbidden):
@@ -115,7 +130,7 @@ class Errors(commands.Cog, name="Errors"):
 				await ctx.send(embed=emb)
 				return
 			elif isinstance(error.original, discord.errors.NotFound):
-				pass
+				return
 
 			error_id = str(uuid.uuid4())
 			await self.client.database.set_error(error_id, repr(error), ctx.message.content)

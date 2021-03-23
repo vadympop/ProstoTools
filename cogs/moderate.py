@@ -4,7 +4,7 @@ import typing
 import datetime
 import humanize
 from core.utils.other import process_converters
-from core.converters import Expiry
+from core.converters import Expiry, TargetUser
 from core import Paginator
 from discord.ext import commands
 from discord.utils import get
@@ -225,35 +225,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}kick @Участник Нарушения правил сервера\n2. {Prefix}kick 660110922865704980 Нарушения правил сервера\n3. {Prefix}kick @Участник\n4. {Prefix}kick 660110922865704980\n\n**Пример 1:** Кикает с сервера упомянутого участника по причине `Нарушения правил сервера`\n**Пример 2:** Кикает с сервера участника с указаным id по причине `Нарушения правил сервера`\n**Пример 3:** Кикает с сервера упомянутого участника без причины\n**Пример 4:** Кикает с сервера участника с указаным id без причины",
 	)
 	@commands.check(check_role)
-	async def kick(self, ctx, member: discord.Member, *, reason: str = "Причина не указана"):
-		if member == ctx.author:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете применить эту команду к себе"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member == ctx.guild.owner:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете выгнать владельца сервера"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member.top_role >= ctx.guild.me.top_role:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Я не могу выгнать этого участника!"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете можете выгнать участника который имеет больше прав чем у вас!"
-			)
-			await ctx.send(embed=emb)
-			return
-
+	async def kick(self, ctx, member: TargetUser, *, reason: str = "Причина не указана"):
 		await self.client.support_commands.kick(
 			ctx=ctx,
 			member=member,
@@ -269,35 +241,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Полезное:**\n\n**Примеры использования:**\n1. {Prefix}soft-ban @Участник 10d Нарушения правил сервера\n2. {Prefix}soft-ban 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}soft-ban @Участник 10d\n4. {Prefix}soft-ban 660110922865704980 10d\n5. {Prefix}soft-ban @Участник\n6. {Prefix}soft-ban 660110922865704980\n7. {Prefix}soft-ban @Участник Нарушения правил сервера\n8. {Prefix}soft-ban 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Апапаратно банит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Апапаратно банит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Апапаратно банит упомянутого участника без причины на 10 дней\n**Пример 4:** Апапаратно банит участника с указаным id без причины на 10 дней\n**Пример 5:** Даёт перманентный апапаратный бан упомянутому участнику без причины\n**Пример 6:** Даёт перманентный апапаратный бан участнику с указаным id без причины\n**Пример 7:** Даёт перманентный апапаратный бан упомянутому участнику по причине\n`Нарушения правил сервера`\n**Пример 8:** Даёт апапаратный апапаратный бан участнику с указаным id по причине\n`Нарушения правил сервера`",
 	)
 	@commands.check(check_role)
-	async def soft_ban(self, ctx, member: discord.Member, *options: str):
-		if member == ctx.author:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете применить эту команду к себе"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member == ctx.guild.owner:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете забанить владельца сервера!"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member.top_role >= ctx.guild.me.top_role:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Я не могу забанить этого участника"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
-			emb = self.client.utils.create_error_embed(
-				ctx, "Вы не можете можете забанить участника который имеет больше прав чем у вас!"
-			)
-			await ctx.send(embed=emb)
-			return
-
+	async def soft_ban(self, ctx, member: TargetUser, *options: str):
 		options = list(options)
 		expiry_at = None
 		if len(options) > 0:
@@ -326,23 +270,8 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}unsoft-ban @Участник\n2. {Prefix}unsoft-ban 660110922865704980\n\n**Пример 1:** Снимает апаратный бан с упомянутого участника\n**Пример 2:** Снимает апаратный бан с участника с указаным id",
 	)
 	@commands.check(check_role)
-	async def unsoftban(self, ctx, member: discord.Member):
+	async def unsoftban(self, ctx, member: TargetUser):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
-
-		if member == ctx.author:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете применить эту команду к себе"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member.top_role >= ctx.guild.me.top_role:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Я не могу разбанить этого участника!"
-			)
-			await ctx.send(embed=emb)
-			return
-
 		emb = discord.Embed(
 			description=f"`{ctx.author}` **Снял апаратный бан с** `{member}`({member.mention})",
 			colour=discord.Color.green(),
@@ -398,35 +327,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}ban @Участник 10d Нарушения правил сервера\n2. {Prefix}ban 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}ban @Участник 10d\n4. {Prefix}ban 660110922865704980 10d\n5. {Prefix}ban @Участник\n6. {Prefix}ban 660110922865704980\n7. {Prefix}ban @Участник Нарушения правил сервера\n8. {Prefix}ban 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Банит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Банит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Банит упомянутого участника без причины на 10 дней\n**Пример 4:** Банит участника с указаным id без причины на 10 дней\n**Пример 5:** Перманентно банит упомянутого участника без причины\n**Пример 6:** Перманентно банит участника с указаным id без причины\n**Пример 7:** Перманентно банит упомянутого участника по причине\n`Нарушения правил сервера`\n**Пример 8:** Перманентно банит участника с указаным id по причине\n`Нарушения правил сервера`",
 	)
 	@commands.check(check_role)
-	async def ban(self, ctx, member: discord.Member, *options: str):
-		if member == ctx.author:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете применить эту команду к себе"
-			)
-			await ctx.send(embed=emb)
-			return
-		
-		if member == ctx.guild.owner:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете забанить владельца сервера!"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member.top_role >= ctx.guild.me.top_role:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Я не могу забанить этого участника!"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете можете забанить участника который имеет больше прав чем у вас!"
-			)
-			await ctx.send(embed=emb)
-			return
-
+	async def ban(self, ctx, member: TargetUser, *options: str):
 		options = list(options)
 		expiry_at = None
 		if len(options) > 0:
@@ -455,14 +356,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}un-ban @Ник+тэг\n2. {Prefix}un-ban 660110922865704980\n\n**Пример 1:** Разбанит указаного пользователя\n**Пример 2:** Разбанит пользователя с указаным id",
 	)
 	@commands.check(check_role)
-	async def unban(self, ctx, *, member: discord.User):
-		if member == ctx.author:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете применить эту команду к себе"
-			)
-			await ctx.send(embed=emb)
-			return
-
+	async def unban(self, ctx, *, member: TargetUser):
 		async with ctx.typing():
 			banned_users = await ctx.guild.bans()
 			state = False
@@ -510,38 +404,9 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.check(check_role)
 	async def vmute(
-		self, ctx, member: discord.Member, *options: str
+		self, ctx, member: TargetUser, *options: str
 	):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
-
-		if member == ctx.author:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете применить эту команду к себе"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member == ctx.guild.owner:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете замьютить в голосовых каналах владельца сервера!"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member.top_role >= ctx.guild.me.top_role:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Я не могу замьютить этого участника в голосовых каналах!"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете можете замьютить участника который имеет больше прав чем у вас!"
-			)
-			await ctx.send(embed=emb)
-			return
-
 		options = list(options)
 		expiry_at = None
 		if len(options) > 0:
@@ -636,30 +501,8 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}un-vmute @Участник\n2. {Prefix}un-vmute 660110922865704980\n\n**Пример 1:** Размьютит указаного участника в голосовых каналах\n**Пример 2:** Размьютит участника с указаным id в голосовых каналах",
 	)
 	@commands.check(check_role)
-	async def unvmute(self, ctx, member: discord.Member):
+	async def unvmute(self, ctx, member: TargetUser):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
-
-		if member == ctx.author:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете применить эту команду к себе"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member == ctx.guild.owner:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете размьють в голосовых каналах владельца сервера!"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member.top_role >= ctx.guild.me.top_role:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Я не могу размьютить этого участника в голосовых каналах!"
-			)
-			await ctx.send(embed=emb)
-			return
-
 		for vmute_role in ctx.guild.roles:
 			if vmute_role.name == self.VMUTE_ROLE:
 				await self.client.database.del_punishment(
@@ -722,35 +565,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}mute @Участник 10d Нарушения правил сервера\n2. {Prefix}mute 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}mute @Участник 10d\n4. {Prefix}mute 660110922865704980 10d\n5. {Prefix}mute @Участник\n6. {Prefix}mute 660110922865704980\n7. {Prefix}mute @Участник Нарушения правил сервера\n8. {Prefix}mute 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Мьютит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Мьютит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Мьютит упомянутого участника без причины на 10 дней\n**Пример 4:** Мьютит участника с указаным id без причины на 10 дней\n**Пример 5:** Перманентно мьютит упомянутого участника без причины\n**Пример 6:** Перманентно мьютит участника с указаным id без причины\n**Пример 7:** Перманентно мьютит упомянутого участника по причине\n`Нарушения правил сервера`\n**Пример 8:** Перманентно мьютит участника с указаным id по причине\n`Нарушения правил сервера`",
 	)
 	@commands.check(check_role)
-	async def mute(self, ctx, member: discord.Member, *options: str):
-		if member == ctx.author:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете применить эту команду к себе"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member == ctx.guild.owner:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете замьютить владельца сервера!"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member.top_role >= ctx.guild.me.top_role:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Я не могу замьютить этого участника!"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете можете замьютить участника который имеет больше прав чем у вас!"
-			)
-			await ctx.send(embed=emb)
-			return
-
+	async def mute(self, ctx, member: TargetUser, *options: str):
 		options = list(options)
 		expiry_at = None
 		if len(options) > 0:
@@ -779,30 +594,8 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}un-mute @Участник\n2. {Prefix}un-mute 660110922865704980\n\n**Пример 1:** Размьютит указаного участника\n**Пример 2:** Размьютит участника с указаным id",
 	)
 	@commands.check(check_role)
-	async def unmute(self, ctx, member: discord.Member):
+	async def unmute(self, ctx, member: TargetUser):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
-
-		if member == ctx.author:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете применить эту команду к себе"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member == ctx.guild.owner:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете размьютить владельца сервера"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member.top_role >= ctx.guild.me.top_role:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Я не могу размьютить этого участника"
-			)
-			await ctx.send(embed=emb)
-			return
-
 		for role in ctx.guild.roles:
 			if role.name == self.MUTE_ROLE:
 				await self.client.database.del_punishment(
@@ -861,16 +654,8 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}clear-warns @Участник\n2. {Prefix}clear-warns 660110922865704980\n\n**Пример 1:** Очищает все предупреждения указаного участника\n**Пример 2:** Очищает все предупреждения участника с указаным id",
 	)
 	@commands.check(check_role)
-	async def clearwarn(self, ctx, member: discord.Member):
+	async def clearwarn(self, ctx, member: TargetUser):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
-
-		if member == ctx.author:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете применить эту команду к себе"
-			)
-			await ctx.send(embed=emb)
-			return
-
 		async with ctx.typing():
 			warns = (await self.client.database.sel_user(target=member))["warns"]
 			warns_ids = [warn["id"] for warn in warns]
@@ -913,35 +698,7 @@ class Moderate(commands.Cog, name="Moderate"):
 		help="**Примеры использования:**\n1. {Prefix}warn @Участник Нарушения правил сервера\n2. {Prefix}warn 660110922865704980 Нарушения правил сервера\n3. {Prefix}warn @Участник\n4. {Prefix}warn 660110922865704980\n\n**Пример 1:** Даёт предупреждения упомянутого участнику по причине `Нарушения правил сервера`\n**Пример 2:** Даёт предупреждения участнику с указаным id по причине\n`Нарушения правил сервера`\n**Пример 3:** Даёт предупреждения упомянутого участнику без причины\n**Пример 4:** Даёт предупреждения участнику с указаным id без причины",
 	)
 	@commands.check(check_role)
-	async def warn(self, ctx, member: discord.Member, *, reason: str = "Причина не указана"):
-		if member == ctx.author:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете применить эту команду к себе"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member == ctx.guild.owner:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете дать предупреждения владельцу сервера!"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if member.top_role >= ctx.guild.me.top_role:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете дать предупреждения этому участника!"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		if ctx.author.top_role <= member.top_role and ctx.author != ctx.guild.owner:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не можете можете дать предупреждения участнику который имеет больше прав чем у вас!"
-			)
-			await ctx.send(embed=emb)
-			return
-
+	async def warn(self, ctx, member: TargetUser, *, reason: str = "Причина не указана"):
 		if member.bot:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете дать предупреждения боту!"

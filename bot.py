@@ -44,7 +44,7 @@ extensions = (
 	"tasks.send_data",
 	"tasks.bot_stat",
 	"tasks.giveaways",
-	"events.errors",
+	"events.error_handler",
 	"events.custom_voice_channel",
 	"events.join",
 	"events.leave",

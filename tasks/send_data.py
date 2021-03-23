@@ -30,6 +30,8 @@ class TasksSendData(commands.Cog):
 						"usage": command.usage,
 						"category": command.cog_name,
 						"help": command.help.replace("\n", "/n")
+						if command.help is not None
+						else "Подробной информации о команде не указанно"
 					}
 					for command in self.client.walk_commands()
 					if command.cog_name in self.allowed_cogs

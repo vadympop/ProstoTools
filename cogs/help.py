@@ -46,7 +46,7 @@ class Help(commands.Cog, name="Help"):
 	async def build_help(self, ctx, prefix: str) -> list:
 		emb = discord.Embed(
 			title="**Доступные команды:**",
-			description=f'Префикс на этом сервере - `{prefix}`. Показаны только те команды которые вы можете выполнить',
+			description=f'Префикс на этом сервере - `{prefix}`, также вы можете в качестве префикса использовать упоминания бота - {ctx.guild.me.mention}. Показаны только команды которые вы можете выполнить.\n\n`{prefix}help [Команда]` - что бы посмотреть помощь по команде\n`{prefix}help [Модуль]` - что бы посмотреть помощь по модулю',
 			colour=discord.Color.green()
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
