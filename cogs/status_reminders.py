@@ -10,7 +10,7 @@ class StatusReminders(commands.Cog):
     @commands.group(
         name="status-reminder",
         usage="reminder [Команда]",
-        description="**Категория команд - напоминания**",
+        description="Категория команд - напоминания",
         help=f"""**Команды групы:** create, delete, list\n\n""",
         aliases=[
             "sr",
@@ -34,7 +34,7 @@ class StatusReminders(commands.Cog):
             await ctx.send(embed=emb)
 
     @status_reminder.command(
-        description="**Создаст новое напоминание**",
+        description="Создаст новое напоминание",
         help="Пусто",
         usage="status-reminder create [repeated/default] [@Участник] [Ожидаемый статус]",
     )
@@ -93,7 +93,7 @@ class StatusReminders(commands.Cog):
         await ctx.send(embed=emb)
 
     @status_reminder.command(
-        description="**Удалить напоминание**",
+        description="Удалит напоминание",
         help="Пусто",
         usage="status-reminder delete [Id]",
     )
@@ -114,7 +114,7 @@ class StatusReminders(commands.Cog):
             pass
 
     @status_reminder.command(
-        description="**Покажет список ваших напоминаний**",
+        description="Покажет список ваших напоминаний",
         help="Пусто",
         usage="status-reminder list",
     )

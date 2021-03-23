@@ -12,7 +12,7 @@ class Different(commands.Cog, name="Different"):
 
 	@commands.command(
 		usage="color [Цвет]",
-		description="**Устанавливает роль с указаным цветом**",
+		description="Устанавливает роль с указаным цветом",
 		help="**Полезное:**\nЦвет надо указывать в формате HEX - #444444\n\n**Примеры использования:**\n1. {Prefix}color #444444\n2. {Prefix}color remove\n\n**Пример 1:** Установит вам роль с указаным цветом в HEX формате(Поддерживаеться только HEX)\n**Пример 2:** Удалить у вас роль с цветом",
 	)
 	@commands.cooldown(1, 300, commands.BucketType.member)
@@ -89,7 +89,7 @@ class Different(commands.Cog, name="Different"):
 	@commands.command(
 		aliases=["usersend"],
 		name="user-send",
-		description="**Отправляет сообщения указаному участнику(Cooldown - 1 мин после двох попыток)**",
+		description="Отправляет сообщения указаному участнику(Cooldown - 1 мин после двох попыток)",
 		usage="user-send [@Участник] [Сообщения]",
 		help="**Примеры использования:**\n1. `{Prefix}user-send @Участник Hello my friend`\n2. `{Prefix}user-send 660110922865704980 Hello my friend`\n\n**Пример 1:** Отправит упомянутому участнику сообщения `Hello my friend`\n**Пример 2:** Отправит участнику с указаным id сообщения `Hello my friend`",
 	)
@@ -133,7 +133,7 @@ class Different(commands.Cog, name="Different"):
 	@commands.command(
 		aliases=["devs"],
 		name="feedback",
-		description="**Отправляет описания бага в боте разработчикам или идею к боту(Cooldown - 2ч)**",
+		description="Отправляет описания бага в боте разработчикам или идею к боту(Cooldown - 2ч)",
 		usage="feedback [bug/idea] [Описания бага или идея к боту]",
 		help="**Примеры использования:**\n1. {Prefix}feedback баг Error\n2. {Prefix}feedback идея Idea\n\n**Пример 1:** Отправит баг `Error`\n**Пример 2: Отправит идею `Idea`**",
 	)
@@ -173,7 +173,7 @@ class Different(commands.Cog, name="Different"):
 	@commands.command(
 		aliases=["useravatar", "avatar"],
 		name="user-avatar",
-		description="**Показывает аватар указаного учасника**",
+		description="Показывает аватар указанного участника",
 		usage="user-avatar |@Участник|",
 		help="**Примеры использования:**\n1. {Prefix}user-avatar @Участник\n2. {Prefix}user-avatar 660110922865704980\n3. {Prefix}user-avatar\n\n**Пример 1:** Покажет аватар упомянутого участника\n**Пример 2:** Покажет аватар участника с указаным id\n**Пример 3:** Покажет ваш аватар",
 	)
@@ -195,7 +195,7 @@ class Different(commands.Cog, name="Different"):
 	@commands.command(
 		aliases=["msg-f", "msg-forward", "msgf", "msg-forw"],
 		name="message-forward",
-		description="**Перенаправляет ваше сообщения в указаный канал(Cooldown - 2 мин)**",
+		description="Перенаправляет ваше сообщения в указанный канал(Cooldown - 2 мин)",
 		usage="message-forward [Канал] [Сообщения]",
 		help="**Примеры использования:**\n1. {Prefix}message-forward #Канал Hello everyone\n2. {Prefix}message-forward 717776571406090313 Hello everyone\n\n**Пример 1:** Перенаправит сообщения `Hello everyone` в упомянутый канал\n**Пример 2:**  Перенаправит сообщения `Hello everyone` в канал с указаным id",
 	)
@@ -220,7 +220,7 @@ class Different(commands.Cog, name="Different"):
 			return
 
 	@commands.command(
-		description="**Отправляет ваше сообщения от именни бота(Cooldown - 30 сек после трёх попыток)**",
+		description="Отправляет ваше сообщения от именни бота(Cooldown - 30 сек после трёх попыток)",
 		usage="say [Сообщения]",
 		help="**Примеры использования:**\n1. {Prefix}say Hello, I am write a text\n\n**Пример 1:** Отправит указаное сообщения от именни бота в текущем канале и удалит сообщения участника",
 	)
@@ -235,7 +235,7 @@ class Different(commands.Cog, name="Different"):
 	@commands.command(
 		aliases=["rnum", "randomnumber"],
 		name="random-number",
-		description="**Пишет рандомное число в указаном диапазоне**",
+		description="Пишет рандомное число в указаном диапазоне",
 		usage="random-number [Первое число (От)] [Второе число (До)]",
 		help="**Примеры использования:**\n1. {Prefix}rnum 1 10\n\n**Пример 1:** Выберет рандомное число в диапазоне указаных",
 	)
@@ -258,7 +258,7 @@ class Different(commands.Cog, name="Different"):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		description="**Устанавливает краткое описания о вас**",
+		description="Устанавливает краткое описания о вас",
 		usage="bio [Текст]",
 		help="**Примеры использования:**\n1. {Prefix}bio -\n2. {Prefix}bio\n3. {Prefix}bio New biography\n\n**Пример 1:** Очистит биографию\n**Пример 2:** Покажет текущую биограцию\n**Пример 3:** Поставит новую биограцию - `New biography`",
 	)
@@ -317,7 +317,7 @@ class Different(commands.Cog, name="Different"):
 	@commands.command(
 		name="calc",
 		aliases=["calculator", "c"],
-		description="**Выполняет математические операции**",
+		description="Выполняет математические операции",
 		usage="calc [Операция]",
 		help="**Примеры использования:**\n1. {Prefix}calc 2+1\n\n**Пример 1:** Вычислит уравнения `2+1`",
 	)

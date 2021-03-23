@@ -1,7 +1,7 @@
 import aioredis
 import json
 import typing
-from tools.bases import AbcCacheManager
+from core.bases import AbcCacheManager
 
 
 class CacheManager(AbcCacheManager):

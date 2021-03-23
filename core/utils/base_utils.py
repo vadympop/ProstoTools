@@ -1,7 +1,7 @@
 import discord
 import random
 from discord import ext
-from tools.exceptions import *
+from core.exceptions import *
 
 
 class Utils:
@@ -21,42 +21,6 @@ class Utils:
             pass
         except discord.errors.HTTPException:
             pass
-        return emb
-
-    async def build_help(self, ctx, prefix, groups):
-        exceptions = ("owner", "help", "jishaku")
-        emb = discord.Embed(
-            title="**Доступные команды:**",
-            description=f'Префикс на этом сервере - `{prefix}`. Показаны только те команды которые вы можете выполнить',
-            colour=discord.Color.green()
-        )
-        for soft_cog_name in self.client.cogs:
-            if soft_cog_name.lower() not in exceptions:
-                cog = self.client.get_cog(soft_cog_name)
-                commands = ""
-                for command in cog.get_commands():
-                    if command.name not in groups:
-                        try:
-                            if await command.can_run(ctx):
-                                commands += f" `{prefix}{command.name}` "
-                        except ext.commands.CommandError:
-                            pass
-                    else:
-                        for c in command.commands:
-                            try:
-                                if await c.can_run(ctx):
-                                    commands += f" `{prefix}{command.name} {c.name}` "
-                            except ext.commands.CommandError:
-                                pass
-
-                if commands != "":
-                    emb.add_field(
-                        name=f"Категория команд: {soft_cog_name.capitalize()} - {prefix}help {soft_cog_name.lower()}",
-                        value=commands,
-                        inline=False,
-                    )
-        emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-        emb.set_footer(text=f"Вызвал: {ctx.author.name}", icon_url=ctx.author.avatar_url)
         return emb
 
     async def global_command_check(self, ctx):

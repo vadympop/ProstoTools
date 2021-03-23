@@ -11,7 +11,7 @@ class Works(commands.Cog, name="Works"):
 
 	@commands.group(
 		usage="work [Команда]",
-		description="**Категория команд - работы**",
+		description="Категория команд - работы",
 		help=f"""**Команды групы:** barman, treasurehunter, cleaner, windowasher, loader\n\n"""
 	)
 	@commands.cooldown(2, 7200, commands.BucketType.member)
@@ -32,7 +32,7 @@ class Works(commands.Cog, name="Works"):
 
 	@work.command(
 		usage="loader",
-		description="**Робота грузчик**"
+		description="Робота грузчик"
 	)
 	@commands.cooldown(2, 10800, commands.BucketType.member)
 	async def loader(self, ctx):
@@ -102,7 +102,7 @@ class Works(commands.Cog, name="Works"):
 	@work.command(
 		aliases=["treasure-hunter"],
 		usage="treasure-hunter",
-		description="**Робота охотник за сокровищами**"
+		description="Робота охотник за сокровищами"
 	)
 	@commands.cooldown(1, 18000, commands.BucketType.member)
 	async def treasurehunter(self, ctx):
@@ -233,7 +233,7 @@ class Works(commands.Cog, name="Works"):
 
 	@work.command(
 		usage="barman",
-		description="**Робота бармэн**"
+		description="Робота бармэн"
 	)
 	@commands.cooldown(2, 10800, commands.BucketType.member)
 	async def barman(self, ctx):
@@ -284,7 +284,7 @@ class Works(commands.Cog, name="Works"):
 
 	@work.command(
 		usage="cleaner",
-		description="**Робота уборщик**"
+		description="Робота уборщик"
 	)
 	@commands.cooldown(3, 7200, commands.BucketType.member)
 	async def cleaner(self, ctx):
@@ -366,7 +366,7 @@ class Works(commands.Cog, name="Works"):
 	@work.command(
 		aliases=["window-washer"],
 		usage="window-washer",
-		description="**Робота мойщик окон**"
+		description="Робота мойщик окон"
 	)
 	@commands.cooldown(1, 18000, commands.BucketType.member)
 	async def windowasher(self, ctx):

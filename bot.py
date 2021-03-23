@@ -1,14 +1,14 @@
 import discord
 import datetime
-from tools.http import RandomAPI
-from tools.services.cache import CacheManager
-from tools.services.database import DB
-from tools import Utils, SupportCommands, template_engine as temp_eng
+from core.http import RandomAPI
+from core.services.cache import CacheManager
+from core.services.database import DB
+from core import Utils, SupportCommands, template_engine as temp_eng
 from cogs.economy.buy_cmd import buy
 from loguru import logger
 from colorama import *
 from discord.ext import commands
-from configs import Config
+from config import Config
 
 
 init()
@@ -108,11 +108,18 @@ class ProstoTools(commands.AutoShardedBot):
 	async def on_message_edit(self, before, after):
 		await self.process_commands(after)
 
-	async def on_command(self, ctx):
-		if ctx.guild is None:
+	async def process_commands(self, message):
+		if message.author.bot:
 			return
 
-		await self.database.add_amout_command(entity=ctx.command.name)
+		ctx = await self.get_context(message)
+		if ctx.valid:
+			await ctx.trigger_typing()
+		await self.invoke(ctx)
+
+	async def on_command(self, ctx):
+		if ctx.valid and ctx.guild is not None:
+			await self.database.add_amout_command(entity=ctx.command.name)
 
 	def txt_dump(self, filename, filecontent):
 		with open(filename, "w+", encoding="utf-8") as f:

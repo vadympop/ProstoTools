@@ -1,8 +1,8 @@
 import discord
 import datetime
 import humanize
-from tools.utils.other import process_converters
-from tools.converters import Expiry
+from core.utils.other import process_converters
+from core.converters import Expiry
 from discord.utils import get
 
 

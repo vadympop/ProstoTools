@@ -1,7 +1,7 @@
 import discord
 import jinja2
-from tools.utils.other import process_converters
-from tools.converters import Expiry
+from core.utils.other import process_converters
+from core.converters import Expiry
 from discord.ext import commands
 
 

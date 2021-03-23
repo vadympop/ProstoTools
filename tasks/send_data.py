@@ -1,12 +1,13 @@
 import os
 import json
-from tools.http import async_requests as requests
+from core.http import async_requests as requests
 from discord.ext import commands, tasks
 
 
 class TasksSendData(commands.Cog):
 	def __init__(self, client):
 		self.client = client
+		self.allowed_cogs = self.client.config.ALLOWED_COGS
 		self.api_url = "https://api.prosto-tools.ml/v2"
 		self.sdc_api_url = "https://api.server-discord.com/v2/bots/{0}/stats"
 		self.boticord_api_url = "https://boticord.top/api/stats"
@@ -17,20 +18,6 @@ class TasksSendData(commands.Cog):
 	@tasks.loop(hours=6)
 	async def send_data_loop(self):
 		await self.client.wait_until_ready()
-		allowed_cogs = (
-			"Clans",
-			"Different",
-			"Economy",
-			"Games",
-			"Moderate",
-			"Settings",
-			"Utils",
-			"Works",
-			"FunOther",
-			"FunEditImage",
-			"FunRandomImage",
-			"Information"
-		)
 		data = {
 			"guilds": [guild.id for guild in self.client.guilds],
 			"users": [user.id for user in self.client.users],
@@ -38,19 +25,19 @@ class TasksSendData(commands.Cog):
 			"commands": {
 				"commands": [
 					{
-						"name": command.name,
+						"name": str(command),
 						"description": command.description.replace("\n", "/n"),
 						"usage": command.usage,
 						"category": command.cog_name,
 						"help": command.help.replace("\n", "/n")
 					}
-					for command in self.client.commands
-					if command.cog_name in allowed_cogs
+					for command in self.client.walk_commands()
+					if command.cog_name in self.allowed_cogs
 				],
-				"cogs": [
+				"categories": [
 					cog_name
 					for cog_name in self.client.cogs
-					if cog_name in allowed_cogs
+					if cog_name in self.allowed_cogs
 				]
 			}
 		}

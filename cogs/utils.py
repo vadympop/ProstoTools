@@ -3,7 +3,7 @@ import json
 import asyncio
 import uuid
 import datetime
-from tools.paginator import Paginator
+from core.paginator import Paginator
 from discord.ext import commands
 from discord.utils import get
 
@@ -31,7 +31,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.command(
 		aliases=["voicerooms"],
 		name="voice-rooms",
-		description="**Создает голосовой канал для создания приватных голосовых комнат**",
+		description="Создает голосовой канал для создания приватных голосовых комнат",
 		usage="voice-rooms [Вкл/Выкл]",
 		help="**Примеры использования:**\n1. {Prefix}voice-rooms вкл\n2. {Prefix}voice-rooms выкл\n\n**Пример 1:** Включает приватные голосовые комнаты на сервере\n**Пример 2:** Выключает приватные голосовые комнаты на сервере",
 	)
@@ -90,7 +90,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.command(
 		aliases=["serverstats"],
 		name="server-stats",
-		description="**Создает статистику сервера**",
+		description="Создает статистику сервера",
 		usage="server-stats [Счетчик] |off|",
 		help="**Примеры использования:**\n1. {Prefix}server-stats all\n2. {Prefix}server-stats сообщения\n\n**Пример 1:** Создаёт счетчик всех пользователей сервера\n**Пример 2:** Создаёт сообщения в текущем канале с основной информацией о сервере",
 	)
@@ -265,7 +265,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.command(
 		aliases=["massrole"],
 		name="mass-role",
-		description="**Удаляет или добавляет роль участникам с указаной ролью**",
+		description="Удаляет или добавляет роль участникам с указанной ролью",
 		usage="mass-role [add/remove] [@Роль] [@Изменяемая роль]",
 		help="**Примеры использования:**\n1. {Prefix}mass-role add @Роль @ИзменяемаяРоль\n2. {Prefix}mass-role add 717776604461531146 717776604461531146\n3. {Prefix}mass-role remove @Роль @ИзменяемаяРоль\n4. {Prefix}mass-role remove 717776604461531146 717776604461531146\n\n**Пример 1:** Добавляет упомянутою роль участникам с упомянутою ролью\n**Пример 2:** Добавляет роль с указаным id участникам с ролью с указаным id\n**Пример 3:** Убирает упомянутою роль в участников с упомянутой ролью\n**Пример 4:** Убирает роль с указаным id в участников с ролью с указаным id",
 	)
@@ -355,7 +355,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.command(
 		aliases=["list-moders", "moders", "moderators"],
 		name="list-moderators",
-		description="**Показывает список ролей модераторов**",
+		description="Показывает список ролей модераторов",
 		usage="list-moderators",
 		help="**Примеры использования:**\n1. {Prefix}list-moderators\n\n**Пример 1:** Показывает список ролей модераторов",
 	)
@@ -378,7 +378,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.command(
 		aliases=["mutes-list", "listmutes", "muteslist", "mutes"],
 		name="list-mutes",
-		description="**Показывает все мьюты на сервере**",
+		description="Показывает все мьюты на сервере",
 		usage="list-mutes |@Участник|",
 		help="**Примеры использования:**\n1. {Prefix}list-mutes\n\n**Пример 1:** Показывает все мьюты на сервере",
 	)
@@ -443,7 +443,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.command(
 		aliases=["apikey", "api_key"],
 		name="api-key",
-		description="**Отправляет ключ API для сервера**",
+		description="Отправляет API ключ сервера",
 		usage="api-key",
 		help="**Примеры использования:**\n1. {Prefix}api-key\n\n**Пример 1:** Отправляет ключ API сервера",
 	)
@@ -465,7 +465,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.command(
 		aliases=["regenerateapikey"],
 		name="regenerate-api-key",
-		description="**Перегенерирует ключ API для сервера**",
+		description="Перегенерирует API ключ сервера",
 		usage="regenerate-api-key",
 		help="**Примеры использования:**\n1. {Prefix}regenerate-api-key\n\n**Пример 1:** Перегенерирует ключ API для сервера",
 	)

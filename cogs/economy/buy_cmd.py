@@ -2,7 +2,7 @@ import discord
 import datetime
 import uuid
 import json
-from configs import Config
+from config import Config
 from discord.utils import get
 from discord.ext import commands
 
@@ -12,7 +12,7 @@ FOOTER = Config.FOOTER_TEXT
 
 @commands.command(
     cog_name="Economy",
-    description="**Купляет указанный товар**",
+    description="Купляет указанный товар",
     usage="buy [Имя товара]",
     help="**Примеры использования:**\n1. {Prefix}buy gloves\n2. {Prefix}buy text-channel 10\n3. {Prefix}buy box-E\n\n**Пример 1:** Купляет товар с названиям `gloves`\n**Пример 2:** Купляет десять приватных каналов\n**Пример 3:** Купляет эпический лут-бокс",
 )

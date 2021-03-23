@@ -23,7 +23,7 @@ class Settings(commands.Cog, name="Settings"):
 
 	@commands.group(
 		usage="setting [Команда]",
-		description="**Категория команд - настройки**",
+		description="Категория команд - настройки",
 		help=f"""**Команды групы:** anti-invite, level-up-message, time-delete-channel, shop-role, exp-multi, text-channels-category, set-audit, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions, auto-responder\n\n"""
 	)
 	@commands.has_permissions(administrator=True)
@@ -45,7 +45,7 @@ class Settings(commands.Cog, name="Settings"):
 			await ctx.send(embed=emb)
 
 	@setting.command(
-		description="**Настройка префикса**",
+		description="Настройка префикса",
 		usage="setting prefix [Новый префикс]",
 	)
 	@commands.has_permissions(administrator=True)
@@ -78,7 +78,7 @@ class Settings(commands.Cog, name="Settings"):
 	@setting.command(
 		aliases=["moder-role"],
 		name="moderation-role",
-		description="**Настройка ролей модераторов**",
+		description="Настройка ролей модераторов",
 		usage="setting moderation-role [add(Добавляет указаную роль)/clear(Очищает список)/del(Удаляет указаную роль)] |@Роль|",
 	)
 	@commands.has_permissions(administrator=True)
@@ -169,7 +169,7 @@ class Settings(commands.Cog, name="Settings"):
 
 	@setting.command(
 		name="ignore-channels",
-		description="**Игнорируемые каналы в системе уровней**",
+		description="Игнорируемые каналы в системе уровней",
 		usage="setting ignore-channels [Действие, add - добавляет канал в исключения, clear - очищает список исключений, delete - удаляет указаный канал из списка] [Id канала]",
 	)
 	@commands.has_permissions(administrator=True)
@@ -245,7 +245,7 @@ class Settings(commands.Cog, name="Settings"):
 
 	@setting.command(
 		name="shop-role",
-		description="**Настройка магазина на сервере**",
+		description="Настройка магазина на сервере",
 		usage="setting shop-role [clear - очищает список ролей, add - добавляет роль, delete - удаляет роль] [@Роль] [Стоимость роли]",
 	)
 	@commands.has_permissions(administrator=True)
@@ -331,7 +331,7 @@ class Settings(commands.Cog, name="Settings"):
 
 	@setting.command(
 		name="text-channels-category",
-		description="**Настройка категории приватных текстовых каналов**",
+		description="Настройка категории приватных текстовых каналов",
 		usage="setting text-channels-category [Id категории]",
 	)
 	@commands.has_permissions(administrator=True)
@@ -351,7 +351,7 @@ class Settings(commands.Cog, name="Settings"):
 		await ctx.send(embed=emb)
 
 	@setting.command(
-		description="**Настройка максимального количества предупрежденний**",
+		description="Настройка максимального количества предупрежденний",
 		usage="setting warns [count/punishment] [Опции...]",
 	)
 	@commands.has_permissions(administrator=True)
@@ -435,7 +435,7 @@ class Settings(commands.Cog, name="Settings"):
 
 	@setting.command(
 		name="anti-flud",
-		description="**Настройка анти-флуда(Бета-тест)**",
+		description="Настройка анти-флуда(Бета-тест)",
 		usage="setting anti-flud [on/off/setting] |Настройка| |Опции...|",
 	)
 	@commands.has_permissions(administrator=True)
@@ -745,7 +745,7 @@ class Settings(commands.Cog, name="Settings"):
 
 	@setting.command(
 		name="anti-invite",
-		description="**Настройка анти-приглашения**",
+		description="Настройка анти-приглашения",
 		usage="setting anti-invite [on/off/setting] |Настройка| |Опции...|",
 	)
 	@commands.has_permissions(administrator=True)
@@ -1088,7 +1088,7 @@ class Settings(commands.Cog, name="Settings"):
 
 	@setting.command(
 		name="react-commands",
-		description="**Настройка команд по реакциям**",
+		description="Настройка команд по реакциям",
 		usage="setting react-commands [on/off]",
 	)
 	@commands.has_permissions(administrator=True)
@@ -1130,7 +1130,7 @@ class Settings(commands.Cog, name="Settings"):
 
 	@setting.command(
 		name="time-delete-channel",
-		description="**Через сколько минут будет удалять приватный текстовый канал**",
+		description="Через сколько минут будет удалять приватный текстовый канал",
 		usage="setting time-delete-channel [Любое число]",
 	)
 	@commands.has_permissions(administrator=True)
@@ -1157,7 +1157,7 @@ class Settings(commands.Cog, name="Settings"):
 	@setting.command(
 		name="exp-multi",
 		aliases=["exp-multiplier"],
-		description="**Настройка множителя опыта на сервере**",
+		description="Настройка множителя опыта на сервере",
 		usage="setting exp-multi [Множитель%(Пример - 450%)]",
 	)
 	@commands.has_permissions(administrator=True)
@@ -1199,7 +1199,7 @@ class Settings(commands.Cog, name="Settings"):
 	@setting.command(
 		name="set-audit",
 		aliases=["setaudit", "audit"],
-		description="**Настройка канала аудита**",
+		description="Настройка канала аудита",
 		usage="setting logs [on/off] [Категория] |Канал|",
 	)
 	@commands.has_permissions(administrator=True)
@@ -1294,7 +1294,7 @@ class Settings(commands.Cog, name="Settings"):
 	@setting.command(
 		name="auto-reactions",
 		aliases=["autoreactions"],
-		description="**Настройка авто-реакций**",
+		description="Настройка авто-реакций",
 		usage="setting auto-reactions [set/off] |Канал| |Эмодзи|",
 	)
 	@commands.has_permissions(administrator=True)
@@ -1359,7 +1359,7 @@ class Settings(commands.Cog, name="Settings"):
 	@setting.command(
 		name="custom-command",
 		aliases=["customcommand", "custom-commands", "customcommands"],
-		description="**Настройка кастомных команд**",
+		description="Настройка кастомных команд",
 		usage="setting custom-command [add/edit/delete/show] [Названия команды] |Опции|",
 	)
 	@commands.has_permissions(administrator=True)
@@ -1663,7 +1663,7 @@ class Settings(commands.Cog, name="Settings"):
 	@setting.command(
 		name="auto-responder",
 		aliases=["autoresponder", "auto-responders", "autoresponders"],
-		description="**Настройка авто-ответчиков**",
+		description="Настройка авто-ответчиков",
 		usage="setting auto-responder [add/edit/delete/show/list] [Названия авто-ответчика] |Текст авто-ответчика|",
 	)
 	@commands.has_permissions(administrator=True)
@@ -1842,7 +1842,7 @@ class Settings(commands.Cog, name="Settings"):
 	@setting.command(
 		name="level-up-message",
 		aliases=["levelupmessage", "set-level-up-message", "setlevelupmessage"],
-		description="**Настройка авто-ответчиков**",
+		description="Настройка авто-ответчиков",
 		usage="setting level-up-message [channel/dm/off] |Текст|",
 	)
 	@commands.has_permissions(administrator=True)
@@ -1904,7 +1904,7 @@ class Settings(commands.Cog, name="Settings"):
 
 	@setting.command(
 		name="anti-caps",
-		description="**Настройка анти-капса**",
+		description="Настройка анти-капса",
 		usage="setting anti-caps [on/off/setting] |Настройка| |Опции...|",
 	)
 	@commands.has_permissions(administrator=True)
@@ -2275,7 +2275,7 @@ class Settings(commands.Cog, name="Settings"):
 			pass
 
 	@setting.command(
-		description="**Настройка каптчи при входе участника**",
+		description="Настройка каптчи при входе участника",
 		usage="setting captcha [on/off]",
 	)
 	@commands.has_permissions(administrator=True)
@@ -2319,7 +2319,7 @@ class Settings(commands.Cog, name="Settings"):
 			pass
 
 	@setting.command(
-		description="**Настройка команд**",
+		description="Настройка команд",
 		usage="setting command [Названия команды] [Настройка] |Опции|",
 	)
 	@commands.has_permissions(administrator=True)
@@ -2516,7 +2516,7 @@ class Settings(commands.Cog, name="Settings"):
 			pass
 
 	@setting.command(
-		description="**Настройка системы приветствий**",
+		description="Настройка системы приветствий",
 		usage="setting welcomer [channel/dm/off] |Текст|",
 	)
 	@commands.has_permissions(administrator=True)
@@ -2588,7 +2588,7 @@ class Settings(commands.Cog, name="Settings"):
 			pass
 
 	@setting.command(
-		description="**Настройка системы прощаний**",
+		description="Настройка системы прощаний",
 		usage="setting leaver [channel/dm/off] |Текст|",
 	)
 	@commands.has_permissions(administrator=True)

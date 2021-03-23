@@ -1,4 +1,5 @@
 import discord
+from core import Paginator
 from discord.ext import commands
 
 
@@ -6,20 +7,64 @@ class Help(commands.Cog, name="Help"):
 	def __init__(self, client):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
-		self._names = []
-		for cog in self.client.cogs:
-			for command in self.client.get_cog(cog).get_commands():
-				for alias in command.aliases:
-					self._names.append(alias)
-				self._names.append(command.name)
-		self.commands = self._names
+		self.commands = [c for c in self.client.walk_commands()]
+		self.exceptions = ("owner", "help", "jishaku")
+		self.allowed_cogs = self.client.config.ALLOWED_COGS
+		self.cogs_commands = {
+			cog.lower(): [c for c in self.commands if c.cog_name is not None and c.cog_name.lower() == cog.lower()]
+			for cog in self.client.cogs
+			if cog.lower() not in self.exceptions
+		}
+
+	def get_cog_commands(self, cog: str) -> list:
+		return self.cogs_commands[cog.lower()]
+
+	async def build_help_by_cog(self, ctx, prefix: str, cog_name: str) -> discord.Embed:
+		commands_string = ""
+		for command in self.get_cog_commands(cog_name):
+			try:
+				if await command.can_run(ctx):
+					commands_string += f"`{prefix}{command}` {command.description}\n"
+			except commands.CommandError:
+				pass
+
+		if not commands_string:
+			commands_string = "Вы не можете использовать ни одну из команд этой категории"
+
+		return discord.Embed(
+			title=f"Категория команд: {cog_name.capitalize()} - {prefix}help {cog_name.lower()}",
+			description=commands_string,
+			colour=discord.Color.green()
+		).set_author(
+			name=self.client.user.name,
+			icon_url=self.client.user.avatar_url
+		).set_footer(
+			text=f"Вызвал: {ctx.author.name}",
+			icon_url=ctx.author.avatar_url
+		)
+
+	async def build_help(self, ctx, prefix: str) -> list:
+		emb = discord.Embed(
+			title="**Доступные команды:**",
+			description=f'Префикс на этом сервере - `{prefix}`. Показаны только те команды которые вы можете выполнить',
+			colour=discord.Color.green()
+		)
+		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+		emb.set_footer(text=f"Вызвал: {ctx.author.name}", icon_url=ctx.author.avatar_url)
+
+		embeds = [emb]
+		for cog_name in self.client.cogs:
+			if cog_name.lower() in self.exceptions or cog_name not in self.allowed_cogs:
+				continue
+
+			embeds.append(await self.build_help_by_cog(ctx, prefix, cog_name))
+
+		return embeds
 
 	@commands.command(
 		help="**Примеры использования:**\n1. {Prefix}help\n2. {Prefix}help moderate\n2. {Prefix}help ban\n\n**Пример 1:** Показывает список всех команд бота\n**Пример 2:** Показывает список всех указаной групы\n**Пример 3:** Показывает документацию по указаной команде"
 	)
-	async def help(self, ctx, cog_name: str = None):
-		cogs_group = ("settings", "works", "clans", "showconfigs", "giveaways", "reminders")
-		commands_group = ("setting", "work", "clan", "show-config", "giveaway", "reminder")
+	async def help(self, ctx, *, entity: str = None):
 		prefix = str(await self.client.database.get_prefix(guild=ctx.guild))
 		cogs_aliases = {
 			"economy": "Economy",
@@ -38,13 +83,15 @@ class Help(commands.Cog, name="Help"):
 			"reminders": "Reminders"
 		}
 
-		if cog_name is None:
-			emb = await self.client.utils.build_help(ctx, prefix, commands_group)
-			await ctx.send(embed=emb)
+		if entity is None:
+			embeds = await self.build_help(ctx, prefix)
+			message = await ctx.send(embed=embeds[0])
+			paginator = Paginator(ctx, message, embeds, footer=False)
+			await paginator.start()
 			return
 
-		if cog_name.lower() not in cogs_aliases.keys():
-			if cog_name.lower() not in self.commands:
+		if entity.lower() not in cogs_aliases.keys():
+			if entity.lower() not in [c.name for c in self.commands]:
 				str_cogs = ", ".join([
 					cogs_aliases[cog.lower()] for cog in self.client.cogs
 					if cog.lower() in cogs_aliases.keys()
@@ -62,14 +109,14 @@ class Help(commands.Cog, name="Help"):
 				return
 			else:
 				aliases = (
-					f"""Алиасы команды: {', '.join(self.client.get_command(cog_name.lower()).aliases)}\n\n"""
-					if self.client.get_command(cog_name.lower()).aliases != []
+					f"""Алиасы команды: {', '.join(self.client.get_command(entity.lower()).aliases)}\n\n"""
+					if self.client.get_command(entity.lower()).aliases != []
 					else ""
 				)
 				emb = discord.Embed(
-					title=f"Команда: {prefix+cog_name.lower()}",
+					title=f"Команда: {prefix+entity.lower()}",
 					description=aliases
-					+ self.client.get_command(cog_name.lower()).help.format(
+					+ self.client.get_command(entity.lower()).help.format(
 						Prefix=prefix
 					),
 					colour=discord.Color.green(),
@@ -81,43 +128,7 @@ class Help(commands.Cog, name="Help"):
 				await ctx.send(embed=emb)
 				return
 
-		emb_2 = discord.Embed(
-			title=f"Категория команд - {cogs_aliases[cog_name.lower()]}",
-			description="[Пример] - требуется, |Пример| - необязательно. Показаны только те команды которые вы можете выполнить",
-			colour=discord.Color.green(),
-		)
-		for c in self.client.get_cog(cogs_aliases[cog_name.lower()]).get_commands():
-			if self.client.get_cog(cogs_aliases[cog_name.lower()]).qualified_name.lower() in cogs_group:
-				for command in c.commands:
-					try:
-						if await command.can_run(ctx):
-							emb_2.add_field(
-								name=f"{prefix}{command.usage}",
-								value=f"{command.description[2:-2]}.",
-								inline=False,
-							)
-					except commands.CommandError:
-						pass
-			else:
-				try:
-					if await c.can_run(ctx):
-						emb_2.add_field(
-							name=f"{prefix}{c.usage}",
-							value=f"{c.description[2:-2]}.",
-							inline=False,
-						)
-				except commands.CommandError:
-					pass
-
-		if len(emb_2.fields) <= 0:
-			emb_2.add_field(
-				name="Пусто", value="Вы не можете выполнить ни одну команду из этой категории"
-			)
-		emb_2.set_author(
-			name=self.client.user.name, icon_url=self.client.user.avatar_url
-		)
-		emb_2.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb_2)
+		await ctx.send(embed=await self.build_help_by_cog(ctx, prefix, entity))
 
 
 def setup(client):

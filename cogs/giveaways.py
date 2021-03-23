@@ -1,8 +1,8 @@
 import discord
 import asyncio
 import datetime
-from tools.converters import Expiry
-from tools.paginator import Paginator
+from core.converters import Expiry
+from core.paginator import Paginator
 from discord.ext import commands
 
 
@@ -13,7 +13,7 @@ class Giveaways(commands.Cog):
 
     @commands.group(
         usage="clan [Команда]",
-        description="**Категория команд - розыгрыши**",
+        description="Категория команд - розыгрыши",
         help=f"""**Команды групы:** create, end, delete, list\n\n"""
     )
     async def giveaway(self, ctx):
@@ -35,7 +35,7 @@ class Giveaways(commands.Cog):
 
     @giveaway.command(
         usage="giveaway create [Время] [Кол-во победителей] |Канал|",
-        description="**Создаёт розыгрыш**"
+        description="Создаёт розыгрыш"
     )
     async def create(self, ctx, expiry_at: Expiry, winners: int, channel: discord.TextChannel = None):
         if channel is None:
@@ -123,7 +123,7 @@ class Giveaways(commands.Cog):
 
     @giveaway.command(
         usage="giveaway delete [Id розыгрыша]",
-        description="**Удаляет розыгрыш**"
+        description="Удаляет розыгрыш"
     )
     async def delete(self, ctx, giveaway_id: int):
         ids = [giveaway[0] for giveaway in (await self.client.database.get_giveaways(ctx.guild.id))]
@@ -144,7 +144,7 @@ class Giveaways(commands.Cog):
 
     @giveaway.command(
         usage="giveaway end [Id розыгрыша]",
-        description="**Заканчивает розыгрыш**"
+        description="Заканчивает розыгрыш"
     )
     async def end(self, ctx, giveaway_id: int):
         data = await self.client.database.get_giveaway(giveaway_id)
@@ -174,7 +174,7 @@ class Giveaways(commands.Cog):
 
     @giveaway.command(
         usage="giveaway list",
-        description="**Покажет список всех розыгрышей на сервере**"
+        description="Покажет список всех розыгрышей на сервере"
     )
     async def list(self, ctx):
         data = await self.client.database.get_giveaways(ctx.guild.id)

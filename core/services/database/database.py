@@ -5,7 +5,7 @@ import typing
 import time as tm
 import discord
 import aiomysql
-from tools.bases import AbcDatabase
+from core.bases import AbcDatabase
 
 
 class DB(AbcDatabase):
@@ -363,7 +363,7 @@ class DB(AbcDatabase):
 
 		sql_1 = """SELECT * FROM users WHERE user_id = %s AND guild_id = %s"""
 		val_1 = (target.id, target.guild.id)
-		sql_2 = """INSERT INTO users (user_id, guild_id, prison, profile, items, pets, clan, transactions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+		sql_2 = """INSERT INTO users (user_id, guild_id, prison, profile, items, pets, clan, transactions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 		val_2 = (
 			target.id,
 			target.guild.id,

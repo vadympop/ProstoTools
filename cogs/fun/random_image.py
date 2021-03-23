@@ -1,6 +1,6 @@
 import discord
 import random
-from tools.http import async_requests as requests
+from core.http import async_requests as requests
 from bs4 import BeautifulSoup as bs
 from discord.ext import commands
 
@@ -11,7 +11,7 @@ class FunRandomImage(commands.Cog):
         self.FOOTER = self.client.config.FOOTER_TEXT
 
     @commands.command(
-        description="**Рандомная картинка собаки**",
+        description="Рандомная картинка собаки",
         usage="dog",
         help="**Примеры использования:**\n1. {Prefix}dog\n\n**Пример 1:** Покажет рандомную картинку собаки",
     )
@@ -24,7 +24,7 @@ class FunRandomImage(commands.Cog):
         await ctx.send(embed=emb)
 
     @commands.command(
-        description="**Рандомная картинка кошки**",
+        description="Рандомная картинка кошки",
         usage="cat",
         help="**Примеры использования:**\n1. {Prefix}cat\n\n**Пример 1:** Покажет рандомную картинку кошки",
     )
@@ -37,7 +37,7 @@ class FunRandomImage(commands.Cog):
         await ctx.send(embed=emb)
 
     @commands.command(
-        description="**Рандомная картинка лисы**",
+        description="Рандомная картинка лисы",
         usage="fox",
         help="**Примеры использования:**\n1. {Prefix}fox\n\n**Пример 1:** Покажет рандомную картинку лисы",
     )
@@ -50,7 +50,7 @@ class FunRandomImage(commands.Cog):
         await ctx.send(embed=emb)
 
     @commands.command(
-        description="**Рандомная картинка птички**",
+        description="Рандомная картинка птички",
         usage="bird",
         help="**Примеры использования:**\n1. {Prefix}dog\n\n**Пример 1:** Покажет рандомную картинку птички",
     )
@@ -63,7 +63,7 @@ class FunRandomImage(commands.Cog):
         await ctx.send(embed=emb)
 
     @commands.command(
-        description="**Рандомная картинка коалы**",
+        description="Рандомная картинка коалы",
         usage="koala",
         help="**Примеры использования:**\n1. {Prefix}koala\n\n**Пример 1:** Покажет рандомную картинку коалы",
     )
@@ -76,7 +76,7 @@ class FunRandomImage(commands.Cog):
         await ctx.send(embed=emb)
 
     @commands.command(
-        description="**Рандомный мем**",
+        description="Рандомный мем",
         usage="meme",
         help="**Примеры использования:**\n1. {Prefix}meme\n\n**Пример 1:** Покажет рандомный мем :3",
     )

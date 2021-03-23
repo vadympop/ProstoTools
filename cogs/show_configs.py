@@ -1,6 +1,6 @@
 import discord
 import json
-from tools.paginator import Paginator
+from core.paginator import Paginator
 from discord.utils import get
 from discord.ext import commands
 
@@ -34,7 +34,7 @@ class ShowConfigs(commands.Cog):
     @commands.group(
         name="show-config",
         usage="show-config |Команда|",
-        description="**Категория команд - конфиг**",
+        description="Категория команд - конфиг",
         help="**Команды групы:** server-stats, ignored-channels, auto-moderate, auto-reactions, audit",
     )
     @commands.cooldown(2, 10, commands.BucketType.member)
@@ -76,7 +76,7 @@ class ShowConfigs(commands.Cog):
     @show_config.command(
         name="server-stats",
         usage="show-config server-stats",
-        description="**Покажет настройки статистики сервера**",
+        description="Покажет настройки статистики сервера",
     )
     @commands.check(check_role)
     async def server_stats(self, ctx):
@@ -112,7 +112,7 @@ class ShowConfigs(commands.Cog):
     @show_config.command(
         name="ignored-channels",
         usage="show-config ignored-channels",
-        description="**Покажет игнорируемые каналы**",
+        description="Покажет игнорируемые каналы",
     )
     @commands.check(check_role)
     async def ignored_channels(self, ctx):
@@ -138,7 +138,7 @@ class ShowConfigs(commands.Cog):
     @show_config.command(
         name="auto-moderate",
         usage="show-config auto-moderate",
-        description="**Покажет настройки авто-модерации**",
+        description="Покажет настройки авто-модерации",
     )
     @commands.check(check_role)
     async def auto_moderate(self, ctx):
@@ -216,7 +216,7 @@ class ShowConfigs(commands.Cog):
     @show_config.command(
         name="auto-reactions",
         usage="show-config auto-reactions",
-        description="**Покажет настройки авто-реакций**",
+        description="Покажет настройки авто-реакций",
     )
     @commands.check(check_role)
     async def auto_reactions(self, ctx):
@@ -241,7 +241,7 @@ class ShowConfigs(commands.Cog):
 
     @show_config.command(
         usage="show-config audit",
-        description="**Покажет настройки аудита**",
+        description="Покажет настройки аудита",
     )
     @commands.check(check_role)
     async def audit(self, ctx):
@@ -280,6 +280,7 @@ class ShowConfigs(commands.Cog):
         aliases=["commandssettings", "commandsettings", "cs"],
         name="commands-settings",
         usage="commands-settings |Названия команды|",
+        description="Показывает настройки всех команд бота",
         help="**Примеры использования:**\n1. {Prefix}commands-settings\n2. {Prefix}commands-settings crime\n\n**Пример 1:** Покажет настройки всех команд\n**Пример 2:** Покажет настройки указаной команды",
     )
     async def commands_settings(self, ctx, command_name: str = None):

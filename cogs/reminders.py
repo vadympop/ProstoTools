@@ -1,7 +1,7 @@
 import datetime
 import discord
-from tools.converters import Expiry
-from tools.paginator import Paginator
+from core.converters import Expiry
+from core.paginator import Paginator
 from discord.ext import commands
 
 
@@ -12,7 +12,7 @@ class Reminders(commands.Cog):
 
     @commands.group(
         usage="reminder [Команда]",
-        description="**Категория команд - напоминания**",
+        description="Категория команд - напоминания",
         help=f"""**Команды групы:** create, delete, list\n\n"""
     )
     @commands.cooldown(2, 10, commands.BucketType.member)
@@ -35,7 +35,7 @@ class Reminders(commands.Cog):
 
     @reminder.command(
         aliases=["add", "c"],
-        description="**Создаст напоминания**",
+        description="Создаст напоминания",
         usage="reminder create [Время] [Текст]",
         help="**Полезное:**\nВремя можно указывать в таких форматах: ЧЧ:ММ.ДД.ММ.ГГГГ - 10:30.12.12.2050, кол-воТип - 10m\n\n**Примеры использования:**\n1. {Prefix}reminder create 1h Example reminder text\n2. {Prefix}reminder create 10:30.12.12.2050 Example reminder text\n\n**Пример 1:** Напомнит `Example reminder text` через 1 час\n**Пример 2:** Напомнит `Example reminder text` в 10:30 12.12.2050\n",
     )
@@ -52,7 +52,7 @@ class Reminders(commands.Cog):
 
         emb = discord.Embed(
             title=f"Создано новое напоминая #{reminder_id}",
-            description=f"**Текст напоминая:**\n```{text}```\n**Действует до:**\n`{expiry_at.strftime('%d %B %Y %X')}`",
+            description=f"**Текст напоминания:**\n```{text}```\n**Действует до:**\n`{expiry_at.strftime('%d %B %Y %X')}`",
             colour=discord.Color.green(),
         )
         emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -61,7 +61,7 @@ class Reminders(commands.Cog):
 
     @reminder.command(
         aliases=["del", "d"],
-        description="**Удалит напоминание**",
+        description="Удалит напоминание",
         usage="reminder delete [Id]",
         help="**Примеры использования:**\n1. {Prefix}reminder delete 1\n\n**Пример 1:** Удалит напоминания с id - `1`",
     )
@@ -84,8 +84,8 @@ class Reminders(commands.Cog):
             return
 
     @reminder.command(
-        aliases=["list", "l"],
-        description="**Покажет список ваших напоминаний**",
+        aliases=["l"],
+        description="Покажет список ваших напоминаний",
         usage="reminder list",
         help="**Примеры использования:**\n1. {Prefix}reminder list\n\n**Пример 1:** Покажет список ваших напоминаний",
     )

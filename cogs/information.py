@@ -39,7 +39,7 @@ class Information(commands.Cog):
     @commands.command(
         aliases=["userinfo", "user"],
         name="user-info",
-        description="**Показывает информацию указаного учасника**",
+        description="Показывает информацию указанного учасника",
         usage="user-info |@Участник|",
         help="**Примеры использования:**\n1. {Prefix}user-info @Участник\n2. {Prefix}user-info 660110922865704980\n3. {Prefix}user-info\n\n**Пример 1:** Покажет информацию о упомянутом участнике\n**Пример 2:** Покажет информацию о участнике с указаным id\n**Пример 3:** Покажет информацию о вас",
     )
@@ -92,7 +92,7 @@ class Information(commands.Cog):
         name="info-bot",
         aliases=["botinfo", "infobot", "bot-info", "about", "bot"],
         usage="info-bot",
-        description="**Подробная информация о боте**",
+        description="Подробная информация о боте",
         help="**Примеры использования:**\n1. {Prefix}info-bot\n2. {Prefix}info-bot system\n\n**Пример 1:** Покажет информацию обо мне\n**Пример 2:** Покажет информацию о моей системе",
     )
     @commands.cooldown(2, 10, commands.BucketType.member)
@@ -201,7 +201,7 @@ class Information(commands.Cog):
             await ctx.send(embed=embed2)
 
     @commands.command(
-        description="**Отправляет ссылку на приглашения бота на сервер**",
+        description="Отправляет ссылку на приглашения бота на сервер",
         usage="invite",
         help="**Примеры использования:**\n1. {Prefix}invite\n\n**Пример 1:** Отправит приглашения на меня",
     )
@@ -229,7 +229,7 @@ class Information(commands.Cog):
     @commands.command(
         aliases=["server", "serverinfo", "guild", "guildinfo", "guild-info"],
         name="server-info",
-        description="**Показывает информацию о сервере**",
+        description="Показывает информацию о сервере",
         usage="server-info",
         help="**Примеры использования:**\n1. {Prefix}server-info\n\n**Пример 1:** Покажет информацию о сервере",
     )
@@ -319,7 +319,7 @@ class Information(commands.Cog):
     @commands.command(
         aliases=["inviteinfo"],
         name="invite-info",
-        description="**Показывает информацию о приглашении**",
+        description="Показывает информацию о приглашении",
         usage="invite-info [Код приглашения]",
         help="**Примеры использования:**\n1. {Prefix}invite-info aGeFrt46\n\n**Пример 1:** Покажет информацию о приглашении с указаным кодом",
     )
@@ -357,9 +357,9 @@ class Information(commands.Cog):
     @commands.command(
         name="c-help",
         aliases=["chelp"],
-        description="**Помощь по кастомным командам**",
-        usage="chelp",
-        help="**Примеры использования:**\n1. {Prefix}chelp\n\n**Пример 1:** Показывает помощь по кастомным командам",
+        description="Помощь по кастомным командам",
+        usage="c-help",
+        help="**Примеры использования:**\n1. {Prefix}c-help\n\n**Пример 1:** Показывает помощь по кастомным командам",
     )
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def c_help(self, ctx):

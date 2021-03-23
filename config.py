@@ -3,8 +3,8 @@ import os
 
 class Config:
 	# Client config
-	DEF_PREFIX = '*'
-	OWNERS = [660110922865704980, 404224656598499348]
+	DEF_PREFIX = 'p.'
+	OWNERS = (660110922865704980,)
 	SHOPLIST_COSTS = [500, 1000, 100, 1100, 100, 600]
 	MIN_BALANCE = -5000
 	TEMP_PATH = './data/tempfiles/'
@@ -21,6 +21,22 @@ class Config:
 	CAPTCHA_ROLE = "PT-CHECKING"
 	COLOR_ROLE = 'PT-COLOR-'
 	TOKEN = os.getenv('BOT_TOKEN')
+	ALLOWED_COGS = (
+		"Clans",
+		"Different",
+		"Economy",
+		"Games",
+		"Moderate",
+		"Settings",
+		"Utils",
+		"Reminders",
+		"StatusReminders",
+		"Works",
+		"FunOther",
+		"FunEditImage",
+		"FunRandomImage",
+		"Information"
+	)
 
 	# Database config
 	DB_PASSWORD = os.getenv('DB_PASSWORD')

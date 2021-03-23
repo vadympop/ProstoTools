@@ -4,7 +4,7 @@ import wikipedia
 import cv2
 import random
 from aiohttp import client_exceptions
-from tools.http import async_requests as requests
+from core.http import async_requests as requests
 from pyzbar import pyzbar
 from discord.ext import commands
 
@@ -17,7 +17,7 @@ class FunOther(commands.Cog):
     @commands.command(
         aliases=["cr-qr", "cr_qr", "create-qr", "create_qrcode"],
         name="create-qrcode",
-        description="**Закодирует указаный текст в qr-код**",
+        description="Закодирует указаный текст в qr-код",
         usage="create-qrcode [Ваш текст]",
         help="**Примеры использования:**\n1. {Prefix}create-qrcode My text\n\n**Пример 1:** Создаёт QR-код с указаным текстом",
     )
@@ -49,7 +49,7 @@ class FunOther(commands.Cog):
     @commands.command(
         aliases=["dcode_qr", "d_qr", "d-qr"],
         name="dcode-qrcode",
-        description="**Разкодирует qr-код**",
+        description="Разкодирует qr-код",
         usage="dcode-qrcode [Ссылка на изображения]",
         help="**Примеры использования:**\n1. {Prefix}dcode-qrcode https://media.discordapp.net/attachments/717776571406090313/775762508211945482/myqr.jpg\n\n**Пример 1:** Раскодирует QR-код в указаном изображении",
     )
@@ -86,7 +86,7 @@ class FunOther(commands.Cog):
             await ctx.send(embed=emb)
 
     @commands.command(
-        description="**Википедия, расказывает о вашем запросе**",
+        description="Википедия, расказывает о вашем запросе",
         usage="wiki [Ваш запрос]",
         help="**Примеры использования:**\n1. {Prefix}wiki Bot\n\n**Пример 1:** Покажет информацию по запросе `Bot` на википедии",
     )
@@ -121,7 +121,7 @@ class FunOther(commands.Cog):
 
     @commands.command(
         name="8ball",
-        description="**Магический шар предсказаний**",
+        description="Магический шар предсказаний",
         usage="8ball [Ваш вопрос]",
         help="**Примеры использования:**\n1. {Prefix}8ball My owner is nice programmer?\n\n**Пример 1:** Ответит на ваш вопрос магическим образом =)",
     )

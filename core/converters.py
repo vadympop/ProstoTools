@@ -3,7 +3,7 @@ import dateutil.parser
 import dateutil.tz
 import typing
 
-from tools.utils.time_utils import parse_duration_string
+from core.utils.time_utils import parse_duration_string
 from dateutil.relativedelta import relativedelta
 from discord.ext import commands
 

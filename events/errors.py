@@ -1,6 +1,6 @@
 import discord
 import uuid
-from tools.exceptions import *
+from core.exceptions import *
 from discord.ext import commands
 from discord.utils import get
 from colorama import *
