@@ -138,5 +138,6 @@ dmypy.json
 cython_debug/
 
 # Data
-/data
+/data/logs
+/data/tempfiles
 .idea/
