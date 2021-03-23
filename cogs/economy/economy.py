@@ -17,7 +17,7 @@ class Economy(commands.Cog):
 	def __init__(self, client):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
-		self.BACKGROUND = self.client.config.DEF_PROFILE_BG
+		self.IMAGES_PATH = self.client.config.IMAGES_PATH
 		self.FONT = self.client.config.FONT
 		self.SAVE = self.client.config.SAVE_IMG
 
@@ -1271,7 +1271,7 @@ class Economy(commands.Cog):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		aliases=["profile-color", "profilecolor"],
+		aliases=["profile-color", "profilecolor", "spc", "pcl"],
 		name="set-profile-color",
 		description="Ставит новый цвет для вашего профиля",
 		usage="set-profile-color [Цвет]",
@@ -1292,6 +1292,8 @@ class Economy(commands.Cog):
 			"фиолетовый",
 			"розовый",
 			"красный",
+			"default",
+			"стандартный"
 		]
 		colour = {
 			"green": "green",
@@ -1306,11 +1308,13 @@ class Economy(commands.Cog):
 			"фиолетовый": "purple",
 			"розовый": "pink",
 			"красный": "red",
+			"стандартный": "default",
+			"default": "default"
 		}
 
 		if color is None:
 			emb = discord.Embed(
-				description=f"**Выберите цвет профиля среди этих: зелёный, лаймовый, оранжевый, фиолетовый, розовый, красный. Стандартный цвет - лаймовый.**",
+				description=f"**Выберите цвет профиля среди этих: зелёный, лаймовый, оранжевый, фиолетовый, розовый, красный, стандартный.**",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -1322,7 +1326,7 @@ class Economy(commands.Cog):
 		elif color.lower() not in colors:
 			emb = discord.Embed(
 				title="Ошибка!",
-				description=f"**Такого цвета нет! Выберите среди этих: зелёный, лаймовый, оранжевый, фиолетовый, розовый, красный. Стандартный цвет - лаймовый.**",
+				description=f"**Такого цвета нет! Выберите среди этих: зелёный, лаймовый, оранжевый, фиолетовый, розовый, красный, стандартный.**",
 				colour=discord.Color.green(),
 			)
 			emb.set_author(
@@ -1347,6 +1351,7 @@ class Economy(commands.Cog):
 		await ctx.send(embed=emb)
 
 	@commands.command(
+		aliases=["p"],
 		description="Показывает профиль указаного пользователя, без упоминания ваш профиль",
 		usage="profile |@Участник|",
 		help="**Примеры использования:**\n1. {Prefix}profile @Участник\n2. {Prefix}profile 660110922865704980\n3. {Prefix}profile\n\n**Пример 1:** Показывает профиль упомянутого участника\n**Пример 2:** Показывает профиль участника с указаным id\n**Пример 3:** Показывает ваш профиль",
@@ -1412,13 +1417,14 @@ class Economy(commands.Cog):
 			return width
 
 		colours = {
-			"green": ["#b8f9ff", "#b8f9ff"],
-			"lime": ["#787878", "#787878"],
-			"orange": ["#595959", "#595959"],
-			"purple": ["#a6de6f", "#595959"],
-			"pink": ["#cadedb", "#cadedb"],
-			"red": ["#f3f598", "#595959"],
-			None: ["#787878", "#787878"],
+			"green": ("#b8f9ff", "#b8f9ff", "#606060", "#444444"),
+			"lime": ("#787878", "#787878", "#606060", "#444444"),
+			"orange": ("#595959", "#595959", "#606060", "#444444"),
+			"purple": ("#a6de6f", "#595959", "#444444", "#444444"),
+			"pink": ("#cadedb", "#cadedb", "#606060", "#444444"),
+			"red": ("#f3f598", "#595959", "#606060", "#444444"),
+			"default": ("#cccccc", "#cccccc", "#222222", "#242424"),
+			None: ("#cccccc", "#cccccc", "#222222", "#242424"),
 		}
 		statuses = {
 			"dnd": "dnd",
@@ -1455,7 +1461,7 @@ class Economy(commands.Cog):
 				((level_exp - user_exp) / (level_exp - previus_level_exp)) * 100
 			)
 			user_image_status = Image.open(
-				self.BACKGROUND[:-8] + statuses[member.status.name] + ".png"
+				self.IMAGES_PATH + statuses[member.status.name] + ".png"
 			).convert("RGBA")
 			levels_delta = round(level_exp - previus_level_exp)
 
@@ -1465,27 +1471,27 @@ class Economy(commands.Cog):
 				user_state_prison = "На свободе"
 
 			if user_profile is None:
-				img = Image.open(self.BACKGROUND)
+				img = Image.open(self.IMAGES_PATH+"default.png")
 			elif user_profile is not None:
-				img = Image.open(self.BACKGROUND[:-8] + f"{user_profile}.png")
+				img = Image.open(self.IMAGES_PATH + f"{user_profile}.png")
 
 			user_image_status.thumbnail((40, 40), Image.ANTIALIAS)
-			responce = (
+			response = (
 				Image.open(io.BytesIO(await member.avatar_url.read()))
 				.convert("RGBA")
 				.resize((160, 160), Image.ANTIALIAS)
 			)
-			responce = ImageOps.expand(responce, border=10, fill="white")
-			img.paste(responce, (10, 10))
+			response = ImageOps.expand(response, border=10, fill="white")
+			img.paste(response, (10, 10))
 			img.paste(user_image_status, (160, 160), user_image_status)
 			idraw = ImageDraw.Draw(img)
 			bigtext = ImageFont.truetype(self.FONT, size=56)
 			midletext = ImageFont.truetype(self.FONT, size=40)
 			smalltext = ImageFont.truetype(self.FONT, size=32)
 
-			idraw.text((230, 10), "Профиль {}".format(user), font=bigtext, fill="#606060")
+			idraw.text((230, 10), "Профиль {}".format(user), font=bigtext, fill=colours[user_profile][2])
 			idraw.text(
-				(230, 60), f"Репутация: {user_reputation}", font=bigtext, fill="#606060"
+				(230, 60), f"Репутация: {user_reputation}", font=bigtext, fill=colours[user_profile][2]
 			)
 			idraw.text(
 				(10, 200), f"Exp: {user_exp}", font=midletext, fill=colours[user_profile][0]
@@ -1526,16 +1532,16 @@ class Economy(commands.Cog):
 				(get_width_info_exp(round(level_exp - previus_level_exp)), 250),
 				f"{levels_delta}/{round(levels_delta-(level_exp - user_exp))} exp",
 				font=midletext,
-				fill="#444",
+				fill=colours[user_profile][3],
 			)
 			fill_percent = 100 - progress_bar_percent
 			idraw.text(
 				(get_width_progress_bar(fill_percent if fill_percent > 0 else 0), 300),
 				f"{fill_percent if fill_percent > 0 else 0}%",
 				font=midletext,
-				fill="#444",
+				fill=colours[user_profile][3],
 			)
-			idraw.text((230, 258), f"#{user_rank}", font=smalltext, fill="#444")
+			idraw.text((230, 258), f"#{user_rank}", font=smalltext, fill=colours[user_profile][3])
 			idraw.text((15, 355), self.FOOTER, font=midletext)
 
 			img.save(self.SAVE)

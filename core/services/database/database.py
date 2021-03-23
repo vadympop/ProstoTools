@@ -368,7 +368,7 @@ class DB(AbcDatabase):
 			target.id,
 			target.guild.id,
 			"False",
-			"lime",
+			"default",
 			json.dumps([]),
 			json.dumps([]),
 			"",

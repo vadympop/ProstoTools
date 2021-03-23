@@ -8,7 +8,7 @@ class Config:
 	SHOPLIST_COSTS = [500, 1000, 100, 1100, 100, 600]
 	MIN_BALANCE = -5000
 	TEMP_PATH = './data/tempfiles/'
-	DEF_PROFILE_BG = './data/images/lime.png'
+	IMAGES_PATH = './data/images/'
 	FONT = './data/fonts/a_AlternaSw.ttf'
 	SAVE_IMG = './data/images/usercard.png'
 	BOT_NAME = 'ProstoTools.exe'
