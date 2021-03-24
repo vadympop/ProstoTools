@@ -17,6 +17,7 @@ class Errors(commands.Cog, name="Errors"):
 			CommandOff
 		)
 		self.FOOTER = self.client.config.FOOTER_TEXT
+		self.PERMISSIONS_DICT = self.client.config.PERMISSIONS_DICT
 
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, error):
@@ -50,12 +51,6 @@ class Errors(commands.Cog, name="Errors"):
 				bold=False
 			)
 			await ctx.send(embed=emb)
-		elif isinstance(error, commands.errors.MissingPermissions) or isinstance(error, commands.errors.CheckFailure):
-			ctx.command.reset_cooldown(ctx)
-			emb = await self.client.utils.create_error_embed(
-				ctx, "У вас не достаточно прав на использования данной команды!"
-			)
-			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.BadArgument):
 			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(
@@ -68,9 +63,15 @@ class Errors(commands.Cog, name="Errors"):
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.BotMissingPermissions):
 			ctx.command.reset_cooldown(ctx)
+			missing_perms = ", ".join([self.PERMISSIONS_DICT[p] for p in error.missing_perms])
 			emb = await self.client.utils.create_error_embed(
-				ctx,
-				f"У бота отсутствуют права: {' '.join(error.missing_perms)}\nВыдайте их ему для полного функционирования бота"
+				ctx, f"У бота отсутствуют права: {missing_perms}\nВыдайте их ему для полного функционирования бота"
+			)
+			await ctx.send(embed=emb)
+		elif isinstance(error, commands.errors.MissingPermissions) or isinstance(error, commands.errors.CheckFailure):
+			ctx.command.reset_cooldown(ctx)
+			emb = await self.client.utils.create_error_embed(
+				ctx, "У вас не достаточно прав на использования данной команды!"
 			)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.MemberNotFound):

@@ -8,7 +8,7 @@ class Utils:
         self.client = client
         self.FOOTER = self.client.config.FOOTER_TEXT
 
-    async def create_error_embed(self, ctx, error_msg: str, bold: bool = True):
+    async def create_error_embed(self, ctx, error_msg: str, bold: bool = False):
         emb = discord.Embed(
             title="Ошибка!",
             description=f"**{error_msg}**" if bold else error_msg,
