@@ -64,6 +64,7 @@ class Clans(commands.Cog):
 			await ctx.send(embed=emb)
 
 	@clan.command(usage="clan create [Названия]", description="Создаёт клан")
+	@commands.bot_has_permissions(manage_roles=True)
 	async def create(self, ctx, *, name: str):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 		user_data = await self.client.database.sel_user(target=ctx.author)
@@ -270,6 +271,7 @@ class Clans(commands.Cog):
 					return
 
 	@clan.command(usage="clan delete", description="Удаляет клан")
+	@commands.bot_has_permissions(manage_roles=True, manage_channels=True)
 	async def delete(self, ctx):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
@@ -408,6 +410,7 @@ class Clans(commands.Cog):
 		usage="clan kick [@Участник]",
 		description="Кикает указаного участника с клана",
 	)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def kick(self, ctx, member: discord.Member):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
@@ -549,6 +552,7 @@ class Clans(commands.Cog):
 	@clan.command(
 		usage="clan leave", description="С помощью команды вы покидаете ваш клан"
 	)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def leave(self, ctx):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
@@ -663,6 +667,7 @@ class Clans(commands.Cog):
 		usage="clan use-invite [Код приглашения]",
 		description="С помощью команды вы используете указаное приглашения",
 	)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def use_invite(self, ctx, invite: str):
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
 		state = False
@@ -807,6 +812,7 @@ class Clans(commands.Cog):
 		usage="clan accept-join-request [@Участник]",
 		description="Принимает указаный запрос на присоиденения к клану",
 	)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def accept_join_request(self, ctx, member: discord.Member):
 		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
@@ -929,6 +935,7 @@ class Clans(commands.Cog):
 		usage="clan buy [Предмет] |Цвет|",
 		description="Покупает указаный предмет для клана",
 	)
+	@commands.bot_has_permissions(manage_roles=True, manage_channels=True)
 	async def buy(self, ctx, item: str, color: str = None):
 		user_data = await self.client.database.sel_user(target=ctx.author)
 		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]

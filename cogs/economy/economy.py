@@ -141,6 +141,7 @@ class Economy(commands.Cog):
 		help="**Примеры использования:**\n1. {Prefix}text-channel Name\n\n**Пример 1:** Создаёт временный текстовый канал с названиям `Name`",
 	)
 	@commands.cooldown(1, 240, commands.BucketType.member)
+	@commands.bot_has_permissions(manage_channels=True)
 	async def textchannel(self, ctx, *, name: str):
 		data = await self.client.database.sel_user(target=ctx.author)
 		guild_data = await self.client.database.sel_guild(guild=ctx.guild)
@@ -734,6 +735,7 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	@commands.has_permissions(administrator=True)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def remove_role(self, ctx, member: discord.Member, role: discord.Role):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 

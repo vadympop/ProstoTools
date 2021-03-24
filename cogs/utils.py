@@ -35,6 +35,7 @@ class Utils(commands.Cog, name="Utils"):
 		usage="voice-rooms [Вкл/Выкл]",
 		help="**Примеры использования:**\n1. {Prefix}voice-rooms вкл\n2. {Prefix}voice-rooms выкл\n\n**Пример 1:** Включает приватные голосовые комнаты на сервере\n**Пример 2:** Выключает приватные голосовые комнаты на сервере",
 	)
+	@commands.bot_has_permissions(manage_channels=True)
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def voicechannel(self, ctx, state: str):
@@ -94,6 +95,7 @@ class Utils(commands.Cog, name="Utils"):
 		usage="server-stats [Счетчик] |off|",
 		help="**Примеры использования:**\n1. {Prefix}server-stats all\n2. {Prefix}server-stats сообщения\n\n**Пример 1:** Создаёт счетчик всех пользователей сервера\n**Пример 2:** Создаёт сообщения в текущем канале с основной информацией о сервере",
 	)
+	@commands.bot_has_permissions(manage_channels=True)
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def serverstats(self, ctx, counter: str, action: str = None):
@@ -270,6 +272,7 @@ class Utils(commands.Cog, name="Utils"):
 		help="**Примеры использования:**\n1. {Prefix}mass-role add @Роль @ИзменяемаяРоль\n2. {Prefix}mass-role add 717776604461531146 717776604461531146\n3. {Prefix}mass-role remove @Роль @ИзменяемаяРоль\n4. {Prefix}mass-role remove 717776604461531146 717776604461531146\n\n**Пример 1:** Добавляет упомянутою роль участникам с упомянутою ролью\n**Пример 2:** Добавляет роль с указаным id участникам с ролью с указаным id\n**Пример 3:** Убирает упомянутою роль в участников с упомянутой ролью\n**Пример 4:** Убирает роль с указаным id в участников с ролью с указаным id",
 	)
 	@commands.cooldown(1, 1800, commands.BucketType.member)
+	@commands.bot_has_permissions(manage_roles=True)
 	@commands.has_permissions(administrator=True)
 	async def mass_role(
 		self, ctx, type_act: str, for_role: discord.Role, role: discord.Role
@@ -330,7 +333,7 @@ class Utils(commands.Cog, name="Utils"):
 					if for_role in member.roles:
 						if role in member.roles:
 							await member.remove_roles(role)
-							await asyncio.sleep(5)
+							await asyncio.sleep(15)
 
 				emb = discord.Embed(
 					title="Операция снятия роли проведенна успешно",

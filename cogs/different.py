@@ -1,7 +1,6 @@
 import discord
 import requests
 from discord.ext import commands
-from discord.utils import get
 from random import randint
 
 
@@ -16,6 +15,7 @@ class Different(commands.Cog, name="Different"):
 		help="**Полезное:**\nЦвет надо указывать в формате HEX - #444444\n\n**Примеры использования:**\n1. {Prefix}color #444444\n2. {Prefix}color remove\n\n**Пример 1:** Установит вам роль с указаным цветом в HEX формате(Поддерживаеться только HEX)\n**Пример 2:** Удалить у вас роль с цветом",
 	)
 	@commands.cooldown(1, 300, commands.BucketType.member)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def color(self, ctx, color: str):
 		remove_words = ["del", "delete", "rem", "remove"]
 		state = False
@@ -101,12 +101,6 @@ class Different(commands.Cog, name="Different"):
 
 		if cur_items != []:
 			if "sim" in cur_items and "tel" in cur_items and coins_member > 50:
-				await self.client.database.update(
-					"users",
-					where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-					coins=coins_member-50
-				)
-
 				emb = discord.Embed(
 					title=f"Новое сообщения от {ctx.author.name}",
 					description=f"**{message}**",
@@ -114,7 +108,17 @@ class Different(commands.Cog, name="Different"):
 				)
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await member.send(embed=emb)
+				try:
+					await member.send(embed=emb)
+				except discord.Forbidden:
+					await ctx.send("Я не смог отправить сообщения указанному пользователю!")
+				else:
+					await self.client.database.update(
+						"users",
+						where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+						coins=coins_member - 50
+					)
+					await ctx.send("Успешно!")
 			else:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "У вас нет необходимых предметов или не достаточно коинов!"
@@ -139,8 +143,7 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(1, 7200, commands.BucketType.member)
 	async def devs(self, ctx, typef: str, *, msg: str):
-		prch = get(self.client.users, id=660110922865704980)
-		mrkl = get(self.client.users, id=404224656598499348)
+		prch = self.client.get_user(660110922865704980)
 
 		if typef == "bug" or typef == "баг":
 			emb = discord.Embed(
@@ -151,7 +154,6 @@ class Different(commands.Cog, name="Different"):
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await prch.send(embed=emb)
-			await mrkl.send(embed=emb)
 		elif typef == "idea" or typef == "идея":
 			emb = discord.Embed(
 				title=f"Новая идея от пользователя - {ctx.author.name}, с сервера - {ctx.guild.name}",
@@ -161,7 +163,6 @@ class Different(commands.Cog, name="Different"):
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await prch.send(embed=emb)
-			await mrkl.send(embed=emb)
 		else:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не правильно указали флаг!"
@@ -210,7 +211,10 @@ class Different(commands.Cog, name="Different"):
 			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 			emb.set_thumbnail(url=ctx.author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await channel.send(embed=emb)
+			try:
+				await channel.send(embed=emb)
+			except discord.Forbidden:
+				await ctx.send("Я не могу отправить сообщения в том канале!")
 		else:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Отказанно в доступе! Вы не имеете прав в указаном канале"
