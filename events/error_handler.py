@@ -36,21 +36,17 @@ class Errors(commands.Cog, name="Errors"):
 				pass
 
 			retry = humanize.precisedelta(error.retry_after, minimum_unit='seconds')
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Кулдавн в команде еще не прошёл! Подождите {retry}**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, f"**Кулдавн в команде еще не прошёл! Подождите {retry}**"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.MissingRequiredArgument):
 			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(
 				ctx,
-				f"**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указаной команде!**\n\n{ctx.command.help.format(Prefix=PREFIX)}\n[Документация](https://docs.prosto-tools.ml/)"
+				f"**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указаной команде!**\n\n{ctx.command.help.format(Prefix=PREFIX)}"
 				if ctx.command.help is not None
-				else "**Указан не правильный аргумент!\n[Документация](https://docs.prosto-tools.ml/)**",
+				else "**Указан не правильный аргумент!**",
 				bold=False
 			)
 			await ctx.send(embed=emb)
@@ -64,9 +60,9 @@ class Errors(commands.Cog, name="Errors"):
 			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(
 				ctx,
-				f"**Указан не правильный аргумент!**\n\n{ctx.command.help.format(Prefix=PREFIX)}\n[Документация](https://docs.prosto-tools.ml/)"
+				f"**Указан не правильный аргумент!**\n\n{ctx.command.help.format(Prefix=PREFIX)}"
 				if ctx.command.help is not None
-				else "**Указан не правильный аргумент!\n[Документация](https://docs.prosto-tools.ml/)**",
+				else "**Указан не правильный аргумент!**",
 				bold=False
 			)
 			await ctx.send(embed=emb)

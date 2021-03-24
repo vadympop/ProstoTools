@@ -1324,15 +1324,9 @@ class Economy(commands.Cog):
 			await ctx.send(embed=emb)
 			return
 		elif color.lower() not in colors:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Такого цвета нет! Выберите среди этих: зелёный, лаймовый, оранжевый, фиолетовый, розовый, красный, стандартный.**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Такого цвета нет! Выберите среди этих: зелёный, лаймовый, оранжевый, фиолетовый, розовый, красный, стандартный**"
 			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 			return
 

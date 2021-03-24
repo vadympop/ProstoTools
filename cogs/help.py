@@ -96,15 +96,9 @@ class Help(commands.Cog, name="Help"):
 					cogs_aliases[cog.lower()] for cog in self.client.cogs
 					if cog.lower() in cogs_aliases.keys()
 				])
-				emb = discord.Embed(
-					title="Ошибка!",
-					description=f"Такой категории нет, введите названия правильно. Список доступных категорий: {str_cogs}",
-					colour=discord.Color.green(),
+				emb = await self.client.utils.create_error_embed(
+					ctx, f"Такой категории нет, введите названия правильно. Список доступных категорий: {str_cogs}"
 				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
 				return
 			else:

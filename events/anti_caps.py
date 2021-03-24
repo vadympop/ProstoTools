@@ -110,6 +110,7 @@ class EventsAntiCaps(commands.Cog):
             if "message" in data["auto_mod"]["anti_caps"].keys():
                 member_data = await self.client.database.sel_user(target=message.author)
                 member_data.update({"multi": data["exp_multi"]})
+                ctx = await self.client.get_context(message)
                 try:
                     try:
                         text = await self.client.template_engine.render(
@@ -119,35 +120,15 @@ class EventsAntiCaps(commands.Cog):
                             data["auto_mod"]["anti_caps"]["message"]["text"]
                         )
                     except discord.errors.HTTPException:
-                        try:
-                            await message.add_reaction("❌")
-                        except discord.errors.Forbidden:
-                            pass
-                        except discord.errors.HTTPException:
-                            pass
-                        emb = discord.Embed(
-                            title="Ошибка!",
-                            description=f"**Во время выполнения кастомной команды пройзошла ошибка неизвестная ошибка!**",
-                            colour=discord.Color.red(),
+                        emb = await self.client.utils.create_error_embed(
+                            ctx, "**Во время выполнения кастомной команды пройзошла неизвестная ошибка!**"
                         )
-                        emb.set_author(name=message.author.name, icon_url=message.author.avatar_url)
-                        emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
                         await message.channel.send(embed=emb)
                         return
                 except jinja2.exceptions.TemplateSyntaxError as e:
-                    try:
-                        await message.add_reaction("❌")
-                    except discord.errors.Forbidden:
-                        pass
-                    except discord.errors.HTTPException:
-                        pass
-                    emb = discord.Embed(
-                        title="Ошибка!",
-                        description=f"Во время выполнения кастомной команды пройзошла ошибка:\n```{repr(e)}```",
-                        colour=discord.Color.red(),
+                    emb = await self.client.utils.create_error_embed(
+                        ctx, f"Во время выполнения кастомной команды пройзошла ошибка:\n```{repr(e)}```"
                     )
-                    emb.set_author(name=message.author.name, icon_url=message.author.avatar_url)
-                    emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
                     await message.channel.send(embed=emb)
                     return
 

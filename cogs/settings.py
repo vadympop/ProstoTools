@@ -51,13 +51,9 @@ class Settings(commands.Cog, name="Settings"):
 	@commands.has_permissions(administrator=True)
 	async def prefix(self, ctx, prefix: str):
 		if len(prefix) > 3:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Количество символов в новом префиксе не должно превышать 3-х!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Количество символов в новом префиксе не должно превышать 3-х!**"
 			)
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 			return
 
@@ -133,13 +129,9 @@ class Settings(commands.Cog, name="Settings"):
 			try:
 				cur_roles.remove(role.id)
 			except ValueError:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description=f"**Такой роли нету в списке ролей модераторов!**",
-					colour=discord.Color.green(),
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Такой роли нету в списке ролей модераторов!**"
 				)
-				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
 				return
 
@@ -151,13 +143,9 @@ class Settings(commands.Cog, name="Settings"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Укажите одно из этих действий: clear, delete, add!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Укажите одно из этих действий: clear, delete, add!**"
 			)
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 			return
 
@@ -209,13 +197,9 @@ class Settings(commands.Cog, name="Settings"):
 			try:
 				cur_ignchannel.remove(channel.id)
 			except ValueError:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description=f"**Такого канала нету в списке игнорируемых каналов!**",
-					colour=discord.Color.green(),
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Такого канала нету в списке игнорируемых каналов!**"
 				)
-				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
 				return
 
@@ -227,13 +211,9 @@ class Settings(commands.Cog, name="Settings"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"**Вы не правильно указали действие!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Вы не правильно указали действие!**"
 			)
-			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 			return
 
@@ -299,13 +279,9 @@ class Settings(commands.Cog, name="Settings"):
 					if role.id in shop_role and cost in shop_role:
 						shoplist.remove(shop_role)
 			except:
-				emb = discord.Embed(
-					title="Ошибка!",
-					description=f"**Такой роли не существует в списке продаваемых ролей!**",
-					colour=discord.Color.green(),
+				emb = await self.client.utils.create_error_embed(
+					ctx, "**Такой роли не существует в списке продаваемых ролей!**"
 				)
-				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
 				return
 

@@ -726,13 +726,9 @@ class Moderate(commands.Cog, name="Moderate"):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
 
 		if data is None:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description="**Предупреждения с таким айди не существует!**",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "**Предупреждения с таким айди не существует!**"
 			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 			return
 		elif data is not None:

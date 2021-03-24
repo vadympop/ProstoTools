@@ -1,6 +1,5 @@
 import discord
 import random
-from discord import ext
 from core.exceptions import *
 
 
@@ -11,9 +10,11 @@ class Utils:
 
     async def create_error_embed(self, ctx, error_msg: str, bold: bool = True):
         emb = discord.Embed(
-            title="Ошибка!", description=f"**{error_msg}**" if bold else error_msg, colour=discord.Color.green()
+            title="Ошибка!",
+            description=f"**{error_msg}**" if bold else error_msg,
+            colour=discord.Color.red()
         )
-        emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+        emb.set_author(name="Документация", icon_url=ctx.author.avatar_url, url="https://docs.prosto-tools.ml")
         emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
         try:
             await ctx.message.add_reaction("❌")

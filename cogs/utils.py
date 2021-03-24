@@ -341,15 +341,9 @@ class Utils(commands.Cog, name="Utils"):
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
 		else:
-			emb = discord.Embed(
-				title="Ошибка!",
-				description=f"Вы указали не правильное действие! Укажите add - для добавления, del или remove - для удаления",
-				colour=discord.Color.green(),
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Вы указали не правильное действие! Укажите add - для добавления, del или remove - для удаления"
 			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
 	@commands.command(
