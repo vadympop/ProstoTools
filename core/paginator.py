@@ -37,7 +37,6 @@ class Paginator:
         return True
 
     async def start(self):
-        await self.update_message()
         await self.add_reactions()
         while True:
             try:
