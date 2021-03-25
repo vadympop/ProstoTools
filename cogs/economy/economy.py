@@ -39,33 +39,22 @@ class Economy(commands.Cog):
 
 		num = 1
 		for user in data:
-			member = get(ctx.guild.members, id=user[0])
+			member = ctx.guild.get_member(user[0])
 			if member is not None:
 				if not member.bot:
+					field_name = f"#{num}"
 					if num == 1:
-						emb.add_field(
-							name=f"**[{num}]** <:gold_star:732490991302606868> Участник - {member.name}, Опыта - {user[1]}",
-							value=f"Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: **{user[3]}**",
-							inline=False,
-						)
+						field_name += " :first_place:"
 					elif num == 2:
-						emb.add_field(
-							name=f"**[{num}]** <:silver_star:732490991378104390> Участник - {member.name}, Опыта - {user[1]}",
-							value=f"Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: **{user[3]}**",
-							inline=False,
-						)
+						field_name += " :second_place:"
 					elif num == 3:
-						emb.add_field(
-							name=f"**[{num}]** <:bronce_star:732490990924988418> Участник - {member.name}, Опыта - {user[1]}",
-							value=f"Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: **{user[3]}**",
-							inline=False,
-						)
-					else:
-						emb.add_field(
-							name=f"[{num}] Участник - {member.name}, Опыта - {user[1]}",
-							value=f"Уровень: **{user[2]}**\nРепутации: **{user[4]}**\nДенег: **{user[3]}**",
-							inline=False,
-						)
+						field_name += " :third_place:"
+
+					emb.add_field(
+						name=f"{field_name} {member}",
+						value=f"Уровень: `{user[2]}` **|** Опыт: `{user[1]}` **|** Репутация: `{user[4]}` **|** Деньги: `{user[3]}`",
+						inline=False,
+					)
 					num += 1
 
 		await ctx.send(embed=emb)

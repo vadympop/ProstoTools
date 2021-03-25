@@ -91,7 +91,7 @@ class ProstoTools(commands.AutoShardedBot):
 			status=discord.Status.online,
 			activity=discord.Activity(
 				type=discord.ActivityType.playing,
-				name=" p.help | p.invite "
+				name=" {prefix}help | {prefix}invite ".format(prefix=self.config.DEF_PREFIX)
 			)
 		)
 		self.launched_at = datetime.datetime.utcnow()
