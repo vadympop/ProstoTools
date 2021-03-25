@@ -1,5 +1,4 @@
 import datetime
-import json
 import random
 import math
 import io
@@ -61,7 +60,7 @@ class Economy(commands.Cog):
 
 	@commands.command(
 		aliases=["reputation"],
-		description="Добавления репутации указаному пользователю(Cooldown 1 час)",
+		description="Добавления репутации указаному пользователю",
 		usage="rep [@Участник]",
 		help="**Примеры использования:**\n1. {Prefix}rep @Участник\n2. {Prefix}rep 660110922865704980\n\n**Пример 1:** Добавит репутацию упомянутому участнику\n**Пример 2:** Добавит репутацию участнику с указаным id",
 	)
@@ -125,9 +124,9 @@ class Economy(commands.Cog):
 	@commands.command(
 		aliases=["textchannel"],
 		name="text-channel",
-		description="Создает приватный текстовый канал. По умолчанию у вас есть 20 каналов(Их можно купить в магазине), создавать их можно только в определлёной категории. Он автоматически удаляеться через 30мин!(Cooldown - 3 мин)",
+		description="Создает приватный текстовый канал",
 		usage="text-channel [Имя канала]",
-		help="**Примеры использования:**\n1. {Prefix}text-channel Name\n\n**Пример 1:** Создаёт временный текстовый канал с названиям `Name`",
+		help="**Полезное:**\nПо умолчанию у вас есть 20 каналов(Их можно купить в магазине). Канал создается в настроенной администрацией категории. Он автоматически удаляеться через настроеное количество минут(По умолчанию 30)!\n\n**Примеры использования:**\n1. {Prefix}text-channel Name\n\n**Пример 1:** Создаёт временный текстовый канал с названиям `Name`",
 	)
 	@commands.cooldown(1, 240, commands.BucketType.member)
 	@commands.bot_has_permissions(manage_channels=True)
@@ -243,7 +242,7 @@ class Economy(commands.Cog):
 	@commands.command(
 		aliases=["sendmoney"],
 		name="send-money",
-		description="Этой командой можно оправить свои деньги другому пользователю(Cooldown - 30 мин)",
+		description="Этой командой можно отправить свои деньги другому пользователю",
 		usage="send-money [@Участник]",
 		help="**Примеры использования:**\n1. {Prefix}send-money @Участник 1000\n2. {Prefix}send-money 660110922865704980 1000\n\n**Пример 1:** Отправляет 1000$ упомянутому участнику\n**Пример 2:** Отправляет 1000$ участнику с указаным id",
 	)
@@ -346,7 +345,7 @@ class Economy(commands.Cog):
 	@commands.command(
 		aliases=["trans", "transactions"],
 		name="my-transactions",
-		description="Показывает всё ваши транзакции на текущем сервере",
+		description="Показывает все ваши транзакции на текущем сервере",
 		usage="my-transactions",
 		help="**Примеры использования:**\n1. {Prefix}my-transactions\n\n**Пример 1:** Показывает список ваших транзакций",
 	)
@@ -718,7 +717,7 @@ class Economy(commands.Cog):
 	@commands.command(
 		aliases=["removerole"],
 		name="remove-role",
-		description="Удаляет указаную роль из профиля пользователя(Объязательно используйте эту команду для снятия роли, а не простое удаление роли через сам дискорд!, Cooldown - 3 часа)",
+		description="Удаляет указаную роль из профиля пользователя(Объязательно используйте эту команду для снятия роли, а не простое удаление роли через сам дискорд!)",
 		usage="remove-role [@Участник] [@Роль]",
 		help="**Примеры использования:**\n1. {Prefix}remove-role @Участник @Роль\n2. {Prefix}remove-role 660110922865704980 717776604461531146\n\n**Пример 1:** Удаляет упомянутую роль в упомянутого участника\n**Пример 2:** Удаляет роль с указаным id в участника с указаным id",
 	)
@@ -806,7 +805,7 @@ class Economy(commands.Cog):
 	@commands.command(
 		aliases=["addvalue"],
 		name="add-value",
-		description="Добавляет указаный тип валюты в профиль",
+		description="Добавляет указанный тип валюты в профиль",
 		usage="add-value [@Участник] [Название валюты] [Количество]",
 		help="**Примеры использования:**\n1. {Prefix}add-value @Участник coins 1000\n2. {Prefix}add-value 660110922865704980 coins 1000\n\n**Пример 1:** Добавляет 1000 коинов упомянутому участнику\n**Пример 2:** Добавляет 1000 коинов участнику с указаным id",
 	)
@@ -998,7 +997,7 @@ class Economy(commands.Cog):
 				await channel.send(embed=e)
 
 	@commands.command(
-		description="Этой командой можно ограбить пользователя(Cooldown 24 часа)",
+		description="Этой командой можно ограбить пользователя",
 		usage="rob [@Участник]",
 		help="**Примеры использования:**\n1. {Prefix}rob @Участник\n2. {Prefix}rob 660110922865704980\n\n**Пример 1:** Грабит упомянутому участника\n**Пример 2:** Грабит участника с указаным id",
 	)
@@ -1058,7 +1057,7 @@ class Economy(commands.Cog):
 					)
 					await ctx.send(embed=emb)
 					self.client.dispatch("prison", ctx.author, state[1])
-			elif rand_num > 40 and rand_num <= 80:
+			elif 40 < rand_num <= 80:
 				emb = discord.Embed(
 					description=f"**Вы не смогли ограбить указаного пользователя**",
 					colour=discord.Color.green(),
@@ -1093,7 +1092,7 @@ class Economy(commands.Cog):
 			return
 
 	@commands.command(
-		description="Незаконная добыча денег(Cooldown - 12 часов)",
+		description="Незаконная добыча денег",
 		usage="crime",
 		help="**Примеры использования:**\n1. {Prefix}crime\n\n**Пример 1:** Незаконно добывает деньги",
 	)
@@ -1144,7 +1143,7 @@ class Economy(commands.Cog):
 						text=self.FOOTER, icon_url=self.client.user.avatar_url
 					)
 					await ctx.send(embed=emb)
-			elif rand_num > 40 and rand_num <= 80:
+			elif 40 < rand_num <= 80:
 				emb = discord.Embed(
 					description=f"**Вы не смогли совершить идею заработка денег**",
 					colour=discord.Color.green(),
@@ -1337,7 +1336,7 @@ class Economy(commands.Cog):
 
 	@commands.command(
 		aliases=["p"],
-		description="Показывает профиль указаного пользователя, без упоминания ваш профиль",
+		description="Показывает профиль указанного пользователя",
 		usage="profile |@Участник|",
 		help="**Примеры использования:**\n1. {Prefix}profile @Участник\n2. {Prefix}profile 660110922865704980\n3. {Prefix}profile\n\n**Пример 1:** Показывает профиль упомянутого участника\n**Пример 2:** Показывает профиль участника с указаным id\n**Пример 3:** Показывает ваш профиль",
 	)

@@ -1,5 +1,4 @@
 import discord
-from core.http import http_client as requests
 from discord.ext import commands
 from random import randint
 
@@ -89,7 +88,7 @@ class Different(commands.Cog, name="Different"):
 	@commands.command(
 		aliases=["usersend"],
 		name="user-send",
-		description="Отправляет сообщения указаному участнику(Cooldown - 1 мин после двох попыток)",
+		description="Отправляет сообщения указаному участнику",
 		usage="user-send [@Участник] [Сообщения]",
 		help="**Примеры использования:**\n1. `{Prefix}user-send @Участник Hello my friend`\n2. `{Prefix}user-send 660110922865704980 Hello my friend`\n\n**Пример 1:** Отправит упомянутому участнику сообщения `Hello my friend`\n**Пример 2:** Отправит участнику с указаным id сообщения `Hello my friend`",
 	)
@@ -137,7 +136,7 @@ class Different(commands.Cog, name="Different"):
 	@commands.command(
 		aliases=["devs"],
 		name="feedback",
-		description="Отправляет описания бага в боте разработчикам или идею к боту(Cooldown - 2ч)",
+		description="Отправляет описания бага в боте разработчикам или идею к боту",
 		usage="feedback [bug/idea] [Описания бага или идея к боту]",
 		help="**Примеры использования:**\n1. {Prefix}feedback баг Error\n2. {Prefix}feedback идея Idea\n\n**Пример 1:** Отправит баг `Error`\n**Пример 2: Отправит идею `Idea`**",
 	)
@@ -196,7 +195,7 @@ class Different(commands.Cog, name="Different"):
 	@commands.command(
 		aliases=["msg-f", "msg-forward", "msgf", "msg-forw"],
 		name="message-forward",
-		description="Перенаправляет ваше сообщения в указанный канал(Cooldown - 2 мин)",
+		description="Перенаправляет ваше сообщения в указанный канал",
 		usage="message-forward [Канал] [Сообщения]",
 		help="**Примеры использования:**\n1. {Prefix}message-forward #Канал Hello everyone\n2. {Prefix}message-forward 717776571406090313 Hello everyone\n\n**Пример 1:** Перенаправит сообщения `Hello everyone` в упомянутый канал\n**Пример 2:**  Перенаправит сообщения `Hello everyone` в канал с указаным id",
 	)
@@ -224,7 +223,7 @@ class Different(commands.Cog, name="Different"):
 			return
 
 	@commands.command(
-		description="Отправляет ваше сообщения от именни бота(Cooldown - 30 сек после трёх попыток)",
+		description="Отправляет ваше сообщения от именни бота",
 		usage="say [Сообщения]",
 		help="**Примеры использования:**\n1. {Prefix}say Hello, I am write a text\n\n**Пример 1:** Отправит указаное сообщения от именни бота в текущем канале и удалит сообщения участника",
 	)
