@@ -73,8 +73,8 @@ class ProstoTools(commands.AutoShardedBot):
 		)
 		self.remove_command("help")
 		self.config = Config
-		self.session = aiohttp.ClientSession()
-		self.http_client = HTTPClient(session=self.session)
+		self.session = None
+		self.http_client = HTTPClient()
 		self.cache = CacheManager()
 		self.database = DB(client=self)
 		self.utils = Utils(client=self)
@@ -95,6 +95,7 @@ class ProstoTools(commands.AutoShardedBot):
 			)
 		)
 		self.launched_at = datetime.datetime.utcnow()
+		self.http_client.prepare(aiohttp.ClientSession(loop=self.loop))
 		await self.cache.run()
 		await self.database.run()
 
@@ -109,7 +110,7 @@ class ProstoTools(commands.AutoShardedBot):
 		)
 
 	async def close(self):
-		await self.session.close()
+		await self.http_client.close()
 
 	async def on_message_edit(self, before, after):
 		await self.process_commands(after)

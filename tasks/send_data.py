@@ -1,6 +1,5 @@
 import os
 import json
-from core.http import http_client as requests
 from discord.ext import commands, tasks
 
 

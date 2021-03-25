@@ -1,10 +1,16 @@
 import aiohttp
+import typing
 from .exceptions import *
 
 
 class HTTPClient:
-    def __init__(self, **kwargs):
-        self.session = kwargs.pop("session") or aiohttp.ClientSession()
+    session: typing.Optional[aiohttp.ClientSession]
+
+    def __init__(self):
+        self.session = None
+
+    def prepare(self, session: aiohttp.ClientSession):
+        self.session = session
 
     async def request(self, method: str, url: str, **kwargs):
         async with self.session.request(method, url=url, **kwargs) as response:
@@ -36,3 +42,7 @@ class HTTPClient:
             url=url,
             **kwargs
         )
+
+    async def close(self):
+        if self.session:
+            await self.session.close()
