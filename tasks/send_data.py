@@ -1,6 +1,6 @@
 import os
 import json
-from core.http import async_requests as requests
+from core.http import http_client as requests
 from discord.ext import commands, tasks
 
 
@@ -46,7 +46,7 @@ class TasksSendData(commands.Cog):
 		headers = {
 			"Authorization": os.getenv("API_KEY", default="")
 		}
-		await requests.post(url=self.api_url + "private/client", json=data, headers=headers)
+		await self.client.http_client.post(url=self.api_url + "private/client", json=data, headers=headers)
 
 	@tasks.loop(hours=6)
 	async def send_sdc_data_loop(self):
@@ -59,7 +59,7 @@ class TasksSendData(commands.Cog):
 				"shards": self.client.shard_count,
 				"servers": len(self.client.guilds)
 			}
-			await requests.post(url=self.sdc_api_url.format(self.client.user.id), data=data, headers=headers)
+			await self.client.http_client.post(url=self.sdc_api_url.format(self.client.user.id), data=data, headers=headers)
 
 	@tasks.loop(hours=6)
 	async def send_boticord_data_loop(self):
@@ -73,7 +73,7 @@ class TasksSendData(commands.Cog):
 				"servers": len(self.client.guilds),
 				"users": len(self.client.users)
 			}
-			await requests.post(url=self.boticord_api_url, data=json.dumps(data), headers=headers)
+			await self.client.http_client.post(url=self.boticord_api_url, data=json.dumps(data), headers=headers)
 
 
 def setup(client):

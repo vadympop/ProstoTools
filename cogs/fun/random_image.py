@@ -1,6 +1,6 @@
 import discord
 import random
-from core.http import async_requests as requests
+import aiohttp
 from bs4 import BeautifulSoup as bs
 from discord.ext import commands
 
@@ -87,7 +87,9 @@ class FunRandomImage(commands.Cog):
             "User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0"
         }
         async with ctx.typing():
-            html = await (await requests.get(url, headers=headers)).text()
+            async with self.client.session.request("GET", url=url, headers=headers) as response:
+                html = await response.text()
+
             soup = bs(html, "lxml")
             data = soup.find_all("div", {"class": "topicbox"})
             images = []

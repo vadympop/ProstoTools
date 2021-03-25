@@ -3,8 +3,8 @@ import qrcode
 import wikipedia
 import cv2
 import random
+import aiohttp
 from aiohttp import client_exceptions
-from core.http import async_requests as requests
 from pyzbar import pyzbar
 from discord.ext import commands
 
@@ -56,14 +56,16 @@ class FunOther(commands.Cog):
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def scan_url(self, ctx, url: str):
         try:
-            ddd = await requests.get_raw_data(url)
+            async with aiohttp.ClientSession().request("GET", url=url) as response:
+                raw = await response.read()
+
         except client_exceptions.InvalidURL:
             emb = await self.client.utils.create_error_embed(ctx, "Указан неверный формат ссылки!")
             await ctx.send(embed=emb)
             return
 
         img_file = open("././data/images/qr_url.png", "wb")
-        img_file.write(ddd)
+        img_file.write(raw)
         img_file.close()
 
         img = cv2.imread("././data/images/qr_url.png")
@@ -84,6 +86,7 @@ class FunOther(commands.Cog):
             emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
             emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
             await ctx.send(embed=emb)
+            break
 
     @commands.command(
         description="Википедия, расказывает о вашем запросе",

@@ -1,6 +1,7 @@
 import discord
 import datetime
-from core.http import RandomAPI
+import aiohttp
+from core.http import RandomAPI, HTTPClient
 from core.services.cache import CacheManager
 from core.services.database import DB
 from core import Utils, SupportCommands, template_engine as temp_eng
@@ -72,10 +73,12 @@ class ProstoTools(commands.AutoShardedBot):
 		)
 		self.remove_command("help")
 		self.config = Config
+		self.session = aiohttp.ClientSession()
+		self.http_client = HTTPClient(session=self.session)
 		self.cache = CacheManager()
 		self.database = DB(client=self)
 		self.utils = Utils(client=self)
-		self.random_api = RandomAPI()
+		self.random_api = RandomAPI(client=self)
 		self.support_commands = SupportCommands(client=self)
 		self.template_engine = temp_eng
 		self.template_engine.client = self
@@ -104,6 +107,9 @@ class ProstoTools(commands.AutoShardedBot):
 		logger.info(
 			f"[PT-SYSTEM-LOGGING]:::{self.user.name} is disconnected from discord server"
 		)
+
+	async def close(self):
+		await self.session.close()
 
 	async def on_message_edit(self, before, after):
 		await self.process_commands(after)

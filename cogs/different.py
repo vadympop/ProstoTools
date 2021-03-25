@@ -1,5 +1,5 @@
 import discord
-import requests
+from core.http import http_client as requests
 from discord.ext import commands
 from random import randint
 
@@ -338,12 +338,11 @@ class Different(commands.Cog, name="Different"):
 		data = {"expr": [exp]}
 
 		try:
-			re = requests.get(link, params=data)
-			responce = re.json()
+			response = await self.client.http_client.get(link, params=data)
 
 			emb = discord.Embed(title="Калькулятор", color=discord.Color.green())
 			emb.add_field(name="Задача:", value=exp)
-			emb.add_field(name="Решение:", value=str(responce))
+			emb.add_field(name="Решение:", value=str(response))
 			emb.set_author(
 				name=self.client.user.name, icon_url=self.client.user.avatar_url
 			)
