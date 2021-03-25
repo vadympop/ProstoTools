@@ -32,6 +32,8 @@ class Moderate(commands.Cog, name="Moderate"):
 		self.VMUTE_ROLE = self.client.config.VMUTE_ROLE
 		self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
 		self.FOOTER = self.client.config.FOOTER_TEXT
+		self.FILTERS = self.client.config.FILTERS
+		self.FILTERS_PREDICATES = self.client.config.MESSAGES_FILTERS_PREDICATES
 
 	@commands.command(
 		description="Удаляет указаное число сообщений",
@@ -40,7 +42,7 @@ class Moderate(commands.Cog, name="Moderate"):
 	)
 	@commands.bot_has_permissions(manage_messages=True)
 	@commands.check(check_role)
-	async def clear(self, ctx, member: typing.Optional[discord.Member], amount: int):
+	async def clear(self, ctx, member: typing.Optional[discord.Member], amount: int, *args):
 		if amount <= 0:
 			emb = await self.client.utils.create_error_embed(ctx, "Укажите число удаляемых сообщения больше 0!")
 			await ctx.send(embed=emb)
@@ -53,10 +55,15 @@ class Moderate(commands.Cog, name="Moderate"):
 
 		number = 0
 		delete_messages_objs = []
+		filters = [arg for arg in args if arg in self.FILTERS]
 		if member is None:
 			async with ctx.typing():
-				num_channel_messages = len(await ctx.channel.history().flatten())
-				async for msg in ctx.channel.history():
+				num_channel_messages = len(await ctx.channel.history().filter(
+					lambda m: all([self.FILTERS_PREDICATES[i](m) for i in filters])
+				).flatten())
+				async for msg in ctx.channel.history().filter(
+						lambda m: all([self.FILTERS_PREDICATES[i](m) for i in filters])
+				):
 					if (datetime.datetime.utcnow()-msg.created_at) >= datetime.timedelta(weeks=2):
 						emb = await self.client.utils.create_error_embed(
 							ctx, "Я не могу удалить сообщения старше 14 дней!"
@@ -80,7 +87,9 @@ class Moderate(commands.Cog, name="Moderate"):
 						break
 		elif member is not None and member in ctx.guild.members:
 			async with ctx.typing():
-				async for msg in ctx.channel.history().filter(lambda m: m.author == member):
+				async for msg in ctx.channel.history().filter(
+						lambda m: m.author == member and all([self.FILTERS_PREDICATES[i](m) for i in filters])
+				):
 					await msg.delete()
 					number += 1
 					if number >= amount:

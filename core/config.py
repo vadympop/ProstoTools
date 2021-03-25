@@ -5,14 +5,11 @@ class Config:
 	# Client config
 	DEF_PREFIX = 'p.'
 	OWNERS = (660110922865704980,)
-	SHOPLIST_COSTS = [500, 1000, 100, 1100, 100, 600]
 	MIN_BALANCE = -5000
 	TEMP_PATH = '../data/tempfiles/'
 	IMAGES_PATH = '../data/images/'
 	FONT = './data/fonts/a_AlternaSw.ttf'
 	SAVE_IMG = './data/images/usercard.png'
-	BOT_NAME = 'ProstoTools.exe'
-	BOT_ID = 700767394154414142
 	HELP_SERVER = 'https://discord.gg/6SHKgj43r9'
 	FOOTER_TEXT = 'ProstoTools.exe || Copyright 2020-2021'
 	MUTE_ROLE = 'PT-MUTED'
@@ -21,6 +18,53 @@ class Config:
 	CAPTCHA_ROLE = "PT-CHECKING"
 	COLOR_ROLE = 'PT-COLOR-'
 	TOKEN = os.getenv('BOT_TOKEN')
+	MESSAGE_FILTERS = (
+		"--with-attachments",
+		"--without-attachments",
+		"--with-embeds",
+		"--without-embeds",
+		"--with-reactions",
+		"--without-reactions",
+		"--with-mentions",
+		"--without-mentions",
+		# "--with-emojis",
+		# "--without-emojis"
+	)
+	MEMBERS_FILTERS = (
+		"--has-roles",
+		"--hasnt--roles",
+		"--bot",
+		"--not-bot",
+		"--online",
+		"--offline"
+	)
+	FILTERS = (*MEMBERS_FILTERS, *MESSAGE_FILTERS)
+	MESSAGES_FILTERS_PREDICATES = {
+		"--with-attachments": lambda m: len(m.attachments) > 0,
+		"--without-attachments": lambda m: len(m.attachments) <= 0,
+		"--with-embeds": lambda m: len(m.embeds) > 0,
+		"--without-embeds": lambda m: len(m.embeds) <= 0,
+		"--with-reactions": lambda m: len(m.reactions) > 0,
+		"--without-reactions": lambda m: len(m.reactions) <= 0,
+		"--with-mentions": lambda m: len(m.mentions) > 0,
+		"--without-mentions": lambda m: len(m.mentions) <= 0,
+		# "--with-emojis": lambda m: m,
+		# "--without-emojis": lambda m: m,
+		"--has-roles": lambda m: len(m.author.roles) > 0,
+		"--hasnt-roles": lambda m: len(m.author.roles) <= 0,
+		"--bot": lambda m: m.author.bot,
+		"--not-bot": lambda m: not m.author.bot,
+		"--online": lambda m: m.author.status in ("online", "idle", "dnd"),
+		"--offline": lambda m: m.author.status not in ("online", "idle", "dnd"),
+	}
+	MEMBERS_FILTERS_PREDICATES = {
+		"--has-roles": lambda m: len(m.roles) > 0,
+		"--hasnt-roles": lambda m: len(m.roles) <= 0,
+		"--bot": lambda m: m.bot,
+		"--not-bot": lambda m: not m.bot,
+		"--online": lambda m: m.status in ("online", "idle", "dnd"),
+		"--offline": lambda m: m.status not in ("online", "idle", "dnd"),
+	}
 	ALLOWED_COGS = (
 		"Clans",
 		"Different",

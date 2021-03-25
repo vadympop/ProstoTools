@@ -139,7 +139,8 @@ class ProstoTools(commands.AutoShardedBot):
 
 async def get_prefix(client, message):
 	if message.guild is None:
-		return "p."
+		return client.config.DEF_PREFIX
+
 	prefix = await client.database.get_prefix(guild=message.guild)
 	return commands.when_mentioned_or(*(str(prefix), ))(client, message)
 

@@ -92,12 +92,16 @@ class Paginator:
     async def previous_page(self):
         if self.index != 0:
             self.index -= 1
-            await self.update_message()
+        else:
+            self.index = len(self.embeds)-1
+        await self.update_message()
 
     async def next_page(self):
         if self.index != len(self.embeds) - 1:
             self.index += 1
-            await self.update_message()
+        else:
+            self.index = 0
+        await self.update_message()
 
     async def update_message(self):
         if self.footer:

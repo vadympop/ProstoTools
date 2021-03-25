@@ -27,6 +27,8 @@ class Utils(commands.Cog, name="Utils"):
 	def __init__(self, client):
 		self.client = client
 		self.FOOTER = self.client.config.FOOTER_TEXT
+		self.FILTERS = self.client.config.MEMBERS_FILTERS
+		self.FILTERS_PREDICATES = self.client.config.MEMBERS_FILTERS_PREDICATES
 
 	@commands.command(
 		aliases=["voicerooms"],
@@ -275,7 +277,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.bot_has_permissions(manage_roles=True)
 	@commands.has_permissions(administrator=True)
 	async def mass_role(
-		self, ctx, type_act: str, for_role: discord.Role, role: discord.Role
+		self, ctx, type_act: str, for_role: discord.Role, role: discord.Role, *args
 	):
 		if role.is_integration():
 			emb = await self.client.utils.create_error_embed(ctx, "Указанная роль управляется интеграцией!")
@@ -311,13 +313,14 @@ class Utils(commands.Cog, name="Utils"):
 			await ctx.send(embed=emb)
 			return
 
+		filters = [arg for arg in args if arg in self.FILTERS]
 		if type_act == "add":
 			async with ctx.typing():
 				for member in ctx.guild.members:
-					if for_role in member.roles:
-						if role not in member.roles:
-							await member.add_roles(role)
-							await asyncio.sleep(5)
+					if for_role in member.roles and role not in member.roles \
+							and all([self.FILTERS_PREDICATES[i](member) for i in filters]):
+						await member.add_roles(role)
+						await asyncio.sleep(15)
 
 				emb = discord.Embed(
 					title="Операция добавления роли проведенна успешно",
@@ -330,10 +333,10 @@ class Utils(commands.Cog, name="Utils"):
 		elif type_act == "remove" or type_act == "del":
 			async with ctx.typing():
 				for member in ctx.guild.members:
-					if for_role in member.roles:
-						if role in member.roles:
-							await member.remove_roles(role)
-							await asyncio.sleep(15)
+					if for_role in member.roles and role in member.roles \
+							and all([self.FILTERS_PREDICATES[i](member) for i in filters]):
+						await member.remove_roles(role)
+						await asyncio.sleep(15)
 
 				emb = discord.Embed(
 					title="Операция снятия роли проведенна успешно",
