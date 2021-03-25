@@ -8,7 +8,7 @@ from cogs.economy.buy_cmd import buy
 from loguru import logger
 from colorama import *
 from discord.ext import commands
-from config import Config
+from core.config import Config
 
 
 init()

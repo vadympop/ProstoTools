@@ -2,7 +2,7 @@ import discord
 import datetime
 import uuid
 import json
-from config import Config
+from core.config import Config
 from discord.utils import get
 from discord.ext import commands
 
