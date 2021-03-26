@@ -90,7 +90,7 @@ class Different(commands.Cog, name="Different"):
 		name="user-send",
 		description="Отправляет сообщения указаному участнику",
 		usage="user-send [@Участник] [Сообщения]",
-		help="**Примеры использования:**\n1. `{Prefix}user-send @Участник Hello my friend`\n2. `{Prefix}user-send 660110922865704980 Hello my friend`\n\n**Пример 1:** Отправит упомянутому участнику сообщения `Hello my friend`\n**Пример 2:** Отправит участнику с указаным id сообщения `Hello my friend`",
+		help="**Примеры использования:**\n1. {Prefix}user-send @Участник Hello my friend\n2. {Prefix}user-send 660110922865704980 Hello my friend\n\n**Пример 1:** Отправит упомянутому участнику сообщения `Hello my friend`\n**Пример 2:** Отправит участнику с указаным id сообщения `Hello my friend`",
 	)
 	@commands.cooldown(2, 60, commands.BucketType.member)
 	async def send(self, ctx, member: discord.Member, *, message: str):
@@ -134,41 +134,50 @@ class Different(commands.Cog, name="Different"):
 			return
 
 	@commands.command(
-		aliases=["devs"],
-		name="feedback",
-		description="Отправляет описания бага в боте разработчикам или идею к боту",
-		usage="feedback [bug/idea] [Описания бага или идея к боту]",
-		help="**Примеры использования:**\n1. {Prefix}feedback баг Error\n2. {Prefix}feedback идея Idea\n\n**Пример 1:** Отправит баг `Error`\n**Пример 2: Отправит идею `Idea`**",
+		description="Отправляет баг",
+		usage="bug [Описания]",
+		help="**Примеры использования:**\n1. {Prefix}bug Я нашел баг...\n\n**Пример 1:** Отправит баг с указанным описаниям",
 	)
-	@commands.cooldown(1, 7200, commands.BucketType.member)
-	async def devs(self, ctx, typef: str, *, msg: str):
-		prch = self.client.get_user(660110922865704980)
+	@commands.cooldown(1, 3600, commands.BucketType.member)
+	async def bug(self, ctx, *, description: str):
+		bug_channel = self.client.get_channel(792820806132564028)
+		emb = discord.Embed(
+			description=f"Описания бага: \n>>> {description}",
+			colour=discord.Color.orange()
+		)
+		emb.set_author(name=f"Баг нашел {ctx.author} | {ctx.author.id}", icon_url=ctx.author.avatar_url)
+		emb.set_thumbnail(url=ctx.guild.icon_url)
+		emb.set_footer(text=f"Сервер: {ctx.guild.name} | {ctx.guild.id}")
+		await bug_channel.send(
+			embed=emb,
+			files=[
+				await attachment.to_file(use_cached=False, spoiler=True)
+				for attachment in ctx.message.attachments
+			]
+		)
 
-		if typef == "bug" or typef == "баг":
-			emb = discord.Embed(
-				title=f"Описания бага от пользователя - {ctx.author.name}, с сервера - {ctx.guild.name}",
-				description=f"**Описания бага:\n{msg}**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await prch.send(embed=emb)
-		elif typef == "idea" or typef == "идея":
-			emb = discord.Embed(
-				title=f"Новая идея от пользователя - {ctx.author.name}, с сервера - {ctx.guild.name}",
-				description=f"**Идея:\n{msg}**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await prch.send(embed=emb)
-		else:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не правильно указали флаг!"
-			)
-			await ctx.send(embed=emb)
-			self.devs.reset_cooldown(ctx)
-			return
+	@commands.command(
+		description="Отправляет идею",
+		usage="idea [Описания]",
+		help="**Примеры использования:**\n1. {Prefix}idea У меня появилась идея!\n\n**Пример 1:** Отправит идею с указанным описаниям",
+	)
+	@commands.cooldown(1, 3600, commands.BucketType.member)
+	async def idea(self, ctx, *, description: str):
+		idea_channel = self.client.get_channel(799635206390284298)
+		emb = discord.Embed(
+			description=f"Описания идеи: \n>>> {description}",
+			colour=discord.Color.blurple()
+		)
+		emb.set_author(name=f"Идея от {ctx.author} | {ctx.author.id}", icon_url=ctx.author.avatar_url)
+		emb.set_thumbnail(url=ctx.guild.icon_url)
+		emb.set_footer(text=f"Сервер: {ctx.guild.name} | {ctx.guild.id}")
+		await idea_channel.send(
+			embed=emb,
+			files=[
+				await attachment.to_file(use_cached=False, spoiler=True)
+				for attachment in ctx.message.attachments
+			]
+		)
 
 	@commands.command(
 		aliases=["useravatar", "avatar"],

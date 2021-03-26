@@ -10,7 +10,7 @@ class TasksBotStat(commands.Cog):
         self.memory_stat_loop.start()
         self.mem = ps.virtual_memory()
 
-    @tasks.loop(minutes=10)
+    @tasks.loop(minutes=5)
     async def ping_stat_loop(self):
         await self.client.wait_until_ready()
         ping = round(self.client.latency * 1000)
