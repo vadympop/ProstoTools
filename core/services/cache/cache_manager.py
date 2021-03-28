@@ -24,8 +24,10 @@ class CacheManager:
         ]
 
     def add(self, item):
-        if len(self.items) < self._max_length:
-            self.items.append(item)
+        self.items.append(item)
+
+        if len(self.items) > self._max_length:
+            self.items.pop(0)
 
     def update(self, new_data, **kwargs):
         item = self.get(**kwargs)
