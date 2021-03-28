@@ -1,16 +1,14 @@
 import discord
 import asyncio
 import datetime
+
+from core.bases.cog_base import BaseCog
 from core.converters import Expiry
 from core.paginator import Paginator
 from discord.ext import commands
 
 
-class Giveaways(commands.Cog):
-    def __init__(self, client):
-        self.client = client
-        self.FOOTER = self.client.config.FOOTER_TEXT
-
+class Giveaways(BaseCog):
     @commands.group(
         usage="clan [Команда]",
         description="Категория команд - розыгрыши",
@@ -126,8 +124,7 @@ class Giveaways(commands.Cog):
         description="Удаляет розыгрыш"
     )
     async def delete(self, ctx, giveaway_id: int):
-        ids = [giveaway[0] for giveaway in (await self.client.database.get_giveaways(ctx.guild.id))]
-        if giveaway_id not in ids:
+        if await self.client.database.get_giveaway(giveaway_id) is None:
             emb = await self.client.utils.create_error_embed(
                 ctx, "**Розыгрыша с указанным id не существует**"
             )
@@ -160,7 +157,6 @@ class Giveaways(commands.Cog):
             emb = await self.client.utils.create_error_embed(
                 ctx,
                 "Окончания розыгрыша прервано, розыгрыш был удален! Проверьте эти причины ошибки:\n1. Канал с розыгрышем удален\n2. Сообщения розыгрыша удалено\n3. На сообщении нету :tada: реакции",
-                bold=False
             )
             await ctx.send(embed=emb)
             return
@@ -177,14 +173,14 @@ class Giveaways(commands.Cog):
         description="Покажет список всех розыгрышей на сервере"
     )
     async def list(self, ctx):
-        data = await self.client.database.get_giveaways(ctx.guild.id)
-        if data != []:
+        data = await self.client.database.get_giveaways(guild_id=ctx.guild.id)
+        if len(data) > 0:
             embeds = []
             for giveaway in data:
-                active_to = datetime.datetime.fromtimestamp(giveaway[6]).strftime("%d %B %Y %X")
-                creator = str(ctx.guild.get_member(giveaway[4]))
-                message_link = f"https://discord.com/channels/{giveaway[1]}/{giveaway[2]}/{giveaway[3]}"
-                description = f"""[Сообщения]({message_link})\nId: `{giveaway[0]}`\nНазвание: `{giveaway[7]}`\nКанал: {ctx.guild.get_channel(giveaway[2])}\nОрганизатор: `{creator}`\nДействует до: `{active_to}`\nПобедителей: `{giveaway[5]}`\nПриз:\n>>> {giveaway[8]}"""
+                active_to = datetime.datetime.fromtimestamp(giveaway.time).strftime("%d %B %Y %X")
+                creator = str(ctx.guild.get_member(giveaway.creator_id))
+                message_link = f"https://discord.com/channels/{giveaway.guild_id}/{giveaway.channel_id}/{giveaway.message_id}"
+                description = f"""[Сообщения]({message_link})\nId: `{giveaway.id}`\nНазвание: `{giveaway.name}`\nКанал: {ctx.guild.get_channel(giveaway.channel_id)}\nОрганизатор: `{creator}`\nДействует до: `{active_to}`\nПобедителей: `{giveaway.num_winners}`\nПриз:\n>>> {giveaway.prize}"""
                 emb = discord.Embed(
                     title=f"Все розыгрышы этого сервера",
                     description=description,

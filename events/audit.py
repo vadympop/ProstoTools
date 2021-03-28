@@ -2,20 +2,21 @@ import discord
 import datetime
 import uuid
 import os
+
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
 
 
-class EventsAudit(commands.Cog):
+class EventsAudit(BaseCog):
 	def __init__(self, client):
-		self.client = client
+		super().__init__(client)
 		self.TEMP_PATH = self.client.config.TEMP_PATH
-		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
 		if self.client.is_ready():
 			try:
-				audit = (await self.client.database.sel_guild(guild=before.guild))["audit"]
+				audit = (await self.client.database.sel_guild(guild=before.guild)).audit
 			except AttributeError:
 				return
 			if "member_update" not in audit.keys():
@@ -78,7 +79,7 @@ class EventsAudit(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_member_ban(self, guild, user):
-		audit = (await self.client.database.sel_guild(guild=guild))["audit"]
+		audit = (await self.client.database.sel_guild(guild=guild)).audit
 		if "member_ban" not in audit.keys():
 			return
 		channel = self.client.get_channel(audit["member_ban"])
@@ -106,7 +107,7 @@ class EventsAudit(commands.Cog):
 		if user.bot:
 			return
 
-		audit = (await self.client.database.sel_guild(guild=guild))["audit"]
+		audit = (await self.client.database.sel_guild(guild=guild)).audit
 		if "member_unban" not in audit.keys():
 			return
 		channel = self.client.get_channel(audit["member_unban"])
@@ -128,7 +129,7 @@ class EventsAudit(commands.Cog):
 	@commands.Cog.listener()
 	async def on_raw_bulk_message_delete(self, payload):
 		guild = self.client.get_guild(payload.guild_id)
-		audit = (await self.client.database.sel_guild(guild=guild))["audit"]
+		audit = (await self.client.database.sel_guild(guild=guild)).audit
 		if "message_delete" not in audit.keys():
 			return
 
@@ -173,15 +174,13 @@ class EventsAudit(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_raw_message_delete(self, payload):
-		guild = self.client.get_guild(payload.guild_id)
-		channel = guild.get_channel(payload.channel_id)
 		message = payload.cached_message
 
 		if message is not None:
 			if message.author.bot:
 				return
 
-			audit = (await self.client.database.sel_guild(guild=message.guild))["audit"]
+			audit = (await self.client.database.sel_guild(guild=message.guild)).audit
 			if "message_delete" not in audit.keys():
 				return
 			channel = self.client.get_channel(audit["message_delete"])
@@ -190,6 +189,7 @@ class EventsAudit(commands.Cog):
 
 			if len(message.content) > 1000:
 				return
+
 			e = discord.Embed(
 				colour=discord.Color.orange(), timestamp=datetime.datetime.utcnow()
 			)
@@ -220,7 +220,7 @@ class EventsAudit(commands.Cog):
 		if before.author.bot:
 			return
 
-		audit = (await self.client.database.sel_guild(guild=before.guild))["audit"]
+		audit = (await self.client.database.sel_guild(guild=before.guild)).audit
 		if "message_edit" not in audit.keys():
 			return
 		channel = self.client.get_channel(audit["message_edit"])

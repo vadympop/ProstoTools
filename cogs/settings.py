@@ -1,13 +1,14 @@
 import discord
 import json
 import typing
+
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
 
 
-class Settings(commands.Cog, name="Settings"):
+class Settings(BaseCog):
 	def __init__(self, client):
-		self.client = client
-		self.FOOTER = self.client.config.FOOTER_TEXT
+		super().__init__(client)
 		self.commands = [
 			command.name
 			for cog in self.client.cogs
@@ -80,7 +81,7 @@ class Settings(commands.Cog, name="Settings"):
 	@commands.has_permissions(administrator=True)
 	async def moder_role(self, ctx, type_act: str, role: discord.Role = None):
 		data = await self.client.database.sel_guild(guild=ctx.guild)
-		cur_roles = data["moder_roles"]
+		cur_roles = data.moderators
 
 		if type_act == "add":
 			if role is None:
@@ -163,7 +164,7 @@ class Settings(commands.Cog, name="Settings"):
 	@commands.has_permissions(administrator=True)
 	async def ignoredchannels(self, ctx, typech: str, channel: discord.TextChannel = None):
 		data = await self.client.database.sel_guild(guild=ctx.guild)
-		cur_ignchannel = data["ignored_channels"]
+		cur_ignchannel = data.ignored_channels
 
 		if typech == "add":
 			if channel is None:
@@ -233,10 +234,10 @@ class Settings(commands.Cog, name="Settings"):
 		self, ctx, cl_add: typing.Optional[str], role: discord.Role, cost: int
 	):
 		data = await self.client.database.sel_guild(guild=ctx.guild)
-		shoplist = data["shop_list"]
+		shoplist = data.shop_list
 
 		if cost <= 0:
-			emb = await self.client.create_error_embed(ctx, "Укажите стоимость предмета больше 0!")
+			emb = await self.client.utils.create_error_embed(ctx, "Укажите стоимость предмета больше 0!")
 			await ctx.send(embed=emb)
 			return
 
@@ -332,7 +333,7 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	@commands.has_permissions(administrator=True)
 	async def warns(self, ctx, action: str, *options):
-		warns_settings = (await self.client.database.sel_guild(guild=ctx.guild))["warns_settings"]
+		warns_settings = (await self.client.database.sel_guild(guild=ctx.guild)).warns_settings
 		if action.lower() == "count":
 			if len(options) <= 0:
 				emb = await self.client.utils.create_error_embed(
@@ -418,7 +419,7 @@ class Settings(commands.Cog, name="Settings"):
 	async def anti_flud(self, ctx, action: str, setting: str = None, *options):
 		ons = ("on", "вкл", "включить", "+", "1")
 		offs = ("off", "выкл", "выключить", "-", "0")
-		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
+		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild)).auto_mod
 		options = list(options)
 		if action.lower() in ons:
 			if auto_mod["anti_flud"]["state"]:
@@ -728,7 +729,7 @@ class Settings(commands.Cog, name="Settings"):
 	async def anti_invite(self, ctx, action: str, setting: str = None, *options):
 		ons = ("on", "вкл", "включить", "+", "1")
 		offs = ("off", "выкл", "выключить", "-", "0")
-		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
+		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild)).auto_mod
 		options = list(options)
 		if action.lower() in ons:
 			if auto_mod["anti_invite"]["state"]:
@@ -1095,7 +1096,7 @@ class Settings(commands.Cog, name="Settings"):
 		):
 			action = False
 
-		settings = data["auto_mod"]
+		settings = data.auto_mod
 		settings.update({"react_commands": action})
 
 		await self.client.database.update(
@@ -1202,7 +1203,7 @@ class Settings(commands.Cog, name="Settings"):
 			"message_edit",
 			"message_delete"
 		)
-		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 		if action.lower() in ons:
 			if channel is None:
 				emb = await self.client.utils.create_error_embed(
@@ -1275,7 +1276,7 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	@commands.has_permissions(administrator=True)
 	async def auto_reactions(self, ctx, action: str, channel: typing.Optional[discord.TextChannel], *, reactions: str = None):
-		auto_reactions = (await self.client.database.sel_guild(guild=ctx.guild))["auto_reactions"]
+		auto_reactions = (await self.client.database.sel_guild(guild=ctx.guild)).auto_reactions
 		if action.lower() == "set":
 			if reactions is None:
 				emb = await self.client.utils.create_error_embed(
@@ -1340,7 +1341,7 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	@commands.has_permissions(administrator=True)
 	async def custom_command(self, ctx, action: str, command_name: str = None, *options):
-		custom_commands = (await self.client.database.sel_guild(guild=ctx.guild))["custom_commands"]
+		custom_commands = (await self.client.database.sel_guild(guild=ctx.guild)).custom_commands
 		if action.lower() == "add":
 			if command_name is None:
 				emb = await self.client.utils.create_error_embed(
@@ -1644,7 +1645,7 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	@commands.has_permissions(administrator=True)
 	async def auto_responder(self, ctx, action: str, responder_name: str = None, *, text: str = None):
-		auto_responders = (await self.client.database.sel_guild(guild=ctx.guild))["autoresponders"]
+		auto_responders = (await self.client.database.sel_guild(guild=ctx.guild)).autoresponders
 		if action.lower() == "add":
 			if responder_name is None:
 				emb = await self.client.utils.create_error_embed(
@@ -1822,8 +1823,8 @@ class Settings(commands.Cog, name="Settings"):
 		usage="setting level-up-message [channel/dm/off] |Текст|",
 	)
 	@commands.has_permissions(administrator=True)
-	async def level_up_message(self, ctx, type: str, *, text = None):
-		rank_message = (await self.client.database.sel_guild(guild=ctx.guild))["rank_message"]
+	async def level_up_message(self, ctx, type: str, *, text: str = None):
+		rank_message = (await self.client.database.sel_guild(guild=ctx.guild)).rank_message
 		if type.lower() == "dm":
 			if text is None:
 				emb = await self.client.utils.create_error_embed(
@@ -1887,7 +1888,7 @@ class Settings(commands.Cog, name="Settings"):
 	async def anti_caps(self, ctx, action: str, setting: str = None, *options):
 		ons = ("on", "вкл", "включить", "+", "1")
 		offs = ("off", "выкл", "выключить", "-", "0")
-		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
+		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild)).auto_mod
 		options = list(options)
 		if action.lower() in ons:
 			if auto_mod["anti_caps"]["state"]:
@@ -2256,7 +2257,7 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	@commands.has_permissions(administrator=True)
 	async def captcha(self, ctx, action: str):
-		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
+		auto_mod = (await self.client.database.sel_guild(guild=ctx.guild)).auto_mod
 		if action.lower() == "on":
 			if auto_mod["captcha"]["state"]:
 				emb = await self.client.utils.create_error_embed(
@@ -2300,7 +2301,7 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	@commands.has_permissions(administrator=True)
 	async def command(self, ctx, command_name: str, setting: str, *options):
-		commands_settings = (await self.client.database.sel_guild(guild=ctx.guild))["commands_settings"]
+		commands_settings = (await self.client.database.sel_guild(guild=ctx.guild)).commands_settings
 		command_name = command_name.lower()
 		if command_name in ("help", "setting"):
 			emb = await self.client.utils.create_error_embed(
@@ -2497,7 +2498,7 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	@commands.has_permissions(administrator=True)
 	async def welcomer(self, ctx, type: str, *options):
-		welcomer_settings = (await self.client.database.sel_guild(guild=ctx.guild))["welcomer"]
+		welcomer_settings = (await self.client.database.sel_guild(guild=ctx.guild)).welcomer
 		options = list(options)
 		if type.lower() == "dm":
 			if len(options) <= 0:
@@ -2569,7 +2570,7 @@ class Settings(commands.Cog, name="Settings"):
 	)
 	@commands.has_permissions(administrator=True)
 	async def leaver(self, ctx, type: str, *options):
-		leaver_settings = (await self.client.database.sel_guild(guild=ctx.guild))["welcomer"]
+		leaver_settings = (await self.client.database.sel_guild(guild=ctx.guild)).welcomer
 		options = list(options)
 		if type.lower() == "dm":
 			if len(options) <= 0:

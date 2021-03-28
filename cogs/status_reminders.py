@@ -1,12 +1,11 @@
 import discord
+
+from core.services.database.models import StatusReminder
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
 
 
-class StatusReminders(commands.Cog):
-    def __init__(self, client):
-        self.client = client
-        self.FOOTER = self.client.config.FOOTER_TEXT
-
+class StatusReminders(BaseCog):
     @commands.group(
         name="status-reminder",
         usage="reminder [Команда]",
@@ -71,20 +70,32 @@ class StatusReminders(commands.Cog):
             await ctx.send(embed=emb)
             return
 
-        state = await self.client.database.set_status_reminder(
-            member.id, ctx.author.id, status.lower(), type_reminder.lower()
-        )
-        if not state:
+        if StatusReminder.objects.filter(member_id=ctx.author.id).count() > 20:
             emb = await self.client.utils.create_error_embed(
                 ctx,
-                "**У вас уже есть напоминания статуса на этого участника/вы превысили максимальное количество напоминания(20)!**"
+                "**Вы превысили максимальное количество напоминания(20)!**"
             )
             await ctx.send(embed=emb)
             return
 
+        if await self.client.database.get_status_reminder(target_id=member.id, type=type_reminder, member_id=ctx.author.id) is not None:
+            emb = await self.client.utils.create_error_embed(
+                ctx,
+                "**У вас уже есть напоминания статуса на этого участника!**"
+            )
+            await ctx.send(embed=emb)
+            return
+
+        new_id = await self.client.database.add_status_reminder(
+            target_id=member.id,
+            member_id=ctx.author.id,
+            wait_for=status.lower(),
+            type_reminder=type_reminder.lower()
+        )
+
         invert_convert_statuses = {k: x for x, k in convert_statuses.items()}
         emb = discord.Embed(
-            title=f"Создано новое напоминая статуса #{state}",
+            title=f"Создано новое напоминая статуса #{new_id}",
             description=f"Смотрит за: `{member}`\nЖдет статус: `{invert_convert_statuses[status.lower()]}`",
             colour=discord.Color.green(),
         )
@@ -98,14 +109,14 @@ class StatusReminders(commands.Cog):
         usage="status-reminder delete [Id]",
     )
     async def delete(self, ctx, reminder_id: int):
-        state = await self.client.database.del_status_reminder(reminder_id)
-        if not state:
+        if await self.client.database.get_status_reminder(id=reminder_id) is None:
             emb = await self.client.utils.create_error_embed(
                 ctx, "**Напоминания с указаным id не существует!**"
             )
             await ctx.send(embed=emb)
             return
 
+        await self.client.database.del_status_reminder(id=reminder_id)
         try:
             await ctx.message.add_reaction("✅")
         except discord.errors.Forbidden:
@@ -119,8 +130,8 @@ class StatusReminders(commands.Cog):
         usage="status-reminder list",
     )
     async def list(self, ctx):
-        data = await self.client.database.get_status_reminder(member_id=ctx.author.id)
-        if data != ():
+        data = await self.client.database.get_status_reminders(member_id=ctx.author.id)
+        if len(data) > 0:
             convert_statuses = {
                 "dnd": "не беспокоить",
                 "online": "онлайн",
@@ -129,7 +140,7 @@ class StatusReminders(commands.Cog):
             }
 
             description = "\n".join([
-                f"Id: `{setting[0]}` Пользователь: `{self.client.get_user(setting[1])}` Ждет: `{convert_statuses[setting[3]]}` Повторяемый: `{'Да' if setting[4] == 'repeated' else 'Нет'}`"
+                f"Id: `{setting.id}` Пользователь: `{self.client.get_user(setting.target_id)}` Ждет: `{convert_statuses[setting.wait_for]}` Повторяемый: `{'Да' if setting.type == 'repeated' else 'Нет'}`"
                 for setting in data
             ])
         else:

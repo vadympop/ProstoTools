@@ -1,20 +1,16 @@
 import uuid
-import json
 import random
 import discord
 
+from core.bases.cog_base import BaseCog
 from datetime import datetime
 from string import ascii_uppercase
 from discord.ext import commands
 
 
-class Clans(commands.Cog):
-	def __init__(self, client):
-		self.client = client
-		self.FOOTER = self.client.config.FOOTER_TEXT
-
+class Clans(BaseCog):
 	async def _add_member(self, ctx, clan_id: str, member: discord.Member):
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
 		for clan in data:
 			if clan["id"] == clan_id:
 				if member.id not in clan["members"]:
@@ -66,9 +62,9 @@ class Clans(commands.Cog):
 	@clan.command(usage="clan create [Названия]", description="Создаёт клан")
 	@commands.bot_has_permissions(manage_roles=True)
 	async def create(self, ctx, *, name: str):
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
 		user_data = await self.client.database.sel_user(target=ctx.author)
-		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 
 		for clan in data:
 			if ctx.author.id in clan["members"]:
@@ -154,8 +150,8 @@ class Clans(commands.Cog):
 		description="Изменяет настройки клана",
 	)
 	async def edit(self, ctx, field: str, *, value: str):
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
-		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
+		user_clan = (await self.client.database.sel_user(target=ctx.author)).clan
 		field = field.lower()
 
 		if user_clan == "":
@@ -213,8 +209,8 @@ class Clans(commands.Cog):
 		description="Передаёт права владения клана указаному участнику",
 	)
 	async def trans_own_ship(self, ctx, member: discord.Member):
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
-		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
+		user_clan = (await self.client.database.sel_user(target=ctx.author)).clan
 
 		if user_clan == "":
 			emb = await self.client.utils.create_error_embed(
@@ -223,7 +219,7 @@ class Clans(commands.Cog):
 			await ctx.send(embed=emb)
 			return
 
-		if (await self.client.database.sel_user(target=member))["clan"] != "":
+		if (await self.client.database.sel_user(target=member)).clan != "":
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Указаный участник уже есть в одном из кланов сервера!"
 			)
@@ -273,9 +269,9 @@ class Clans(commands.Cog):
 	@clan.command(usage="clan delete", description="Удаляет клан")
 	@commands.bot_has_permissions(manage_roles=True, manage_channels=True)
 	async def delete(self, ctx):
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
-		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
-		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
+		user_clan = (await self.client.database.sel_user(target=ctx.author)).clan
+		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 
 		if user_clan == "":
 			emb = await self.client.utils.create_error_embed(
@@ -366,11 +362,11 @@ class Clans(commands.Cog):
 		usage="clan members", description="Показывает всех участников клана"
 	)
 	async def members(self, ctx, clan_id: str = None):
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
 		state = False
 		if not clan_id:
-			if (await self.client.database.sel_user(target=ctx.author))["clan"] != "":
-				clan_id = (await self.client.database.sel_user(target=ctx.author))["clan"]
+			if (await self.client.database.sel_user(target=ctx.author)).clan != "":
+				clan_id = (await self.client.database.sel_user(target=ctx.author)).clan
 			else:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Вы не указали аргумент. Укажити аргумент - clan_id к указаной команде!"
@@ -412,8 +408,8 @@ class Clans(commands.Cog):
 	)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def kick(self, ctx, member: discord.Member):
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
-		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
+		user_clan = (await self.client.database.sel_user(target=ctx.author)).clan
 		if user_clan == "":
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вас нету ни в одном клане сервера!"
@@ -477,7 +473,7 @@ class Clans(commands.Cog):
 	async def list_clans(self, ctx):
 		data = [
 			clan
-			for clan in (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
+			for clan in (await self.client.database.sel_guild(guild=ctx.guild)).clans
 			if clan["type"] == "public"
 		]
 		if data != []:
@@ -505,8 +501,8 @@ class Clans(commands.Cog):
 		usage="clan info |Id|", description="Показывает полную информацию о клане"
 	)
 	async def info(self, ctx, clan_id: str = None):
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
-		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
+		user_clan = (await self.client.database.sel_user(target=ctx.author)).clan
 		state = False
 		if clan_id is None:
 			if user_clan != "":
@@ -554,8 +550,8 @@ class Clans(commands.Cog):
 	)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def leave(self, ctx):
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
-		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
+		user_clan = (await self.client.database.sel_user(target=ctx.author)).clan
 		if user_clan == "":
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вас нету ни в одном клане сервера!"
@@ -603,8 +599,8 @@ class Clans(commands.Cog):
 		description="Создаёт новое приглашения",
 	)
 	async def create_invite(self, ctx):
-		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
+		user_clan = (await self.client.database.sel_user(target=ctx.author)).clan
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
 
 		if user_clan == "":
 			emb = await self.client.utils.create_error_embed(
@@ -669,10 +665,10 @@ class Clans(commands.Cog):
 	)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def use_invite(self, ctx, invite: str):
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
 		state = False
 
-		if (await self.client.database.sel_user(target=ctx.author))["clan"] != "":
+		if (await self.client.database.sel_user(target=ctx.author)).clan != "":
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы уже находитесь в одном из кланов сервера!"
 			)
@@ -712,10 +708,10 @@ class Clans(commands.Cog):
 		description="Отправляет запрос на присоиденения к клану",
 	)
 	async def send_join_request(self, ctx, clan_id: str):
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
 		state = False
 
-		if (await self.client.database.sel_user(target=ctx.author))["clan"] != "":
+		if (await self.client.database.sel_user(target=ctx.author)).clan != "":
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы уже находитесь в одном из кланов сервера!"
 			)
@@ -771,8 +767,8 @@ class Clans(commands.Cog):
 		description="Показывает список всех запросов на присоединения к клану",
 	)
 	async def list_join_requests(self, ctx):
-		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
+		user_clan = (await self.client.database.sel_user(target=ctx.author)).clan
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
 
 		if user_clan == "":
 			emb = await self.client.utils.create_error_embed(
@@ -814,8 +810,8 @@ class Clans(commands.Cog):
 	)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def accept_join_request(self, ctx, member: discord.Member):
-		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
+		user_clan = (await self.client.database.sel_user(target=ctx.author)).clan
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
 
 		if user_clan == "":
 			emb = await self.client.utils.create_error_embed(
@@ -876,8 +872,8 @@ class Clans(commands.Cog):
 		description="Отклоняет указаный запрос на присоиденения к клану",
 	)
 	async def reject_join_request(self, ctx, member: discord.Member):
-		user_clan = (await self.client.database.sel_user(target=ctx.author))["clan"]
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
+		user_clan = (await self.client.database.sel_user(target=ctx.author)).clan
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
 
 		if user_clan == "":
 			emb = await self.client.utils.create_error_embed(
@@ -938,7 +934,7 @@ class Clans(commands.Cog):
 	@commands.bot_has_permissions(manage_roles=True, manage_channels=True)
 	async def buy(self, ctx, item: str, color: str = None):
 		user_data = await self.client.database.sel_user(target=ctx.author)
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["clans"]
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
 		item = item.lower()
 
 		if user_data["clan"] == "":

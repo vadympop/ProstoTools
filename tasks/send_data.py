@@ -1,13 +1,18 @@
 import os
 import json
-from discord.ext import commands, tasks
+import logging
+
+from core.bases.cog_base import BaseCog
+from discord.ext import tasks
+
+logger = logging.getLogger(__name__)
 
 
-class TasksSendData(commands.Cog):
+class TasksSendData(BaseCog):
 	def __init__(self, client):
-		self.client = client
+		super().__init__(client)
 		self.allowed_cogs = self.client.config.ALLOWED_COGS
-		self.api_url = "https://api.prosto-tools.ml/v2"
+		self.api_url = "https://api.prosto-tools.ml/v2/"
 		self.sdc_api_url = "https://api.server-discord.com/v2/bots/{0}/stats"
 		self.boticord_api_url = "https://boticord.top/api/stats"
 		self.send_data_loop.start()
@@ -45,7 +50,15 @@ class TasksSendData(commands.Cog):
 		headers = {
 			"Authorization": os.getenv("API_KEY", default="")
 		}
-		await self.client.http_client.post(url=self.api_url + "private/client", json=data, headers=headers)
+
+		logger.info(f"Trying to post bot stats into {self.api_url}")
+		try:
+			r = await self.client.http_client.post(url=self.api_url + "private/client", json=data, headers=headers)
+			logger.info(f"Response of posting bot stats into {self.api_url}: {r}")
+		except Exception as e:
+			logger.error(f"An error occurred when posting bot stats: {repr(e)}")
+		else:
+			logger.info(f"Bot stats was successful posted into {self.api_url}")
 
 	@tasks.loop(hours=6)
 	async def send_sdc_data_loop(self):
@@ -58,7 +71,19 @@ class TasksSendData(commands.Cog):
 				"shards": self.client.shard_count,
 				"servers": len(self.client.guilds)
 			}
-			await self.client.http_client.post(url=self.sdc_api_url.format(self.client.user.id), data=data, headers=headers)
+
+			logger.info(f"Trying to post bot stats into {self.sdc_api_url}")
+			try:
+				r = await self.client.http_client.post(
+					url=self.sdc_api_url.format(self.client.user.id),
+					data=data,
+					headers=headers
+				)
+				logger.info(f"Response of posting bot stats into {self.sdc_api_url}: {r}")
+			except Exception as e:
+				logger.error(f"An error occurred when adding ping stat: {repr(e)}")
+			else:
+				logger.info(f"Bot stats was successful posted into {self.sdc_api_url}")
 
 	@tasks.loop(hours=6)
 	async def send_boticord_data_loop(self):
@@ -72,7 +97,19 @@ class TasksSendData(commands.Cog):
 				"servers": len(self.client.guilds),
 				"users": len(self.client.users)
 			}
-			await self.client.http_client.post(url=self.boticord_api_url, data=json.dumps(data), headers=headers)
+
+			logger.info(f"Trying to post bot stats into {self.boticord_api_url}")
+			try:
+				r = await self.client.http_client.post(
+					url=self.boticord_api_url,
+					data=json.dumps(data),
+					headers=headers
+				)
+				logger.info(f"Response of posting bot stats into {self.boticord_api_url}: {r}")
+			except Exception as e:
+				logger.error(f"An error occurred when adding ping stat: {repr(e)}")
+			else:
+				logger.info(f"Bot stats was successful posted into {self.boticord_api_url}")
 
 
 def setup(client):

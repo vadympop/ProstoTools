@@ -1,32 +1,18 @@
 import discord
-import json
 import asyncio
 import uuid
 import datetime
+
+from core.services.database.models import User
+from core.utils.other import check_filters, check_moderate_roles
+from core.bases.cog_base import BaseCog
 from core.paginator import Paginator
 from discord.ext import commands
-from discord.utils import get
 
 
-async def check_role(ctx):
-	data = json.loads(await ctx.bot.database.get_moder_roles(guild=ctx.guild))
-	roles = ctx.guild.roles[::-1]
-	data.append(roles[0].id)
-
-	if data != []:
-		for role_id in data:
-			role = get(ctx.guild.roles, id=role_id)
-			if role in ctx.author.roles:
-				return True
-		return ctx.author.guild_permissions.administrator
-	else:
-		return ctx.author.guild_permissions.administrator
-
-
-class Utils(commands.Cog, name="Utils"):
+class Utils(BaseCog):
 	def __init__(self, client):
-		self.client = client
-		self.FOOTER = self.client.config.FOOTER_TEXT
+		super().__init__(client)
 		self.FILTERS = self.client.config.MEMBERS_FILTERS
 		self.FILTERS_PREDICATES = self.client.config.MEMBERS_FILTERS_PREDICATES
 
@@ -45,7 +31,7 @@ class Utils(commands.Cog, name="Utils"):
 		off_answers = ["off", "выкл", "выключить", "false"]
 
 		if state.lower() in on_answers:
-			data = (await self.client.database.sel_guild(guild=ctx.guild))["voice_channel"]
+			data = (await self.client.database.sel_guild(guild=ctx.guild)).voice_channel
 
 			if "channel_id" not in data:
 				channel_category = await ctx.guild.create_category("Голосовые комнаты")
@@ -121,54 +107,53 @@ class Utils(commands.Cog, name="Utils"):
 
 		if counter.lower() in ["message", "сообщения"]:
 			async with ctx.typing():
-				val = (ctx.guild.id, ctx.guild.id)
-				sql_1 = """SELECT user_id, exp, money, reputation, messages FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 20"""
-				sql_2 = """SELECT exp FROM users WHERE guild_id = %s AND guild_id = %s"""
-
-				all_exp = sum([i[0] for i in await self.client.database.execute(sql_2, val)])
-				data = await self.client.database.execute(sql_1, val)
-				dnd = len(
-					[
-						str(member.id)
-						for member in ctx.guild.members
-						if member.status.name == "dnd"
-					]
-				)
-				sleep = len(
-					[
-						str(member.id)
-						for member in ctx.guild.members
-						if member.status.name == "idle"
-					]
-				)
-				online = len(
-					[
-						str(member.id)
-						for member in ctx.guild.members
-						if member.status.name == "online"
-					]
-				)
-				offline = len(
-					[
-						str(member.id)
-						for member in ctx.guild.members
-						if member.status.name == "offline"
-					]
-				)
+				all_exp = sum([u.exp for u in User.objects.filter(guild_id=ctx.guild.id)])
+				data = User.objects.filter(guild_id=ctx.guild.id).order_by("-exp")[:20]
+				dnd = len([
+					str(member.id)
+					for member in ctx.guild.members
+					if member.status.name == "dnd"
+				])
+				sleep = len([
+					str(member.id)
+					for member in ctx.guild.members
+					if member.status.name == "idle"
+				])
+				online = len([
+					str(member.id)
+					for member in ctx.guild.members
+					if member.status.name == "online"
+				])
+				offline = len([
+					str(member.id)
+					for member in ctx.guild.members
+					if member.status.name == "offline"
+				])
 				description = "Статистика обновляеться каждые 5 минут\n\n**20 Самых активных участников сервера**"
 				num = 1
 				for profile in data:
-					member = ctx.guild.get_member(profile[0])
+					member = ctx.guild.get_member(profile.user_id)
 					if member is not None:
 						if not member.bot:
 							if len(member.name) > 10:
-								member = (
-									member.name[:10] + "..." + "#" + member.discriminator
-								)
-							description += f"""\n`{num}. {str(member)} {profile[1]}exp {profile[2]}$ {profile[3]}rep {json.loads(profile[4])[1]}msg`"""
+								member = member.name[:10] + "..." + "#" + member.discriminator
+							description += f"""\n`{num}. {str(member)} {profile.exp}exp {profile.money}$ {profile.reputation}rep`"""
 							num += 1
 
-				description += f"""\n\n**Общая инфомация**\n:baby:Пользователей: **{ctx.guild.member_count}**\n:family_man_girl_boy:Участников: **{len([m.id for m in ctx.guild.members if not m.bot])}**\n<:bot:731819847905837066>Ботов: **{len([m.id for m in ctx.guild.members if m.bot])}**\n<:voice_channel:730399079418429561>Голосовых подключений: **{sum([len(v.members) for v in ctx.guild.voice_channels])}**\n<:text_channel:730396561326211103>Каналов: **{len([c.id for c in ctx.guild.channels])}**\n<:role:730396229220958258>Ролей: **{len([r.id for r in ctx.guild.roles])}**\n:star:Всего опыта: **{all_exp}**\n\n**Статусы участников**\n<:online:730393440046809108>`{online}`  <:offline:730392846573633626>`{offline}`\n<:sleep:730390502972850256>`{sleep}`  <:mobile:777854822300385291>`{len([m.id for m in ctx.guild.members if m.is_on_mobile()])}`\n<:dnd:730391353929760870>`{dnd}` <:boost:777854437724127272>`{len(set(ctx.guild.premium_subscribers))}`"""
+				description += f"""
+\n**Общая инфомация**
+:baby:Пользователей: **{ctx.guild.member_count}**
+:family_man_girl_boy:Участников: **{len([m.id for m in ctx.guild.members if not m.bot])}**
+<:bot:731819847905837066>Ботов: **{len([m.id for m in ctx.guild.members if m.bot])}**
+<:voice_channel:730399079418429561>Голосовых подключений: **{sum([len(v.members) for v in ctx.guild.voice_channels])}**
+<:text_channel:730396561326211103>Каналов: **{len([c.id for c in ctx.guild.channels])}**
+<:role:730396229220958258>Ролей: **{len([r.id for r in ctx.guild.roles])}**
+:star:Всего опыта: **{all_exp}**
+\n**Статусы участников**
+<:online:730393440046809108>`{online}`  <:offline:730392846573633626>`{offline}`
+<:sleep:730390502972850256>`{sleep}`  <:mobile:777854822300385291>`{len([m.id for m in ctx.guild.members if m.is_on_mobile()])}`
+<:dnd:730391353929760870>`{dnd}` <:boost:777854437724127272>`{len(set(ctx.guild.premium_subscribers))}`
+"""
 
 				emb = discord.Embed(
 					title="Статистика сервера",
@@ -187,7 +172,7 @@ class Utils(commands.Cog, name="Utils"):
 				except discord.errors.HTTPException:
 					pass
 
-				server_stats = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
+				server_stats = (await self.client.database.sel_guild(guild=ctx.guild)).server_stats
 				server_stats.update({"message": [message.id, ctx.channel.id]})
 				await self.client.database.update(
 					"guilds",
@@ -209,7 +194,7 @@ class Utils(commands.Cog, name="Utils"):
 			return
 
 		async with ctx.typing():
-			data = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
+			data = (await self.client.database.sel_guild(guild=ctx.guild)).server_stats
 			if action is not None:
 				if action.lower() == "off":
 					if counter.lower() in data.keys():
@@ -318,7 +303,7 @@ class Utils(commands.Cog, name="Utils"):
 			async with ctx.typing():
 				for member in ctx.guild.members:
 					if for_role in member.roles and role not in member.roles \
-							and all([self.FILTERS_PREDICATES[i](member) for i in filters]):
+							and check_filters(member, filters, self.FILTERS_PREDICATES):
 						await member.add_roles(role)
 						await asyncio.sleep(15)
 
@@ -334,7 +319,7 @@ class Utils(commands.Cog, name="Utils"):
 			async with ctx.typing():
 				for member in ctx.guild.members:
 					if for_role in member.roles and role in member.roles \
-							and all([self.FILTERS_PREDICATES[i](member) for i in filters]):
+							and check_filters(member, filters, self.FILTERS_PREDICATES):
 						await member.remove_roles(role)
 						await asyncio.sleep(15)
 
@@ -359,12 +344,12 @@ class Utils(commands.Cog, name="Utils"):
 		usage="list-moderators",
 		help="**Примеры использования:**\n1. {Prefix}list-moderators\n\n**Пример 1:** Показывает список ролей модераторов",
 	)
-	@commands.check(check_role)
+	@commands.check(check_moderate_roles)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def list_moderators(self, ctx):
-		data = (await self.client.database.sel_guild(guild=ctx.guild))["moder_roles"]
-		if data != []:
-			roles = "\n".join(f"`{get(ctx.guild.roles, id=i).name}`" for i in data)
+		data = (await self.client.database.sel_guild(guild=ctx.guild)).moderators
+		if data:
+			roles = "\n".join(f"`{ctx.guild.get_role(i).name}`" for i in data)
 		else:
 			roles = "Роли модераторов не настроены"
 
@@ -382,21 +367,21 @@ class Utils(commands.Cog, name="Utils"):
 		usage="list-mutes |@Участник|",
 		help="**Примеры использования:**\n1. {Prefix}list-mutes\n\n**Пример 1:** Показывает все мьюты на сервере",
 	)
-	@commands.check(check_role)
+	@commands.check(check_moderate_roles)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def mutes(self, ctx, member: discord.Member = None):
 		if member is None:
 			data = await self.client.database.get_mutes(ctx.guild.id)
-			if data != ():
+			if len(data) > 0:
 				embeds = []
 				for mute in data:
-					member = ctx.guild.get_member(mute[1])
-					author = ctx.guild.get_member(mute[6])
-					mute_time = datetime.datetime.fromtimestamp(mute[5]).strftime("%d %B %Y %X")
-					active_to = datetime.datetime.fromtimestamp(mute[4]).strftime("%d %B %Y %X")
+					member = ctx.guild.get_member(mute.user_id)
+					author = ctx.guild.get_member(mute.author)
+					mute_time = datetime.datetime.fromtimestamp(mute.time).strftime("%d %B %Y %X")
+					active_to = datetime.datetime.fromtimestamp(mute.active_to).strftime("%d %B %Y %X")
 					emb = discord.Embed(
 						title="Список мьютов сервера",
-						description=f"Пользователь: `{member}`\nПричина: **{mute[3][:256]}**\nАвтор: `{author}`\nВремя мьюта: `{mute_time}`\nАктивный до: `{active_to}`",
+						description=f"Пользователь: `{member}`\nПричина: **{mute.reason[:256]}**\nАвтор: `{author}`\nВремя мьюта: `{mute_time}`\nАктивный до: `{active_to}`",
 						colour=discord.Color.green(),
 					)
 					emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
@@ -427,13 +412,13 @@ class Utils(commands.Cog, name="Utils"):
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
 			else:
-				member = ctx.guild.get_member(data[1])
-				author = ctx.guild.get_member(data[6])
-				mute_time = datetime.datetime.fromtimestamp(data[5]).strftime("%d %B %Y %X")
-				active_to = datetime.datetime.fromtimestamp(data[4]).strftime("%d %B %Y %X")
+				member = ctx.guild.get_member(data.user_id)
+				author = ctx.guild.get_member(data.author)
+				mute_time = datetime.datetime.fromtimestamp(data.time).strftime("%d %B %Y %X")
+				active_to = datetime.datetime.fromtimestamp(data.active_to).strftime("%d %B %Y %X")
 				emb = discord.Embed(
 					title=f"Информация о мьюте участника `{member}`",
-					description=f"Причина: **{data[3][:256]}**\nАвтор: `{author}`\nВремя мьюта: `{mute_time}`\nАктивный до: `{active_to}`",
+					description=f"Причина: **{data.reason[:256]}**\nАвтор: `{author}`\nВремя мьюта: `{mute_time}`\nАктивный до: `{active_to}`",
 					colour=discord.Color.green(),
 				)
 				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
@@ -450,7 +435,7 @@ class Utils(commands.Cog, name="Utils"):
 	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def api_key(self, ctx):
-		key = (await self.client.database.sel_guild(guild=ctx.guild))["api_key"]
+		key = (await self.client.database.sel_guild(guild=ctx.guild)).api_key
 
 		await ctx.author.send(
 			f"Ключ API сервера - {ctx.guild.name}: `{key}`\n**__Никому его не передавайте. Он даёт доступ к данным сервера__**"

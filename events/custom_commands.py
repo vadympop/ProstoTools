@@ -1,15 +1,14 @@
 import jinja2
 import discord
+import typing
+
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
 
 
-class EventsCustomCommands(commands.Cog):
-    def __init__(self, client):
-        self.client = client
-        self.FOOTER = self.client.config.FOOTER_TEXT
-
-    def find_custom_command(self, command_name: str, commands: list):
-        for command in commands:
+class EventsCustomCommands(BaseCog):
+    def find_custom_command(self, command_name: str, iterable: typing.Iterable):
+        for command in iterable:
             if command["name"] == command_name:
                 return command
         return None
@@ -24,9 +23,9 @@ class EventsCustomCommands(commands.Cog):
             if message.content.startswith(PREFIX):
                 guild_data = await self.client.database.sel_guild(guild=message.guild)
                 command = message.content.split(" ")[0].replace(PREFIX, "")
-                commands_names = [c["name"] for c in guild_data["custom_commands"]]
+                commands_names = [c["name"] for c in guild_data.custom_commands]
                 if command in commands_names:
-                    custom_command_data = self.find_custom_command(command, guild_data["custom_commands"])
+                    custom_command_data = self.find_custom_command(command, guild_data.custom_commands)
                     if "target_channels" in custom_command_data.keys():
                         if custom_command_data["target_channels"]:
                             if message.channel.id not in custom_command_data["target_channels"]:
@@ -51,16 +50,12 @@ class EventsCustomCommands(commands.Cog):
                             if role.id in custom_command_data["ignore_roles"]:
                                 return
 
-                    member_data = await self.client.database.sel_user(target=message.author)
-                    member_data.update({"multi": guild_data["exp_multi"]})
                     ctx = await self.client.get_context(message)
                     try:
                         try:
-                            await message.channel.send(
-                                await self.client.template_engine.render(
-                                    message, message.author, member_data, custom_command_data["code"]
-                                )
-                            )
+                            await message.channel.send(await self.client.template_engine.render(
+                                message, message.author, custom_command_data["code"]
+                            ))
                         except discord.errors.HTTPException:
                             emb = await self.client.utils.create_error_embed(
                                 ctx, "**Во время выполнения кастомной команды пройзошла неизвестная ошибка!**"

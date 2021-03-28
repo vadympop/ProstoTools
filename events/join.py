@@ -1,13 +1,15 @@
 import discord
 import jinja2
+
+from core.utils.classes import TemplateRenderingModel
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
 
 
-class EventsJoin(commands.Cog):
+class EventsJoin(BaseCog):
 	def __init__(self, client):
-		self.client = client
+		super().__init__(client)
 		self.HELP_SERVER = self.client.config.HELP_SERVER
-		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@commands.Cog.listener()
 	async def on_guild_join(self, guild):
@@ -27,7 +29,7 @@ class EventsJoin(commands.Cog):
 				break
 
 		await self.client.database.sel_guild(guild=guild)
-		await self.client.database.add_amout_command(entity="guilds", add_counter=len(self.client.guilds))
+		await self.client.database.add_stat_counter(entity="guilds", add_counter=len(self.client.guilds))
 
 		for member in guild.members:
 			if not member.bot:
@@ -43,25 +45,24 @@ class EventsJoin(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
+		await self.client.database.add_stat_counter(entity="members", add_counter=len(self.client.users))
 		guild_data = await self.client.database.sel_guild(guild=member.guild)
-		member_data = await self.client.database.sel_user(target=member)
-		member_data.update({"multi": guild_data["exp_multi"]})
 		try:
 			try:
-				if guild_data["welcomer"]["join"]["type"] == "dm":
+				if guild_data.welcomer["join"]["type"] == "dm":
 					await member.send(
 						await self.client.template_engine.render(
-							None, member, member_data, guild_data["welcomer"]["join"]["text"]
+							member=member,
+							render_text=guild_data.welcomer["join"]["text"]
 						)
 					)
-				elif guild_data["welcomer"]["join"]["type"] == "channel":
-					channel = member.guild.get_channel(
-						guild_data["welcomer"]["join"]["channel"]
-					)
+				elif guild_data.welcomer["join"]["type"] == "channel":
+					channel = member.guild.get_channel(guild_data.welcomer["join"]["channel"])
 					if channel is not None:
 						await channel.send(
 							await self.client.template_engine.render(
-								None, member, member_data, guild_data["welcomer"]["join"]["text"]
+								member=member,
+								render_text=guild_data.welcomer["join"]["text"]
 							)
 						)
 			except discord.errors.HTTPException:

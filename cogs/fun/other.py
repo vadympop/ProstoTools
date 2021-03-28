@@ -4,16 +4,14 @@ import wikipedia
 import cv2
 import random
 import aiohttp
+
+from core.bases.cog_base import BaseCog
 from aiohttp import client_exceptions
 from pyzbar import pyzbar
 from discord.ext import commands
 
 
-class FunOther(commands.Cog):
-    def __init__(self, client):
-        self.client = client
-        self.FOOTER = self.client.config.FOOTER_TEXT
-
+class FunOther(BaseCog):
     @commands.command(
         aliases=["cr-qr", "cr_qr", "create-qr", "create_qrcode"],
         name="create-qrcode",

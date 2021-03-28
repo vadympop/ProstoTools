@@ -1,29 +1,14 @@
 import discord
-import json
+
+from core.utils.other import check_moderate_roles
+from core.bases.cog_base import BaseCog
 from core.paginator import Paginator
-from discord.utils import get
 from discord.ext import commands
 
 
-async def check_role(ctx):
-    data = json.loads(await ctx.bot.database.get_moder_roles(guild=ctx.guild))
-    roles = ctx.guild.roles[::-1]
-    data.append(roles[0].id)
-
-    if data != []:
-        for role_id in data:
-            role = get(ctx.guild.roles, id=role_id)
-            if role in ctx.author.roles:
-                return True
-        return ctx.author.guild_permissions.administrator
-    else:
-        return ctx.author.guild_permissions.administrator
-
-
-class ShowConfigs(commands.Cog):
+class ShowConfigs(BaseCog):
     def __init__(self, client):
-        self.client = client
-        self.FOOTER = self.client.config.FOOTER_TEXT
+        super().__init__(client)
         self.commands = [
             command.name
             for cog in self.client.cogs
@@ -41,28 +26,28 @@ class ShowConfigs(commands.Cog):
     async def show_config(self, ctx):
         if ctx.invoked_subcommand is None:
             data = await self.client.database.sel_guild(guild=ctx.guild)
-            category_obj = ctx.guild.get_channel(data["textchannels_category"])
+            category_obj = ctx.guild.get_channel(data.textchannels_category)
             if category_obj is None:
                 category = "Не указана"
             else:
                 category = category_obj.name
 
-            if not data["rank_message"]["state"]:
+            if not data.rank_message["state"]:
                 rank_message = "Стандартное"
             else:
                 rank_message = "Включено"
 
-            if "channel_id" not in data["voice_channel"].keys():
+            if "channel_id" not in data.voice_channel.keys():
                 voice_channel = "Выключены"
             else:
-                channel = ctx.guild.get_channel(data["voice_channel"]["channel_id"])
+                channel = ctx.guild.get_channel(data.voice_channel["channel_id"])
                 voice_channel = f"Включены({channel.name})" if channel is not None else f"Включены"
 
-            main_settings = f"""Префикс - `{data['prefix']}`
+            main_settings = f"""Префикс - `{data.prefix}`
     Категория приватных текстовых каналов - `{category}`
-    Максимальное количество предупрежденний - `{data['warns_settings']["max"]}`
-    Множитель опыта - `{data['exp_multi'] * 100}%`
-    Время удаления приватного текстового канала - `{data['timedelete_textchannel']}мин`
+    Максимальное количество предупрежденний - `{data.warns_settings["max"]}`
+    Множитель опыта - `{data.exp_multi * 100}%`
+    Время удаления приватного текстового канала - `{data.timedelete_textchannel}мин`
     Сообщения о повышении уровня - `{rank_message}`
     Приватные голосовые комнаты - `{voice_channel}`
     """
@@ -78,9 +63,9 @@ class ShowConfigs(commands.Cog):
         usage="show-config server-stats",
         description="Покажет настройки статистики сервера",
     )
-    @commands.check(check_role)
+    @commands.check(check_moderate_roles)
     async def server_stats(self, ctx):
-        data = (await self.client.database.sel_guild(guild=ctx.guild))["server_stats"]
+        data = (await self.client.database.sel_guild(guild=ctx.guild)).server_stats
         if data == {}:
             server_stats = "Не настроено"
         else:
@@ -114,9 +99,9 @@ class ShowConfigs(commands.Cog):
         usage="show-config ignored-channels",
         description="Покажет игнорируемые каналы",
     )
-    @commands.check(check_role)
+    @commands.check(check_moderate_roles)
     async def ignored_channels(self, ctx):
-        data = (await self.client.database.sel_guild(guild=ctx.guild))["ignored_channels"]
+        data = (await self.client.database.sel_guild(guild=ctx.guild)).ignored_channels
         if data == []:
             ignored_channels = "Не указаны"
         else:
@@ -140,9 +125,9 @@ class ShowConfigs(commands.Cog):
         usage="show-config auto-moderate",
         description="Покажет настройки авто-модерации",
     )
-    @commands.check(check_role)
+    @commands.check(check_moderate_roles)
     async def auto_moderate(self, ctx):
-        data = (await self.client.database.sel_guild(guild=ctx.guild))["auto_mod"]
+        data = (await self.client.database.sel_guild(guild=ctx.guild)).auto_mod
         categories = {
             "anti_invite": "Анти-приглашения",
             "anti_flud": "Анти-флуд",
@@ -218,9 +203,9 @@ class ShowConfigs(commands.Cog):
         usage="show-config auto-reactions",
         description="Покажет настройки авто-реакций",
     )
-    @commands.check(check_role)
+    @commands.check(check_moderate_roles)
     async def auto_reactions(self, ctx):
-        data = (await self.client.database.sel_guild(guild=ctx.guild))["auto_reactions"]
+        data = (await self.client.database.sel_guild(guild=ctx.guild)).auto_reactions
         if data == {}:
             auto_reactions = "Не настроено"
         else:
@@ -243,9 +228,9 @@ class ShowConfigs(commands.Cog):
         usage="show-config audit",
         description="Покажет настройки аудита",
     )
-    @commands.check(check_role)
+    @commands.check(check_moderate_roles)
     async def audit(self, ctx):
-        data = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+        data = (await self.client.database.sel_guild(guild=ctx.guild)).audit
         convert_categories = {
             "moderate": "модерация",
             "economy": "экономика",
@@ -283,8 +268,9 @@ class ShowConfigs(commands.Cog):
         description="Показывает настройки всех команд бота",
         help="**Примеры использования:**\n1. {Prefix}commands-settings\n2. {Prefix}commands-settings crime\n\n**Пример 1:** Покажет настройки всех команд\n**Пример 2:** Покажет настройки указаной команды",
     )
+    @commands.cooldown(2, 10, commands.BucketType.member)
     async def commands_settings(self, ctx, command_name: str = None):
-        commands_settings = (await self.client.database.sel_guild(guild=ctx.guild))["commands_settings"]
+        commands_settings = (await self.client.database.sel_guild(guild=ctx.guild)).commands_settings
         if command_name is None:
             pages = []
             prefix = str(await self.client.database.get_prefix(guild=ctx.guild))

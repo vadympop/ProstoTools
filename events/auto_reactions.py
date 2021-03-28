@@ -1,11 +1,12 @@
 import discord
+
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
 
 
-class EventsAutoReactions(commands.Cog):
+class EventsAutoReactions(BaseCog):
     def __init__(self, client):
-        self.client = client
-        self.FOOTER = self.client.config.FOOTER_TEXT
+        super().__init__(client)
         self.MUTE_ROLE = self.client.config.MUTE_ROLE
         self.HELP_SERVER = self.client.config.HELP_SERVER
 
@@ -14,14 +15,12 @@ class EventsAutoReactions(commands.Cog):
         if message.guild is None:
             return
         else:
-            auto_reactions = (await self.client.database.sel_guild(guild=message.guild))["auto_reactions"]
+            auto_reactions = (await self.client.database.sel_guild(guild=message.guild)).auto_reactions
             if str(message.channel.id) in auto_reactions.keys():
                 for reaction in auto_reactions[str(message.channel.id)]:
                     try:
                         await message.add_reaction(reaction)
                     except discord.errors.HTTPException:
-                        pass
-                    except discord.errors.Forbidden:
                         pass
 
 

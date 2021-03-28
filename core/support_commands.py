@@ -15,7 +15,7 @@ class SupportCommands:
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	async def mute(self, ctx, member: discord.Member, author: discord.Member, expiry_at: datetime.datetime, reason: str):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 		delta = None
 		if expiry_at is not None:
 			delta = humanize.naturaldelta(expiry_at+datetime.timedelta(seconds=1))
@@ -59,7 +59,7 @@ class SupportCommands:
 			pass
 
 		if expiry_at is not None:
-			await self.client.database.set_punishment(
+			await self.client.database.add_punishment(
 				type_punishment="mute",
 				time=expiry_at.timestamp(),
 				member=member,
@@ -96,21 +96,22 @@ class SupportCommands:
 				await channel.send(embed=e)
 
 	async def warn(self, ctx, member: discord.Member, author: discord.Member, reason: str):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 		guild_settings = await self.client.database.sel_guild(guild=ctx.guild)
-		max_warns = int(guild_settings["warns_settings"]["max"])
-		warn_punishment = guild_settings["warns_settings"]["punishment"]
-		cur_warns = (await self.client.database.sel_user(target=member))["warns"]
+		max_warns = int(guild_settings.warns_settings["max"])
+		warn_punishment = guild_settings.warns_settings["punishment"]
+		cur_warns = await self.client.database.get_warns(user_id=member.id, guild_id=ctx.guild.id)
 
-		warn_id = await self.client.database.set_warn(
-			target=member,
+		warn_id = await self.client.database.add_warn(
+			user_id=member.id,
+			guild_id=ctx.guild.id,
 			reason=reason,
 			author=author.id,
 		)
 
 		if len(cur_warns) >= 20:
 			await self.client.database.del_warn(
-				warn_id=[warn for warn in cur_warns if not warn["state"]][0]["id"]
+				warn_id=[warn for warn in cur_warns if not warn.state][0].id
 			)
 
 		if len([warn for warn in cur_warns if warn["state"]]) >= max_warns:
@@ -174,8 +175,7 @@ class SupportCommands:
 			except:
 				pass
 
-			for warn_id in [warn["id"] for warn in cur_warns]:
-				await self.client.database.del_warn(warn_id)
+			await self.client.database.del_warns(user_id=member.id, guild_id=ctx.guild.id)
 		else:
 			emb = discord.Embed(
 				description=f"**{member}**({member.mention}) Получил предупреждения\nId предупреждения: {warn_id}\nКоличество предупреждений: `{len(cur_warns)+1}`\nМодератор: `{author}`\nПричина: **{reason}**",
@@ -248,14 +248,14 @@ class SupportCommands:
 			pass
 
 		if expiry_at is not None:
-			await self.client.database.set_punishment(
+			await self.client.database.add_punishment(
 				type_punishment="ban",
 				time=expiry_at.timestamp(),
 				member=member
 			)
 
 	async def soft_ban(self, ctx, member: discord.Member, author: discord.Member, expiry_at: datetime.datetime, reason: str):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 		delta = None
 		if expiry_at is not None:
 			delta = humanize.naturaldelta(expiry_at+datetime.timedelta(seconds=1))
@@ -296,7 +296,7 @@ class SupportCommands:
 		await member.add_roles(role)
 
 		if expiry_at is not None:
-			await self.client.database.set_punishment(
+			await self.client.database.add_punishment(
 				type_punishment="temprole",
 				time=expiry_at.timestamp(),
 				member=member,
@@ -332,7 +332,7 @@ class SupportCommands:
 				await channel.send(embed=e)
 
 	async def kick(self, ctx, member: discord.Member, author: discord.Member, reason: str):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 		await member.kick(reason=reason)
 
 		emb = discord.Embed(

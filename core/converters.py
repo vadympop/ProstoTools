@@ -62,4 +62,19 @@ class TargetUser(commands.Converter):
         return user
 
 
+class GuildConverter(commands.IDConverter):
+    async def convert(self, ctx, argument):
+        match = self._get_id_match(argument)
+        if not match:
+            guild = discord.utils.get(ctx.bot.guilds, name=argument)
+        else:
+            guild_id = int(match.group(1))
+            guild = ctx.bot.get_guild(guild_id) or await ctx.bot.fetch_guild(guild_id)
+
+        if not guild:
+            raise commands.BadArgument(f"Guild {argument} not found")
+        return guild
+
+
+BlacklistEntity = typing.Union[commands.MemberConverter, GuildConverter]
 Expiry = typing.Union[Duration, ISODateTime]

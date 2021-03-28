@@ -1,12 +1,10 @@
 import discord
+
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
 
 
-class FunEditImage(commands.Cog):
-    def __init__(self, client):
-        self.client = client
-        self.FOOTER = self.client.config.FOOTER_TEXT
-
+class FunEditImage(BaseCog):
     @commands.command(
         name="color-view",
         aliases=["colorview"],

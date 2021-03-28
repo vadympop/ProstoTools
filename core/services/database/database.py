@@ -4,622 +4,418 @@ import json
 import typing
 import time as tm
 import discord
-import aiomysql
-from core.bases import AbcDatabase
-
-
-class DB(AbcDatabase):
-	def __init__(self, client):
-		self.client = client
-		self.cache = self.client.cache
-		self.DB_HOST = self.client.config.DB_HOST
-		self.DB_USER = self.client.config.DB_USER
-		self.DB_PASSWORD = self.client.config.DB_PASSWORD
-		self.DB_DATABASE = self.client.config.DB_DATABASE
-
-	async def run(self):
-		self.pool = await aiomysql.create_pool(
-			host=self.DB_HOST,
-			user=self.DB_USER,
-			password=self.DB_PASSWORD,
-			db=self.DB_DATABASE,
-			port=3306,
-			autocommit=True
-		)
-
-	async def add_giveaway(
-			self,
-			channel_id: int,
-			message_id: int,
-			creator: discord.Member,
-			num_winners: int,
-			time: int,
-			name: str,
-			prize: int
-	) -> None:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(
-					"""INSERT INTO giveaways(guild_id, channel_id, message_id, creator_id, num_winners, name, prize, time) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)""",
-					(creator.guild.id, channel_id, message_id, creator.id, num_winners, name, prize, time)
-				)
-				await conn.commit()
-
-				await cur.execute("""SELECT LAST_INSERT_ID() FROM giveaways""")
-				new_id = (await cur.fetchone())[0]
-		return new_id
-
-	async def del_giveaway(self, giveaway_id: int) -> None:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(
-					f"""DELETE FROM giveaways WHERE id = {giveaway_id}"""
-				)
-				await conn.commit()
-
-	async def get_giveaways(self, guild_id: int = None) -> list:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				if guild_id is not None:
-					await cur.execute(
-						f"""SELECT * FROM giveaways WHERE guild_id = {guild_id}"""
-					)
-				else:
-					await cur.execute(
-						f"""SELECT * FROM giveaways"""
-					)
-				data = await cur.fetchall()
-		return data
-
-	async def get_giveaway(self, giveaway_id: int):
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(
-					f"""SELECT * FROM giveaways WHERE id = {giveaway_id}"""
-				)
-				data = await cur.fetchone()
-		return data
-
-	async def set_status_reminder(self, target_id: int, member_id: int, wait_for: str, type: str):
-		if await self.get_status_reminder(
-				target_id=target_id,
-				member_id=member_id
-		) is not None:
-			return False
-
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(
-					f"""SELECT id FROM status_reminders WHERE member_id = {member_id}"""
-				)
-				ids = await cur.fetchall()
-				if len(ids) > 20:
-					return False
-
-				await cur.execute(
-					"""INSERT INTO status_reminders (target_id, member_id, wait_for, type) VALUES (%s, %s, %s, %s)""",
-					(target_id, member_id, wait_for, type)
-				)
-				await conn.commit()
-				await cur.execute("""SELECT LAST_INSERT_ID() FROM status_reminders""")
-				data = (await cur.fetchone())[0]
-
-		return data
-
-	async def get_status_reminder(self, target_id: int = None, member_id: int = None):
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				if member_id is None and target_id is not None:
-					await cur.execute(
-						f"""SELECT * FROM status_reminders WHERE target_id = {target_id}""",
-					)
-					data = await cur.fetchall()
-				elif member_id is not None and target_id is None:
-					await cur.execute(
-						f"""SELECT * FROM status_reminders WHERE member_id = {member_id}""",
-					)
-					data = await cur.fetchall()
-				else:
-					await cur.execute(
-						"""SELECT * FROM status_reminders WHERE target_id = %s AND member_id = %s""",
-						(target_id, member_id)
-					)
-					data = await cur.fetchone()
-		return data
-
-	async def del_status_reminder(self, status_reminder_id: int):
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(
-					f"""SELECT id FROM status_reminders"""
-				)
-				reminders_ids = await cur.fetchall()
-				if status_reminder_id not in [item[0] for item in reminders_ids]:
-					return False
-				else:
-					await cur.execute(
-						f"""DELETE FROM status_reminders WHERE id = {status_reminder_id}""",
-					)
-					await conn.commit()
-					return True
-
-	async def set_reminder(
-		self,
-		member: discord.Member,
-		channel: discord.TextChannel,
-		time: float,
-		text: str,
-	) -> typing.Union[int, bool]:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(
-					f"""SELECT id FROM reminders WHERE user_id = {member.id}""",
-				)
-				reminders = await cur.fetchall()
-				limit_data = len(reminders) + 1
-				if limit_data >= 25:
-					return False
-				sql = """INSERT INTO reminders (user_id, guild_id, channel_id, time, text) VALUES (%s, %s, %s, %s, %s)"""
-				val = (member.id, member.guild.id, channel.id, time, text)
-
-				await cur.execute(sql, val)
-				await conn.commit()
-
-				await cur.execute("""SELECT LAST_INSERT_ID() FROM reminders""")
-				new_id = (await cur.fetchone())[0]
-
-		return new_id
-
-	async def get_reminder(self, target: discord.Member = None) -> list:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				if target is not None:
-					sql = """SELECT * FROM reminders WHERE user_id = %s AND guild_id = %s"""
-					val = (target.id, target.guild.id)
-
-					await cur.execute(sql, val)
-					data = await cur.fetchall()
-				elif not target:
-					await cur.execute("""SELECT * FROM reminders""")
-					data = await cur.fetchall()
-		return data
-
-	async def del_reminder(self, guild_id: int, reminder_id: int) -> bool:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(
-					f"""SELECT id FROM reminders WHERE guild_id = {guild_id}"""
-				)
-				reminders_ids = await cur.fetchall()
-				if reminder_id not in [item[0] for item in reminders_ids]:
-					return False
-				else:
-					await cur.execute(
-						("""DELETE FROM reminders WHERE id = %s AND guild_id = %s"""),
-						(reminder_id, guild_id),
-					)
-					await conn.commit()
-					return True
-
-	async def set_warn(self, **kwargs) -> int:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(
-					("""SELECT num FROM warns WHERE user_id = %s AND guild_id = %s"""),
-					(kwargs["target"].id, kwargs["target"].guild.id),
-				)
-				db_nums = await cur.fetchall()
-				new_num = len(db_nums)+1
-
-				sql = """INSERT INTO warns(user_id, guild_id, reason, state, time, author, num) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
-				val = (
-					kwargs["target"].id,
-					kwargs["target"].guild.id,
-					kwargs["reason"],
-					"True",
-					tm.time(),
-					kwargs["author"],
-					new_num,
-				)
-				await cur.execute(sql, val)
-				await conn.commit()
-
-				await cur.execute("""SELECT LAST_INSERT_ID() FROM warns""")
-				new_id = (await cur.fetchone())[0]
-		return new_id
-
-	async def del_warn(self, warn_id: int) -> tuple:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(
-					("""UPDATE warns SET state = %s WHERE id = %s"""), ("False", warn_id)
-				)
-				await conn.commit()
-
-				await cur.execute(
-					f"""SELECT user_id FROM warns WHERE id = {warn_id}"""
-				)
-				data = await cur.fetchone()
-		return data
-
-	async def set_mute(self, **kwargs) -> int:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				sql = """INSERT INTO mutes (user_id, guild_id, reason, active_to, time, author) VALUES (%s, %s, %s, %s, %s, %s)"""
-				val = (
-					kwargs["target"].id,
-					kwargs["target"].guild.id,
-					kwargs["reason"],
-					kwargs["timestamp"],
-					tm.time(),
-					kwargs["author"],
-				)
-				await cur.execute(sql, val)
-				await conn.commit()
-
-				await cur.execute("""SELECT LAST_INSERT_ID() FROM mutes""")
-				new_id = (await cur.fetchone())[0]
-		return new_id
-
-	async def del_mute(self, member_id: int, guild_id: int) -> None:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(
-					("""DELETE FROM mutes WHERE user_id = %s AND guild_id = %s"""),
-					(member_id, guild_id),
-				)
-				await conn.commit()
-
-	async def get_mutes(self, guild_id: int):
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(
-					f"""SELECT * FROM mutes WHERE guild_id = {guild_id}""",
-				)
-				data = await cur.fetchall()
-		return data
-
-	async def get_mute(self, guild_id: int, member_id: int):
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(
-					("""SELECT * FROM mutes WHERE guild_id = %s AND member_id = %s"""),
-					(guild_id, member_id),
-				)
-				data = await cur.fetchone()
-		return data
-
-	async def set_punishment(
-		self,
-		type_punishment: str,
-		time: float,
-		member: discord.Member,
-		role_id: int = 0,
-		**kwargs,
-	) -> None:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(
-					"""SELECT * FROM punishments WHERE member_id = %s AND guild_id = %s""",
-					(member.id, member.guild.id),
-				)
-				data = await cur.fetchone()
-
-				if type_punishment == "mute":
-					await self.set_mute(
-						timestamp=time,
-						target=member,
-						reason=kwargs["reason"],
-						author=kwargs["author"],
-					)
-
-				if data is None:
-					sql = """INSERT INTO punishments VALUES (%s, %s, %s, %s, %s)"""
-					val = (member.id, member.guild.id, time, type_punishment, role_id)
-
-					await cur.execute(sql, val)
-					await conn.commit()
-				else:
-					sql = """UPDATE punishments SET time = %s WHERE member_id = %s AND guild_id = %s"""
-					val = (time, member.id, member.guild.id)
-
-					await cur.execute(sql, val)
-					await conn.commit()
-
-	async def get_punishment(self, member: discord.Member = None) -> list:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				if member is not None:
-					sql = """SELECT * FROM punishments WHERE member = %s AND member = %s"""
-					val = member.id
-
-					await cur.execute(sql, val)
-					data = await cur.fetchone()
-				else:
-					await cur.execute(
-						f"""SELECT * FROM punishments WHERE time < {float(tm.time())}"""
-					)
-					data = await cur.fetchall()
-		return data
-
-	async def del_punishment(
-		self, member: discord.Member, guild_id: int, type_punishment: str
-	) -> None:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				if type_punishment == "mute":
-					await self.del_mute(member.id, member.guild.id)
-
-				await cur.execute(
-					"""DELETE FROM punishments WHERE member_id = %s AND guild_id = %s AND type = %s""",
-					(member.id, guild_id, type_punishment),
-				)
-				await conn.commit()
-
-	async def sel_user(self, target: discord.Member, check: bool = True) -> dict:
-		cached_user = await self.cache.get(f"u{target.guild.id}/{target.id}")
-		if cached_user is not None:
-			return cached_user
-
-		sql_1 = """SELECT * FROM users WHERE user_id = %s AND guild_id = %s"""
-		val_1 = (target.id, target.guild.id)
-		sql_2 = """INSERT INTO users (user_id, guild_id, prison, profile, items, pets, clan, transactions, bio) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-		val_2 = (
-			target.id,
-			target.guild.id,
-			"False",
-			"default",
-			json.dumps([]),
-			json.dumps([]),
-			"",
-			json.dumps([]),
-			"",
-		)
-		sql_4 = """SELECT * FROM warns WHERE user_id = %s AND guild_id = %s"""
-		val_4 = (target.id, target.guild.id)
-
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(sql_1, val_1)
-				data = await cur.fetchone()
-				await cur.execute(sql_4, val_4)
-				db_warns = await cur.fetchall()
-
-				if check:
-					if data is None:
-						await cur.execute(sql_2, val_2)
-						await conn.commit()
-
-						await cur.execute(sql_1, val_1)
-						data = await cur.fetchone()
-
-		if data is not None:
-			warns = []
-			for warn in db_warns:
-				warns.append(
-					{
-						"id": warn[0],
-						"time": warn[5],
-						"reason": warn[3],
-						"author": warn[6],
-						"num_warn": warn[7],
-						"state": warn[4] == "True",
-						"guild_id": warn[2],
-					}
-				)
-
-			dict_data = {
-				"user_id": int(data[0]),
-				"guild_id": int(data[1]),
-				"level": int(data[2]),
-				"exp": int(data[3]),
-				"money": int(data[4]),
-				"coins": int(data[5]),
-				"text_channel": int(data[6]),
-				"reputation": int(data[7]),
-				"prison": data[8] == "True",
-				"profile": str(data[9]),
-				"bio": str(data[10]),
-				"clan": str(data[11]),
-				"items": json.loads(data[12]),
-				"pets": json.loads(data[13]),
-				"warns": warns,
-				"transactions": json.loads(data[14]),
-			}
-			await self.cache.set(f"u{target.guild.id}/{target.id}", dict_data)
-			return dict_data
-
-	async def sel_guild(self, guild) -> dict:
-		cached_guild = await self.cache.get(f"g{guild.id}")
-		if cached_guild is not None:
-			return cached_guild
-
-		sql_1 = """SELECT * FROM guilds WHERE guild_id = %s AND guild_id = %s"""
-		val_1 = (guild.id, guild.id)
-		sql_2 = """INSERT INTO guilds (guild_id, donate, prefix, api_key, audit, shop_list, ignored_channels, auto_mod, clans, server_stats, voice_channel, moderators, auto_reactions, welcomer, auto_roles, custom_commands, autoresponders, rank_message, commands_settings, warns_settings) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-		val_2 = (
-			guild.id,
-			"False",
-			"p.",
-			str(uuid.uuid4()),
-			json.dumps({}),
-			json.dumps([]),
-			json.dumps([]),
-			json.dumps(
-				{
-					"anti_flud": {"state": False},
-					"anti_invite": {"state": False},
-					"anti_caps": {"state": False},
-					"react_commands": False,
-					"captcha": {"state": False}
-				}
-			),
-			json.dumps([]),
-			json.dumps({}),
-			json.dumps({}),
-			json.dumps([]),
-			json.dumps({}),
-			json.dumps({
-				"join": {"state": False},
-				"leave": {"state": False}
-			}),
-			json.dumps({}),
-			json.dumps([]),
-			json.dumps({}),
-			json.dumps({
-				"state": False
-			}),
-			json.dumps({}),
-			json.dumps({"max": 3, "punishment": None})
-		)
-
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(sql_1, val_1)
-				data = await cur.fetchone()
-
-				if data is None:
-					await cur.execute(sql_2, val_2)
-					await conn.commit()
-
-					await cur.execute(sql_1, val_1)
-					data = await cur.fetchone()
-
-		dict_data = {
-			"guild_id": int(data[0]),
-			"textchannels_category": int(data[1]),
-			"exp_multi": float(data[2]),
-			"timedelete_textchannel": int(data[3]),
-			"donate": data[4] == "True",
-			"prefix": str(data[5]),
-			"api_key": data[6],
-			"server_stats": json.loads(data[7]),
-			"voice_channel": json.loads(data[8]),
-			"shop_list": json.loads(data[9]),
-			"ignored_channels": json.loads(data[10]),
-			"auto_mod": json.loads(data[11]),
-			"clans": json.loads(data[12]),
-			"moder_roles": json.loads(data[13]),
-			"auto_reactions": json.loads(data[14]),
-			"welcomer": json.loads(data[15]),
-			"auto_roles": json.loads(data[16]),
-			"custom_commands": json.loads(data[17]),
-			"autoresponders": json.loads(data[18]),
-			"audit": json.loads(data[19]),
-			"rank_message": json.loads(data[20]),
-			"commands_settings": json.loads(data[21]),
-			"warns_settings": json.loads(data[22])
-		}
-		await self.cache.set(f"g{guild.id}", dict_data)
-		return dict_data
-
-	async def get_prefix(self, guild: discord.Guild):
-		cached_prefix = await self.cache.get(f"g{guild.id}")
-		if cached_prefix is not None:
-			return cached_prefix["prefix"]
-
-		db_prefix = (await self.execute(
-			f"""SELECT prefix FROM guilds WHERE guild_id = {guild.id}""",
-			fetchone=True
-		))[0]
-		return db_prefix
-
-	async def get_moder_roles(self, guild: discord.Guild):
-		return (await self.execute(
-			f"""SELECT moderators FROM guilds WHERE guild_id = {guild.id}""",
-			fetchone=True
-		))[0]
-
-	async def execute(
-		self, query: str, val: typing.Union[tuple, list] = (), fetchone: bool = False
-	) -> list:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				await cur.execute(query, val)
-				await conn.commit()
-				if fetchone:
-					data = await cur.fetchone()
-				else:
-					data = await cur.fetchall()
-		return data
-
-	async def update(self, table: str, **kwargs):
-		where = kwargs.pop("where")
-		columns = []
-		values = []
-		for key, value in kwargs.items():
-			columns.append(f"{key} = %s")
-			values.append(json.dumps(value))
-
-		if "guild_id" in where.keys() and "user_id" not in where.keys():
-			key = f"g{where['guild_id']}"
-		elif "guild_id" in where.keys() and "user_id" in where.keys():
-			key = f"u{where['guild_id']}/{where['user_id']}"
-		else:
-			raise KeyError("An invalid where's keys were provided")
-
-		query = ", ".join(columns)
-		where_statement = ' AND '.join([
-			f"{key} = {value}"
-			for key, value in where.items()
-		])
-		await self.cache.update(key, kwargs)
-		await self.execute(
-			f"""UPDATE {table} SET {query} WHERE {where_statement}""",
-			values
-		)
-
-	async def add_amout_command(
-		self, entity: str = "all commands", add_counter: typing.Union[int, float] = None
-	) -> None:
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				try:
-					await cur.execute(
-						f"""SELECT * FROM bot_stats WHERE entity = '{entity}'"""
-					)
-					data = await cur.fetchall()
-				except:
-					data = [(0, 0,)]
-
-				await cur.execute(
-					f"""SELECT * FROM bot_stats WHERE entity = 'all commands'"""
-				)
-				main_data = await cur.fetchall()
-				counter = [str(stat[1]) for stat in data]
-				counter.reverse()
-				try:
-					new_count = int(counter[0]) + 1
-				except:
-					new_count = 1
-
-				main_counter = [str(stat[1]) for stat in main_data]
-				main_counter.reverse()
-				try:
-					new_main_count = int(main_counter[0]) + 1
-				except:
-					new_main_count = 1
-
-				if add_counter is not None:
-					new_count = add_counter
-
-				if add_counter is None:
-					sql = """INSERT INTO bot_stats(count, timestamp, entity) VALUES( %s, %s, %s)"""
-					val = (new_main_count, datetime.datetime.utcnow(), "all commands")
-
-					await cur.execute(sql, val)
-					await conn.commit()
-
-				sql = """INSERT INTO bot_stats(count, timestamp, entity) VALUES( %s, %s, %s)"""
-				val = (new_count, datetime.datetime.utcnow(), entity)
-
-				await cur.execute(sql, val)
-				await conn.commit()
-
-	async def set_error(self, error_id: str, traceback: str, command: str):
-		async with self.pool.acquire() as conn:
-			async with conn.cursor() as cur:
-				sql = """INSERT INTO errors(error_id, traceback, command, time) VALUES(%s, %s, %s, %s)"""
-				val = (error_id, traceback, command, datetime.datetime.now())
-				await cur.execute(sql, val)
-				await conn.commit()
+
+from core.services.cache.cache_manager import CacheItem
+from django.db import connection
+from django.forms.models import model_to_dict
+from .models import User, Warn, Giveaway, Guild, StatusReminder, Reminder, Mute, Punishment, Error, BotStat, Blacklist
+
+
+class Database:
+    def __init__(self, client):
+        self.client = client
+        self.cache = self.client.cache
+        self.DB_HOST = self.client.config.DB_HOST
+        self.DB_USER = self.client.config.DB_USER
+        self.DB_PASSWORD = self.client.config.DB_PASSWORD
+        self.DB_DATABASE = self.client.config.DB_DATABASE
+
+    async def add_giveaway(
+            self,
+            channel_id: int,
+            message_id: int,
+            creator: discord.Member,
+            num_winners: int,
+            time: int,
+            name: str,
+            prize: int
+    ) -> int:
+        new_giveaway = Giveaway(
+            guild_id=creator.guild.id,
+            channel_id=channel_id,
+            message_id=message_id,
+            creator_id=creator.id,
+            num_winners=num_winners,
+            time=time,
+            name=name,
+            prize=prize
+        )
+        new_giveaway.save()
+
+        self.cache.giveaways.add(model_to_dict(new_giveaway))
+        return new_giveaway.id
+
+    async def del_giveaway(self, giveaway_id: int) -> Giveaway:
+        delete_giveaway = Giveaway.objects.get(id=giveaway_id)
+        delete_giveaway.delete()
+
+        self.cache.giveaways.remove(id=giveaway_id)
+        return delete_giveaway
+
+    async def get_giveaways(self, **kwargs) -> typing.List[Giveaway]:
+        cached_giveaways = self.cache.giveaways.find(**kwargs)
+        if len(cached_giveaways) > 0:
+            return cached_giveaways
+
+        return Giveaway.objects.filter(**kwargs)
+
+    async def get_giveaway(self, giveaway_id: int) -> Giveaway:
+        cached_giveaway = self.cache.giveaways.get(id=giveaway_id)
+        if cached_giveaway is not None:
+            return cached_giveaway
+
+        return Giveaway.objects.get(id=giveaway_id)
+
+    async def add_status_reminder(self, target_id: int, member_id: int, wait_for: str, type_reminder: str) -> int:
+        new_reminder = StatusReminder(
+            target_id=target_id,
+            member_id=member_id,
+            wait_for=wait_for,
+            type=type_reminder
+        )
+        new_reminder.save()
+
+        self.cache.status_reminders.add(model_to_dict(new_reminder))
+        return new_reminder.id
+
+    async def get_status_reminders(self, **kwargs) -> typing.List[StatusReminder]:
+        cached_reminders = self.cache.status_reminders.find(**kwargs)
+        if len(cached_reminders) > 0:
+            return cached_reminders
+
+        return StatusReminder.objects.filter(**kwargs)
+
+    async def get_status_reminder(self, **kwargs) -> StatusReminder:
+        cached_reminder = self.cache.status_reminders.get(**kwargs)
+        if cached_reminder is not None:
+            return cached_reminder
+
+        return StatusReminder.objects.get(**kwargs)
+
+    async def del_status_reminder(self, status_reminder_id: int) -> bool:
+        db_reminder = StatusReminder.objects.get(id=status_reminder_id)
+        if db_reminder is None:
+            return False
+
+        db_reminder.delete()
+        self.cache.status_reminders.remove(id=status_reminder_id)
+        return True
+
+    async def add_reminder(
+            self,
+            member: discord.Member,
+            channel: discord.TextChannel,
+            time: int,
+            text: str,
+    ) -> int:
+        new_reminder = Reminder(
+            user_id=member.id,
+            guild_id=member.guild.id,
+            text=text,
+            time=time,
+            channel_id=channel.id
+        )
+        new_reminder.save()
+
+        self.cache.reminders.add(model_to_dict(new_reminder))
+        return new_reminder.id
+
+    async def get_reminders(self, **kwargs) -> typing.List[Reminder]:
+        cached_reminders = self.cache.reminders.find(**kwargs)
+        if len(cached_reminders) > 0:
+            return cached_reminders
+
+        return Reminder.objects.filter(**kwargs)
+
+    async def del_reminder(self, reminder_id: int) -> bool:
+        db_reminder = Reminder.objects.get(id=reminder_id)
+        if db_reminder is None:
+            return False
+
+        db_reminder.delete()
+        self.cache.reminders.remove(id=reminder_id)
+        return True
+
+    async def add_warn(self, user_id: int, guild_id: int, reason: str, author: int) -> int:
+        warns_count = Warn.objects.filter(user_id=user_id, guild_id=guild_id).count()+1
+        new_warn = Warn(
+            user_id=user_id,
+            guild_id=guild_id,
+            reason=reason,
+            state=True,
+            time=tm.time(),
+            author=author,
+            num=warns_count
+        )
+        new_warn.save()
+
+        return new_warn.id
+
+    async def del_warn(self, warn_id: int) -> typing.Optional[Warn]:
+        db_warn = Warn.objects.get(id=warn_id)
+        if db_warn is None:
+            return None
+
+        db_warn.update(state=False)
+        return db_warn
+
+    async def del_warns(self, **kwargs) -> None:
+        Warn.objects.filter(**kwargs).update(state=False)
+
+    async def get_warns(self, **kwargs) -> typing.List[Warn]:
+        return Warn.objects.filter(**kwargs)
+
+    async def add_mute(self, user_id: int, guild_id: int, reason: str, active_to: int, author: int) -> int:
+        new_mute = Mute(
+            user_id=user_id,
+            guild_id=guild_id,
+            reason=reason,
+            active_to=active_to,
+            time=tm.time(),
+            author=author
+        )
+        new_mute.save()
+
+        return new_mute.id
+
+    async def del_mute(self, user_id: int, guild_id: int) -> None:
+        db_mute = Mute.objects.get(user_id=user_id, guild_id=guild_id)
+        if db_mute is None:
+            return
+
+        db_mute.delete()
+
+    async def get_mutes(self, guild_id: int) -> typing.List[Mute]:
+        return Mute.objects.filter(guild_id=guild_id)
+
+    async def get_mute(self, guild_id: int, member_id: int) -> Mute:
+        return Mute.objects.get(guild_id=guild_id, member_id=member_id)
+
+    async def add_punishment(
+            self,
+            type_punishment: str,
+            time: int,
+            member: discord.Member,
+            role_id: int = 0,
+            **kwargs,
+    ) -> None:
+        new_punishment = Punishment(
+            member_id=member.id,
+            guild_id=member.guild.id,
+            type=type_punishment,
+            time=time,
+            role_id=role_id
+        )
+        new_punishment.save()
+
+        self.cache.punishments.add(model_to_dict(new_punishment))
+        if type_punishment == "mute":
+            await self.add_mute(
+                active_to=time,
+                user_id=member.id,
+                guild_id=member.guild.id,
+                reason=kwargs.pop("reason"),
+                author=kwargs.pop("author"),
+            )
+
+    async def get_punishments(self) -> typing.List[Punishment]:
+        cached_punishments = self.cache.punishments.items
+        if len(cached_punishments) > 0:
+            return [CacheItem(**p) for p in cached_punishments if p["time"] < tm.time()]
+
+        return Punishment.objects.filter(time__lt=tm.time())
+
+    async def del_punishment(self, member: discord.Member, guild_id: int, type_punishment: str) -> None:
+        if type_punishment == "mute":
+            await self.del_mute(member.id, member.guild.id)
+
+        db_punishment = Punishment.objects.get(member_id=member.id, guild_id=guild_id, type=type_punishment)
+        if db_punishment is None:
+            return
+
+        db_punishment.delete()
+        self.cache.punishments.remove(member_id=member.id, guild_id=guild_id, type=type_punishment)
+
+    async def sel_user(self, target: discord.Member) -> User:
+        cached_user = self.cache.users.get(guild_id=target.guild.id, user_id=target.id)
+        if cached_user is not None:
+            return cached_user
+
+        db_user = User.objects.get(user_id=target.id, guild_id=target.guild.id)
+        if db_user is None:
+            new_user = User(
+                user_id=target.id,
+                guild_id=target.guild.id,
+                level=1,
+                exp=0,
+                money=0,
+                coins=0,
+                text_channel=20,
+                reputation=0,
+                prison="False",
+                profile="default",
+                bio="",
+                clan="",
+                items=[],
+                pets=[],
+                transactions=[],
+            )
+            new_user.save()
+            self.cache.users.add(model_to_dict(new_user))
+            return new_user
+
+        return db_user
+
+    async def sel_guild(self, guild: discord.Guild) -> Guild:
+        cached_guild = self.cache.guilds.get(guild_id=guild.id)
+        if cached_guild is not None:
+            return cached_guild
+
+        db_guild = Guild.objects.get(guild_id=guild.id)
+        if db_guild is None:
+            new_guild = Guild(
+                guild_id=guild.id,
+                textchannels_category=0,
+                exp_multi=100,
+                timedelete_textchannel=30,
+                donate=False,
+                prefix="p.",
+                api_key=str(uuid.uuid4()),
+                server_stats={},
+                voice_channel={},
+                shop_list=[],
+                ignored_channels=[],
+                auto_mod={
+                    "anti_flud": {"state": False},
+                    "anti_invite": {"state": False},
+                    "anti_caps": {"state": False},
+                    "react_commands": False,
+                    "captcha": {"state": False}
+                },
+                clans=[],
+                moderators=[],
+                auto_reactions={},
+                welcomer={
+                    "join": {"state": False},
+                    "leave": {"state": False}
+                },
+                auto_roles={},
+                custom_commands=[],
+                autoresponders={},
+                audit={},
+                rank_message={
+                    "state": False
+                },
+                commands_settings={},
+                warns_settings={"max": 3, "punishment": None},
+            )
+            self.cache.guilds.add(model_to_dict(new_guild))
+            return new_guild
+
+        return db_guild
+
+    async def get_prefix(self, guild: discord.Guild):
+        cached_guild = self.cache.guilds.get(guild_id=guild.id)
+        if cached_guild is not None:
+            return cached_guild.prefix
+
+        return Guild.objects.get(guild_id=guild.id).prefix
+
+    async def get_moder_roles(self, guild: discord.Guild):
+        cached_guild = self.cache.guilds.get(guild_id=guild.id)
+        if cached_guild is not None:
+            return cached_guild.moderators
+
+        return Guild.objects.get(guild_id=guild.id).moderators
+
+    async def execute(
+            self, query: str, val: typing.Iterable = (), fetchone: bool = False
+    ) -> list:
+        with connection.cursor() as cursor:
+            cursor.execute(query, val)
+            if fetchone:
+                data = cursor.fetchone()
+            else:
+                data = cursor.fetchall()
+        return data
+
+    async def update(self, table: str, **kwargs):
+        where = kwargs.pop("where")
+        columns = []
+        values = []
+        for key, value in kwargs.items():
+            columns.append(f"{key} = %s")
+            values.append(json.dumps(value))
+
+        query = ", ".join(columns)
+        where_statement = ' AND '.join([
+            f"{key} = {value}"
+            for key, value in where.items()
+        ])
+        cached_entity = self.cache.__getattribute__(table).get(**where)
+        if cached_entity is not None:
+            cached_entity.update(kwargs)
+
+        await self.execute(
+            f"""UPDATE {table} SET {query} WHERE {where_statement}""",
+            values
+        )
+
+    async def add_stat_counter(
+            self, entity: str = "all commands", add_counter: int = None
+    ) -> None:
+        if add_counter is None:
+            BotStat.objects.create(
+                count=BotStat.objects.filter(entity="all commands").count()+1,
+                timestamp=datetime.datetime.utcnow(),
+                entity="all commands"
+            )
+
+        BotStat.objects.create(
+            count=add_counter if add_counter is not None else BotStat.objects.filter(entity=entity).count()+1,
+            timestamp=datetime.datetime.utcnow(),
+            entity=entity
+        )
+
+    async def add_error(self, error_id: str, traceback: str, command: str) -> None:
+        Error.objects.create(
+            error_id=error_id,
+            time=datetime.datetime.now(),
+            traceback=traceback,
+            command=command
+        )
+
+    async def add_blacklist_entity(self, entity_id: int, type_entity: str, reason: str) -> int:
+        new_blacklist_entity = Blacklist(
+            time=tm.time(),
+            entity_id=entity_id,
+            type=type_entity,
+            reason=reason
+        )
+        new_blacklist_entity.save()
+
+        self.cache.blacklist.add(model_to_dict(new_blacklist_entity))
+        return new_blacklist_entity.id
+
+    async def get_blacklist_entities(self, **kwargs) -> typing.List[Blacklist]:
+        cached_blacklist_entities = self.cache.blacklist.find(**kwargs)
+        if len(cached_blacklist_entities) > 0:
+            return cached_blacklist_entities
+
+        return Blacklist.objects.filter(**kwargs)
+
+    async def get_blacklist_entity(self, **kwargs) -> Blacklist:
+        cached_blacklist_entity = self.cache.status_reminders.get(**kwargs)
+        if cached_blacklist_entity is not None:
+            return cached_blacklist_entity
+
+        return Blacklist.objects.get(**kwargs)
+
+    async def del_blacklist_entity(self, **kwargs) -> bool:
+        db_blacklist_entity = Blacklist.objects.get(**kwargs)
+        if db_blacklist_entity is None:
+            return False
+
+        db_blacklist_entity.delete()
+        self.cache.blacklist.remove(**kwargs)
+        return True

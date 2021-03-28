@@ -1,35 +1,32 @@
 import discord
 import time
 
+from core.bases.cog_base import BaseCog
 from datetime import datetime
-from discord.ext import commands, tasks
+from discord.ext import tasks
 
 
-class TasksPunishments(commands.Cog):
+class TasksPunishments(BaseCog):
 	def __init__(self, client):
-		self.client = client
+		super().__init__(client)
 		self.mute_loop.start()
 		self.ban_loop.start()
 		self.temprole_loop.start()
 		self.vmute_loop.start()
-		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@tasks.loop(minutes=1)
 	async def mute_loop(self):
 		await self.client.wait_until_ready()
-		data = await self.client.database.get_punishment()
-		for mute in data:
-			mute_time = mute[2]
+		for mute in await self.client.database.get_punishments():
 			guild = self.client.get_guild(int(mute[1]))
 			if mute[3] == "mute":
 				if guild is not None:
-					audit = (await self.client.database.sel_guild(guild=guild))["audit"]
-					member = guild.get_member(int(mute[0]))
-					if float(mute_time) <= float(time.time()):
+					member = guild.get_member(mute.member_id)
+					if float(mute.time) <= float(time.time()):
 						await self.client.database.del_punishment(
 							member=member, guild_id=guild.id, type_punishment="mute"
 						)
-						mute_role = guild.get_role(int(mute[4]))
+						mute_role = guild.get_role(mute.role_id)
 						if member is not None and mute_role is not None:
 							await member.remove_roles(mute_role)
 
@@ -41,14 +38,13 @@ class TasksPunishments(commands.Cog):
 								name=self.client.user.name,
 								icon_url=self.client.user.avatar_url,
 							)
-							emb.set_footer(
-								text=self.FOOTER, icon_url=self.client.user.avatar_url
-							)
+							emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 							try:
 								await member.send(embed=emb)
 							except:
 								pass
 
+							audit = (await self.client.database.sel_guild(guild=guild)).audit
 							if "moderate" in audit.keys():
 								e = discord.Embed(
 									description=f"Пользователь `{str(member)}` был размьючен",
@@ -68,17 +64,15 @@ class TasksPunishments(commands.Cog):
 	@tasks.loop(minutes=1)
 	async def ban_loop(self):
 		await self.client.wait_until_ready()
-		data = await self.client.database.get_punishment()
-		for ban in data:
-			ban_time = ban[2]
-			guild = self.client.get_guild(int(ban[1]))
-			if ban[3] == "ban":
+		for ban in await self.client.database.get_punishments():
+			guild = self.client.get_guild(ban.guild_id)
+			if ban.type == "ban":
 				if guild is not None:
 					bans = await guild.bans()
 					for ban_entry in bans:
 						user = ban_entry.user
-						if user.id == ban[0]:
-							if float(ban_time) <= float(time.time()):
+						if user.id == ban.member_id:
+							if float(ban.time) <= float(time.time()):
 								await self.client.database.del_punishment(
 									member=user,
 									guild_id=guild.id,
@@ -106,41 +100,36 @@ class TasksPunishments(commands.Cog):
 	@tasks.loop(minutes=1)
 	async def temprole_loop(self):
 		await self.client.wait_until_ready()
-		data = await self.client.database.get_punishment()
-		for temprole in data:
-			temprole_time = temprole[2]
-			guild = self.client.get_guild(int(temprole[1]))
-			if temprole[3] == "temprole":
+		for temprole in await self.client.database.get_punishments():
+			guild = self.client.get_guild(temprole.guild_id)
+			if temprole.type == "temprole":
 				if guild is not None:
-					member = guild.get_member(int(temprole[0]))
-					if float(temprole_time) <= float(time.time()):
+					member = guild.get_member(temprole.member_id)
+					if float(temprole.time) <= float(time.time()):
 						await self.client.database.del_punishment(
 							member=member,
 							guild_id=guild.id,
 							type_punishment="temprole",
 						)
-						temprole_role = guild.get_role(int(temprole[4]))
+						temprole_role = guild.get_role(temprole.role_id)
 						if member is not None and temprole_role is not None:
 							await member.remove_roles(temprole_role)
 
 	@tasks.loop(minutes=1)
 	async def vmute_loop(self):
 		await self.client.wait_until_ready()
-		data = await self.client.database.get_punishment()
-		for vmute in data:
-			vmute_time = vmute[2]
-			guild = self.client.get_guild(int(vmute[1]))
-			if vmute[3] == "vmute":
+		for vmute in await self.client.database.get_punishments():
+			guild = self.client.get_guild(vmute.guild_id)
+			if vmute.type == "vmute":
 				if guild is not None:
-					audit = (await self.client.database.sel_guild(guild=guild))["audit"]
-					member = guild.get_member(int(vmute[0]))
-					if float(vmute_time) <= float(time.time()):
+					member = guild.get_member(vmute.member_id)
+					if float(vmute.time) <= float(time.time()):
 						await self.client.database.del_punishment(
 							member=member,
 							guild_id=guild.id,
 							type_punishment="vmute",
 						)
-						vmute_role = guild.get_role(int(vmute[4]))
+						vmute_role = guild.get_role(vmute.role_id)
 						if member is not None and vmute_role is not None:
 							await member.remove_roles(vmute_role)
 
@@ -166,6 +155,7 @@ class TasksPunishments(commands.Cog):
 							except:
 								pass
 
+							audit = (await self.client.database.sel_guild(guild=guild)).audit
 							if "moderate" in audit.keys():
 								e = discord.Embed(
 									description=f"Пользователь `{str(member)}` был размьючен в голосовых каналах",

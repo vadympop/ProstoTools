@@ -1,6 +1,8 @@
 import discord
 import uuid
 import humanize
+
+from core.bases.cog_base import BaseCog
 from core.exceptions import *
 from discord.ext import commands
 from colorama import *
@@ -8,15 +10,14 @@ from colorama import *
 init()
 
 
-class Errors(commands.Cog, name="Errors"):
+class Errors(BaseCog):
 	def __init__(self, client):
-		self.client = client
+		super().__init__(client)
 		self.ignored = (
 			commands.errors.CommandNotFound,
 			commands.errors.NotOwner,
 			CommandOff
 		)
-		self.FOOTER = self.client.config.FOOTER_TEXT
 		self.PERMISSIONS_DICT = self.client.config.PERMISSIONS_DICT
 
 	@commands.Cog.listener()
@@ -29,13 +30,6 @@ class Errors(commands.Cog, name="Errors"):
 			return
 
 		if isinstance(error, commands.errors.CommandOnCooldown):
-			try:
-				await ctx.message.add_reaction("❌")
-			except discord.errors.Forbidden:
-				pass
-			except discord.errors.HTTPException:
-				pass
-
 			retry = humanize.precisedelta(error.retry_after, minimum_unit='seconds')
 			emb = await self.client.utils.create_error_embed(
 				ctx, f"**Кулдавн в команде еще не прошёл! Подождите {retry}**"
@@ -51,7 +45,7 @@ class Errors(commands.Cog, name="Errors"):
 				bold=False
 			)
 			await ctx.send(embed=emb)
-		elif isinstance(error, commands.errors.BadArgument):
+		elif isinstance(error, (commands.errors.BadArgument, commands.errors.BadUnionArgument)):
 			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(
 				ctx,
@@ -68,7 +62,7 @@ class Errors(commands.Cog, name="Errors"):
 				ctx, f"У бота отсутствуют права: {missing_perms}\nВыдайте их ему для полного функционирования бота"
 			)
 			await ctx.send(embed=emb)
-		elif isinstance(error, commands.errors.MissingPermissions) or isinstance(error, commands.errors.CheckFailure):
+		elif isinstance(error, (commands.errors.MissingPermissions, commands.errors.CheckFailure)):
 			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(
 				ctx, "У вас не достаточно прав на использования данной команды!"
@@ -78,6 +72,13 @@ class Errors(commands.Cog, name="Errors"):
 			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(ctx, "Указаный пользователь не найден!")
 			await ctx.send(embed=emb)
+		elif isinstance(error, Blacklisted):
+			try:
+				await ctx.message.add_reaction("✋")
+			except discord.errors.Forbidden:
+				pass
+			except discord.errors.HTTPException:
+				pass
 		elif isinstance(error, CommandRoleRequired):
 			emb = await self.client.utils.create_error_embed(
 				ctx, "У вас нет необходимых ролей!"
@@ -130,7 +131,7 @@ class Errors(commands.Cog, name="Errors"):
 				return
 
 			error_id = str(uuid.uuid4())
-			await self.client.database.set_error(error_id, repr(error), ctx.message.content)
+			await self.client.database.add_error(error_id, repr(error), ctx.message.content)
 			try:
 				await ctx.message.add_reaction("❌")
 			except discord.errors.Forbidden:

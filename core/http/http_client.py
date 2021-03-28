@@ -1,6 +1,10 @@
 import aiohttp
 import typing
+import logging
+
 from .exceptions import *
+
+logger = logging.getLogger(__name__)
 
 
 class HTTPClient:
@@ -13,8 +17,13 @@ class HTTPClient:
         self.session = session
 
     async def request(self, method: str, url: str, **kwargs):
+        logger.info(f"Make request for {url} with method {method}")
+
         async with self.session.request(method, url=url, **kwargs) as response:
             response_json = await response.json()
+            logger.info(f"Response of request to {url} with method {method}: {response_json}")
+            logger.info(f"Response status of request to {url} with method {method}: {response.status}")
+
             if 300 > response.status >= 200:
                 return response_json
 

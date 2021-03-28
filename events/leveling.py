@@ -1,17 +1,17 @@
 import discord
-import json
 import jinja2
 import math
-import pymysql
+
+from core.utils.classes import TemplateRenderingModel
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
 from discord.utils import get
 from random import randint
 
 
-class EventsLeveling(commands.Cog):
+class EventsLeveling(BaseCog):
 	def __init__(self, client):
-		self.client = client
-		self.FOOTER = self.client.config.FOOTER_TEXT
+		super().__init__(client)
 		self.MUTE_ROLE = self.client.config.MUTE_ROLE
 		self.HELP_SERVER = self.client.config.HELP_SERVER
 
@@ -34,62 +34,49 @@ class EventsLeveling(commands.Cog):
 		guild_data = await self.client.database.sel_guild(guild=message.guild)
 		data = await self.client.database.sel_user(target=message.author)
 
-		multi = guild_data["exp_multi"]
-		ignored_channels = guild_data["ignored_channels"]
-
-		exp = data["exp"]
-		coins = data["coins"]
-		lvl_member = data["level"]
-
-		if message.channel.id not in ignored_channels:
+		if message.channel.id not in guild_data.ignored_channels:
 			added_exp = randint(1, 5)
 			added_coins = added_exp // 2 + 1
 
-			pets_member = data["pets"]
+			pets_member = data.pets
 			if "hamster" in pets_member:
 				added_coins += math.ceil(added_coins*70/100)
-			exp += added_exp
-			coins += added_coins
 
-			exp_end = math.floor(9 * (lvl_member ** 2) + 50 * lvl_member + 125 * multi)
-			if exp_end < exp:
-				lvl_member += 1
-				if guild_data["rank_message"]["state"]:
-					data["level"] = lvl_member
-					data["exp"] = exp
-					data["coins"] = coins
-					data.update({"multi": guild_data["exp_multi"]})
-					ctx = await self.client.get_context(message)
-					try:
-						text = await self.client.template_engine.render(
-							message,
-							message.author,
-							data,
-							guild_data["rank_message"]["text"]
-						)
-					except discord.errors.HTTPException:
-						emb = await self.client.utils.create_error_embed(
-							ctx, "**Во время выполнения кастомной команды пройзошла неизвестная ошибка!**"
-						)
-						await message.channel.send(embed=emb)
-					except jinja2.exceptions.TemplateSyntaxError as e:
-						emb = await self.client.utils.create_error_embed(
-							ctx, f"Во время выполнения кастомной команды пройзошла ошибка:\n```{repr(e)}```"
-						)
-						await message.channel.send(embed=emb)
-					else:
-						if guild_data["rank_message"]["type"] == "channel":
-							await message.channel.send(text)
-						elif guild_data["rank_message"]["type"] == "dm":
-							await message.author.send(text)
+			data.exp += added_exp
+			data.coins += added_coins
 
 		await self.client.database.update(
 			"users",
 			where={"user_id": message.author.id, "guild_id": message.guild.id},
-			exp=exp,
-			coins=coins,
-			level=lvl_member
+			exp=data.exp,
+			coins=data.coins,
+			level=data.level
 		)
+
+		exp_end = math.floor(9 * (data.level ** 2) + 50 * data.level + 125 * guild_data.exp_multi)
+		if exp_end < data.exp:
+			data.level += 1
+			if guild_data.rank_message["state"]:
+				ctx = await self.client.get_context(message)
+				try:
+					text = await self.client.template_engine.render(
+						message, message.author, guild_data.rank_message["text"]
+					)
+				except discord.errors.HTTPException:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "**Во время выполнения кастомной команды пройзошла неизвестная ошибка!**"
+					)
+					await message.channel.send(embed=emb)
+				except jinja2.exceptions.TemplateSyntaxError as e:
+					emb = await self.client.utils.create_error_embed(
+						ctx, f"Во время выполнения кастомной команды пройзошла ошибка:\n```{repr(e)}```"
+					)
+					await message.channel.send(embed=emb)
+				else:
+					if guild_data.rank_message["type"] == "channel":
+						await message.channel.send(text)
+					elif guild_data.rank_message["type"] == "dm":
+						await message.author.send(text)
 
 
 def setup(client):

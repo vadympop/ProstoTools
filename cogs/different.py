@@ -1,13 +1,11 @@
 import discord
+
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
 from random import randint
 
 
-class Different(commands.Cog, name="Different"):
-	def __init__(self, client):
-		self.client = client
-		self.FOOTER = self.client.config.FOOTER_TEXT
-
+class Different(BaseCog):
 	@commands.command(
 		usage="color [Цвет]",
 		description="Устанавливает роль с указаным цветом",
@@ -95,43 +93,41 @@ class Different(commands.Cog, name="Different"):
 	@commands.cooldown(2, 60, commands.BucketType.member)
 	async def send(self, ctx, member: discord.Member, *, message: str):
 		data = await self.client.database.sel_user(target=ctx.author)
-		coins_member = data["coins"]
-		cur_items = data["items"]
 
-		if cur_items != []:
-			if "sim" in cur_items and "tel" in cur_items and coins_member > 50:
-				emb = discord.Embed(
-					title=f"Новое сообщения от {ctx.author.name}",
-					description=f"**{message}**",
-					colour=discord.Color.green(),
-				)
-				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				try:
-					await member.send(embed=emb)
-				except discord.Forbidden:
-					await ctx.send("Я не смог отправить сообщения указанному пользователю!")
-				else:
-					await self.client.database.update(
-						"users",
-						where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-						coins=coins_member - 50
-					)
-					await ctx.send("Успешно!")
-			else:
-				emb = await self.client.utils.create_error_embed(
-					ctx, "У вас нет необходимых предметов или не достаточно коинов!"
-				)
-				await ctx.send(embed=emb)
-				self.send.reset_cooldown(ctx)
-				return
-		else:
+		if not data.items:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "У вас нет необходимых предметов!"
 			)
 			await ctx.send(embed=emb)
 			self.send.reset_cooldown(ctx)
 			return
+
+		if "sim" not in data.items and "tel" not in data.items and data.coins < 50:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "У вас нет необходимых предметов или не достаточно коинов!"
+			)
+			await ctx.send(embed=emb)
+			self.send.reset_cooldown(ctx)
+			return
+
+		emb = discord.Embed(
+			title=f"Новое сообщения от {ctx.author.name}",
+			description=f"**{message}**",
+			colour=discord.Color.green(),
+		)
+		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		try:
+			await member.send(embed=emb)
+		except discord.Forbidden:
+			await ctx.send("Я не смог отправить сообщения указанному пользователю!")
+		else:
+			await self.client.database.update(
+				"users",
+				where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+				coins=data.coins - 50
+			)
+			await ctx.send("Успешно!")
 
 	@commands.command(
 		description="Отправляет баг",
@@ -276,14 +272,15 @@ class Different(commands.Cog, name="Different"):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bio(self, ctx, *, text: str = None):
-		cur_bio = (await self.client.database.sel_user(target=ctx.author))["bio"]
+		cur_bio = (await self.client.database.sel_user(target=ctx.author)).bio
 
 		clears = ["clear", "-", "delete", "очистить", "удалить"]
 		if text in clears:
-			sql = """UPDATE users SET bio = %s WHERE user_id = %s"""
-			val = ("", ctx.author.id)
-
-			await self.client.database.execute(sql, val)
+			await self.client.database.update(
+				"users",
+				where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+				bio=""
+			)
 			try:
 				await ctx.message.add_reaction("✅")
 			except discord.errors.Forbidden:

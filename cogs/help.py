@@ -1,12 +1,13 @@
 import discord
+
+from core.bases.cog_base import BaseCog
 from core import Paginator
 from discord.ext import commands
 
 
-class Help(commands.Cog, name="Help"):
+class Help(BaseCog):
 	def __init__(self, client):
-		self.client = client
-		self.FOOTER = self.client.config.FOOTER_TEXT
+		super().__init__(client)
 		self.commands = [c for c in self.client.walk_commands()]
 		self.exceptions = ("owner", "help", "jishaku")
 		self.allowed_cogs = self.client.config.ALLOWED_COGS

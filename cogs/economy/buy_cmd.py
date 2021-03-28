@@ -1,7 +1,7 @@
 import discord
 import datetime
 import uuid
-import json
+
 from core.config import Config
 from discord.utils import get
 from discord.ext import commands
@@ -21,8 +21,8 @@ async def buy(ctx, item: str = None, num: int = None):
     member = ctx.author
 
     data = await ctx.bot.database.sel_user(target=ctx.author)
-    cur_state_prison = data["prison"]
-    member_items = data["items"]
+    cur_state_prison = data.prison
+    member_items = data.items
 
     if not cur_state_prison:
         try:
@@ -49,27 +49,22 @@ async def buy(ctx, item: str = None, num: int = None):
         roles = info["shop_list"]
 
         async def buy_func(func_item, func_cost):
-            cur_money = data["money"] - func_cost
-            cur_items = data["items"]
-            cur_transactions = data["transactions"]
-            prison = "False"
-            prison_state = False
+            cur_money = data.money - func_cost
+            cur_items = data.items
+            cur_transactions = data.transactions
+            prison = False
 
-            if isinstance(cur_items, list):
-                cur_items.append(func_item)
-            elif cur_items == []:
-                cur_items.append(func_item)
+            cur_items.append(func_item)
 
             if cur_money <= -5000:
-                prison = "True"
                 cur_items = []
-                prison_state = True
+                prison = True
 
             info_transantion = {
                 "to": "Магазин",
                 "from": ctx.author.id,
                 "cash": func_cost,
-                "time": str(datetime.datetime.today()),
+                "time": str(datetime.datetime.utcnow()),
                 "id": str(uuid.uuid4()),
                 "guild_id": ctx.guild.id,
             }
@@ -78,21 +73,17 @@ async def buy(ctx, item: str = None, num: int = None):
             await ctx.bot.database.update(
                 "users",
                 where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-                items=json.dumps(cur_items),
+                items=cur_items,
                 prison=prison,
                 money=cur_money,
                 transactions=cur_transactions
             )
-            return prison_state
+            return prison
 
         async def buy_coins_func(func_item, func_cost):
-            coins_member = data["coins"] - func_cost
-            cur_items = data["items"]
-
-            if isinstance(cur_items, list):
-                cur_items.append(func_item)
-            elif cur_items == []:
-                cur_items.append(func_item)
+            coins_member = data.coins - func_cost
+            cur_items = data.items
+            cur_items.append(func_item)
 
             await ctx.bot.database.update(
                 "users",
@@ -103,23 +94,21 @@ async def buy(ctx, item: str = None, num: int = None):
 
         async def buy_text_channel(func_cost, num):
             cost = func_cost * num
-            cur_transactions = data["transactions"]
-            cur_money = data["money"] - cost
-            num_textchannels = data["text_channel"] + num
-            cur_items = data["items"]
-            prison = "False"
-            prison_state = False
+            cur_transactions = data.transactions
+            cur_money = data.money - cost
+            num_textchannels = data.text_channel + num
+            cur_items = data.items
+            prison = False
 
             if cur_money <= -5000:
-                prison = "True"
                 cur_items = []
-                prison_state = True
+                prison = True
 
             info_transantion = {
                 "to": "Магазин",
                 "from": ctx.author.id,
                 "cash": cost,
-                "time": str(datetime.datetime.today()),
+                "time": str(datetime.datetime.utcnow()),
                 "id": str(uuid.uuid4()),
                 "guild_id": ctx.guild.id,
             }
@@ -135,7 +124,7 @@ async def buy(ctx, item: str = None, num: int = None):
                 transactions=cur_transactions
             )
 
-            return prison_state
+            return prison
 
         async def buy_item(item, cost, stacked=False):
             emb_cool = None
@@ -144,8 +133,8 @@ async def buy(ctx, item: str = None, num: int = None):
 
             if item not in member_items:
                 if stacked:
-                    cur_items = data["items"]
-                    prison = data["prison"]
+                    cur_items = data.items
+                    prison = data.prison
                     stack = False
 
                     for i in cur_items:
@@ -182,7 +171,7 @@ async def buy(ctx, item: str = None, num: int = None):
                             text=FOOTER, icon_url=ctx.bot.user.avatar_url
                         )
                     elif stack:
-                        cur_money = data["money"] - cost
+                        cur_money = data.money - cost
 
                         for i in cur_items:
                             if isinstance(i, list):
@@ -265,8 +254,8 @@ async def buy(ctx, item: str = None, num: int = None):
                         text=FOOTER, icon_url=ctx.bot.user.avatar_url
                     )
                 elif stacked:
-                    cur_items = data["items"]
-                    prison = data["prison"]
+                    cur_items = data.items
+                    prison = data.prison
                     stack = False
 
                     for i in cur_items:
@@ -302,7 +291,7 @@ async def buy(ctx, item: str = None, num: int = None):
                             text=FOOTER, icon_url=ctx.bot.user.avatar_url
                         )
                     elif stack:
-                        cur_money = data["money"] - cost
+                        cur_money = data.money - cost
 
                         for i in cur_items:
                             if isinstance(i, list):
@@ -485,7 +474,7 @@ async def buy(ctx, item: str = None, num: int = None):
                 return
 
         elif item == "метла" or item == "broom" or item == "metla":
-            if data["coins"] >= 500:
+            if data.coins >= 500:
                 if member_items is not None and not isinstance(member_items, int):
                     if "broom" not in member_items:
                         await buy_coins_func("broom", 500)
@@ -536,7 +525,7 @@ async def buy(ctx, item: str = None, num: int = None):
                 await ctx.send(embed=emb)
                 return
         elif item == "швабра" or item == "mop":
-            if data["coins"] >= 500:
+            if data.coins >= 500:
                 if "mop" not in member_items:
                     await buy_coins_func("mop", 2000)
                     emb = discord.Embed(

@@ -6,8 +6,8 @@ class Config:
 	DEF_PREFIX = 'p.'
 	OWNERS = (660110922865704980,)
 	MIN_BALANCE = -5000
-	TEMP_PATH = '../data/tempfiles/'
-	IMAGES_PATH = '../data/images/'
+	TEMP_PATH = '././data/tempfiles/'
+	IMAGES_PATH = '././data/images/'
 	FONT = './data/fonts/a_AlternaSw.ttf'
 	SAVE_IMG = './data/images/usercard.png'
 	HELP_SERVER = 'https://discord.gg/6SHKgj43r9'
@@ -118,6 +118,46 @@ class Config:
 		"view_channel": "Смотреть каналы",
 		"view_guild_insights": "Смотреть статистику сервера",
 	}
+	EXTENSIONS = (
+		"cogs.clans",
+		"cogs.different",
+		"cogs.economy.economy",
+		"cogs.fun.other",
+		"cogs.fun.edit_image",
+		"cogs.fun.random_image",
+		"cogs.moderate",
+		"cogs.owner",
+		"cogs.utils",
+		"cogs.works",
+		"cogs.show_configs",
+		"cogs.giveaways",
+		"cogs.information",
+		"cogs.reminders",
+		"cogs.status_reminders",
+		"cogs.settings",
+		"cogs.help",
+		"tasks.message_stat",
+		"tasks.other",
+		"tasks.punishments",
+		"tasks.server_stat",
+		"tasks.send_data",
+		"tasks.bot_stat",
+		"tasks.giveaways",
+		"events.error_handler",
+		"events.custom_voice_channel",
+		"events.join",
+		"events.leave",
+		"events.leveling",
+		"events.audit",
+		"events.auto_reactions",
+		"events.custom_commands",
+		"events.autoresponders",
+		"events.anti_flud",
+		"events.anti_invite",
+		"events.captcha",
+		"events.anti_caps",
+		"events.status_reminders"
+	)
 
 	# Database config
 	DB_PASSWORD = os.getenv('DB_PASSWORD')

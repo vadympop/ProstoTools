@@ -1,44 +1,29 @@
 import json
-from discord.ext import commands, tasks
+
+from core.services.database.models import Guild
+from core.bases.cog_base import BaseCog
+from discord.ext import tasks
 
 
-class TasksServerStat(commands.Cog):
+class TasksServerStat(BaseCog):
 	def __init__(self, client):
-		self.client = client
+		super().__init__(client)
 		self.server_stat_loop.start()
-		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	@tasks.loop(minutes=10)
 	async def server_stat_loop(self):
 		await self.client.wait_until_ready()
-		data = [
-			(stat[0], json.loads(stat[1]))
-			for stat in await self.client.database.execute(
-				"""SELECT guild_id, server_stats FROM guilds"""
-			)
-		]
-		for stat in data:
-			if stat[1] != {}:
-				for stat_type, channel_id in stat[1].items():
+		for stat in Guild.objects.all():
+			if stat.server_stats:
+				for stat_type, channel_id in stat.server_stats.items():
 					if stat_type != "message":
-						guild = self.client.get_guild(stat[0])
-						if guild:
+						guild = self.client.get_guild(stat.guild_id)
+						if guild is not None:
 							try:
 								counters = {
-									"members": len(
-										[
-											member.id
-											for member in guild.members
-											if not member.bot
-											and member.id != self.client.user.id
-										]
-									),
-									"bots": len(
-										[bot.id for bot in guild.members if bot.bot]
-									),
-									"channels": len(
-										[channel.id for channel in guild.channels]
-									),
+									"members": len([member.id for member in guild.members if not member.bot]),
+									"bots": len([bot.id for bot in guild.members if bot.bot]),
+									"channels": len([channel.id for channel in guild.channels]),
 									"roles": len([role.id for role in guild.roles]),
 									"all": guild.member_count,
 								}

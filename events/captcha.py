@@ -1,18 +1,20 @@
 import discord
 import random
+
+from core.bases.cog_base import BaseCog
 from string import ascii_letters
 from discord.utils import get
 from discord.ext import commands
 
 
-class CogName(commands.Cog):
+class CogName(BaseCog):
     def __init__(self, client):
-        self.client = client
+        super().__init__(client)
         self.CAPTCHA_ROLE = self.client.config.CAPTCHA_ROLE
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        captcha_setting = (await self.client.database.sel_guild(guild=member.guild))["auto_mod"]["captcha"]
+        captcha_setting = (await self.client.database.sel_guild(guild=member.guild)).auto_mod["captcha"]
         if captcha_setting["state"]:
             overwrite = discord.PermissionOverwrite(
                 connect=False, view_channel=False, send_messages=False

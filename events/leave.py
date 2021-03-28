@@ -1,30 +1,15 @@
 import discord
 import jinja2
+
+from core.utils.classes import TemplateRenderingModel
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
 
 
-class EventsLeave(commands.Cog):
-	def __init__(self, client):
-		self.client = client
-		self.FOOTER = self.client.config.FOOTER_TEXT
-
+class EventsLeave(BaseCog):
 	@commands.Cog.listener()
 	async def on_guild_remove(self, guild):
-		await self.client.database.add_amout_command(entity="guilds", add_counter=len(self.client.guilds))
-		await self.client.database.execute(f"""DELETE FROM guilds WHERE guild_id = {guild.id}""")
-		await self.client.database.execute(f"""DELETE FROM mutes WHERE guild_id = {guild.id}""")
-		await self.client.database.execute(f"""DELETE FROM punishments WHERE guild_id = {guild.id}""")
-		await self.client.database.execute(f"""DELETE FROM reminders WHERE guild_id = {guild.id}""")
-		await self.client.database.execute(f"""DELETE FROM warns WHERE guild_id = {guild.id}""")
-		await self.client.cache.delete(
-			str(guild.id)
-		)
-		for member in guild.members:
-			await self.client.database.execute(
-				"""DELETE FROM users WHERE user_id = %s AND guild_id = %s""",
-				(member.id, guild.id)
-			)
-
+		await self.client.database.add_stat_counter(entity="guilds", add_counter=len(self.client.guilds))
 		emb_info = discord.Embed(
 			title=f"Бот изгнан из сервера, всего серверов - {len(self.client.guilds)}",
 			colour=discord.Color.green(),
@@ -35,26 +20,26 @@ class EventsLeave(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):
-		await self.client.database.execute(f"""DELETE FROM reminders WHERE user_id = {member.id}""")
+		await self.client.database.add_stat_counter(entity="members", add_counter=len(self.client.users))
 		guild_data = await self.client.database.sel_guild(guild=member.guild)
-		member_data = await self.client.database.sel_user(target=member)
-		member_data.update({"multi": guild_data["exp_multi"]})
 		try:
 			try:
-				if guild_data["welcomer"]["leave"]["type"] == "dm":
+				if guild_data.welcomer["leave"]["type"] == "dm":
 					await member.send(
 						await self.client.template_engine.render(
-							None, member, member_data, guild_data["welcomer"]["leave"]["text"]
+							member=member,
+							render_text=guild_data.welcomer["leave"]["text"]
 						)
 					)
-				elif guild_data["welcomer"]["leave"]["type"] == "channel":
+				elif guild_data.welcomer["leave"]["type"] == "channel":
 					channel = member.guild.get_channel(
-						guild_data["welcomer"]["leave"]["channel"]
+						guild_data.welcomer["leave"]["channel"]
 					)
 					if channel is not None:
 						await channel.send(
 							await self.client.template_engine.render(
-								None, member, member_data, guild_data["welcomer"]["leave"]["text"]
+								member=member,
+								render_text=guild_data.welcomer["leave"]["text"]
 							)
 						)
 			except discord.errors.HTTPException:

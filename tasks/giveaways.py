@@ -1,18 +1,19 @@
 import time as tm
-from discord.ext import commands, tasks
+
+from core.bases.cog_base import BaseCog
+from discord.ext import tasks
 
 
-class TasksGiveaways(commands.Cog):
+class TasksGiveaways(BaseCog):
     def __init__(self, client):
-        self.client = client
+        super().__init__(client)
         self.giveaways_loop.start()
 
     @tasks.loop(minutes=1)
     async def giveaways_loop(self):
         await self.client.wait_until_ready()
-        data = await self.client.database.get_giveaways()
-        for setting in data:
-            if tm.time() >= setting[6]:
+        for setting in await self.client.database.get_giveaways():
+            if tm.time() >= setting.time:
                 await self.client.utils.end_giveaway(setting)
 
 

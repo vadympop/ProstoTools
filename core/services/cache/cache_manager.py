@@ -1,46 +1,50 @@
-import aioredis
-import json
-import typing
-from core.bases import AbcCacheManager
+class CacheItem(dict):
+    def __getattr__(self, item):
+        return self.get(item)
 
 
-class CacheManager(AbcCacheManager):
-    async def run(self):
-        self.conn = await aioredis.create_redis(
-            "redis://redis-14597.c135.eu-central-1-1.ec2.cloud.redislabs.com:14597",
-            password="d9hCden7eEqDeez1XHd05Bkt3IziDM9v"
-        )
+class CacheManager:
+    def __init__(self, name: str, max_length: int):
+        self.items = []
+        self._max_length = max_length
+        self.name = name
 
-    async def set(self, key: str, value: dict):
-        await self.conn.set(key, json.dumps(value))
+    def get(self, **kwargs):
+        for item in self.items:
+            if all([item[key] == value for key, value in kwargs.items()]):
+                return CacheItem(**item)
 
-    async def get(self, key: str) -> typing.Union[dict, list, None]:
-        response = await self.conn.get(key)
-        if response is None:
+        return None
+
+    def find(self, **kwargs):
+        return [
+            CacheItem(**item)
+            for item in self.items
+            if all([item[key] == value for key, value in kwargs.items()])
+        ]
+
+    def add(self, item):
+        if len(self.items) < self._max_length:
+            self.items.append(item)
+
+    def update(self, new_data, **kwargs):
+        item = self.get(**kwargs)
+        if item is None:
             return None
 
-        return json.loads(response)
+        self.items[self.items.index(item)] = new_data
+        return CacheItem(**item)
 
-    async def exists(self, key: str) -> bool:
-        return await self.conn.exists(key) == 1
-
-    async def delete(self, key: str) -> bool:
-        return await self.conn.delete(key) == 1
-
-    async def update(self, key: str, value: dict) -> typing.Optional[dict]:
-        data = await self.get(key)
-        if data is None:
+    def remove(self, **kwargs):
+        item = self.get(**kwargs)
+        if item is None:
             return None
 
-        data.update(value)
-        await self.set(key, data)
-        return data
+        self.items.remove(item)
+        return CacheItem(**item)
 
-    async def append(self, key: str, value: dict) -> typing.Optional[list]:
-        data = await self.get(key)
-        if data is None:
-            data = []
-
-        data.append(value)
-        await self.set(key, data)
-        return data
+    def __repr__(self):
+        return "CacheStorage(name={0.name}, max_length={0._max_length} items=[".format(self)+("\n".join([
+            f"Item({CacheItem(**item)})"
+            for item in self.items
+        ]))+"])"

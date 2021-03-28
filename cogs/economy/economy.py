@@ -6,16 +6,17 @@ import uuid
 import time
 import discord
 
+from core.utils.economy import parse_inventory, crime_member, rob_func
+from core.services.database.models import User
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
-from discord.utils import get
 from PIL import Image, ImageFont, ImageDraw, ImageOps
 from random import randint
 
 
-class Economy(commands.Cog):
+class Economy(BaseCog):
 	def __init__(self, client):
-		self.client = client
-		self.FOOTER = self.client.config.FOOTER_TEXT
+		super().__init__(client)
 		self.IMAGES_PATH = self.client.config.IMAGES_PATH
 		self.FONT = self.client.config.FONT
 		self.SAVE = self.client.config.SAVE_IMG
@@ -27,18 +28,13 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def top(self, ctx):
-		sql = """SELECT user_id, exp, level, money, reputation FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC LIMIT 15"""
-		val = (ctx.guild.id, ctx.guild.id)
-
-		data = await self.client.database.execute(sql, val)
-
 		emb = discord.Embed(title="Лидеры сервера", colour=discord.Color.green())
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 
 		num = 1
-		for user in data:
-			member = ctx.guild.get_member(user[0])
+		for user in User.objects.filter(guild_id=ctx.guild.id).order_by("-exp")[:20]:
+			member = ctx.guild.get_member(user.user_id)
 			if member is not None:
 				if not member.bot:
 					field_name = f"#{num}"
@@ -51,7 +47,7 @@ class Economy(commands.Cog):
 
 					emb.add_field(
 						name=f"{field_name} {member}",
-						value=f"Уровень: `{user[2]}` **|** Опыт: `{user[1]}` **|** Репутация: `{user[4]}` **|** Деньги: `{user[3]}`",
+						value=f"Уровень: `{user.level}` **|** Опыт: `{user.exp}` **|** Репутация: `{user.reputation}` **|** Деньги: `{user.money}`",
 						inline=False,
 					)
 					num += 1
@@ -73,7 +69,8 @@ class Economy(commands.Cog):
 			await ctx.send(embed=emb)
 			self.rep.reset_cooldown(ctx)
 			return
-		elif member.bot:
+
+		if member.bot:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете менять репутацию бота!"
 			)
@@ -81,12 +78,10 @@ class Economy(commands.Cog):
 			self.rep.reset_cooldown(ctx)
 			return
 
-		reputation = (await self.client.database.sel_user(target=member))["reputation"]
-
 		await self.client.database.update(
 			"users",
 			where={"user_id": member.id, "guild_id": ctx.guild.id},
-			reputation=reputation+1
+			reputation=(await self.client.database.sel_user(target=member)).reputation+1
 		)
 		try:
 			await ctx.message.add_reaction("✅")
@@ -105,12 +100,10 @@ class Economy(commands.Cog):
 		nums = [100, 250, 1000, 500, 50]
 		rand_num = random.choice(nums)
 
-		money = (await self.client.database.sel_user(target=ctx.author))["money"]
-
 		await self.client.database.update(
 			"users",
 			where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-			money=money+rand_num
+			money=(await self.client.database.sel_user(target=ctx.author)).money+rand_num
 		)
 
 		emb = discord.Embed(
@@ -133,9 +126,6 @@ class Economy(commands.Cog):
 	async def textchannel(self, ctx, *, name: str):
 		data = await self.client.database.sel_user(target=ctx.author)
 		guild_data = await self.client.database.sel_guild(guild=ctx.guild)
-		category_id = guild_data["textchannels_category"]
-		time_channel = guild_data["timedelete_textchannel"]
-		num_textchannels = data["text_channel"]
 
 		if len(name) > 32:
 			emb = await self.client.utils.create_error_embed(
@@ -145,59 +135,59 @@ class Economy(commands.Cog):
 			self.textchannel.reset_cooldown(ctx)
 			return
 
-		if category_id == 0:
+		if guild_data.textchannels_category == 0:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Не указана категория создания приватных текстовых каналов. Обратитесь к администации сервера!"
 			)
 			await ctx.send(embed=emb)
 			self.textchannel.reset_cooldown(ctx)
 			return
-		elif category_id != 0:
-			if num_textchannels >= 0:
-				overwrites = {
-					ctx.guild.default_role: discord.PermissionOverwrite(
-						read_messages=False, send_messages=False
-					),
-					ctx.author: discord.PermissionOverwrite(
-						read_messages=True,
-						send_messages=True,
-						manage_permissions=True,
-						manage_channels=True,
-					),
-				}
-				category = discord.utils.get(ctx.guild.categories, id=category_id)
-				text_channel = await ctx.guild.create_text_channel(
-					name, category=category, overwrites=overwrites
-				)
 
-				emb = discord.Embed(
-					description=f"`{str(ctx.author)}` Создал текстовый канал `#{text_channel}`",
-					colour=discord.Color.green(),
-				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await ctx.send(embed=emb)
+		if data.text_channel <= 0:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "У вас не достаточно каналов!"
+			)
+			await ctx.send(embed=emb)
+			self.textchannel.reset_cooldown(ctx)
+			return
 
-				await self.client.database.update(
-					"users",
-					where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-					text_channels=data["text_channel"]-1
-				)
-				await self.client.database.set_punishment(
-					type_punishment="text_channel",
-					time=float(time.time() + 60 * time_channel),
-					member=ctx.author,
-					role_id=text_channel.id,
-				)
-			elif num_textchannels <= 0:
-				emb = await self.client.utils.create_error_embed(
-					ctx, "У вас не достаточно каналов!"
-				)
-				await ctx.send(embed=emb)
-				self.textchannel.reset_cooldown(ctx)
-				return
+		overwrites = {
+			ctx.guild.default_role: discord.PermissionOverwrite(
+				read_messages=False, send_messages=False
+			),
+			ctx.author: discord.PermissionOverwrite(
+				read_messages=True,
+				send_messages=True,
+				manage_permissions=True,
+				manage_channels=True,
+			),
+		}
+		category = ctx.guild.get_channel(guild_data.textchannels_category)
+		text_channel = await ctx.guild.create_text_channel(
+			name, category=category, overwrites=overwrites
+		)
+
+		emb = discord.Embed(
+			description=f"`{str(ctx.author)}` Создал текстовый канал `#{text_channel}`",
+			colour=discord.Color.green(),
+		)
+		emb.set_author(
+			name=self.client.user.name, icon_url=self.client.user.avatar_url
+		)
+		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		await ctx.send(embed=emb)
+
+		await self.client.database.update(
+			"users",
+			where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+			text_channels=data.text_channel-1
+		)
+		await self.client.database.add_punishment(
+			type_punishment="text_channel",
+			time=float(time.time() + 60 * guild_data.timedelete_textchannel),
+			member=ctx.author,
+			role_id=text_channel.id,
+		)
 
 	@commands.command(
 		aliases=["shoplist"],
@@ -209,12 +199,12 @@ class Economy(commands.Cog):
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def shoplist(self, ctx):
 		data = await self.client.database.sel_guild(guild=ctx.guild)
-		shoplist = data["shop_list"]
+		shoplist = data.shop_list
 		content = ""
 
-		if shoplist != []:
+		if shoplist:
 			for shop_role in shoplist:
-				role = get(ctx.guild.roles, id=shop_role[0])
+				role = ctx.guild.get_role(shop_role[0])
 				content += f"{role.mention} - {shop_role[1]}\n"
 
 			emb = discord.Embed(
@@ -227,7 +217,7 @@ class Economy(commands.Cog):
 			)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
-		elif shoplist == []:
+		elif not shoplist:
 			emb = discord.Embed(
 				title="Список товаров",
 				description=f"**Товары:**\nМеталоискатель 1-го уровня - 500$\nМеталоискатель 2-го уровня 1000$\nСим-карта - 100$\nТелефон - 1100$\nМетла - 500 коинов\nШвабра - 2000 коинов\nТекстовый канал - 100$\nПерчатки - 600$\n\n**Лут боксы:**\nЛут бокс Common - 800$\nЛут бокс Rare - 1800$\nЛут бокс Epic - 4600$\nЛут бокс Legendary - 9800$\nЛут бокс Imposible - 19600$",
@@ -263,84 +253,80 @@ class Economy(commands.Cog):
 		data1 = await self.client.database.sel_user(target=ctx.author)
 		data2 = await self.client.database.sel_user(target=member)
 
-		cur_state_pr1 = data1["prison"]
-		cur_state_pr2 = data2["prison"]
-		cur_money1 = data1["money"]
-		cur_transactions1 = data1["transactions"]
-		cur_transactions2 = data2["transactions"]
-
-		if not cur_state_pr1 and not cur_state_pr2 and cur_money1 > num:
-			info_transantion_1 = {
-				"to": member.id,
-				"from": ctx.author.id,
-				"cash": num,
-				"time": str(datetime.datetime.today()),
-				"id": str(uuid.uuid4),
-				"guild_id": ctx.guild.id,
-			}
-			info_transantion_2 = {
-				"to": member.id,
-				"from": ctx.author.id,
-				"cash": num,
-				"time": str(datetime.datetime.today()),
-				"id": str(uuid.uuid4),
-				"guild_id": ctx.guild.id,
-			}
-
-			cur_transactions1.append(info_transantion_1)
-			cur_transactions2.append(info_transantion_2)
-
-			await self.client.database.update(
-				"users",
-				where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-				transactions=cur_transactions1,
-				money=cur_money1-num
-			)
-			await self.client.database.update(
-				"users",
-				where={"user_id": member.id, "guild_id": ctx.guild.id},
-				transactions=cur_transactions2,
-				money=data2["money"]+num
-			)
-
-			emb = discord.Embed(
-				description=f"**Вы успешно совершили транзакцию `{member.mention}` на суму `{num}$`**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-
-			emb = discord.Embed(
-				description=f"**Вам {ctx.author.mention} перевел деньги на суму `{num}$`, сервер `{ctx.guild.name}`**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await member.send(embed=emb)
-		elif cur_state_pr1:
+		if data1.prison:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "У вас заблокирование транзакции, так как вы в тюрьме!"
 			)
 			await ctx.send(embed=emb)
 			self.sendmoney.reset_cooldown(ctx)
 			return
-		elif cur_state_pr2:
+
+		if data2.prison:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "В указаного пользователя заблокирование транзакции, так как он в тюрме!"
 			)
 			await ctx.send(embed=emb)
 			self.sendmoney.reset_cooldown(ctx)
 			return
-		elif cur_money1 < num:
+
+		if data1.money < num:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "У вас недостаточно средств для транзакции!"
 			)
 			await ctx.send(embed=emb)
 			self.sendmoney.reset_cooldown(ctx)
 			return
+
+		info_transantion_1 = {
+			"to": member.id,
+			"from": ctx.author.id,
+			"cash": num,
+			"time": str(datetime.datetime.utcnow()),
+			"id": str(uuid.uuid4),
+			"guild_id": ctx.guild.id,
+		}
+		info_transantion_2 = {
+			"to": member.id,
+			"from": ctx.author.id,
+			"cash": num,
+			"time": str(datetime.datetime.utcnow()),
+			"id": str(uuid.uuid4),
+			"guild_id": ctx.guild.id,
+		}
+
+		data1.transactions.append(info_transantion_1)
+		data2.transactions.append(info_transantion_2)
+
+		await self.client.database.update(
+			"users",
+			where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+			transactions=data1.transactions,
+			money=data1.money-num
+		)
+		await self.client.database.update(
+			"users",
+			where={"user_id": member.id, "guild_id": ctx.guild.id},
+			transactions=data2.transactions,
+			money=data2.money+num
+		)
+
+		emb = discord.Embed(
+			description=f"**Вы успешно совершили транзакцию `{member.mention}` на суму `{num}$`**",
+			colour=discord.Color.green(),
+		)
+		emb.set_author(
+			name=self.client.user.name, icon_url=self.client.user.avatar_url
+		)
+		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		await ctx.send(embed=emb)
+
+		emb = discord.Embed(
+			description=f"**Вам {ctx.author.mention} перевел деньги на суму `{num}$`, сервер `{ctx.guild.name}`**",
+			colour=discord.Color.green(),
+		)
+		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		await member.send(embed=emb)
 
 	@commands.command(
 		aliases=["trans", "transactions"],
@@ -351,10 +337,9 @@ class Economy(commands.Cog):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def trans(self, ctx):
-		data = await self.client.database.sel_user(target=ctx.author)
-		transactions = data["transactions"]
+		transactions = (await self.client.database.sel_user(target=ctx.author)).transactions
 
-		if transactions == []:
+		if not transactions:
 			emb = discord.Embed(
 				title=f"Транзакции пользователя - `{ctx.author}`",
 				description="Пользователь не совершал транзакций",
@@ -369,10 +354,10 @@ class Economy(commands.Cog):
 		for transantion in transactions:
 			transantion_id = transantion["id"]
 			transantion_time = transantion["time"]
-			transantion_to = get(ctx.guild.members, id=transantion["to"])
-			if not transantion_to:
+			transantion_to = ctx.guild.get_member(transantion["to"])
+			if transantion_to is None:
 				transantion_to = transantion["to"]
-			transantion_from = get(ctx.guild.members, id=transantion["from"])
+			transantion_from = ctx.guild.get_member(transantion["from"])
 			transantion_cash = transantion["cash"]
 
 			emb.add_field(
@@ -429,11 +414,6 @@ class Economy(commands.Cog):
 			"box-I": ["Невероятный бокс", 16000],
 		}
 		data = await self.client.database.sel_user(target=ctx.author)
-		items = data["items"]
-		pets = data["pets"]
-		money = data["money"]
-		coins = data["coins"]
-
 		rand_num_1 = randint(1, 100)
 		rand_items_1 = ["mop", "broom", "sim", "metal_1"]
 		rand_items_2 = ["gloves", "tel", "metal_2"]
@@ -452,12 +432,12 @@ class Economy(commands.Cog):
 			"metal_2": "Металоискатель 2-го уровня",
 		}
 
-		for item in items:
+		for item in data.items:
 			if isinstance(item, list):
 				if item[0] == box:
 					state = True
 					if item[1] <= 1:
-						items.remove(item)
+						data.items.remove(item)
 					elif item[1] > 1:
 						item[1] -= 1
 
@@ -468,14 +448,14 @@ class Economy(commands.Cog):
 					msg_content = "С обычного бокса вам выпал питомец - Каска(Увеличивает стоимость клада)"
 					# Каска
 
-				elif rand_num_1 > 5 and rand_num_1 <= 25:
+				elif 5 < rand_num_1 <= 25:
 					pet = [all_pets[1], boxes[0]]
 					msg_content = (
 						"С обычного бокса вам выпал питомец - Собачка(Обычный питомец)"
 					)
 					# Собачка
 
-				elif rand_num_1 > 25 and rand_num_1 <= 50:
+				elif 25 < rand_num_1 <= 50:
 					pet = [all_pets[0], boxes[0]]
 					msg_content = (
 						"С обычного бокса вам выпал питомец - Кошка(Обычный питомец)"
@@ -497,19 +477,19 @@ class Economy(commands.Cog):
 					msg_content = "С редкого бокса вам выпал питомец - Хомяк(Увеличивает выпадения коинов)"
 					# Хомяк
 
-				elif rand_num_1 > 1 and rand_num_1 <= 7:
+				elif 1 < rand_num_1 <= 7:
 					pet = [all_pets[2], boxes[1]]
 					msg_content = "С редкого бокса вам выпал питомец - Каска(Увеличивает стоимость клада)"
 					# Каска
 
-				elif rand_num_1 > 7 and rand_num_1 <= 30:
+				elif 7 < rand_num_1 <= 30:
 					pet = [all_pets[1], boxes[1]]
 					msg_content = (
 						"С редкого бокса вам выпал питомец - Собачка(Обычный питомец)"
 					)
 					# Собачка
 
-				elif rand_num_1 > 30 and rand_num_1 <= 60:
+				elif 30 < rand_num_1 <= 60:
 					pet = [all_pets[0], boxes[1]]
 					msg_content = (
 						"С редкого бокса вам выпал питомец - Кошка(Обычный питомец)"
@@ -531,17 +511,17 @@ class Economy(commands.Cog):
 					msg_content = "С эпического бокса вам выпал питомец - Хомяк(Увеличивает выпадения коинов)"
 					# Хомяк
 
-				elif rand_num_1 > 4 and rand_num_1 <= 10:
+				elif 4 < rand_num_1 <= 10:
 					pet = [all_pets[2], boxes[2]]
 					msg_content = "С эпического бокса вам выпал питомец - Каска(Увеличивает стоимость клада)"
 					# Каска
 
-				elif rand_num_1 > 10 and rand_num_1 <= 33:
+				elif 10 < rand_num_1 <= 33:
 					pet = [all_pets[1], boxes[2]]
 					msg_content = "С эпического бокса вам выпал питомец - Собачка(Обычный питомец)"
 					# Собачка
 
-				elif rand_num_1 > 33 and rand_num_1 <= 63:
+				elif 33 < rand_num_1 <= 63:
 					pet = [all_pets[0], boxes[2]]
 					msg_content = (
 						"С эпического бокса вам выпал питомец - Кошка(Обычный питомец)"
@@ -561,20 +541,20 @@ class Economy(commands.Cog):
 
 					elif rand_num_2 == 3:
 						choice = random.choice(rand_items_1)
-						if choice in items:
+						if choice in data.items:
 							rand_money_2 = randint(1000, 2000)
 							msg_content = f"Вам не очень повезло и с эпического бокса выпали деньги в размере - {rand_money_2}"
 						else:
-							items.append(choice)
+							data.items.append(choice)
 							msg_content = f"С эпического бокса выпал предмет - {dict_items[choice]}"
 
 					elif rand_num_2 == 4:
 						choice = random.choice(rand_items_2)
-						if choice in items:
+						if choice in data.items:
 							rand_money_2 = randint(1000, 2000)
 							msg_content = f"Вам не очень повезло и с эпического бокса выпали деньги в размере - {rand_money_2}"
 						else:
-							items.append(choice)
+							data.items.append(choice)
 							msg_content = f"С эпического бокса выпал предмет - {dict_items[choice]}"
 
 			elif box == boxes[3]:
@@ -583,17 +563,17 @@ class Economy(commands.Cog):
 					msg_content = "С легендарного бокса вам выпал питомец - Хомяк(Увеличивает выпадения коинов)"
 					# Хомяк
 
-				elif rand_num_1 > 10 and rand_num_1 <= 30:
+				elif 10 < rand_num_1 <= 30:
 					pet = [all_pets[2], boxes[3]]
 					msg_content = "С легендарного бокса вам выпал питомец - Каска(Увеличивает стоимость клада)"
 					# Каска
 
-				elif rand_num_1 > 30 and rand_num_1 <= 33:
+				elif 30 < rand_num_1 <= 33:
 					pet = [all_pets[3], boxes[3]]
 					msg_content = "С легендарного бокса вам выпал питомец - Лупа(Увеличивает шанс найти клад)"
 					# Лупа
 
-				elif rand_num_1 > 33 and rand_num_1 <= 63:
+				elif 33 < rand_num_1 <= 63:
 					pet = [all_pets[0], boxes[3]]
 					msg_content = "С легендарного бокса вам выпал питомец - Кошка(Обычный питомец)"
 					# Кошка
@@ -611,20 +591,20 @@ class Economy(commands.Cog):
 
 					elif rand_num_2 == 3:
 						choice = random.choice(rand_items_1)
-						if choice in items:
+						if choice in data.items:
 							rand_money_2 = randint(6000, 8000)
 							msg_content = f"Вам не очень повезло и с легендарного бокса выпали деньги в размере - {rand_money_2}"
 						else:
-							items.append(choice)
+							data.items.append(choice)
 							msg_content = f"С легендарного бокса выпал предмет - {dict_items[choice]}"
 
 					elif rand_num_2 == 4:
 						choice = random.choice(rand_items_2)
-						if choice in items:
+						if choice in data.items:
 							rand_money_2 = randint(6000, 8000)
 							msg_content = f"Вам не очень повезло и с легендарного бокса выпали деньги в размере - {rand_money_2}"
 						else:
-							items.append(choice)
+							data.items.append(choice)
 							msg_content = f"С легендарного бокса выпал предмет - {dict_items[choice]}"
 
 			elif box == boxes[4]:
@@ -633,17 +613,17 @@ class Economy(commands.Cog):
 					msg_content = "С невероятного бокса вам выпал питомец - Хомяк(Увеличивает выпадения коинов)"
 					# Хомяк
 
-				elif rand_num_1 > 25 and rand_num_1 <= 50:
+				elif 25 < rand_num_1 <= 50:
 					pet = [all_pets[2], boxes[4]]
 					msg_content = "С невероятного бокса вам выпал питомец - Каска(Увеличивает стоимость клада)"
 					# Каска
 
-				elif rand_num_1 > 50 and rand_num_1 <= 65:
+				elif 50 < rand_num_1 <= 65:
 					pet = [all_pets[3], boxes[4]]
 					msg_content = "С невероятного бокса вам выпал питомец - Лупа(Увеличивает шанс найти клад)"
 					# Лупа
 
-				elif rand_num_1 > 65 and rand_num_1 <= 70:
+				elif 65 < rand_num_1 <= 70:
 					pet = [all_pets[4], boxes[4]]
 					msg_content = "С невероятного бокса вам выпал питомец - Попугай(Уменьшает шанс быть пойманым)"
 					# Попугай
@@ -654,7 +634,7 @@ class Economy(commands.Cog):
 					if rand_num_2 == 1:
 						rand_num_3 = randint(1, 3)
 
-						if rand_num_3 >= 1 and rand_num_3 <= 2:
+						if 1 <= rand_num_3 <= 2:
 							rand_money = randint(5000, 12000)
 							msg_content = f"Вам не очень повезло и с невероятного бокса выпали деньги в размере - {rand_money}"
 
@@ -668,29 +648,29 @@ class Economy(commands.Cog):
 
 					elif rand_num_2 == 3:
 						choice = random.choice(rand_items_1)
-						if choice in items:
+						if choice in data.items:
 							rand_money_2 = randint(18000, 20000)
 							msg_content = f"Вам не очень повезло и с невероятного бокса выпали деньги в размере - {rand_money_2}"
 						else:
-							items.append(choice)
+							data.items.append(choice)
 							msg_content = f"С невероятного бокса выпал предмет - {dict_items[choice]}"
 
 					elif rand_num_2 == 4:
 						choice = random.choice(rand_items_2)
-						if choice in items:
+						if choice in data.items:
 							rand_money_2 = randint(18000, 20000)
 							msg_content = f"Вам не очень повезло и с невероятного бокса выпали деньги в размере - {rand_money_2}"
 						else:
-							items.append(choice)
+							data.items.append(choice)
 							msg_content = f"С невероятного бокса выпал предмет - {dict_items[choice]}"
 
-			money += rand_money
+			data.money += rand_money
 			if pet is not None:
-				if pet[0] in pets:
-					coins += dict_boxes[pet[1]][1]
+				if pet[0] in data.pets:
+					data.coins += dict_boxes[pet[1]][1]
 					msg_content = f"К сожалению выйграный питомец уже есть в вашем инвертаре, по этому вам выпали коины в размере - {dict_boxes[pet[1]][1]}"
 				else:
-					pets.append(pet[0])
+					data.pets.append(pet[0])
 
 			emb = discord.Embed(
 				title=f"Бокс - {dict_boxes[box][0]}",
@@ -704,9 +684,10 @@ class Economy(commands.Cog):
 			await self.client.database.update(
 				"users",
 				where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-				items=items,
-				pets=pets,
-				money=money
+				items=data.items,
+				pets=data.pets,
+				money=data.money,
+				coins=data.coins
 			)
 		elif not state:
 			emb = await self.client.utils.create_error_embed(
@@ -725,7 +706,7 @@ class Economy(commands.Cog):
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def remove_role(self, ctx, member: discord.Member, role: discord.Role):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 
 		if member.bot:
 			emb = await self.client.utils.create_error_embed(
@@ -750,7 +731,7 @@ class Economy(commands.Cog):
 			return
 
 		data = await self.client.database.sel_user(target=member)
-		items = data["items"]
+		items = data.items
 		if role.id in items:
 			items.remove(role.id)
 
@@ -803,16 +784,16 @@ class Economy(commands.Cog):
 				await channel.send(embed=e)
 
 	@commands.command(
-		aliases=["addvalue"],
-		name="add-value",
-		description="Добавляет указанный тип валюты в профиль",
-		usage="add-value [@Участник] [Название валюты] [Количество]",
-		help="**Примеры использования:**\n1. {Prefix}add-value @Участник coins 1000\n2. {Prefix}add-value 660110922865704980 coins 1000\n\n**Пример 1:** Добавляет 1000 коинов упомянутому участнику\n**Пример 2:** Добавляет 1000 коинов участнику с указаным id",
+		aliases=["addmoney"],
+		name="add-money",
+		description="Добавляет деньги указанному участнику",
+		usage="add-money [@Участник] [Количество]",
+		help="**Примеры использования:**\n1. {Prefix}add-money @Участник 1000\n2. {Prefix}add-money 660110922865704980 1000\n\n**Пример 1:** Добавляет 1000 денег упомянутому участнику\n**Пример 2:** Добавляет 1000 денег участнику с указанным id",
 	)
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
-	async def add_value(self, ctx, member: discord.Member, typem: str, num: int):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+	async def add_money(self, ctx, member: discord.Member, num: int):
+		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 
 		if member.bot:
 			emb = await self.client.utils.create_error_embed(
@@ -829,7 +810,7 @@ class Economy(commands.Cog):
 			return
 
 		if num <= 0:
-			emb = await self.client.create_error_embed(ctx, "Укажите добавляемое значения больше 0!")
+			emb = await self.client.utils.create_error_embed(ctx, "Укажите добавляемое значения больше 0!")
 			await ctx.send(embed=emb)
 			return
 
@@ -838,23 +819,7 @@ class Economy(commands.Cog):
 				ctx, "Указано слишком большое значения!"
 			)
 			await ctx.send(embed=emb)
-			self.add_cash.reset_cooldown(ctx)
-			return
-
-		data = await self.client.database.sel_user(target=member)
-		coins_member = data["coins"]
-		cur_money = data["money"]
-
-		if typem == "money":
-			cur_money += num
-		elif typem == "coins":
-			coins_member += num
-		else:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Укажите правильную единицу!"
-			)
-			await ctx.send(embed=emb)
-			self.add_cash.reset_cooldown(ctx)
+			self.add_money.reset_cooldown(ctx)
 			return
 
 		emb = discord.Embed(
@@ -868,24 +833,18 @@ class Economy(commands.Cog):
 		await self.client.database.update(
 			"users",
 			where={"user_id": member.id, "guild_id": ctx.guild.id},
-			money=cur_money,
-			coins=coins_member
+			money=(await self.client.database.sel_user(target=member)).money+num,
 		)
 
 		if "economy" in audit.keys():
 			e = discord.Embed(
-				description=f"Пользователю `{str(member)}` были добавлены средства",
+				description=f"Пользователю `{str(member)}` были добавлены деньги",
 				colour=discord.Color.blurple(),
 				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
 				name="Модератор",
 				value=str(ctx.author),
-				inline=False,
-			)
-			e.add_field(
-				name="Тип средств",
-				value=typem,
 				inline=False,
 			)
 			e.add_field(
@@ -904,16 +863,16 @@ class Economy(commands.Cog):
 				await channel.send(embed=e)
 
 	@commands.command(
-		aliases=["removevalue"],
-		name="remove-value",
-		description="Удаляет указаний тип валюты из профиля",
-		usage="remove-value [@Участник] [Название валюты] [Количество]",
-		help="**Примеры использования:**\n1. {Prefix}remove-value @Участник coins 1000\n2. {Prefix}remove-value 660110922865704980 coins 1000\n\n**Пример 1:** Отнимает 1000 коинов упомянутому участнику\n**Пример 2:** Отнимает 1000 коинов участнику с указаным id",
+		aliases=["removemoney"],
+		name="remove-money",
+		description="Отнимает деньги указанного участника",
+		usage="remove-money [@Участник] [Количество]",
+		help="**Примеры использования:**\n1. {Prefix}remove-money @Участник 1000\n2. {Prefix}remove-money 660110922865704980 1000\n\n**Пример 1:** Отнимает 1000 денег с упомянутого участника\n**Пример 2:** Отнимает 1000 денег с участника с указанным id",
 	)
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
-	async def remove_cash(self, ctx, member: discord.Member, typem: str, num: int):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild))["audit"]
+	async def remove_money(self, ctx, member: discord.Member, num: int):
+		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 
 		if member.bot:
 			emb = await self.client.utils.create_error_embed(
@@ -930,28 +889,12 @@ class Economy(commands.Cog):
 			return
 
 		if num <= 0:
-			emb = await self.client.create_error_embed(ctx, "Укажите отнимаемое значения больше 0!")
+			emb = await self.client.utils.create_error_embed(ctx, "Укажите отнимаемое значения больше 0!")
 			await ctx.send(embed=emb)
-			return
-
-		data = await self.client.database.sel_user(target=member)
-		coins_member = data["coins"]
-		cur_money = data["money"]
-
-		if typem == "money":
-			cur_money -= num
-		elif typem == "coins":
-			coins_member -= num
-		else:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Укажите правильную единицу!"
-			)
-			await ctx.send(embed=emb)
-			self.remove_cash.reset_cooldown(ctx)
 			return
 
 		emb = discord.Embed(
-			description=f"**Вы успешно отняли средста из профиля {member.name}**",
+			description=f"**Вы успешно отняли деньги из профиля {member.name}**",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
@@ -961,24 +904,18 @@ class Economy(commands.Cog):
 		await self.client.database.update(
 			"users",
 			where={"user_id": member.id, "guild_id": ctx.guild.id},
-			money=cur_money,
-			coins=coins_member
+			money=(await self.client.database.sel_user(target=member)).money-num,
 		)
 
 		if "economy" in audit:
 			e = discord.Embed(
-				description=f"Пользователю `{str(member)}` были отняты средства",
+				description=f"У пользователя `{str(member)}` были отняты деньги",
 				colour=discord.Color.green(),
 				timestamp=datetime.datetime.utcnow(),
 			)
 			e.add_field(
 				name="Модератор",
 				value=str(ctx.author),
-				inline=False,
-			)
-			e.add_field(
-				name="Тип средств",
-				value=typem,
 				inline=False,
 			)
 			e.add_field(
@@ -1004,7 +941,6 @@ class Economy(commands.Cog):
 	@commands.cooldown(1, 86400, commands.BucketType.member)
 	async def rob(self, ctx, member: discord.Member):
 		data1 = await self.client.database.sel_user(target=ctx.author)
-		cur_state_pr = data1["prison"]
 
 		if member.bot:
 			emb = await self.client.utils.create_error_embed(
@@ -1013,83 +949,61 @@ class Economy(commands.Cog):
 			await ctx.send(embed=emb)
 			return
 
-		if not cur_state_pr:
-			data2 = await self.client.database.sel_user(target=member)
-			rand_num = randint(1, 100)
-			cur_pets = data1["pets"]
-			crimed_member_money = data2["money"]
-			rob_shans = 80
-			if "parrot" in cur_pets:
-				rob_shans -= 10
-
-			async def rob_func(num, member):
-				data = await self.client.database.sel_user(target=member)
-				cur_money = data["money"] + num
-				prison = data["prison"]
-				items = data["items"]
-
-				if member == ctx.author:
-					if cur_money <= -5000:
-						items = []
-						prison = True
-
-				await self.client.database.update(
-					"users",
-					where={"user_id": member.id, "guild_id": ctx.guild.id},
-					money=cur_money,
-					items=items,
-					prison=str(prison)
-				)
-				return [prison, cur_money]
-
-			if rand_num <= 40:
-				state = await rob_func(-10000, ctx.author)
-				if state[0]:
-					emb = discord.Embed(
-						description=f"**Вас задержала полиция. Вы откупились потеряв 10000$**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(
-						name=self.client.user.name, icon_url=self.client.user.avatar_url
-					)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
-					)
-					await ctx.send(embed=emb)
-					self.client.dispatch("prison", ctx.author, state[1])
-			elif 40 < rand_num <= 80:
-				emb = discord.Embed(
-					description=f"**Вы не смогли ограбить указаного пользователя**",
-					colour=discord.Color.green(),
-				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await ctx.send(embed=emb)
-			elif rand_num > rob_shans:
-				rand_num_1 = randint(1, 2)
-				cr_money = crimed_member_money // 4 * rand_num_1
-
-				await rob_func(cr_money, ctx.author)
-				await rob_func(int(cr_money * -1), member)
-
-				emb = discord.Embed(
-					description=f"**Вы смогли ограбить пользователя на суму {cr_money}**",
-					colour=discord.Color.green(),
-				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await ctx.send(embed=emb)
-		elif cur_state_pr:
+		if data1.prison:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не забыли? Вы сейчас в тюрме!"
 			)
 			await ctx.send(embed=emb)
 			self.rob.reset_cooldown(ctx)
 			return
+
+		data2 = await self.client.database.sel_user(target=member)
+		rand_num = randint(1, 100)
+		rob_shans = 80
+		if "parrot" in data1.pets:
+			rob_shans -= 10
+
+		if rand_num <= 40:
+			state = await rob_func(ctx, -10000, ctx.author)
+			if state[0]:
+				emb = discord.Embed(
+					description=f"**Вас задержала полиция. Вы откупились потеряв 10000$**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(
+					name=self.client.user.name, icon_url=self.client.user.avatar_url
+				)
+				emb.set_footer(
+					text=self.FOOTER, icon_url=self.client.user.avatar_url
+				)
+				await ctx.send(embed=emb)
+				self.client.dispatch("prison", ctx.author, state[1])
+		elif 40 < rand_num <= 80:
+			emb = discord.Embed(
+				description=f"**Вы не смогли ограбить указаного пользователя**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+		elif rand_num > rob_shans:
+			rand_num_1 = randint(1, 2)
+			cr_money = data2.money // 4 * rand_num_1
+
+			await rob_func(ctx, cr_money, ctx.author)
+			await rob_func(ctx, int(cr_money * -1), member)
+
+			emb = discord.Embed(
+				description=f"**Вы смогли ограбить пользователя на суму {cr_money}**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
 
 	@commands.command(
 		description="Незаконная добыча денег",
@@ -1099,79 +1013,54 @@ class Economy(commands.Cog):
 	@commands.cooldown(1, 43200, commands.BucketType.member)
 	async def crime(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		cur_state_pr = data["prison"]
 
-		if not cur_state_pr:
-			rand_num = randint(1, 100)
-			cur_pets = data["pets"]
-			crime_shans = 80
-			if "parrot" in cur_pets:
-				crime_shans -= 10
-
-			async def crime_func(num, member):
-				data = await self.client.database.sel_user(target=member)
-				cur_money = data["money"] + num
-				prison = data["prison"]
-				items = data["items"]
-
-				if cur_money <= -5000:
-					prison = True
-					items = []
-
-				await self.client.database.update(
-					"users",
-					where={"user_id": member.id, "guild_id": ctx.guild.id},
-					money=cur_money,
-					items=items,
-					prison=str(prison)
-				)
-				return [prison, cur_money]
-
-			if rand_num <= 40:
-				state = await crime_func(-5000, ctx.author)
-				if state[0]:
-					self.client.dispatch("prison", ctx.author, state[1])
-				else:
-					emb = discord.Embed(
-						description=f"**Вас задержала полиция. Вы откупились потеряв 10000$**",
-						colour=discord.Color.green(),
-					)
-					emb.set_author(
-						name=self.client.user.name, icon_url=self.client.user.avatar_url
-					)
-					emb.set_footer(
-						text=self.FOOTER, icon_url=self.client.user.avatar_url
-					)
-					await ctx.send(embed=emb)
-			elif 40 < rand_num <= 80:
-				emb = discord.Embed(
-					description=f"**Вы не смогли совершить идею заработка денег**",
-					colour=discord.Color.green(),
-				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await ctx.send(embed=emb)
-			elif rand_num > crime_shans:
-				rand_money = randint(20, 1000)
-				await crime_func(rand_money, ctx.author)
-				emb = discord.Embed(
-					description=f"**Вы смогли заработать на незаконной работе - {rand_money}$**",
-					colour=discord.Color.green(),
-				)
-				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
-				)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await ctx.send(embed=emb)
-		elif cur_state_pr:
+		if data.prison:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не забыли? Вы сейчас в тюрме!"
 			)
 			await ctx.send(embed=emb)
 			self.crime.reset_cooldown(ctx)
 			return
+
+		rand_num = randint(1, 100)
+		crime_shans = 80
+		if "parrot" in data.pets:
+			crime_shans -= 10
+
+		if rand_num <= 40:
+			state = await crime_member(ctx, -5000, ctx.author)
+			if state[0]:
+				self.client.dispatch("prison", ctx.author, state[1])
+			else:
+				emb = discord.Embed(
+					description=f"**Вас задержала полиция. Вы откупились потеряв 10000$**",
+					colour=discord.Color.green(),
+				)
+				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				await ctx.send(embed=emb)
+		elif 40 < rand_num <= 80:
+			emb = discord.Embed(
+				description=f"**Вы не смогли совершить идею заработка денег**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+		elif rand_num > crime_shans:
+			rand_money = randint(20, 1000)
+			await crime_member(ctx, rand_money, ctx.author)
+			emb = discord.Embed(
+				description=f"**Вы смогли заработать на незаконной работе - {rand_money}$**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
 
 	@commands.command(
 		description="Показывает ваш инвертарь",
@@ -1182,78 +1071,10 @@ class Economy(commands.Cog):
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def inventory(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		PREFIX = str(await self.client.database.get_prefix(guild=ctx.guild))
-		number = data["text_channel"]
-
-		def func_inv():
-			items = data["items"]
-			pets = data["pets"]
-			roles_content = " "
-			items_content = " "
-			box_content = " "
-			pets_content = " "
-			check_state = True
-			names_of_items = {
-				"sim": "Сим-карта",
-				"tel": "Телефон",
-				"metal_1": "Металоискатель 1-го уровня",
-				"metal_2": "Металоискатель 2-го уровня",
-				"mop": "Швабра",
-				"broom": "Метла",
-				"gloves": "Перчатки",
-			}
-			boxes = {
-				"box-I": "Невероятный бокс",
-				"box-L": "Легендарный бокс",
-				"box-E": "Эпический бокс",
-				"box-R": "Редкий бокс",
-				"box-C": "Обычный бокс",
-			}
-			dict_pets = {
-				"cat": "Кошка",
-				"dog": "Собачка",
-				"helmet": "Каска",
-				"loupe": "Лупа",
-				"parrot": "Попугай",
-				"hamster": "Хомяк",
-			}
-
-			if items == []:
-				items_content = f"Ваш инвертарь пуст. Купите что-нибудь с помощью команды - {PREFIX}buy\n"
-				check_state = False
-			elif items != []:
-				for i in items:
-					if isinstance(i, list):
-						box_content = box_content + f"{boxes[i[0]]} - {i[1]}шт \n"
-					else:
-						if isinstance(i, str):
-							items_content = items_content + f"{names_of_items[i]}\n "
-						elif isinstance(i, int):
-							role = get(ctx.guild.roles, id=i)
-							roles_content = roles_content + f"{role.mention}\n "
-
-				for pet in pets:
-					pets_content += f"{dict_pets[pet]}\n "
-
-			if check_state:
-				if items_content != " ":
-					items_content = f"**Ваши предметы:**\n{items_content}\n"
-
-			if roles_content != " ":
-				roles_content = f"**Ваши роли:**\n{roles_content}\n"
-
-			if box_content != " ":
-				box_content = f"**Ваши лут-боксы:**\n{box_content}\n"
-
-			if pets_content != " ":
-				pets_content = f"**Ваши питомцы:**\n{pets_content}\n"
-
-			return [items_content, roles_content, box_content, pets_content]
-
-		parsed_invertory = func_inv()
+		parsed_inventory = parse_inventory(ctx, data)
 		emb = discord.Embed(
 			title="Ваш инвертарь",
-			description=f"{parsed_invertory[0]}{parsed_invertory[1]}{parsed_invertory[2]}{parsed_invertory[3]}**Текстовые каналы:** {number}",
+			description=f"{parsed_inventory[0]}{parsed_inventory[1]}{parsed_inventory[2]}{parsed_inventory[3]}**Текстовые каналы:** {data.text_channel}",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
@@ -1417,47 +1238,31 @@ class Economy(commands.Cog):
 			"idle": "sleep",
 		}
 		async with ctx.typing():
-			users_rank = await self.client.database.execute(
-				query="""SELECT user_id FROM users WHERE guild_id = %s AND guild_id = %s ORDER BY exp DESC""",
-				val=(ctx.guild.id, ctx.guild.id),
-			)
+			users_rank = list(User.objects.filter(guild_id=ctx.guild.id).order_by("-exp"))
 			for user in users_rank:
-				if user[0] == member.id:
+				if user.user_id == member.id:
 					user_rank = users_rank.index(user) + 1
 					break
 
 			user_data = await self.client.database.sel_user(target=member)
-			multi = (await self.client.database.sel_guild(guild=ctx.guild))["exp_multi"]
-			user = str(member.name)
-			user_exp = int(user_data["exp"])
-			user_level = int(user_data["level"])
-			user_warns = len(user_data["warns"])
-			user_coins = int(user_data["coins"])
-			user_money = int(user_data["money"])
-			user_reputation = int(user_data["reputation"])
-			user_state_prison = user_data["prison"]
-			user_profile = user_data["profile"]
-			level_exp = math.floor(9 * (user_level ** 2) + 50 * user_level + 125 * multi)
+			multi = (await self.client.database.sel_guild(guild=ctx.guild)).exp_multi
+			user_warns = len(await self.client.database.get_warns(user_id=member.id, guild_id=ctx.guild.id))
+			level_exp = math.floor(9 * (user_data.level ** 2) + 50 * user_data.level + 125 * multi)
 			previus_level_exp = math.floor(
-				9 * ((user_level - 1) ** 2) + 50 * (user_level - 1) + 125 * multi
+				9 * ((user_data.level - 1) ** 2) + 50 * (user_data.level - 1) + 125 * multi
 			)
 			progress_bar_percent = round(
-				((level_exp - user_exp) / (level_exp - previus_level_exp)) * 100
+				((level_exp - user_data.exp) / (level_exp - previus_level_exp)) * 100
 			)
 			user_image_status = Image.open(
 				self.IMAGES_PATH + statuses[member.status.name] + ".png"
 			).convert("RGBA")
 			levels_delta = round(level_exp - previus_level_exp)
-
-			if user_state_prison:
-				user_state_prison = "Сейчас в тюрме"
-			elif not user_state_prison:
-				user_state_prison = "На свободе"
-
-			if user_profile is None:
+			user_state_prison = "На свободе" if user_data.prison else "Сейчас в тюрме"
+			if user_data.profile is None:
 				img = Image.open(self.IMAGES_PATH+"default.png")
-			elif user_profile is not None:
-				img = Image.open(self.IMAGES_PATH + f"{user_profile}.png")
+			elif user_data.profile is not None:
+				img = Image.open(self.IMAGES_PATH + f"{user_data.profile}.png")
 
 			user_image_status.thumbnail((40, 40), Image.ANTIALIAS)
 			response = (
@@ -1473,59 +1278,59 @@ class Economy(commands.Cog):
 			midletext = ImageFont.truetype(self.FONT, size=40)
 			smalltext = ImageFont.truetype(self.FONT, size=32)
 
-			idraw.text((230, 10), "Профиль {}".format(user), font=bigtext, fill=colours[user_profile][2])
+			idraw.text((230, 10), "Профиль {}".format(member), font=bigtext, fill=colours[user_data.profile][2])
 			idraw.text(
-				(230, 60), f"Репутация: {user_reputation}", font=bigtext, fill=colours[user_profile][2]
+				(230, 60), f"Репутация: {user_data.reputation}", font=bigtext, fill=colours[user_data.profile][2]
 			)
 			idraw.text(
-				(10, 200), f"Exp: {user_exp}", font=midletext, fill=colours[user_profile][0]
+				(10, 200), f"Exp: {user_data.exp}", font=midletext, fill=colours[user_data.profile][0]
 			)
 			idraw.text(
 				(10, 230),
-				f"Уровень: {user_level}",
+				f"Уровень: {user_data.level}",
 				font=midletext,
-				fill=colours[user_profile][0],
+				fill=colours[user_data.profile][0],
 			)
 			idraw.text(
 				(230, 113),
 				f"Предупрежденний: {user_warns}",
 				font=midletext,
-				fill=colours[user_profile][0],
+				fill=colours[user_data.profile][0],
 			)
 			idraw.text(
 				(230, 147),
 				f"Тюрьма: {user_state_prison}",
 				font=midletext,
-				fill=colours[user_profile][0],
+				fill=colours[user_data.profile][0],
 			)
 			idraw.text(
 				(230, 181),
-				f"Монет: {user_coins}",
+				f"Монет: {user_data.coins}",
 				font=midletext,
-				fill=colours[user_profile][0],
+				fill=colours[user_data.profile][0],
 			)
 			idraw.text(
 				(230, 215),
-				f"Денег: {user_money}$",
+				f"Денег: {user_data.money}$",
 				font=midletext,
-				fill=colours[user_profile][0],
+				fill=colours[user_data.profile][0],
 			)
 			idraw.rectangle((230, 285, 855, 340), fill="#909090")
 			draw_progress(img, progress_bar_percent)
 			idraw.text(
 				(get_width_info_exp(round(level_exp - previus_level_exp)), 250),
-				f"{levels_delta}/{round(levels_delta-(level_exp - user_exp))} exp",
+				f"{levels_delta}/{round(levels_delta-(level_exp - user_data.exp))} exp",
 				font=midletext,
-				fill=colours[user_profile][3],
+				fill=colours[user_data.profile][3],
 			)
 			fill_percent = 100 - progress_bar_percent
 			idraw.text(
 				(get_width_progress_bar(fill_percent if fill_percent > 0 else 0), 300),
 				f"{fill_percent if fill_percent > 0 else 0}%",
 				font=midletext,
-				fill=colours[user_profile][3],
+				fill=colours[user_data.profile][3],
 			)
-			idraw.text((230, 258), f"#{user_rank}", font=smalltext, fill=colours[user_profile][3])
+			idraw.text((230, 258), f"#{user_rank}", font=smalltext, fill=colours[user_data.profile][3])
 			idraw.text((15, 355), self.FOOTER, font=midletext)
 
 			img.save(self.SAVE)

@@ -43,3 +43,7 @@ class TakeActionWithYourself(ProstoToolsException):
 
 class TakeActionWithOwner(ProstoToolsException):
     pass
+
+
+class Blacklisted(ProstoToolsException):
+    pass

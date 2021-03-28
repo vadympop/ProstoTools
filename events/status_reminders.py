@@ -1,25 +1,24 @@
 import discord
+
+from core.services.database.models import StatusReminder
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
 
 
-class CogName(commands.Cog):
-    def __init__(self, client):
-        self.client = client
-
+class StatusRemindersEvents(BaseCog):
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         if before.status == after.status:
             return
 
-        data = await self.client.database.get_status_reminder(target_id=after.id)
-        for setting in data:
-            if str(after.status) == setting[3]:
-                if setting[4] == "default":
-                    await self.client.database.del_status_reminder(setting[0])
+        for setting in await self.client.database.get_status_reminders():
+            if str(after.status) == setting.wait_for:
+                if setting.type == "default":
+                    await self.client.database.del_status_reminder(setting.id)
 
-                user = self.client.get_user(setting[2])
+                user = self.client.get_user(setting.member_id)
                 if user is None:
-                    await self.client.database.del_status_reminder(setting[0])
+                    await self.client.database.del_status_reminder(setting.id)
                 else:
                     emojis = {
                         "dnd": "<:dnd:730391353929760870>(`Не беспокоить`)",
@@ -40,4 +39,4 @@ class CogName(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(CogName(client))
+    client.add_cog(StatusRemindersEvents(client))

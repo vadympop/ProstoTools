@@ -1,15 +1,12 @@
 import discord
 import random
-import aiohttp
+
+from core.bases.cog_base import BaseCog
 from bs4 import BeautifulSoup as bs
 from discord.ext import commands
 
 
-class FunRandomImage(commands.Cog):
-    def __init__(self, client):
-        self.client = client
-        self.FOOTER = self.client.config.FOOTER_TEXT
-
+class FunRandomImage(BaseCog):
     @commands.command(
         description="Рандомная картинка собаки",
         usage="dog",

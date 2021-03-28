@@ -1,5 +1,7 @@
 import discord
 import random
+
+from core.services.database.models import Giveaway
 from core.exceptions import *
 
 
@@ -25,7 +27,14 @@ class Utils:
         return emb
 
     async def global_command_check(self, ctx):
-        commands_settings = (await self.client.database.sel_guild(guild=ctx.guild))["commands_settings"]
+        if await self.client.database.get_blacklist_entity(
+            entity_id=ctx.guild.id
+        ) is not None or await self.client.database.get_blacklist_entity(
+            entity_id=ctx.author.id
+        ) is not None:
+            raise Blacklisted
+
+        commands_settings = (await self.client.database.sel_guild(guild=ctx.guild)).commands_settings
         if ctx.command.name in commands_settings.keys():
             if not commands_settings[ctx.command.name]["state"]:
                 raise CommandOff
@@ -52,26 +61,26 @@ class Utils:
 
         return True
 
-    async def end_giveaway(self, giveaway: tuple) -> bool:
-        guild = self.client.get_guild(giveaway[1])
+    async def end_giveaway(self, giveaway: Giveaway) -> bool:
+        guild = self.client.get_guild(giveaway.guild_id)
         if guild is None:
-            await self.client.database.del_giveaway(giveaway[0])
+            await self.client.database.del_giveaway(giveaway.id)
             return False
 
-        channel = guild.get_channel(giveaway[2])
+        channel = guild.get_channel(giveaway.channel_id)
         if channel is None:
-            await self.client.database.del_giveaway(giveaway[0])
+            await self.client.database.del_giveaway(giveaway.id)
             return False
 
         try:
-            message = await channel.fetch_message(giveaway[3])
+            message = await channel.fetch_message(giveaway.message_id)
         except discord.errors.NotFound:
-            await self.client.database.del_giveaway(giveaway[0])
+            await self.client.database.del_giveaway(giveaway.id)
             return False
 
         message_reactions = message.reactions
         if "🎉" not in [str(r.emoji) for r in message_reactions]:
-            await self.client.database.del_giveaway(giveaway[0])
+            await self.client.database.del_giveaway(giveaway.id)
             return False
 
         reacted_users = []
@@ -85,7 +94,7 @@ class Utils:
                 reacted_users.remove(user)
 
         winners = []
-        for _ in range(giveaway[5]):
+        for _ in range(giveaway.num_winners):
             if reacted_users == []:
                 break
 
@@ -98,10 +107,10 @@ class Utils:
         else:
             winners_str = ", ".join([u.mention for u in winners])
         message.embeds[0].colour = discord.Color.green()
-        message.embeds[0].description = f"**Розыгрыш окончен!**\n\nПобедители: {winners_str}\nОрганизатор: {guild.get_member(giveaway[4])}\nПриз:\n>>> {giveaway[8]}"
+        message.embeds[0].description = f"**Розыгрыш окончен!**\n\nПобедители: {winners_str}\nОрганизатор: {guild.get_member(giveaway.creator_id)}\nПриз:\n>>> {giveaway.prize}"
         await message.edit(content="⏰ Розыгрыш окончен!", embed=message.embeds[0])
         await channel.send(
             f"**Розыгрыш** {message.jump_url} **окончен**\n**Победители:** {winners_str}"
         )
-        await self.client.database.del_giveaway(giveaway[0])
+        await self.client.database.del_giveaway(giveaway.id)
         return True

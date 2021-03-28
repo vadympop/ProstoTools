@@ -1,14 +1,11 @@
 import discord
 
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
 from random import randint
 
 
-class Works(commands.Cog, name="Works"):
-	def __init__(self, client):
-		self.client = client
-		self.FOOTER = self.client.config.FOOTER_TEXT
-
+class Works(BaseCog):
 	@commands.group(
 		usage="work [Команда]",
 		description="Категория команд - работы",
@@ -37,10 +34,10 @@ class Works(commands.Cog, name="Works"):
 	@commands.cooldown(2, 10800, commands.BucketType.member)
 	async def loader(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		lvl_member = data["level"]
+		lvl_member = data.level
 		rand_num = randint(80, 100)
-		cur_state_pr = data["prison"]
-		cur_items = data["items"]
+		cur_state_pr = data.prison
+		cur_items = data.items
 
 		if not cur_state_pr:
 			if lvl_member >= 3:
@@ -48,7 +45,7 @@ class Works(commands.Cog, name="Works"):
 					await self.client.database.update(
 						"users",
 						where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-						money=data["money"] + rand_num,
+						money=data.money + rand_num,
 					)
 
 					emb = discord.Embed(
@@ -107,10 +104,10 @@ class Works(commands.Cog, name="Works"):
 	@commands.cooldown(1, 18000, commands.BucketType.member)
 	async def treasurehunter(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		lvl_member = data["level"]
-		cur_state_pr = data["prison"]
-		cur_items = data["items"]
-		cur_pets = data["pets"]
+		lvl_member = data.level
+		cur_state_pr = data.prison
+		cur_items = data.items
+		cur_pets = data.pets
 
 		async def func_trHunt(shans: int):
 			rand_num_1 = randint(0, 100)
@@ -126,7 +123,7 @@ class Works(commands.Cog, name="Works"):
 				await self.client.database.update(
 					"users",
 					where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-					money=data["money"]+rand_num_2,
+					money=data.money+rand_num_2,
 				)
 
 				msg_content = (
@@ -238,16 +235,16 @@ class Works(commands.Cog, name="Works"):
 	@commands.cooldown(2, 10800, commands.BucketType.member)
 	async def barman(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		lvl_member = data["level"]
+		lvl_member = data.level
 		rand_num = 150 + randint(0, 50)
-		cur_state_pr = data["prison"]
+		cur_state_pr = data.prison
 
 		if not cur_state_pr:
 			if lvl_member >= 4:
 				await self.client.database.update(
 					"users",
 					where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-					money=data["money"]+rand_num,
+					money=data.money+rand_num,
 				)
 
 				emb = discord.Embed(
@@ -289,8 +286,8 @@ class Works(commands.Cog, name="Works"):
 	@commands.cooldown(3, 7200, commands.BucketType.member)
 	async def cleaner(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		cur_items = data["items"]
-		cur_state_pr = data["prison"]
+		cur_items = data.items
+		cur_state_pr = data.prison
 
 		async def cleaner_func(rnum1: int, rnum2: int):
 			rnum = randint(rnum1, rnum2)
@@ -298,7 +295,7 @@ class Works(commands.Cog, name="Works"):
 			await self.client.database.update(
 				"users",
 				where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-				money=data["money"]+rnum,
+				money=data.money+rnum,
 			)
 
 			msg_content = f"**За сегодняшнюю уборку вы получили: {rnum}$**"
@@ -346,7 +343,7 @@ class Works(commands.Cog, name="Works"):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
-		if cur_state_pr and data["money"] > 0:
+		if cur_state_pr and data.money > 0:
 			emb = discord.Embed(
 				description="**Вы успешно погасили борг и выйшли с тюрмы!**",
 				colour=discord.Color.green(),
@@ -371,15 +368,15 @@ class Works(commands.Cog, name="Works"):
 	@commands.cooldown(1, 18000, commands.BucketType.member)
 	async def windowasher(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		lvl_member = data["level"]
+		lvl_member = data.level
 		rand_num_1 = randint(1, 2)
-		cur_state_pr = data["prison"]
+		cur_state_pr = data.prison
 
 		if not cur_state_pr:
 			if lvl_member >= 5:
 				if rand_num_1 == 1:
 					rand_num_2 = randint(250, 300)
-					cur_money = data["money"] + rand_num_2
+					cur_money = data.money + rand_num_2
 					emb = discord.Embed(
 						description=f"**За мойку окон на высоком здании в получили {rand_num_2}$**",
 						colour=discord.Color.green(),
@@ -392,7 +389,7 @@ class Works(commands.Cog, name="Works"):
 					)
 					await ctx.send(embed=emb)
 				elif rand_num_1 == 2:
-					cur_money = data["money"] - 300
+					cur_money = data.money - 300
 					emb = discord.Embed(
 						description=f"**Вы упали и потеряли 300$**",
 						colour=discord.Color.green(),

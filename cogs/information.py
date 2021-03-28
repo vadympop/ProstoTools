@@ -3,21 +3,23 @@ import datetime
 import sanic
 import psutil as ps
 import humanize
+
+from core.services.database.models import BotStat
+from core.bases.cog_base import BaseCog
 from discord.ext import commands
 
 
-class Information(commands.Cog):
+class Information(BaseCog):
     def __init__(self, client):
-        self.client = client
-        self.FOOTER = self.client.config.FOOTER_TEXT
+        super().__init__(client)
         self.HELP_SERVER = self.client.config.HELP_SERVER
         humanize.i18n.activate("ru_RU")
 
-    def _get_bio(self, data: dict):
-        if data["bio"] == "":
+    def _get_bio(self, data):
+        if data.bio == "":
             return ""
         else:
-            return f"""\n\n**Краткая информация о пользователе:**\n{data['bio']}\n\n"""
+            return f"""\n\n**Краткая информация о пользователе:**\n{data.bio}\n\n"""
 
     def _get_activity(self, activity: discord.Activity):
         if activity is None:
@@ -109,10 +111,7 @@ class Information(commands.Cog):
                 "[TBL](https://top-bots.xyz/bot/700767394154414142)",
                 "[TopBots](https://bots.topcord.ru/bots/700767394154414142)",
             ]
-            commands_count = (await self.client.database.execute(
-                query="""SELECT count FROM bot_stats WHERE entity = 'all commands' ORDER BY count DESC LIMIT 1""",
-                fetchone=True,
-            ))[0]
+            commands_count = BotStat.objects.filter(entity="all commands").order_by("-count")[0].count
             embed1 = discord.Embed(
                 title=f"{self.client.user.name}#{self.client.user.discriminator}",
                 description=f"Информация о боте **{self.client.user.name}**.\nМного-функциональный бот со своей экономикой, кланами и системой модерации!",
@@ -262,34 +261,26 @@ class Information(commands.Cog):
             "europe": ":flag_eu: — Европа"
         }
 
-        dnd = len(
-            [
-                str(member.id)
-                for member in ctx.guild.members
-                if member.status.name == "dnd"
-            ]
-        )
-        sleep = len(
-            [
-                str(member.id)
-                for member in ctx.guild.members
-                if member.status.name == "idle"
-            ]
-        )
-        online = len(
-            [
-                str(member.id)
-                for member in ctx.guild.members
-                if member.status.name == "online"
-            ]
-        )
-        offline = len(
-            [
-                str(member.id)
-                for member in ctx.guild.members
-                if member.status.name == "offline"
-            ]
-        )
+        dnd = len([
+            str(member.id)
+            for member in ctx.guild.members
+            if member.status.name == "dnd"
+        ])
+        sleep = len([
+            str(member.id)
+            for member in ctx.guild.members
+            if member.status.name == "idle"
+        ])
+        online = len([
+            str(member.id)
+            for member in ctx.guild.members
+            if member.status.name == "online"
+        ])
+        offline = len([
+            str(member.id)
+            for member in ctx.guild.members
+            if member.status.name == "offline"
+        ])
         bots = len([str(member.id) for member in ctx.guild.members if member.bot])
 
         emb = discord.Embed(
@@ -363,7 +354,7 @@ class Information(commands.Cog):
     )
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def c_help(self, ctx):
-        custom_commands = (await self.client.database.sel_guild(guild=ctx.guild))["custom_commands"]
+        custom_commands = (await self.client.database.sel_guild(guild=ctx.guild)).custom_commands
         commands = ("\n".join([
             f"`{command['name']}` - {command['description']}"
             if "description" in command.keys()
