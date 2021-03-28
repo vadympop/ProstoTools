@@ -4,9 +4,9 @@ class CacheItem(dict):
 
 
 class CacheManager:
-    def __init__(self, name: str, max_length: int):
+    def __init__(self, name: str, max_size: int):
         self.items = []
-        self._max_length = max_length
+        self._max_size = max_size
         self.name = name
 
     def get(self, **kwargs):
@@ -26,7 +26,7 @@ class CacheManager:
     def add(self, item):
         self.items.append(item)
 
-        if len(self.items) > self._max_length:
+        if len(self.items) > self._max_size:
             self.items.pop(0)
 
     def update(self, new_data, **kwargs):

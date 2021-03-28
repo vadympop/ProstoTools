@@ -3,13 +3,13 @@ from core.services.database.models import Blacklist, Reminder, StatusReminder, P
 
 
 class Cache:
-    users = CacheManager(name="Users", max_length=2000)
-    guilds = CacheManager(name="Guilds", max_length=500)
-    blacklist = CacheManager(name="Blacklist", max_length=2000)
-    reminders = CacheManager(name="Reminders", max_length=1500)
-    punishments = CacheManager(name="Punishments", max_length=2000)
-    status_reminders = CacheManager(name="StatusReminders", max_length=1500)
-    giveaways = CacheManager(name="Giveaways", max_length=1000)
+    users = CacheManager(name="Users", max_size=2000)
+    guilds = CacheManager(name="Guilds", max_size=500)
+    blacklist = CacheManager(name="Blacklist", max_size=2000)
+    reminders = CacheManager(name="Reminders", max_size=1500)
+    punishments = CacheManager(name="Punishments", max_size=2000)
+    status_reminders = CacheManager(name="StatusReminders", max_size=1500)
+    giveaways = CacheManager(name="Giveaways", max_size=1000)
 
     async def run(self):
         self.blacklist.items = list(Blacklist.objects.all().values())
