@@ -268,6 +268,7 @@ class Database:
                 items=[],
                 pets=[],
                 transactions=[],
+                bonuses=[]
             )
             new_user.save()
             self.cache.users.add(model_to_dict(new_user))

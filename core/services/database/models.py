@@ -134,6 +134,7 @@ class User(models.Model):
     items = models.JSONField()
     pets = models.JSONField()
     transactions = models.JSONField()
+    bonuses = models.JSONField()
     objects = Manager()
 
     class Meta:
