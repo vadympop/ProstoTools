@@ -307,27 +307,6 @@ class Settings(BaseCog):
 		)
 
 	@setting.command(
-		name="text-channels-category",
-		description="Настройка категории приватных текстовых каналов",
-		usage="setting text-channels-category [Id категории]",
-	)
-	@commands.has_permissions(administrator=True)
-	async def privatetextcategory(self, ctx, category: discord.CategoryChannel):
-		await self.client.database.update(
-			"guilds",
-			where={"guild_id": ctx.guild.id},
-			textchannels_category=category.id
-		)
-
-		emb = discord.Embed(
-			description=f"**Вы успешно настроили категорию для приватних текстовых каналов! Новая категория - {category.name}**",
-			colour=discord.Color.green(),
-		)
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
-
-	@setting.command(
 		description="Настройка максимального количества предупрежденний",
 		usage="setting warns [count/punishment] [Опции...]",
 	)
@@ -1104,32 +1083,6 @@ class Settings(BaseCog):
 			where={"guild_id": ctx.guild.id},
 			auto_mod=settings
 		)
-
-	@setting.command(
-		name="time-delete-channel",
-		description="Через сколько минут будет удалять приватный текстовый канал",
-		usage="setting time-delete-channel [Любое число]",
-	)
-	@commands.has_permissions(administrator=True)
-	async def timetextchannel(self, ctx, time: int):
-		if time <= 0:
-			emb = await self.client.create_error_embed(ctx, "Укажите время удаления приватных текстовых каналов больше 0!")
-			await ctx.send(embed=emb)
-			return
-
-		await self.client.database.update(
-			"guilds",
-			where={"guild_id": ctx.guild.id},
-			timedelete_textchannel=time
-		)
-
-		emb = discord.Embed(
-			description=f"**Вы успешно изменили значения! Новая длительность на удаления приватного текстового - {time}**",
-			colour=discord.Color.green(),
-		)
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
 
 	@setting.command(
 		name="exp-multi",

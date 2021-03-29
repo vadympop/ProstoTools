@@ -1,5 +1,7 @@
 import django
 import os
+
+from core.config import Config
 from django.conf import settings
 
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
@@ -10,10 +12,10 @@ conf = {
     'DATABASES': {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'data',
-            'USER': 'root',
-            'PASSWORD': 'zyzel19db',
-            'HOST': '127.0.0.1',
+            'NAME': Config.DB_DATABASE,
+            'USER': Config.DB_USER,
+            'PASSWORD': Config.DB_PASSWORD,
+            'HOST': Config.DB_HOST,
             'PORT': '3306'
         }
     }

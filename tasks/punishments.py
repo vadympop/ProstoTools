@@ -21,7 +21,7 @@ class TasksPunishments(BaseCog):
 			guild = self.client.get_guild(int(mute[1]))
 			if mute[3] == "mute":
 				if guild is not None:
-					member = guild.get_member(mute.member_id)
+					member = guild.get_member(mute.user_id)
 					if float(mute.time) <= float(time.time()):
 						await self.client.database.del_punishment(
 							member=member, guild_id=guild.id, type_punishment="mute"
@@ -71,7 +71,7 @@ class TasksPunishments(BaseCog):
 					bans = await guild.bans()
 					for ban_entry in bans:
 						user = ban_entry.user
-						if user.id == ban.member_id:
+						if user.id == ban.user_id:
 							if float(ban.time) <= float(time.time()):
 								await self.client.database.del_punishment(
 									member=user,
@@ -104,7 +104,7 @@ class TasksPunishments(BaseCog):
 			guild = self.client.get_guild(temprole.guild_id)
 			if temprole.type == "temprole":
 				if guild is not None:
-					member = guild.get_member(temprole.member_id)
+					member = guild.get_member(temprole.user_id)
 					if float(temprole.time) <= float(time.time()):
 						await self.client.database.del_punishment(
 							member=member,
@@ -122,7 +122,7 @@ class TasksPunishments(BaseCog):
 			guild = self.client.get_guild(vmute.guild_id)
 			if vmute.type == "vmute":
 				if guild is not None:
-					member = guild.get_member(vmute.member_id)
+					member = guild.get_member(vmute.user_id)
 					if float(vmute.time) <= float(time.time()):
 						await self.client.database.del_punishment(
 							member=member,

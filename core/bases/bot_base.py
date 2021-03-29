@@ -102,9 +102,7 @@ class ProstoTools(commands.AutoShardedBot):
             try:
                 self.load_extension(extension)
             except Exception as e:
-                logger.error(
-                    f"An error occurred when loading cog {extension}:\n{repr(e)}"
-                )
+                logger.error(f"An error occurred when loading cog {extension}:\n{repr(e)}")
             else:
                 logger.info(f"{extension} was loaded")
 

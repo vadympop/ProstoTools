@@ -16,8 +16,8 @@ class Manager(models.manager.BaseManager.from_queryset(QuerySet)):
 
 class Warn(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user_id = models.BigIntegerField(primary_key=True)
-    guild_id = models.BigIntegerField(primary_key=True)
+    user_id = models.BigIntegerField()
+    guild_id = models.BigIntegerField()
     reason = models.TextField()
     state = models.BooleanField()
     time = models.BigIntegerField()
@@ -44,8 +44,8 @@ class Reminder(models.Model):
 
 class Mute(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user_id = models.BigIntegerField(primary_key=True)
-    guild_id = models.BigIntegerField(primary_key=True)
+    user_id = models.BigIntegerField()
+    guild_id = models.BigIntegerField()
     reason = models.TextField()
     active_to = models.BigIntegerField()
     time = models.BigIntegerField()
@@ -75,7 +75,7 @@ class Giveaway(models.Model):
 class StatusReminder(models.Model):
     id = models.BigAutoField(primary_key=True)
     target_id = models.BigIntegerField()
-    member_id = models.BigIntegerField()
+    user_id = models.BigIntegerField()
     wait_for = models.TextField()
     type = models.TextField()
     objects = Manager()
@@ -85,7 +85,8 @@ class StatusReminder(models.Model):
 
 
 class Punishment(models.Model):
-    member_id = models.BigIntegerField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
+    user_id = models.BigIntegerField()
     guild_id = models.BigIntegerField()
     type = models.TextField()
     time = models.BigIntegerField()
@@ -125,7 +126,6 @@ class User(models.Model):
     exp = models.BigIntegerField()
     money = models.BigIntegerField()
     coins = models.BigIntegerField()
-    text_channel = models.BigIntegerField()
     reputation = models.BigIntegerField()
     prison = models.BooleanField()
     profile = models.TextField()
@@ -142,9 +142,7 @@ class User(models.Model):
 
 class Guild(models.Model):
     guild_id = models.BigIntegerField(primary_key=True)
-    textchannels_category = models.BigIntegerField()
     exp_multi = models.FloatField()
-    timedelete_textchannel = models.BigIntegerField()
     donate = models.BooleanField()
     prefix = models.TextField()
     api_key = models.TextField()

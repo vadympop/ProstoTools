@@ -16,7 +16,7 @@ class StatusRemindersEvents(BaseCog):
                 if setting.type == "default":
                     await self.client.database.del_status_reminder(setting.id)
 
-                user = self.client.get_user(setting.member_id)
+                user = self.client.get_user(setting.user_id)
                 if user is None:
                     await self.client.database.del_status_reminder(setting.id)
                 else:

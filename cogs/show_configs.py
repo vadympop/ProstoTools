@@ -26,11 +26,6 @@ class ShowConfigs(BaseCog):
     async def show_config(self, ctx):
         if ctx.invoked_subcommand is None:
             data = await self.client.database.sel_guild(guild=ctx.guild)
-            category_obj = ctx.guild.get_channel(data.textchannels_category)
-            if category_obj is None:
-                category = "Не указана"
-            else:
-                category = category_obj.name
 
             if not data.rank_message["state"]:
                 rank_message = "Стандартное"
@@ -44,10 +39,8 @@ class ShowConfigs(BaseCog):
                 voice_channel = f"Включены({channel.name})" if channel is not None else f"Включены"
 
             main_settings = f"""Префикс - `{data.prefix}`
-    Категория приватных текстовых каналов - `{category}`
     Максимальное количество предупрежденний - `{data.warns_settings["max"]}`
     Множитель опыта - `{data.exp_multi * 100}%`
-    Время удаления приватного текстового канала - `{data.timedelete_textchannel}мин`
     Сообщения о повышении уровня - `{rank_message}`
     Приватные голосовые комнаты - `{voice_channel}`
     """

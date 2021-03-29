@@ -1,10 +1,9 @@
 import discord
-
 from discord.ext import commands
-from core.services.database.models import User
 
 
-def parse_inventory(ctx: commands.Context, data: User) -> tuple:
+async def parse_inventory(ctx: commands.Context) -> tuple:
+    data = await ctx.bot.database.sel_user(target=ctx.author)
     roles_content = ""
     items_content = ""
     box_content = ""

@@ -1,24 +1,32 @@
 import uuid
 import datetime
-import json
 import typing
 import time as tm
 import discord
 
-from core.services.cache.cache_manager import CacheItem
 from django.db import connection
 from django.forms.models import model_to_dict
 from .models import User, Warn, Giveaway, Guild, StatusReminder, Reminder, Mute, Punishment, Error, BotStat, Blacklist
 
 
+TABLES_TO_MODELS = {
+    "warns": Warn,
+    "users": User,
+    "guilds": Guild,
+    "reminders": Reminder,
+    "status_reminders": StatusReminder,
+    "blacklist": Blacklist,
+    "giveaways": Giveaway,
+    "errors": Error,
+    "bot_stats": BotStat,
+    "punishments": Punishment,
+    "mutes": Mute
+}
+
+
 class Database:
     def __init__(self, client):
-        self.client = client
-        self.cache = self.client.cache
-        self.DB_HOST = self.client.config.DB_HOST
-        self.DB_USER = self.client.config.DB_USER
-        self.DB_PASSWORD = self.client.config.DB_PASSWORD
-        self.DB_DATABASE = self.client.config.DB_DATABASE
+        self.cache = client.cache
 
     async def add_giveaway(
             self,
@@ -66,10 +74,10 @@ class Database:
 
         return Giveaway.objects.get(id=giveaway_id)
 
-    async def add_status_reminder(self, target_id: int, member_id: int, wait_for: str, type_reminder: str) -> int:
+    async def add_status_reminder(self, target_id: int, user_id: int, wait_for: str, type_reminder: str) -> int:
         new_reminder = StatusReminder(
             target_id=target_id,
-            member_id=member_id,
+            user_id=user_id,
             wait_for=wait_for,
             type=type_reminder
         )
@@ -198,9 +206,9 @@ class Database:
             member: discord.Member,
             role_id: int = 0,
             **kwargs,
-    ) -> None:
+    ) -> int:
         new_punishment = Punishment(
-            member_id=member.id,
+            user_id=member.id,
             guild_id=member.guild.id,
             type=type_punishment,
             time=time,
@@ -218,10 +226,12 @@ class Database:
                 author=kwargs.pop("author"),
             )
 
+        return new_punishment.id
+
     async def get_punishments(self) -> typing.List[Punishment]:
-        cached_punishments = self.cache.punishments.items
+        cached_punishments = self.cache.punishments.all()
         if len(cached_punishments) > 0:
-            return [CacheItem(**p) for p in cached_punishments if p["time"] < tm.time()]
+            return [p for p in cached_punishments if p.time < tm.time()]
 
         return Punishment.objects.filter(time__lt=tm.time())
 
@@ -229,12 +239,12 @@ class Database:
         if type_punishment == "mute":
             await self.del_mute(member.id, member.guild.id)
 
-        db_punishment = Punishment.objects.get(member_id=member.id, guild_id=guild_id, type=type_punishment)
+        db_punishment = Punishment.objects.get(user_id=member.id, guild_id=guild_id, type=type_punishment)
         if db_punishment is None:
             return
 
         db_punishment.delete()
-        self.cache.punishments.remove(member_id=member.id, guild_id=guild_id, type=type_punishment)
+        self.cache.punishments.remove(user_id=member.id, guild_id=guild_id, type=type_punishment)
 
     async def sel_user(self, target: discord.Member) -> User:
         cached_user = self.cache.users.get(guild_id=target.guild.id, user_id=target.id)
@@ -250,9 +260,8 @@ class Database:
                 exp=0,
                 money=0,
                 coins=0,
-                text_channel=20,
                 reputation=0,
-                prison="False",
+                prison=False,
                 profile="default",
                 bio="",
                 clan="",
@@ -275,9 +284,7 @@ class Database:
         if db_guild is None:
             new_guild = Guild(
                 guild_id=guild.id,
-                textchannels_category=0,
                 exp_multi=100,
-                timedelete_textchannel=30,
                 donate=False,
                 prefix="p.",
                 api_key=str(uuid.uuid4()),
@@ -328,38 +335,13 @@ class Database:
 
         return Guild.objects.get(guild_id=guild.id).moderators
 
-    async def execute(
-            self, query: str, val: typing.Iterable = (), fetchone: bool = False
-    ) -> list:
-        with connection.cursor() as cursor:
-            cursor.execute(query, val)
-            if fetchone:
-                data = cursor.fetchone()
-            else:
-                data = cursor.fetchall()
-        return data
-
     async def update(self, table: str, **kwargs):
         where = kwargs.pop("where")
-        columns = []
-        values = []
-        for key, value in kwargs.items():
-            columns.append(f"{key} = %s")
-            values.append(json.dumps(value))
-
-        query = ", ".join(columns)
-        where_statement = ' AND '.join([
-            f"{key} = {value}"
-            for key, value in where.items()
-        ])
         cached_entity = self.cache.__getattribute__(table).get(**where)
         if cached_entity is not None:
             cached_entity.update(kwargs)
 
-        await self.execute(
-            f"""UPDATE {table} SET {query} WHERE {where_statement}""",
-            values
-        )
+        TABLES_TO_MODELS[table].objects.filter(**where).update(**kwargs)
 
     async def add_stat_counter(
             self, entity: str = "all commands", add_counter: int = None

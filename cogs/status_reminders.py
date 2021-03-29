@@ -78,7 +78,7 @@ class StatusReminders(BaseCog):
             await ctx.send(embed=emb)
             return
 
-        if await self.client.database.get_status_reminder(target_id=member.id, type=type_reminder, member_id=ctx.author.id) is not None:
+        if await self.client.database.get_status_reminder(target_id=member.id, type=type_reminder, user_id=ctx.author.id) is not None:
             emb = await self.client.utils.create_error_embed(
                 ctx,
                 "**У вас уже есть напоминания статуса на этого участника!**"
@@ -88,7 +88,7 @@ class StatusReminders(BaseCog):
 
         new_id = await self.client.database.add_status_reminder(
             target_id=member.id,
-            member_id=ctx.author.id,
+            user_id=ctx.author.id,
             wait_for=status.lower(),
             type_reminder=type_reminder.lower()
         )
@@ -130,7 +130,7 @@ class StatusReminders(BaseCog):
         usage="status-reminder list",
     )
     async def list(self, ctx):
-        data = await self.client.database.get_status_reminders(member_id=ctx.author.id)
+        data = await self.client.database.get_status_reminders(user_id=ctx.author.id)
         if len(data) > 0:
             convert_statuses = {
                 "dnd": "не беспокоить",

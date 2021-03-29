@@ -46,7 +46,7 @@ class TasksOther(BaseCog):
 			guild = self.client.get_guild(channel.guild_id)
 			if channel.type == "text_channel":
 				if guild is not None:
-					member = guild.get_member(channel.member_id)
+					member = guild.get_member(channel.user_id)
 					if member is not None:
 						if float(channel.time) <= float(time.time()):
 							await self.client.database.del_punishment(

@@ -3,7 +3,6 @@ import random
 import math
 import io
 import uuid
-import time
 import discord
 
 from core.utils.economy import parse_inventory, crime_member, rob_func
@@ -113,81 +112,6 @@ class Economy(BaseCog):
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
-
-	@commands.command(
-		aliases=["textchannel"],
-		name="text-channel",
-		description="Создает приватный текстовый канал",
-		usage="text-channel [Имя канала]",
-		help="**Полезное:**\nПо умолчанию у вас есть 20 каналов(Их можно купить в магазине). Канал создается в настроенной администрацией категории. Он автоматически удаляеться через настроеное количество минут(По умолчанию 30)!\n\n**Примеры использования:**\n1. {Prefix}text-channel Name\n\n**Пример 1:** Создаёт временный текстовый канал с названиям `Name`",
-	)
-	@commands.cooldown(1, 240, commands.BucketType.member)
-	@commands.bot_has_permissions(manage_channels=True)
-	async def textchannel(self, ctx, *, name: str):
-		data = await self.client.database.sel_user(target=ctx.author)
-		guild_data = await self.client.database.sel_guild(guild=ctx.guild)
-
-		if len(name) > 32:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Укажите названия канала меньше 32 символов!"
-			)
-			await ctx.send(embed=emb)
-			self.textchannel.reset_cooldown(ctx)
-			return
-
-		if guild_data.textchannels_category == 0:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Не указана категория создания приватных текстовых каналов. Обратитесь к администации сервера!"
-			)
-			await ctx.send(embed=emb)
-			self.textchannel.reset_cooldown(ctx)
-			return
-
-		if data.text_channel <= 0:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "У вас не достаточно каналов!"
-			)
-			await ctx.send(embed=emb)
-			self.textchannel.reset_cooldown(ctx)
-			return
-
-		overwrites = {
-			ctx.guild.default_role: discord.PermissionOverwrite(
-				read_messages=False, send_messages=False
-			),
-			ctx.author: discord.PermissionOverwrite(
-				read_messages=True,
-				send_messages=True,
-				manage_permissions=True,
-				manage_channels=True,
-			),
-		}
-		category = ctx.guild.get_channel(guild_data.textchannels_category)
-		text_channel = await ctx.guild.create_text_channel(
-			name, category=category, overwrites=overwrites
-		)
-
-		emb = discord.Embed(
-			description=f"`{str(ctx.author)}` Создал текстовый канал `#{text_channel}`",
-			colour=discord.Color.green(),
-		)
-		emb.set_author(
-			name=self.client.user.name, icon_url=self.client.user.avatar_url
-		)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
-
-		await self.client.database.update(
-			"users",
-			where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-			text_channels=data.text_channel-1
-		)
-		await self.client.database.add_punishment(
-			type_punishment="text_channel",
-			time=float(time.time() + 60 * guild_data.timedelete_textchannel),
-			member=ctx.author,
-			role_id=text_channel.id,
-		)
 
 	@commands.command(
 		aliases=["shoplist"],
@@ -1070,11 +994,10 @@ class Economy(BaseCog):
 	)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def inventory(self, ctx):
-		data = await self.client.database.sel_user(target=ctx.author)
-		parsed_inventory = parse_inventory(ctx, data)
+		parsed_inventory = await parse_inventory(ctx)
 		emb = discord.Embed(
 			title="Ваш инвертарь",
-			description=f"{parsed_inventory[0]}{parsed_inventory[1]}{parsed_inventory[2]}{parsed_inventory[3]}**Текстовые каналы:** {data.text_channel}",
+			description=f"{parsed_inventory[0]}{parsed_inventory[1]}{parsed_inventory[2]}{parsed_inventory[3]}",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
