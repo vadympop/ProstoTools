@@ -14,18 +14,18 @@ class TasksMessageStat(BaseCog):
 	@tasks.loop(minutes=5)
 	async def message_stat_loop(self):
 		for guild in self.client.guilds:
-			data_guild = await self.client.database.sel_guild(guild=guild)
-			if "message" in data_guild["server_stats"].keys():
+			server_stats = (await self.client.database.sel_guild(guild=guild)).server_stats
+			if "message" in server_stats.keys():
 				try:
 					message = await guild.get_channel(
-						data_guild["server_stats"]["message"][1]
-					).fetch_message(data_guild["server_stats"]["message"][0])
+						server_stats["message"][1]
+					).fetch_message(server_stats["message"][0])
 				except discord.errors.NotFound:
-					data_guild["server_stats"].pop("message")
+					server_stats.pop("message")
 					await self.client.database.update(
 						"guilds",
 						where={"guild_id": guild.id},
-						server_stats=data_guild["server_stats"]
+						server_stats=server_stats
 					)
 				except discord.errors.DiscordServerError:
 					pass
