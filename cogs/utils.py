@@ -3,6 +3,7 @@ import asyncio
 import uuid
 import datetime
 
+from core.utils.time_utils import get_timezone_obj
 from core.services.database.models import User
 from core.utils.other import check_filters, check_moderate_roles
 from core.bases.cog_base import BaseCog
@@ -370,6 +371,7 @@ class Utils(BaseCog):
 	@commands.check(check_moderate_roles)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def mutes(self, ctx, member: discord.Member = None):
+		guild_timezone = get_timezone_obj(await self.client.database.get_guild_timezone(ctx.guild))
 		if member is None:
 			data = await self.client.database.get_mutes(ctx.guild.id)
 			if len(data) > 0:
@@ -377,8 +379,8 @@ class Utils(BaseCog):
 				for mute in data:
 					member = ctx.guild.get_member(mute.user_id)
 					author = ctx.guild.get_member(mute.author)
-					mute_time = datetime.datetime.fromtimestamp(mute.time).strftime("%d %B %Y %X")
-					active_to = datetime.datetime.fromtimestamp(mute.active_to).strftime("%d %B %Y %X")
+					mute_time = datetime.datetime.fromtimestamp(mute.time, tz=guild_timezone).strftime("%d %B %Y %X")
+					active_to = datetime.datetime.fromtimestamp(mute.active_to, tz=guild_timezone).strftime("%d %B %Y %X")
 					emb = discord.Embed(
 						title="Список мьютов сервера",
 						description=f"Пользователь: `{member}`\nПричина: **{mute.reason[:256]}**\nАвтор: `{author}`\nВремя мьюта: `{mute_time}`\nАктивный до: `{active_to}`",
@@ -414,8 +416,8 @@ class Utils(BaseCog):
 			else:
 				member = ctx.guild.get_member(data.user_id)
 				author = ctx.guild.get_member(data.author)
-				mute_time = datetime.datetime.fromtimestamp(data.time).strftime("%d %B %Y %X")
-				active_to = datetime.datetime.fromtimestamp(data.active_to).strftime("%d %B %Y %X")
+				mute_time = datetime.datetime.fromtimestamp(data.time, tz=guild_timezone).strftime("%d %B %Y %X")
+				active_to = datetime.datetime.fromtimestamp(data.active_to, tz=guild_timezone).strftime("%d %B %Y %X")
 				emb = discord.Embed(
 					title=f"Информация о мьюте участника `{member}`",
 					description=f"Причина: **{data.reason[:256]}**\nАвтор: `{author}`\nВремя мьюта: `{mute_time}`\nАктивный до: `{active_to}`",

@@ -1,6 +1,6 @@
 import discord
-import datetime
 
+from core.utils.time_utils import get_timezone_obj
 from core.bases.cog_base import BaseCog
 from discord.ext import tasks
 
@@ -18,7 +18,10 @@ class TasksOther(BaseCog):
 			if guild is not None:
 				member = guild.get_member(int(reminder.user_id))
 				channel = guild.get_channel(int(reminder.channel_id))
-				if float(reminder.time) <= float((await self.client.utils.get_guild_time(guild)).timestamp()):
+				tz = get_timezone_obj(await self.client.database.get_guild_timezone(guild))
+				reminder_time = await self.client.utils.get_guild_time_from_timestamp(reminder.time, guild, tz)
+				guild_time = await self.client.utils.get_guild_time(guild, tz)
+				if reminder_time <= guild_time:
 					emb = discord.Embed(
 						title="Напоминания!",
 						description=f"**Текст**:\n```{reminder.text}```",

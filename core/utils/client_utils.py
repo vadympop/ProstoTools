@@ -12,8 +12,15 @@ class Utils:
         self.client = client
         self.FOOTER = self.client.config.FOOTER_TEXT
 
-    async def get_guild_time(self, guild: discord.Guild) -> datetime.datetime:
-        return datetime.datetime.now(get_timezone_obj(await self.client.database.get_guild_timezone(guild)))
+    async def get_guild_time(self, guild: discord.Guild, tz=None) -> datetime.datetime:
+        if tz is None:
+            tz = get_timezone_obj(await self.client.database.get_guild_timezone(guild))
+        return datetime.datetime.now(tz)
+
+    async def get_guild_time_from_timestamp(self, timestamp: int, guild: discord.Guild, tz=None):
+        if tz is None:
+            tz = get_timezone_obj(await self.client.database.get_guild_timezone(guild))
+        return datetime.datetime.fromtimestamp(timestamp, tz=tz)
 
     async def create_error_embed(self, ctx, error_msg: str, bold: bool = False):
         emb = discord.Embed(

@@ -242,9 +242,9 @@ class Database:
     async def get_punishments(self) -> typing.List[Punishment]:
         cached_punishments = self.cache.punishments.all()
         if len(cached_punishments) > 0:
-            return [p for p in cached_punishments if p.time < datetime.datetime.utcnow().timestamp()]
+            return cached_punishments
 
-        return Punishment.objects.filter(time__lt=datetime.datetime.utcnow().timestamp())
+        return Punishment.objects.all()
 
     async def del_punishment(self, member: discord.Member, guild_id: int, type_punishment: str) -> None:
         if type_punishment == "mute":

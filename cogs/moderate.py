@@ -3,6 +3,7 @@ import typing
 import datetime
 import humanize
 
+from core.utils.time_utils import get_timezone_obj
 from core.utils.other import check_filters
 from core.bases.cog_base import BaseCog
 from core.utils.other import process_converters, check_moderate_roles
@@ -800,11 +801,13 @@ class Moderate(BaseCog):
 			return
 
 		data = await self.client.database.get_warns(user_id=member.id, guild_id=ctx.guild.id)
+		guild_timezone = get_timezone_obj(await self.client.database.get_guild_timezone(ctx.guild))
+
 		if len(data) > 0:
 			embeds = []
 			warns = []
 			for warn in data:
-				warn_time = datetime.datetime.fromtimestamp(warn.time).strftime("%d %B %Y %X")
+				warn_time = datetime.datetime.fromtimestamp(warn.time, tz=guild_timezone).strftime("%d %B %Y %X")
 				author = ctx.guild.get_member(warn.author)
 				warn_state = "Да" if warn.state else "Нет"
 				text = f"""Активный: **{warn_state}**\nId: `{warn.id}`\nПричина: **{warn.reason[:256]}**\nАвтор: `{author}`\nВремя мьюта: `{warn_time}`"""

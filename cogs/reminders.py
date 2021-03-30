@@ -1,6 +1,7 @@
 import datetime
 import discord
 
+from core.utils.time_utils import get_timezone_obj
 from core.services.database.models import Reminder
 from core.bases.cog_base import BaseCog
 from core.converters import Expiry
@@ -90,10 +91,12 @@ class Reminders(BaseCog):
     )
     async def list(self, ctx):
         data = await self.client.database.get_reminders(user_id=ctx.author.id, guild_id=ctx.guild.id)
+        guild_timezone = get_timezone_obj(await self.client.database.get_guild_timezone(ctx.guild))
+
         if len(data) > 0:
             embeds = []
             for reminder in data:
-                active_to = datetime.datetime.fromtimestamp(reminder.time).strftime('%d %B %Y %X')
+                active_to = datetime.datetime.fromtimestamp(reminder.time, tz=guild_timezone).strftime('%d %B %Y %X')
                 emb = discord.Embed(
                     title="Список напоминаний",
                     description=f"Id: **{reminder.id}**\nДействует до: `{active_to}`\nТекст:\n>>> {reminder.text[:1024]}",

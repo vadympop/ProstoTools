@@ -2,6 +2,7 @@ import discord
 import asyncio
 import datetime
 
+from core.utils.time_utils import get_timezone_obj
 from core.bases.cog_base import BaseCog
 from core.converters import Expiry
 from core.paginator import Paginator
@@ -174,10 +175,12 @@ class Giveaways(BaseCog):
     )
     async def list(self, ctx):
         data = await self.client.database.get_giveaways(guild_id=ctx.guild.id)
+        guild_timezone = get_timezone_obj(await self.client.database.get_guild_timezone(ctx.guild))
+
         if len(data) > 0:
             embeds = []
             for giveaway in data:
-                active_to = datetime.datetime.fromtimestamp(giveaway.time).strftime("%d %B %Y %X")
+                active_to = datetime.datetime.fromtimestamp(giveaway.time, tz=guild_timezone).strftime("%d %B %Y %X")
                 creator = str(ctx.guild.get_member(giveaway.creator_id))
                 message_link = f"https://discord.com/channels/{giveaway.guild_id}/{giveaway.channel_id}/{giveaway.message_id}"
                 description = f"""[Сообщения]({message_link})\nId: `{giveaway.id}`\nНазвание: `{giveaway.name}`\nКанал: {ctx.guild.get_channel(giveaway.channel_id)}\nОрганизатор: `{creator}`\nДействует до: `{active_to}`\nПобедителей: `{giveaway.num_winners}`\nПриз:\n>>> {giveaway.prize}"""
