@@ -31,8 +31,8 @@ class Warn(models.Model):
 
 class Reminder(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user_id = models.BigIntegerField(primary_key=True)
-    guild_id = models.BigIntegerField(primary_key=True)
+    user_id = models.BigIntegerField()
+    guild_id = models.BigIntegerField()
     text = models.TextField()
     time = models.BigIntegerField()
     channel_id = models.BigIntegerField()
