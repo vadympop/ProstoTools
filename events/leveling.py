@@ -2,7 +2,6 @@ import discord
 import jinja2
 import math
 
-from core.utils.classes import TemplateRenderingModel
 from core.bases.cog_base import BaseCog
 from discord.ext import commands
 from discord.utils import get

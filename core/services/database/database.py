@@ -285,6 +285,7 @@ class Database:
             self.cache.users.add(model_to_dict(new_user))
             return new_user
 
+        self.cache.users.add(model_to_dict(db_user))
         return db_user
 
     async def sel_guild(self, guild: discord.Guild) -> Guild:
@@ -332,6 +333,7 @@ class Database:
             self.cache.guilds.add(model_to_dict(new_guild))
             return new_guild
 
+        self.cache.guilds.add(model_to_dict(db_guild))
         return db_guild
 
     async def get_prefix(self, guild: discord.Guild):
