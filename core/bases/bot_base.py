@@ -25,7 +25,6 @@ class ProstoTools(commands.AutoShardedBot):
                 bans=True,
                 emojis=True,
                 voice_states=True,
-                presences=True,
                 messages=True,
                 guild_reactions=True
             ),
