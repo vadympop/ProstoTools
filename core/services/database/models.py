@@ -147,6 +147,7 @@ class Guild(models.Model):
     donate = models.BooleanField()
     prefix = models.TextField()
     api_key = models.TextField()
+    timezone = models.TextField()
     server_stats = models.JSONField()
     voice_channel = models.JSONField()
     shop_list = models.JSONField()
@@ -179,3 +180,17 @@ class Blacklist(models.Model):
 
     class Meta:
         db_table = "blacklist"
+
+
+class AuditLogs(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    guild_id = models.BigIntegerField()
+    user_id = models.BigIntegerField()
+    time = models.DateTimeField()
+    username = models.TextField()
+    discriminator = models.IntegerField()
+    avatar_url = models.TextField()
+    type = models.TextField()
+
+    class Meta:
+        db_table = "audit_logs"

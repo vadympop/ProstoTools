@@ -16,7 +16,7 @@ def setup() -> None:
 
     logging_file = Path("data/logs", "prostotools.log")
     logging_file.parent.mkdir(exist_ok=True)
-    file_handler = handlers.TimedRotatingFileHandler(logging_file, when="d", backupCount=7, encoding="utf8")
+    file_handler = handlers.RotatingFileHandler(logging_file, maxBytes=10000000, backupCount=7, encoding="utf8")
     file_handler.setFormatter(logging_format)
 
     console_handler = logging.StreamHandler()

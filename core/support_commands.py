@@ -16,9 +16,13 @@ class SupportCommands:
 
 	async def mute(self, ctx, member: discord.Member, author: discord.Member, expiry_at: datetime.datetime, reason: str):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
+		guild_time = await self.client.utils.get_guild_time(ctx.guild)
 		delta = None
 		if expiry_at is not None:
-			delta = humanize.naturaldelta(expiry_at+datetime.timedelta(seconds=1))
+			delta = humanize.naturaldelta(
+				expiry_at+datetime.timedelta(seconds=1),
+				when=guild_time
+			)
 
 		role = get(ctx.guild.roles, name=self.MUTE_ROLE)
 		if role is None:
@@ -40,7 +44,7 @@ class SupportCommands:
 		emb = discord.Embed(
 			description=f"**{member}**({member.mention}) Был замьючен\nДлительность: `{description_time}`\nМодератор: `{author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=author.name, icon_url=author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -49,7 +53,7 @@ class SupportCommands:
 		emb = discord.Embed(
 			description=f"Вы были замьчены на сервере\nСервер: `{ctx.guild.name}`\nДлительность: `{description_time}`\nМодератор: `{author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=author.name, icon_url=author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -72,7 +76,7 @@ class SupportCommands:
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был замьючен",
 				colour=discord.Color.teal(),
-				timestamp=datetime.datetime.utcnow(),
+				timestamp=guild_time
 			)
 			e.add_field(
 				name=f"Модератором {str(author)}",
@@ -97,6 +101,7 @@ class SupportCommands:
 
 	async def warn(self, ctx, member: discord.Member, author: discord.Member, reason: str):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
+		guild_time = await self.client.utils.get_guild_time(ctx.guild)
 		guild_settings = await self.client.database.sel_guild(guild=ctx.guild)
 		max_warns = int(guild_settings.warns_settings["max"])
 		warn_punishment = guild_settings.warns_settings["punishment"]
@@ -157,7 +162,7 @@ class SupportCommands:
 			emb = discord.Embed(
 				description=f"**{member}**({member.mention}) Достиг максимальное количество предупреждений и получил наказания\nId предупреждения: {warn_id}\nКоличество предупреждений: `{len(cur_warns)+1}`\nМодератор: `{author}`\nПричина: **{reason}**",
 				colour=discord.Color.green(),
-				timestamp=datetime.datetime.utcnow()
+				timestamp=guild_time
 			)
 			emb.set_author(name=author.name, icon_url=author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -166,7 +171,7 @@ class SupportCommands:
 			emb = discord.Embed(
 				description=f"Вы достигли максимальное количество предупреждений и получили наказания\nСервер: `{ctx.guild.name}`\nId предупреждения: {warn_id}\nКоличество предупреждений: `{len(cur_warns)+1}`\nМодератор: `{author}`\nПричина: **{reason}**",
 				colour=discord.Color.green(),
-				timestamp=datetime.datetime.utcnow()
+				timestamp=guild_time
 			)
 			emb.set_author(name=author.name, icon_url=author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -180,7 +185,7 @@ class SupportCommands:
 			emb = discord.Embed(
 				description=f"**{member}**({member.mention}) Получил предупреждения\nId предупреждения: {warn_id}\nКоличество предупреждений: `{len(cur_warns)+1}`\nМодератор: `{author}`\nПричина: **{reason}**",
 				colour=discord.Color.green(),
-				timestamp=datetime.datetime.utcnow()
+				timestamp=guild_time
 			)
 			emb.set_author(name=author.name, icon_url=author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -189,7 +194,7 @@ class SupportCommands:
 			emb = discord.Embed(
 				description=f"Вы получили предупреждения на сервере\nСервер: `{ctx.guild.name}`\nId предупреждения: {warn_id}\nКоличество предупреждений: `{len(cur_warns)+1}`\nМодератор: `{author}`\nПричина: **{reason}**",
 				colour=discord.Color.green(),
-				timestamp=datetime.datetime.utcnow()
+				timestamp=guild_time
 			)
 			emb.set_author(name=author.name, icon_url=author.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -202,7 +207,7 @@ class SupportCommands:
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` получил предупреждения",
 				colour=discord.Color.teal(),
-				timestamp=datetime.datetime.utcnow(),
+				timestamp=guild_time
 			)
 			e.add_field(
 				name=f"Модератором {str(author)}",
@@ -225,11 +230,12 @@ class SupportCommands:
 				await channel.send(embed=e)
 
 	async def ban(self, ctx, member: discord.Member, author: discord.Member, expiry_at: datetime.datetime, reason: str):
+		guild_time = await self.client.utils.get_guild_time(ctx.guild)
 		await member.ban(reason=reason)
 		emb = discord.Embed(
 			description=f"**{member}**(`{member.id}`) Был забанен\nМодератор: `{author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=author.name, icon_url=author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -238,7 +244,7 @@ class SupportCommands:
 		emb = discord.Embed(
 			description=f"Вы были забанены на сервере\nСервер: `{ctx.guild.name}`\nМодератор: `{author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=author.name, icon_url=author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -256,14 +262,18 @@ class SupportCommands:
 
 	async def soft_ban(self, ctx, member: discord.Member, author: discord.Member, expiry_at: datetime.datetime, reason: str):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
+		guild_time = await self.client.utils.get_guild_time(ctx.guild)
 		delta = None
 		if expiry_at is not None:
-			delta = humanize.naturaldelta(expiry_at+datetime.timedelta(seconds=1))
+			delta = humanize.naturaldelta(
+				expiry_at+datetime.timedelta(seconds=1),
+				when=guild_time
+			)
 
 		emb = discord.Embed(
 			description=f"**{member}**({member.mention}) Был апаратно забанен\nМодератор: `{author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=author.name, icon_url=author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -272,7 +282,7 @@ class SupportCommands:
 		emb = discord.Embed(
 			description=f"Вы были апаратно забанены на сервере\nСервер: `{ctx.guild.name}`\nМодератор: `{author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=author.name, icon_url=author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -307,7 +317,7 @@ class SupportCommands:
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был апаратно забанен",
 				colour=discord.Color.red(),
-				timestamp=datetime.datetime.utcnow(),
+				timestamp=guild_time
 			)
 			e.add_field(
 				name=f"Модератором {str(author)}",
@@ -333,12 +343,13 @@ class SupportCommands:
 
 	async def kick(self, ctx, member: discord.Member, author: discord.Member, reason: str):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
+		guild_time = await self.client.utils.get_guild_time(ctx.guild)
 		await member.kick(reason=reason)
 
 		emb = discord.Embed(
 			description=f"**{member}**({member.mention}) Был выгнан\nМодератор: `{author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=author.name, icon_url=author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -347,7 +358,7 @@ class SupportCommands:
 		emb = discord.Embed(
 			description=f"Вы были выгнаны с сервера\nСервер: `{ctx.guild.name}`\nМодератор: `{author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=author.name, icon_url=author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -360,7 +371,7 @@ class SupportCommands:
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был выгнан",
 				colour=discord.Color.dark_gold(),
-				timestamp=datetime.datetime.utcnow(),
+				timestamp=guild_time
 			)
 			e.add_field(
 				name="Модератором",

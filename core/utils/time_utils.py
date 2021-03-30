@@ -1,5 +1,7 @@
 import re
 import typing
+import pytz
+
 from dateutil.relativedelta import relativedelta
 
 DURATION_REGEX = re.compile(
@@ -22,3 +24,13 @@ def parse_duration_string(duration: str) -> typing.Optional[relativedelta]:
     delta = relativedelta(**duration_dict)
 
     return delta
+
+
+def get_timezone_obj(timezone: str):
+    if timezone is None:
+        return "utc"
+
+    try:
+        return pytz.timezone(timezone)
+    except pytz.UnknownTimeZoneError:
+        return "utc"

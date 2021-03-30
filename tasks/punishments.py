@@ -1,8 +1,7 @@
 import discord
-import time
+import datetime
 
 from core.bases.cog_base import BaseCog
-from datetime import datetime
 from discord.ext import tasks
 
 
@@ -18,11 +17,11 @@ class TasksPunishments(BaseCog):
 	async def mute_loop(self):
 		await self.client.wait_until_ready()
 		for mute in await self.client.database.get_punishments():
-			guild = self.client.get_guild(int(mute[1]))
+			guild = self.client.get_guild(mute.guild_id)
 			if mute[3] == "mute":
 				if guild is not None:
 					member = guild.get_member(mute.user_id)
-					if float(mute.time) <= float(time.time()):
+					if float(mute.time) <= float((await self.client.utils.get_guild_time(guild)).timestamp()):
 						await self.client.database.del_punishment(
 							member=member, guild_id=guild.id, type_punishment="mute"
 						)
@@ -49,7 +48,7 @@ class TasksPunishments(BaseCog):
 								e = discord.Embed(
 									description=f"Пользователь `{str(member)}` был размьючен",
 									colour=discord.Color.green(),
-									timestamp=datetime.utcnow(),
+									timestamp=await self.client.utils.get_guild_time(guild)
 								)
 								e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
 								e.set_author(
@@ -72,7 +71,7 @@ class TasksPunishments(BaseCog):
 					for ban_entry in bans:
 						user = ban_entry.user
 						if user.id == ban.user_id:
-							if float(ban.time) <= float(time.time()):
+							if float(ban.time) <= float((await self.client.utils.get_guild_time(guild)).timestamp()):
 								await self.client.database.del_punishment(
 									member=user,
 									guild_id=guild.id,
@@ -105,7 +104,7 @@ class TasksPunishments(BaseCog):
 			if temprole.type == "temprole":
 				if guild is not None:
 					member = guild.get_member(temprole.user_id)
-					if float(temprole.time) <= float(time.time()):
+					if float(temprole.time) <= float((await self.client.utils.get_guild_time(guild)).timestamp()):
 						await self.client.database.del_punishment(
 							member=member,
 							guild_id=guild.id,
@@ -123,7 +122,7 @@ class TasksPunishments(BaseCog):
 			if vmute.type == "vmute":
 				if guild is not None:
 					member = guild.get_member(vmute.user_id)
-					if float(vmute.time) <= float(time.time()):
+					if float(vmute.time) <= float((await self.client.utils.get_guild_time(guild)).timestamp()):
 						await self.client.database.del_punishment(
 							member=member,
 							guild_id=guild.id,
@@ -160,7 +159,7 @@ class TasksPunishments(BaseCog):
 								e = discord.Embed(
 									description=f"Пользователь `{str(member)}` был размьючен в голосовых каналах",
 									colour=discord.Color.green(),
-									timestamp=datetime.utcnow(),
+									timestamp=await self.client.utils.get_guild_time(guild)
 								)
 								e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
 								e.set_author(

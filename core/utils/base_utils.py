@@ -1,6 +1,8 @@
 import discord
 import random
+import datetime
 
+from core.utils.time_utils import get_timezone_obj
 from core.services.database.models import Giveaway
 from core.exceptions import *
 
@@ -9,6 +11,9 @@ class Utils:
     def __init__(self, client):
         self.client = client
         self.FOOTER = self.client.config.FOOTER_TEXT
+
+    async def get_guild_time(self, guild: discord.Guild) -> datetime.datetime:
+        return datetime.datetime.now(get_timezone_obj(await self.client.database.get_guild_timezone(guild)))
 
     async def create_error_embed(self, ctx, error_msg: str, bold: bool = False):
         emb = discord.Embed(

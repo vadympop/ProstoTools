@@ -132,7 +132,7 @@ class Information(BaseCog):
             )
             embed1.add_field(
                 name="Бот запущен:",
-                value=humanize.naturaltime(datetime.datetime.utcnow() - self.client.launched_at).capitalize(),
+                value=humanize.naturaltime(await self.client.utils.get_guild_time(ctx.guild) - self.client.launched_at).capitalize(),
                 inline=False
             )
             embed1.add_field(

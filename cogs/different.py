@@ -198,36 +198,6 @@ class Different(BaseCog):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		aliases=["msg-f", "msg-forward", "msgf", "msg-forw"],
-		name="message-forward",
-		description="Перенаправляет ваше сообщения в указанный канал",
-		usage="message-forward [Канал] [Сообщения]",
-		help="**Примеры использования:**\n1. {Prefix}message-forward #Канал Hello everyone\n2. {Prefix}message-forward 717776571406090313 Hello everyone\n\n**Пример 1:** Перенаправит сообщения `Hello everyone` в упомянутый канал\n**Пример 2:**  Перенаправит сообщения `Hello everyone` в канал с указаным id",
-	)
-	@commands.cooldown(1, 120, commands.BucketType.member)
-	async def msgforw(self, ctx, channel: discord.TextChannel, *, msg: str):
-		if ctx.author.permissions_in(channel).send_messages:
-			emb = discord.Embed(
-				title="Новое сообщения!",
-				description=f"{ctx.author.mention} Перенаправил сообщения в этот канал. **Само сообщения: {msg}**",
-				colour=discord.Color.green(),
-			)
-			emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-			emb.set_thumbnail(url=ctx.author.avatar_url)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			try:
-				await channel.send(embed=emb)
-			except discord.Forbidden:
-				await ctx.send("Я не могу отправить сообщения в том канале!")
-		else:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Отказанно в доступе! Вы не имеете прав в указаном канале"
-			)
-			await ctx.send(embed=emb)
-			self.msgforw.reset_cooldown(ctx)
-			return
-
-	@commands.command(
 		description="Отправляет ваше сообщения от именни бота",
 		usage="say [Сообщения]",
 		help="**Примеры использования:**\n1. {Prefix}say Hello, I am write a text\n\n**Пример 1:** Отправит указаное сообщения от именни бота в текущем канале и удалит сообщения участника",

@@ -205,7 +205,7 @@ class Economy(BaseCog):
 			"to": member.id,
 			"from": ctx.author.id,
 			"cash": num,
-			"time": str(datetime.datetime.utcnow()),
+			"time": str(await self.client.utils.get_guild_time(ctx.guild)),
 			"id": str(uuid.uuid4),
 			"guild_id": ctx.guild.id,
 		}
@@ -213,7 +213,7 @@ class Economy(BaseCog):
 			"to": member.id,
 			"from": ctx.author.id,
 			"cash": num,
-			"time": str(datetime.datetime.utcnow()),
+			"time": str(await self.client.utils.get_guild_time(ctx.guild)),
 			"id": str(uuid.uuid4),
 			"guild_id": ctx.guild.id,
 		}
@@ -685,7 +685,7 @@ class Economy(BaseCog):
 			e = discord.Embed(
 				description=f"У пользователя `{str(member)}` была убрана роль",
 				colour=discord.Color.orange(),
-				timestamp=datetime.datetime.utcnow(),
+				timestamp=await self.client.utils.get_guild_time(ctx.guild),
 			)
 			e.add_field(
 				name="Модератором",
@@ -764,7 +764,7 @@ class Economy(BaseCog):
 			e = discord.Embed(
 				description=f"Пользователю `{str(member)}` были добавлены деньги",
 				colour=discord.Color.blurple(),
-				timestamp=datetime.datetime.utcnow(),
+				timestamp=await self.client.utils.get_guild_time(ctx.guild),
 			)
 			e.add_field(
 				name="Модератор",
@@ -835,7 +835,7 @@ class Economy(BaseCog):
 			e = discord.Embed(
 				description=f"У пользователя `{str(member)}` были отняты деньги",
 				colour=discord.Color.green(),
-				timestamp=datetime.datetime.utcnow(),
+				timestamp=await self.client.utils.get_guild_time(ctx.guild),
 			)
 			e.add_field(
 				name="Модератор",

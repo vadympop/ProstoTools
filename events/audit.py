@@ -1,5 +1,4 @@
 import discord
-import datetime
 import uuid
 import os
 
@@ -40,7 +39,7 @@ class EventsAudit(BaseCog):
 				e = discord.Embed(
 					description=f"У пользователя `{str(after)}` были изменены роли",
 					colour=discord.Color.blurple(),
-					timestamp=datetime.datetime.utcnow(),
+					timestamp=await self.client.utils.get_guild_time(after.guild),
 				)
 				e.add_field(
 					name=name, value=value, inline=False
@@ -57,7 +56,7 @@ class EventsAudit(BaseCog):
 				e = discord.Embed(
 					description=f"Пользователь `{str(before)}` изменил ник",
 					colour=discord.Color.blue(),
-					timestamp=datetime.datetime.utcnow(),
+					timestamp=await self.client.utils.get_guild_time(after.guild),
 				)
 				e.add_field(
 					name="Действующее имя",
@@ -90,7 +89,7 @@ class EventsAudit(BaseCog):
 		e = discord.Embed(
 			description=f"Пользователь `{str(user)}` был забанен",
 			colour=discord.Color.red(),
-			timestamp=datetime.datetime.utcnow(),
+			timestamp=await self.client.utils.get_guild_time(guild),
 		)
 		e.add_field(
 			name="Причина бана",
@@ -117,7 +116,7 @@ class EventsAudit(BaseCog):
 		e = discord.Embed(
 			description=f"Пользователь `{str(user)}` был разбанен",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow(),
+			timestamp=await self.client.utils.get_guild_time(guild),
 		)
 		e.add_field(name="Id Участника", value=f"`{user.id}`", inline=False)
 		e.set_author(
@@ -150,7 +149,7 @@ class EventsAudit(BaseCog):
 		e = discord.Embed(
 			description=f"Удалено `{len(payload.cached_messages)}` сообщений",
 			colour=discord.Color.orange(),
-			timestamp=datetime.datetime.utcnow(),
+			timestamp=await self.client.utils.get_guild_time(guild),
 		)
 		e.add_field(
 			name=f"Канал",
@@ -191,7 +190,7 @@ class EventsAudit(BaseCog):
 				return
 
 			e = discord.Embed(
-				colour=discord.Color.orange(), timestamp=datetime.datetime.utcnow()
+				colour=discord.Color.orange(), timestamp=await self.client.utils.get_guild_time(message.guild)
 			)
 			e.add_field(
 				name="Удалённое сообщение",
@@ -230,7 +229,7 @@ class EventsAudit(BaseCog):
 		e = discord.Embed(
 			description=f"**[Сообщение]({before.jump_url}) было изменено**",
 			colour=discord.Color.gold(),
-			timestamp=datetime.datetime.utcnow(),
+			timestamp=await self.client.utils.get_guild_time(after.guild),
 		)
 		e.add_field(
 			name="Старое содержимое", value=f"```{before.content}```", inline=False

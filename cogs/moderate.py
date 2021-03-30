@@ -50,7 +50,7 @@ class Moderate(BaseCog):
 				async for msg in ctx.channel.history().filter(
 						lambda m: check_filters(m, filters, self.FILTERS_PREDICATES)
 				):
-					if (datetime.datetime.utcnow()-msg.created_at) >= datetime.timedelta(weeks=2):
+					if (await self.client.utils.get_guild_time(ctx.guild)-msg.created_at) >= datetime.timedelta(weeks=2):
 						emb = await self.client.utils.create_error_embed(
 							ctx, "Я не могу удалить сообщения старше 14 дней!"
 						)
@@ -99,9 +99,7 @@ class Moderate(BaseCog):
 	)
 	@commands.check(check_moderate_roles)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def temprole(
-		self, ctx, member: discord.Member, role: discord.Role, expiry_at: Expiry
-	):
+	async def temprole(self, ctx, member: discord.Member, role: discord.Role, expiry_at: Expiry):
 		if member == ctx.author:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете применить эту команду к себе"
@@ -138,12 +136,16 @@ class Moderate(BaseCog):
 			await ctx.send(embed=emb)
 			return
 
+		guild_time = await self.client.utils.get_guild_time(ctx.guild)
 		await member.add_roles(role)
-		delta = humanize.naturaldelta(expiry_at+datetime.timedelta(seconds=1))
+		delta = humanize.naturaldelta(
+			expiry_at+datetime.timedelta(seconds=1),
+			when=guild_time
+		)
 		emb = discord.Embed(
 			description=f"**{member}**({member.mention}) Была виданна роль\nРоль: `{role.name}`\nДлительность: `{delta}`",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -273,10 +275,12 @@ class Moderate(BaseCog):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unsoftban(self, ctx, member: TargetUser):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
+		guild_time = await self.client.utils.get_guild_time(ctx.guild)
+
 		emb = discord.Embed(
 			description=f"`{ctx.author}` **Снял апаратный бан с** `{member}`({member.mention})",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -285,7 +289,7 @@ class Moderate(BaseCog):
 		emb = discord.Embed(
 			description=f"**С вас был снят апаратный бан на сервере** `{ctx.guild.name}`",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -305,7 +309,7 @@ class Moderate(BaseCog):
 			e = discord.Embed(
 				description=f"С пользователя `{str(member)}` был снят апаратный бан",
 				colour=discord.Color.green(),
-				timestamp=datetime.datetime.utcnow(),
+				timestamp=guild_time
 			)
 			e.add_field(
 				name="Модератором",
@@ -368,6 +372,7 @@ class Moderate(BaseCog):
 
 				if user.id == member.id:
 					state = True
+					guild_time = await self.client.utils.get_guild_time(ctx.guild)
 					await ctx.guild.unban(user)
 					await self.client.database.del_punishment(
 						member=member, guild_id=ctx.guild.id, type_punishment="ban"
@@ -376,7 +381,7 @@ class Moderate(BaseCog):
 					emb = discord.Embed(
 						description=f"`{ctx.author}` **Разбанил** `{member}`({member.mention})",
 						colour=discord.Color.green(),
-						timestamp=datetime.datetime.utcnow()
+						timestamp=guild_time
 					)
 					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -385,7 +390,7 @@ class Moderate(BaseCog):
 					emb = discord.Embed(
 						description=f"**Вы были разбанены на сервере** `{ctx.guild.name}`",
 						colour=discord.Color.green(),
-						timestamp=datetime.datetime.utcnow()
+						timestamp=guild_time
 					)
 					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -409,6 +414,7 @@ class Moderate(BaseCog):
 	@commands.check(check_moderate_roles)
 	async def vmute(self, ctx, member: TargetUser, *options: str):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
+		guild_time = await self.client.utils.get_guild_time(ctx.guild)
 		options = list(options)
 		expiry_at = None
 		if len(options) > 0:
@@ -423,7 +429,10 @@ class Moderate(BaseCog):
 
 		delta = None
 		if expiry_at is not None:
-			delta = humanize.naturaldelta(expiry_at+datetime.timedelta(seconds=1))
+			delta = humanize.naturaldelta(
+				expiry_at+datetime.timedelta(seconds=1),
+				when=guild_time
+			)
 
 		reason = reason[:1024]
 		overwrite = discord.PermissionOverwrite(connect=False)
@@ -441,7 +450,7 @@ class Moderate(BaseCog):
 		emb = discord.Embed(
 			description=f"**{member}**({member.mention}) Был замьючен в голосовых каналах\nДлительность: `{description_time}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -450,7 +459,7 @@ class Moderate(BaseCog):
 		emb = discord.Embed(
 			description=f"Вы были замьчены в голосовых каналах на сервере\nСервер: `{ctx.guild.name}`\nДлительность: `{description_time}`\nМодератор: `{ctx.author}`\nПричина: **{reason}**",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -471,7 +480,7 @@ class Moderate(BaseCog):
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был замьючен в голосовых каналах",
 				colour=discord.Color.teal(),
-				timestamp=datetime.datetime.utcnow(),
+				timestamp=guild_time
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}",
@@ -508,6 +517,7 @@ class Moderate(BaseCog):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 		for vmute_role in ctx.guild.roles:
 			if vmute_role.name == self.VMUTE_ROLE:
+				guild_time = await self.client.utils.get_guild_time(ctx.guild)
 				await self.client.database.del_punishment(
 					member=member, guild_id=ctx.guild.id, type_punishment="vmute"
 				)
@@ -520,7 +530,7 @@ class Moderate(BaseCog):
 				emb = discord.Embed(
 					description=f"`{ctx.author}` **Размьютил** `{member}`({member.mention}) **в голосовых каналах**",
 					colour=discord.Color.green(),
-					timestamp=datetime.datetime.utcnow()
+					timestamp=guild_time
 				)
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -529,7 +539,7 @@ class Moderate(BaseCog):
 				emb = discord.Embed(
 					description=f"**Вы были размьючены в голосовых каналах на сервере** `{ctx.guild.name}`",
 					colour=discord.Color.green(),
-					timestamp=datetime.datetime.utcnow()
+					timestamp=guild_time
 				)
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -542,7 +552,7 @@ class Moderate(BaseCog):
 					e = discord.Embed(
 						description=f"Пользователь `{str(member)}` был размьючен в голосовых каналах",
 						colour=discord.Color.green(),
-						timestamp=datetime.datetime.utcnow(),
+						timestamp=guild_time
 					)
 					e.add_field(
 						name="Модератором",
@@ -603,6 +613,7 @@ class Moderate(BaseCog):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 		for role in ctx.guild.roles:
 			if role.name == self.MUTE_ROLE:
+				guild_time = await self.client.utils.get_guild_time(ctx.guild)
 				await self.client.database.del_punishment(
 					member=member, guild_id=ctx.guild.id, type_punishment="mute"
 				)
@@ -611,7 +622,7 @@ class Moderate(BaseCog):
 				emb = discord.Embed(
 					description=f"`{ctx.author}` **Размьютил** `{member}`({member.mention})",
 					colour=discord.Color.green(),
-					timestamp=datetime.datetime.utcnow()
+					timestamp=guild_time
 				)
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -620,7 +631,7 @@ class Moderate(BaseCog):
 				emb = discord.Embed(
 					description=f"**Вы были размьючены на сервере** `{ctx.guild.name}`",
 					colour=discord.Color.green(),
-					timestamp=datetime.datetime.utcnow()
+					timestamp=guild_time
 				)
 				emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -628,28 +639,28 @@ class Moderate(BaseCog):
 					await member.send(embed=emb)
 				except:
 					pass
-				break
 
-		if "moderate" in audit.keys():
-			e = discord.Embed(
-				description=f"Пользователь `{str(member)}` был размьючен",
-				colour=discord.Color.green(),
-				timestamp=datetime.datetime.utcnow(),
-			)
-			e.add_field(
-				name="Модератором",
-				value=str(ctx.author),
-				inline=False,
-			)
-			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(
-				name="Журнал аудита | Размьют пользователя",
-				icon_url=ctx.author.avatar_url,
-			)
-			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["moderate"])
-			if channel is not None:
-				await channel.send(embed=e)
+				if "moderate" in audit.keys():
+					e = discord.Embed(
+						description=f"Пользователь `{str(member)}` был размьючен",
+						colour=discord.Color.green(),
+						timestamp=guild_time
+					)
+					e.add_field(
+						name="Модератором",
+						value=str(ctx.author),
+						inline=False,
+					)
+					e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+					e.set_author(
+						name="Журнал аудита | Размьют пользователя",
+						icon_url=ctx.author.avatar_url,
+					)
+					e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+					channel = ctx.guild.get_channel(audit["moderate"])
+					if channel is not None:
+						await channel.send(embed=e)
+				break
 
 	@commands.command(
 		aliases=["clearwarns"],
@@ -661,13 +672,15 @@ class Moderate(BaseCog):
 	@commands.check(check_moderate_roles)
 	async def clearwarn(self, ctx, member: TargetUser):
 		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
+		guild_time = await self.client.utils.get_guild_time(ctx.guild)
+
 		async with ctx.typing():
 			await self.client.database.del_warns(user_id=member.id, guild_id=ctx.guild.id)
 
 			emb = discord.Embed(
 				description=f"**У пользователя** `{member}`({member.mention}) **были сняты предупреждения**",
 				colour=discord.Color.green(),
-				timestamp=datetime.datetime.utcnow()
+				timestamp=guild_time
 			)
 			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -677,7 +690,7 @@ class Moderate(BaseCog):
 			e = discord.Embed(
 				description=f"У пользователя `{str(member)}` были сняты все предупреждения",
 				colour=discord.Color.green(),
-				timestamp=datetime.datetime.utcnow(),
+				timestamp=guild_time
 			)
 			e.add_field(
 				name="Модератором",
@@ -725,6 +738,7 @@ class Moderate(BaseCog):
 	@commands.check(check_moderate_roles)
 	async def rem_warn(self, ctx, warn_id: int):
 		data = await self.client.database.del_warn(warn_id)
+		guild_time = await self.client.utils.get_guild_time(ctx.guild)
 		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 
 		if data is None:
@@ -738,7 +752,7 @@ class Moderate(BaseCog):
 		emb = discord.Embed(
 			description=f"**Предупреждения успешно было снято с участника** `{member}`",
 			colour=discord.Color.green(),
-			timestamp=datetime.datetime.utcnow()
+			timestamp=guild_time
 		)
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
@@ -748,7 +762,7 @@ class Moderate(BaseCog):
 			e = discord.Embed(
 				description=f"У пользователя `{member}` было снято предупреждения",
 				colour=discord.Color.green(),
-				timestamp=datetime.datetime.utcnow(),
+				timestamp=guild_time
 			)
 			e.add_field(
 				name=f"Модератором {str(ctx.author)}",

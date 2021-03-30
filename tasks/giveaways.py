@@ -1,4 +1,4 @@
-import time as tm
+import datetime
 
 from core.bases.cog_base import BaseCog
 from discord.ext import tasks
@@ -13,7 +13,7 @@ class TasksGiveaways(BaseCog):
     async def giveaways_loop(self):
         await self.client.wait_until_ready()
         for setting in await self.client.database.get_giveaways():
-            if tm.time() >= setting.time:
+            if (await self.client.utils.get_guild_time(self.client.get_guild(setting.guild_id))).timestamp() >= setting.time:
                 await self.client.utils.end_giveaway(setting)
 
 

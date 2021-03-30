@@ -67,7 +67,7 @@ async def buy(ctx, item: str = None):
             "to": "Магазин",
             "from": ctx.author.id,
             "cash": func_cost,
-            "time": str(datetime.datetime.utcnow()),
+            "time": str(await ctx.bot.utils.get_guild_time(ctx.guild)),
             "id": str(uuid.uuid4()),
             "guild_id": ctx.guild.id,
         }

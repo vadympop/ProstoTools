@@ -1,5 +1,5 @@
 import discord
-import time as tm
+import datetime
 
 from core.bases.cog_base import BaseCog
 from core.utils.other import process_auto_moderate
@@ -12,17 +12,17 @@ class EventsAntiFlud(BaseCog):
         self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
         self.messages = {}
 
-    def update(self, key: str, message: discord.Message):
+    def update(self, time: int, key: str, message: discord.Message):
         if key not in self.messages.keys():
             self.messages.update({
                 key: [{
-                    "time": tm.time(),
+                    "time": time,
                     "content": message.content
                 }]
             })
         else:
             self.messages[key].append({
-                "time": tm.time(),
+                "time": time,
                 "content": message.content
             })
 
@@ -60,9 +60,10 @@ class EventsAntiFlud(BaseCog):
             return
 
         key = f"{message.guild.id}/{message.author.id}"
-        self.update(key, message)
+        time = (await self.client.utils.get_guild_time(message.guild)).timestamp()
+        self.update(time, key, message)
         messages_after = self.get_after(
-            key, int(tm.time()-10)
+            key, int(time-10)
         )
         if not messages_after:
             return

@@ -1,12 +1,23 @@
 import uuid
 import datetime
 import typing
-import time as tm
 import discord
 
-from django.db import connection
 from django.forms.models import model_to_dict
-from .models import User, Warn, Giveaway, Guild, StatusReminder, Reminder, Mute, Punishment, Error, BotStat, Blacklist
+from .models import (
+    User,
+    Warn,
+    Giveaway,
+    Guild,
+    StatusReminder,
+    Reminder,
+    Mute,
+    Punishment,
+    Error,
+    BotStat,
+    Blacklist,
+    AuditLogs
+)
 
 
 TABLES_TO_MODELS = {
@@ -26,7 +37,8 @@ TABLES_TO_MODELS = {
 
 class Database:
     def __init__(self, client):
-        self.cache = client.cache
+        self.client = client
+        self.cache = self.client.cache
 
     async def add_giveaway(
             self,
@@ -151,7 +163,7 @@ class Database:
             guild_id=guild_id,
             reason=reason,
             state=True,
-            time=tm.time(),
+            time=datetime.datetime.utcnow().timestamp(),
             author=author,
             num=warns_count
         )
@@ -173,13 +185,13 @@ class Database:
     async def get_warns(self, **kwargs) -> typing.List[Warn]:
         return Warn.objects.filter(**kwargs)
 
-    async def add_mute(self, user_id: int, guild_id: int, reason: str, active_to: int, author: int) -> int:
+    async def add_mute(self, member: discord.Member, reason: str, active_to: int, author: int) -> int:
         new_mute = Mute(
-            user_id=user_id,
-            guild_id=guild_id,
+            user_id=member.id,
+            guild_id=member.guild.id,
             reason=reason,
             active_to=active_to,
-            time=tm.time(),
+            time=(await self.client.utils.get_guild_time(member.guild)).timestamp(),
             author=author
         )
         new_mute.save()
@@ -220,8 +232,7 @@ class Database:
         if type_punishment == "mute":
             await self.add_mute(
                 active_to=time,
-                user_id=member.id,
-                guild_id=member.guild.id,
+                member=member,
                 reason=kwargs.pop("reason"),
                 author=kwargs.pop("author"),
             )
@@ -231,9 +242,9 @@ class Database:
     async def get_punishments(self) -> typing.List[Punishment]:
         cached_punishments = self.cache.punishments.all()
         if len(cached_punishments) > 0:
-            return [p for p in cached_punishments if p.time < tm.time()]
+            return [p for p in cached_punishments if p.time < datetime.datetime.utcnow().timestamp()]
 
-        return Punishment.objects.filter(time__lt=tm.time())
+        return Punishment.objects.filter(time__lt=datetime.datetime.utcnow().timestamp())
 
     async def del_punishment(self, member: discord.Member, guild_id: int, type_punishment: str) -> None:
         if type_punishment == "mute":
@@ -289,6 +300,7 @@ class Database:
                 donate=False,
                 prefix="p.",
                 api_key=str(uuid.uuid4()),
+                timezone="utc",
                 server_stats={},
                 voice_channel={},
                 shop_list=[],
@@ -327,14 +339,33 @@ class Database:
         if cached_guild is not None:
             return cached_guild.prefix
 
-        return Guild.objects.get(guild_id=guild.id).prefix
+        db_guild = Guild.objects.get(guild_id=guild.id)
+        if db_guild is not None:
+            return db_guild.prefix
+        else:
+            return (await self.sel_guild(guild)).prefix
 
     async def get_moder_roles(self, guild: discord.Guild):
         cached_guild = self.cache.guilds.get(guild_id=guild.id)
         if cached_guild is not None:
             return cached_guild.moderators
 
-        return Guild.objects.get(guild_id=guild.id).moderators
+        db_guild = Guild.objects.get(guild_id=guild.id)
+        if db_guild is not None:
+            return db_guild.moderators
+        else:
+            return (await self.sel_guild(guild)).moderators
+
+    async def get_guild_timezone(self, guild: discord.Guild):
+        cached_guild = self.cache.guilds.get(guild_id=guild.id)
+        if cached_guild is not None:
+            return cached_guild.timezone
+
+        db_guild = Guild.objects.get(guild_id=guild.id)
+        if db_guild is not None:
+            return db_guild.timezone
+        else:
+            return (await self.sel_guild(guild)).timezone
 
     async def update(self, table: str, **kwargs):
         where = kwargs.pop("where")
@@ -363,14 +394,14 @@ class Database:
     async def add_error(self, error_id: str, traceback: str, command: str) -> None:
         Error.objects.create(
             error_id=error_id,
-            time=datetime.datetime.now(),
+            time=datetime.datetime.utcnow(),
             traceback=traceback,
             command=command
         )
 
     async def add_blacklist_entity(self, entity_id: int, type_entity: str, reason: str) -> int:
         new_blacklist_entity = Blacklist(
-            time=tm.time(),
+            time=datetime.datetime.utcnow().timestamp(),
             entity_id=entity_id,
             type=type_entity,
             reason=reason
@@ -402,3 +433,10 @@ class Database:
         db_blacklist_entity.delete()
         self.cache.blacklist.remove(**kwargs)
         return True
+
+    async def add_audit_log(self, **kwargs) -> int:
+        new_log = AuditLogs(
+            **kwargs
+        )
+        new_log.save()
+        return new_log.id

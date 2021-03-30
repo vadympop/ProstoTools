@@ -4,6 +4,7 @@ import dateutil.tz
 import typing
 import discord
 
+from core.utils.time_utils import get_timezone_obj
 from core.exceptions import *
 from core.utils.time_utils import parse_duration_string
 from dateutil.relativedelta import relativedelta
@@ -21,14 +22,19 @@ class DurationDelta(commands.Converter):
 class Duration(DurationDelta):
     async def convert(self, ctx: commands.Context, duration: str) -> datetime.datetime:
         delta = await super().convert(ctx, duration)
-        now = datetime.datetime.now()
+        now = await ctx.bot.utils.get_guild_time(ctx.guild)
 
         try:
-            return now + delta
+            new_time = now + delta
         except (ValueError, OverflowError):
             raise commands.BadArgument(
                 f"`{duration}` results in a datetime outside the supported range."
             )
+
+        timezone = get_timezone_obj(await ctx.bot.database.get_guild_timezone(ctx.guild))
+        new_time.astimezone(tz=timezone)
+        new_time.replace(tzinfo=timezone)
+        return new_time
 
 
 class ISODateTime(commands.Converter):
@@ -38,12 +44,17 @@ class ISODateTime(commands.Converter):
         except ValueError:
             raise commands.BadArgument(f"`{datetime_string}` is not a valid ISO-8601 datetime string")
 
+        timezone = get_timezone_obj(await ctx.bot.database.get_guild_timezone(ctx.guild))
+        dt.astimezone(tz=timezone)
+        dt.replace(tzinfo=timezone)
         return dt
 
 
 class TargetUser(commands.Converter):
     async def convert(self, ctx, argument: typing.Union[str, int]) -> discord.Member:
         user = await commands.MemberConverter().convert(ctx, argument)
+        if ctx.author == ctx.guild.owner:
+            return user
 
         if user.top_role >= ctx.me.top_role:
             raise RoleHigherThanMy
