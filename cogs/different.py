@@ -151,6 +151,12 @@ class Different(BaseCog):
 				for attachment in ctx.message.attachments
 			]
 		)
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 	@commands.command(
 		description="Отправляет идею",
@@ -174,6 +180,12 @@ class Different(BaseCog):
 				for attachment in ctx.message.attachments
 			]
 		)
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 	@commands.command(
 		aliases=["useravatar", "avatar"],
