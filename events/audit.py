@@ -168,7 +168,7 @@ class EventsAudit(BaseCog):
 			embed=e, file=discord.File(fp=delete_messages_fp)
 		)
 		os.remove(
-			"/home/PROSTO-TOOLS-DiscordBot" + delete_messages_fp[1:]
+			"/home/ProstoTools" + delete_messages_fp[1:]
 		)
 
 	@commands.Cog.listener()
