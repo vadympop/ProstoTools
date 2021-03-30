@@ -1,7 +1,6 @@
 import discord
 import jinja2
 
-from core.utils.classes import TemplateRenderingModel
 from core.bases.cog_base import BaseCog
 from discord.ext import commands
 
@@ -22,6 +21,9 @@ class EventsLeave(BaseCog):
 	async def on_member_remove(self, member):
 		await self.client.database.add_stat_counter(entity="members", add_counter=len(self.client.users))
 		guild_data = await self.client.database.sel_guild(guild=member.guild)
+		if not guild_data.welcomer["leave"]["state"]:
+			return
+
 		try:
 			try:
 				if guild_data.welcomer["leave"]["type"] == "dm":
