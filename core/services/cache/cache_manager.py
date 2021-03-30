@@ -19,6 +19,13 @@ class CacheManager:
 
         return None
 
+    def get_raw(self, **kwargs) -> typing.Optional[dict]:
+        for item in self.items:
+            if all([item[key] == value for key, value in kwargs.items()]):
+                return item
+
+        return None
+
     def find(self, **kwargs) -> typing.List[CacheItem]:
         return [
             CacheItem(**item)
@@ -32,16 +39,20 @@ class CacheManager:
         if len(self.items) > self._max_size:
             self.items.pop(0)
 
+    def _update_dict(self, item: dict, **kwargs) -> dict:
+        item.update(**kwargs)
+        return item
+
     def update(self, new_data, **kwargs) -> typing.Optional[CacheItem]:
-        item = self.get(**kwargs)
+        item = self.get_raw(**kwargs)
         if item is None:
             return None
 
-        self.items[self.items.index(item)] = new_data
+        self.items[self.items.index(item)] = self._update_dict(item, **new_data)
         return CacheItem(**item)
 
     def remove(self, **kwargs) -> typing.Optional[CacheItem]:
-        item = self.get(**kwargs)
+        item = self.get_raw(**kwargs)
         if item is None:
             return None
 

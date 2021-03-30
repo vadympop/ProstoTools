@@ -371,10 +371,7 @@ class Database:
 
     async def update(self, table: str, **kwargs):
         where = kwargs.pop("where")
-        cached_entity = self.cache.__getattribute__(table).get(**where)
-        if cached_entity is not None:
-            cached_entity.update(kwargs)
-
+        self.cache.__getattribute__(table).update(kwargs, **where)
         TABLES_TO_MODELS[table].objects.filter(**where).update(**kwargs)
 
     async def add_stat_counter(
