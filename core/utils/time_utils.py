@@ -28,9 +28,9 @@ def parse_duration_string(duration: str) -> typing.Optional[relativedelta]:
 
 def get_timezone_obj(timezone: str):
     if timezone is None:
-        return "utc"
+        return pytz.timezone("utc")
 
     try:
         return pytz.timezone(timezone)
     except pytz.UnknownTimeZoneError:
-        return "utc"
+        return pytz.timezone("utc")
