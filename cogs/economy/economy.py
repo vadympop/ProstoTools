@@ -32,7 +32,7 @@ class Economy(BaseCog):
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 
 		num = 1
-		for user in User.objects.filter(guild_id=ctx.guild.id).order_by("-exp")[:20]:
+		for user in User.objects.filter(guild_id=ctx.guild.id).exclude(exp__lte=0).order_by("-exp")[:20]:
 			member = ctx.guild.get_member(user.user_id)
 			if member is not None:
 				if not member.bot:
