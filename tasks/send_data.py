@@ -102,7 +102,7 @@ class TasksSendData(BaseCog):
 			try:
 				r = await self.client.http_client.post(
 					url=self.boticord_api_url,
-					data=json.dumps(data),
+					json=json.dumps(data),
 					headers=headers
 				)
 				logger.info(f"Response of posting bot stats into {self.boticord_api_url}: {r}")
