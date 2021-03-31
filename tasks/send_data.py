@@ -90,14 +90,15 @@ class TasksSendData(BaseCog):
 		await self.client.wait_until_ready()
 		if os.getenv("BOTICORD_TOKEN") is not None:
 			headers = {
-				"Authorization": os.getenv('BOTICORD_TOKEN')
+				"Authorization": os.getenv('BOTICORD_TOKEN'),
+				"Content-Type": "application/json"
 			}
 			data = {
 				"shards": self.client.shard_count,
 				"servers": len(self.client.guilds),
 				"users": len(self.client.users)
 			}
-
+			print(data)
 			logger.info(f"Trying to post bot stats into {self.boticord_api_url}")
 			try:
 				r = await self.client.http_client.post(
