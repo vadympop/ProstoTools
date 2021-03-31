@@ -107,7 +107,7 @@ class TasksSendData(BaseCog):
 				)
 				logger.info(f"Response of posting bot stats into {self.boticord_api_url}: {r}")
 			except Exception as e:
-				logger.error(f"An error occurred posting bot stats into {self.sdc_api_url}: {repr(e)}")
+				logger.error(f"An error occurred posting bot stats into {self.boticord_api_url}: {repr(e)}")
 			else:
 				logger.info(f"Bot stats was successful posted into {self.boticord_api_url}")
 
