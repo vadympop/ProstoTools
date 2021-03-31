@@ -19,7 +19,7 @@ class TasksSendData(BaseCog):
 		self.send_sdc_data_loop.start()
 		self.send_boticord_data_loop.start()
 
-	@tasks.loop(hours=6)
+	@tasks.loop(minutes=30)
 	async def send_data_loop(self):
 		await self.client.wait_until_ready()
 		data = {

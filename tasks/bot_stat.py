@@ -14,9 +14,8 @@ class TasksBotStat(BaseCog):
         self.cpu_stat_loop.start()
         self.memory_stat_loop.start()
         self.cache_size_stat_loop.start()
-        self.mem = ps.virtual_memory()
 
-    @tasks.loop(minutes=5)
+    @tasks.loop(minutes=2)
     async def ping_stat_loop(self):
         await self.client.wait_until_ready()
         logger.info("Trying to add ping stat")
@@ -28,7 +27,7 @@ class TasksBotStat(BaseCog):
         else:
             logger.info("Ping stat was added")
 
-    @tasks.loop(minutes=5)
+    @tasks.loop(minutes=2)
     async def cpu_stat_loop(self):
         await self.client.wait_until_ready()
         logger.info("Trying to add cpu stat")
@@ -39,29 +38,18 @@ class TasksBotStat(BaseCog):
         else:
             logger.info("Cpu stat was added")
 
-    @tasks.loop(minutes=5)
+    @tasks.loop(minutes=2)
     async def memory_stat_loop(self):
         await self.client.wait_until_ready()
         logger.info("Trying to add memory stat")
         try:
-            await self.client.database.add_stat_counter(entity="memory", add_counter=self.mem.percent)
+            await self.client.database.add_stat_counter(entity="memory", add_counter=ps.virtual_memory().percent)
         except Exception as e:
             logger.error(f"An error occurred when adding memory stat: {repr(e)}")
         else:
             logger.info("Memory stat was added")
 
-    @tasks.loop(minutes=5)
-    async def commands_stat_loop(self):
-        await self.client.wait_until_ready()
-        logger.info("Trying to add memory stat")
-        try:
-            await self.client.database.add_stat_counter(entity="memory", add_counter=self.mem.percent)
-        except Exception as e:
-            logger.error(f"An error occurred when adding memory stat: {repr(e)}")
-        else:
-            logger.info("Memory stat was added")
-
-    @tasks.loop(minutes=5)
+    @tasks.loop(minutes=2)
     async def cache_size_stat_loop(self):
         await self.client.wait_until_ready()
         logger.info("Trying to add cache stat")
