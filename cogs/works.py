@@ -286,8 +286,6 @@ class Works(BaseCog):
 	@commands.cooldown(3, 7200, commands.BucketType.member)
 	async def cleaner(self, ctx):
 		data = await self.client.database.sel_user(target=ctx.author)
-		cur_items = data.items
-		cur_state_pr = data.prison
 
 		async def cleaner_func(rnum1: int, rnum2: int):
 			rnum = randint(rnum1, rnum2)
@@ -301,8 +299,8 @@ class Works(BaseCog):
 			msg_content = f"**За сегодняшнюю уборку вы получили: {rnum}$**"
 			return msg_content
 
-		if cur_items is not None:
-			if "broom" in cur_items:
+		if data.items:
+			if "broom" in data.items:
 				msg = await cleaner_func(50, 60)
 				emb = discord.Embed(description=msg, colour=discord.Color.green())
 				emb.set_author(
@@ -310,7 +308,7 @@ class Works(BaseCog):
 				)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
-			elif "mop" in cur_items:
+			elif "mop" in data.items:
 				msg = await cleaner_func(60, 80)
 				emb = discord.Embed(description=msg, colour=discord.Color.green())
 				emb.set_author(
@@ -318,7 +316,7 @@ class Works(BaseCog):
 				)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
-			elif "mop" in cur_items and "broom" in cur_items:
+			elif "mop" in data.items and "broom" in data.items:
 				msg = await cleaner_func(60, 80)
 				emb = discord.Embed(description=msg, colour=discord.Color.green())
 				emb.set_author(
@@ -334,7 +332,7 @@ class Works(BaseCog):
 				)
 				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 				await ctx.send(embed=emb)
-		elif cur_items == []:
+		elif not data.items:
 			msg = await cleaner_func(40, 50)
 			emb = discord.Embed(description=msg, colour=discord.Color.green())
 			emb.set_author(
@@ -343,7 +341,7 @@ class Works(BaseCog):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
-		if cur_state_pr and data.money > 0:
+		if data.prison and data.money > 0:
 			emb = discord.Embed(
 				description="**Вы успешно погасили борг и выйшли с тюрмы!**",
 				colour=discord.Color.green(),
@@ -357,7 +355,7 @@ class Works(BaseCog):
 			await self.client.database.update(
 				"users",
 				where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-				prison="False",
+				prison=False,
 			)
 
 	@work.command(
