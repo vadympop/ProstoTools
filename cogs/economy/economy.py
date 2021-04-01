@@ -889,19 +889,33 @@ class Economy(BaseCog):
 
 		if rand_num <= 40:
 			state = await rob_func(ctx, -10000, ctx.author)
+			emb = discord.Embed(
+				description=f"**Вас задержала полиция. Вы откупились потеряв 10000$**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(
+				name=self.client.user.name, icon_url=self.client.user.avatar_url
+			)
+			emb.set_footer(
+				text=self.FOOTER, icon_url=self.client.user.avatar_url
+			)
+			await ctx.send(embed=emb)
+
 			if state[0]:
 				emb = discord.Embed(
-					description=f"**Вас задержала полиция. Вы откупились потеряв 10000$**",
+					description=f"**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Текущий баланс - `{state[1]}`**",
 					colour=discord.Color.green(),
 				)
 				emb.set_author(
-					name=self.client.user.name, icon_url=self.client.user.avatar_url
+					name=ctx.bot.user.name,
+					icon_url=ctx.bot.user.avatar_url,
 				)
 				emb.set_footer(
-					text=self.FOOTER, icon_url=self.client.user.avatar_url
+					text=self.FOOTER,
+					icon_url=self.client.user.avatar_url,
 				)
-				await ctx.send(embed=emb)
-				self.client.dispatch("prison", ctx.author, state[1])
+				await ctx.author.send(embed=emb)
+
 		elif 40 < rand_num <= 80:
 			emb = discord.Embed(
 				description=f"**Вы не смогли ограбить указаного пользователя**",
@@ -953,16 +967,29 @@ class Economy(BaseCog):
 
 		if rand_num <= 40:
 			state = await crime_member(ctx, -5000, ctx.author)
+			emb = discord.Embed(
+				description=f"**Вас задержала полиция. Вы откупились потеряв 5000$**",
+				colour=discord.Color.green(),
+			)
+			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
+			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await ctx.send(embed=emb)
+
 			if state[0]:
-				self.client.dispatch("prison", ctx.author, state[1])
-			else:
 				emb = discord.Embed(
-					description=f"**Вас задержала полиция. Вы откупились потеряв 10000$**",
+					description=f"**Вы достигли максимального борга и вы сели в тюрму. Что бы выбраться с тюрмы надо выплатить борг, в тюрме можно работать уборщиком. Текущий баланс - `{state[1]}`**",
 					colour=discord.Color.green(),
 				)
-				emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-				emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await ctx.send(embed=emb)
+				emb.set_author(
+					name=ctx.bot.user.name,
+					icon_url=ctx.bot.user.avatar_url,
+				)
+				emb.set_footer(
+					text=self.FOOTER,
+					icon_url=self.client.user.avatar_url,
+				)
+				await ctx.author.send(embed=emb)
+
 		elif 40 < rand_num <= 80:
 			emb = discord.Embed(
 				description=f"**Вы не смогли совершить идею заработка денег**",
