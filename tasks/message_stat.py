@@ -14,6 +14,9 @@ class TasksMessageStat(BaseCog):
 	@tasks.loop(minutes=5)
 	async def message_stat_loop(self):
 		for guild in self.client.guilds:
+			if guild is None:
+				continue
+
 			server_stats = (await self.client.database.sel_guild(guild=guild)).server_stats
 			if "message" in server_stats.keys():
 				try:
