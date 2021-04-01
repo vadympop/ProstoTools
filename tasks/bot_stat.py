@@ -51,11 +51,11 @@ class TasksBotStat(BaseCog):
             )
             await self.client.database.add_stat_counter(
                 entity="memory free",
-                add_counter=mem.free
+                add_counter=mem.free // 1024 // 1024
             )
             await self.client.database.add_stat_counter(
                 entity="memory cached",
-                add_counter=mem.cached
+                add_counter=mem.cached // 1024 // 1024
             )
             await self.client.database.add_stat_counter(
                 entity="memory percent",
