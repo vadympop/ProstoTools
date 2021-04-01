@@ -27,12 +27,13 @@ DEFAULT_CONTEXT = {
     "format": lambda msg, **args: msg.format(args),
     "split": lambda msg, sdata: msg.split(sdata),
     "join": lambda msg, value: msg.join(value),
+    "group": lambda l, num: [l[x:x + num] for x in range(0, len(l), num)],
     "reverse": lambda msg: msg[::-1],
     "keys": lambda msg: msg.keys(),
     "items": lambda msg: msg.items(),
     "values": lambda msg: msg.values(),
     "replace": lambda msg, old, new: msg.replace(old, new),
-    "contains": lambda msg, word: True if word in msg.split(" ") else False,
+    "contains": lambda msg, word: word.lower() in msg.split(" ")
 }
 MEMBER_STATUSES_DICT = {
     "dnd": "<:dnd:730391353929760870> - Не беспокоить",
@@ -137,7 +138,7 @@ class Rank:
     __slots__ = (
         "_id",
         "exp",
-        "lvl",
+        "level",
         "remaining_exp",
         "money",
         "coins",
@@ -150,7 +151,7 @@ class Rank:
     def __init__(self, data: TemplateRenderingModel):
         self._id = data.user_id
         self.exp = data.exp
-        self.lvl = data.level
+        self.level = data.level
         self.level_exp = math.floor(
             9 * (self.lvl ** 2) + 50 * self.lvl + 125 * data.multi
         )
