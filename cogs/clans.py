@@ -937,7 +937,7 @@ class Clans(BaseCog):
 		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
 		item = item.lower()
 
-		if user_data["clan"] == "":
+		if user_data.clan == "":
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вас нету ни в одном клане сервера!"
 			)
@@ -945,10 +945,10 @@ class Clans(BaseCog):
 			return
 
 		for clan in data:
-			if clan["id"] == user_data["clan"]:
+			if clan["id"] == user_data.clan:
 				if item == "category" or item == "категория":
 					if "category_id" not in clan.keys():
-						if user_data["coins"] >= 10000:
+						if user_data.coins >= 10000:
 							overwrites = {
 								ctx.guild.get_member(
 									member_id
@@ -971,7 +971,7 @@ class Clans(BaseCog):
 								name="PT-[CLAN]-" + clan["name"], overwrites=overwrites
 							)
 							clan.update({"category_id": category.id})
-							user_data["coins"] -= 10000
+							user_data.coins -= 10000
 
 							emb = discord.Embed(
 								description=f"""**Вы успешно купили категорию - `{category.name}`!**""",
@@ -993,7 +993,7 @@ class Clans(BaseCog):
 							await self.client.database.update(
 								"users",
 								where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-								coins=user_data["coins"]
+								coins=user_data.coins
 							)
 						else:
 							emb = await self.client.utils.create_error_embed(
@@ -1008,7 +1008,7 @@ class Clans(BaseCog):
 						await ctx.send(embed=emb)
 						return
 				elif item == "size" or item == "размер":
-					if user_data["coins"] >= 7500:
+					if user_data.coins >= 7500:
 						if clan["size"] >= 25:
 							emb = await self.client.utils.create_error_embed(
 								ctx, "Клан достиг максимального размера(25 участников)!"
@@ -1029,7 +1029,7 @@ class Clans(BaseCog):
 						await ctx.send(embed=emb)
 
 						clan["size"] += 5
-						user_data["coins"] -= 7500
+						user_data.coins -= 7500
 						await self.client.database.update(
 							"guilds",
 							where={"guild_id": ctx.guild.id},
@@ -1038,7 +1038,7 @@ class Clans(BaseCog):
 						await self.client.database.update(
 							"users",
 							where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-							coins=user_data["coins"]
+							coins=user_data.coins
 						)
 					else:
 						emb = await self.client.utils.create_error_embed(
@@ -1078,7 +1078,7 @@ class Clans(BaseCog):
 						await ctx.send(embed=emb)
 						return
 
-					if user_data["coins"] >= 5000:
+					if user_data.coins >= 5000:
 						try:
 							await ctx.guild.get_role(clan["role_id"]).edit(
 								colour=colors[color.lower()]
@@ -1095,11 +1095,11 @@ class Clans(BaseCog):
 							)
 							await ctx.send(embed=emb)
 
-							user_data["coins"] -= 5000
+							user_data.coins -= 5000
 							await self.client.database.update(
 								"users",
 								where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-								coins=user_data["coins"]
+								coins=user_data.coins
 							)
 						except:
 							emb = await self.client.utils.create_error_embed(
