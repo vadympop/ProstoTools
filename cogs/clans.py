@@ -74,7 +74,7 @@ class Clans(BaseCog):
 				await ctx.send(embed=emb)
 				return
 
-		if user_data["coins"] < 15000:
+		if user_data.coins < 15000:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "У вас не достаточно коинов!"
 			)
@@ -90,7 +90,7 @@ class Clans(BaseCog):
 
 		role = await ctx.guild.create_role(name="PT-CLAN-" + name)
 		await ctx.author.add_roles(role)
-		coins = user_data["coins"] - 15000
+		user_data.coins -= 15000
 		new_id = str(uuid.uuid4())
 		data.append(
 			{
@@ -126,7 +126,7 @@ class Clans(BaseCog):
 			"users",
 			where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
 			clan=new_id,
-			coins=coins
+			coins=user_data.coins
 		)
 
 		if "clans" in audit.keys():
