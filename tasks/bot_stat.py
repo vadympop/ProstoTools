@@ -54,8 +54,8 @@ class TasksBotStat(BaseCog):
                 add_counter=mem.free // 1024 // 1024
             )
             await self.client.database.add_stat_counter(
-                entity="memory cached",
-                add_counter=mem.cached // 1024 // 1024
+                entity="memory available",
+                add_counter=mem.available // 1024 // 1024
             )
             await self.client.database.add_stat_counter(
                 entity="memory percent",
@@ -103,6 +103,12 @@ class TasksBotStat(BaseCog):
             logger.error(f"An error occurred when adding cache stat: {repr(e)}")
         else:
             logger.info("Cache stat was added")
+
+    def cog_unload(self):
+        self.ping_stat_loop.cancel()
+        self.cpu_stat_loop.start()
+        self.memory_stat_loop.start()
+        self.cache_size_stat_loop.start()
 
 
 def setup(client):

@@ -20,6 +20,9 @@ class TasksGiveaways(BaseCog):
                 if giveaway_time <= guild_time:
                     await self.client.utils.end_giveaway(setting)
 
+    def cog_unload(self):
+        self.giveaways_loop.cancel()
+
 
 def setup(client):
     client.add_cog(TasksGiveaways(client))

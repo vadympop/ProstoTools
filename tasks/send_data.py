@@ -112,6 +112,11 @@ class TasksSendData(BaseCog):
 			else:
 				logger.info(f"Bot stats was successful posted into {self.boticord_api_url}")
 
+	def cog_unload(self):
+		self.send_data_loop.cancel()
+		self.send_sdc_data_loop.cancel()
+		self.send_boticord_data_loop.cancel()
+
 
 def setup(client):
 	client.add_cog(TasksSendData(client))

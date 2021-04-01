@@ -1,5 +1,3 @@
-import json
-
 from core.services.database.models import Guild
 from core.bases.cog_base import BaseCog
 from discord.ext import tasks
@@ -37,6 +35,9 @@ class TasksServerStat(BaseCog):
 								await channel.edit(name=new_name)
 							except:
 								pass
+
+	def cog_unload(self):
+		self.server_stat_loop.cancel()
 
 
 def setup(client):

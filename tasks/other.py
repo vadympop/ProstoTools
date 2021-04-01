@@ -41,5 +41,9 @@ class TasksOther(BaseCog):
 							except:
 								pass
 
+	def cog_unload(self):
+		self.reminders_loop.cancel()
+
+
 def setup(client):
 	client.add_cog(TasksOther(client))

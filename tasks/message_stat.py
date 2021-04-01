@@ -96,6 +96,9 @@ class TasksMessageStat(BaseCog):
 						await message.edit(embed=emb)
 						await asyncio.sleep(5)
 
+	def cog_unload(self):
+		self.message_stat_loop.cancel()
+
 
 def setup(client):
 	client.add_cog(TasksMessageStat(client))

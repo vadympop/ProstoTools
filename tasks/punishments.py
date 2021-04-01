@@ -183,6 +183,12 @@ class TasksPunishments(BaseCog):
                                 if channel is not None:
                                     await channel.send(embed=e)
 
+    def cog_unload(self):
+        self.mute_loop.cancel()
+        self.ban_loop.cancel()
+        self.temprole_loop.cancel()
+        self.vmute_loop.cancel()
+
 
 def setup(client):
     client.add_cog(TasksPunishments(client))
