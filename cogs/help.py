@@ -91,7 +91,7 @@ class Help(BaseCog):
 			return
 
 		if entity.lower() not in cogs_aliases.keys():
-			if entity.lower() not in [c.name for c in self.commands]:
+			if entity.lower() not in self.commands:
 				str_cogs = ", ".join([
 					cogs_aliases[cog.lower()] for cog in self.client.cogs
 					if cog.lower() in cogs_aliases.keys()
@@ -102,16 +102,18 @@ class Help(BaseCog):
 				await ctx.send(embed=emb)
 				return
 			else:
+				current_command = self.client.get_command(entity.lower())
 				aliases = (
-					f"""Алиасы команды: {', '.join(self.client.get_command(entity.lower()).aliases)}\n\n"""
-					if self.client.get_command(entity.lower()).aliases != []
+					f"""Алиасы команды: {', '.join(current_command.aliases)}\n\n"""
+					if len(self.client.get_command(entity.lower()).aliases) > 0
 					else ""
 				)
 				emb = discord.Embed(
 					title=f"Команда: {prefix+entity.lower()}",
-					description=aliases
-					+ self.client.get_command(entity.lower()).help.format(
-						Prefix=prefix
+					description=aliases+(
+						current_command.help.format(Prefix=prefix)
+						if current_command.help is not None
+						else "Подробной информации о команде не указанно"
 					),
 					colour=discord.Color.green(),
 				)
