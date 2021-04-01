@@ -49,7 +49,6 @@ class EventsLeveling(BaseCog):
 			where={"user_id": message.author.id, "guild_id": message.guild.id},
 			exp=data.exp,
 			coins=data.coins,
-			level=data.level
 		)
 
 		exp_end = math.floor(9 * (data.level ** 2) + 50 * data.level + 125 * guild_data.exp_multi)
@@ -76,6 +75,12 @@ class EventsLeveling(BaseCog):
 						await message.channel.send(text)
 					elif guild_data.rank_message["type"] == "dm":
 						await message.author.send(text)
+
+			await self.client.database.update(
+				"users",
+				where={"user_id": message.author.id, "guild_id": message.guild.id},
+				level=data.level
+			)
 
 
 def setup(client):

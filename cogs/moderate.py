@@ -51,7 +51,7 @@ class Moderate(BaseCog):
 				async for msg in ctx.channel.history().filter(
 						lambda m: check_filters(m, filters, self.FILTERS_PREDICATES)
 				):
-					if (await self.client.utils.get_guild_time(ctx.guild)-msg.created_at) >= datetime.timedelta(weeks=2):
+					if (datetime.datetime.utcnow()-msg.created_at) >= datetime.timedelta(weeks=2):
 						emb = await self.client.utils.create_error_embed(
 							ctx, "Я не могу удалить сообщения старше 14 дней!"
 						)

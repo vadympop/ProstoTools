@@ -2,11 +2,16 @@ import typing
 import discord
 import jinja2
 
+from core.services.cache.cache_manager import CacheItem
 from core.converters import Expiry
 from discord.ext import commands
 
 
-def check_filters(entity: typing.Union[discord.Message, discord.Member], filters: typing.Iterable, predicates: dict):
+def model_to_dict(model: CacheItem) -> dict:
+    return model._dict
+
+
+def check_filters(entity: typing.Union[discord.Message, discord.Member], filters: typing.Iterable, predicates: dict) -> bool:
     if not filters:
         return True
 

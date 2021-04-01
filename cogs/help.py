@@ -9,12 +9,14 @@ class Help(BaseCog):
 	def __init__(self, client):
 		super().__init__(client)
 		self.commands = [c for c in self.client.walk_commands()]
-		self.exceptions = ("owner", "help", "jishaku")
-		self.allowed_cogs = self.client.config.ALLOWED_COGS
+		self.cogs = [
+			cog
+			for cog in self.client.cogs
+			if cog in self.client.config.ALLOWED_COGS and cog.lower() not in ("owner", "help", "jishaku")
+		]
 		self.cogs_commands = {
 			cog.lower(): [c for c in self.commands if c.cog_name is not None and c.cog_name.lower() == cog.lower()]
-			for cog in self.client.cogs
-			if cog.lower() not in self.exceptions
+			for cog in self.cogs
 		}
 
 	def get_cog_commands(self, cog: str) -> list:
@@ -47,17 +49,14 @@ class Help(BaseCog):
 	async def build_help(self, ctx, prefix: str) -> list:
 		emb = discord.Embed(
 			title="**Доступные команды:**",
-			description=f'Префикс на этом сервере - `{prefix}`, также вы можете в качестве префикса использовать упоминания бота - {ctx.guild.me.mention}. Показаны только команды которые вы можете выполнить.\n\n`{prefix}help [Команда]` - что бы посмотреть помощь по команде\n`{prefix}help [Модуль]` - что бы посмотреть помощь по модулю',
+			description=f'Префикс на этом сервере - `{prefix}`, также вы можете в качестве префикса использовать упоминания бота - {ctx.guild.me.mention}. Показаны только команды которые вы можете выполнить.\n\n`{prefix}help [Команда]` - что бы посмотреть помощь по команде\n`{prefix}help [Модуль]` - что бы посмотреть помощь по модулю\n\nСписок доступных категорий: {", ".join([f"`{cog}`" for cog in self.cogs])}\n\n*Навигация по категориям осуществляется стрелками снизу*',
 			colour=discord.Color.green()
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
 		emb.set_footer(text=f"Вызвал: {ctx.author.name}", icon_url=ctx.author.avatar_url)
 
 		embeds = [emb]
-		for cog_name in self.client.cogs:
-			if cog_name.lower() in self.exceptions or cog_name not in self.allowed_cogs:
-				continue
-
+		for cog_name in self.cogs:
 			embeds.append(await self.build_help_by_cog(ctx, prefix, cog_name))
 
 		return embeds

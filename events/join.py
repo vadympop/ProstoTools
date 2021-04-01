@@ -12,6 +12,9 @@ class EventsJoin(BaseCog):
 
 	@commands.Cog.listener()
 	async def on_guild_join(self, guild):
+		await self.client.database.add_stat_counter(entity="users", add_counter=len(self.client.users))
+		await self.client.database.add_stat_counter(entity="guilds", add_counter=len(self.client.guilds))
+
 		emb = discord.Embed(
 			title="Спасибо за приглашения нашего бота! Мы вам всегда рады",
 			description=f"Стандартний префикс - `p.`, команда помощи - p.help, \nкоманда настроёк - p.settings. \n Полезные ссылки:\n[Наш сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](https://api.prosto-tools.ml/)\n[Документация](https://vythonlui.gitbook.io/prostotools/)",
@@ -28,8 +31,6 @@ class EventsJoin(BaseCog):
 				break
 
 		await self.client.database.sel_guild(guild=guild)
-		await self.client.database.add_stat_counter(entity="guilds", add_counter=len(self.client.guilds))
-
 		for member in guild.members:
 			if not member.bot:
 				await self.client.database.sel_user(target=member)
@@ -44,7 +45,8 @@ class EventsJoin(BaseCog):
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
-		await self.client.database.add_stat_counter(entity="members", add_counter=len(self.client.users))
+		await self.client.database.add_stat_counter(entity="users", add_counter=len(self.client.users))
+
 		guild_data = await self.client.database.sel_guild(guild=member.guild)
 		if not guild_data.welcomer["join"]["state"]:
 			return

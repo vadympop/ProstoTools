@@ -98,7 +98,7 @@ class TasksSendData(BaseCog):
 				"servers": len(self.client.guilds),
 				"users": len(self.client.users)
 			}
-			print(data)
+
 			logger.info(f"Trying to post bot stats into {self.boticord_api_url}")
 			try:
 				r = await self.client.http_client.post(

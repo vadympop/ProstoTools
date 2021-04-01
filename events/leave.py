@@ -8,7 +8,9 @@ from discord.ext import commands
 class EventsLeave(BaseCog):
 	@commands.Cog.listener()
 	async def on_guild_remove(self, guild):
+		await self.client.database.add_stat_counter(entity="users", add_counter=len(self.client.users))
 		await self.client.database.add_stat_counter(entity="guilds", add_counter=len(self.client.guilds))
+
 		emb_info = discord.Embed(
 			title=f"Бот изгнан из сервера, всего серверов - {len(self.client.guilds)}",
 			colour=discord.Color.green(),
@@ -20,6 +22,7 @@ class EventsLeave(BaseCog):
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):
 		await self.client.database.add_stat_counter(entity="members", add_counter=len(self.client.users))
+
 		guild_data = await self.client.database.sel_guild(guild=member.guild)
 		if not guild_data.welcomer["leave"]["state"]:
 			return

@@ -42,8 +42,25 @@ class TasksBotStat(BaseCog):
     async def memory_stat_loop(self):
         await self.client.wait_until_ready()
         logger.info("Trying to add memory stat")
+
+        mem = ps.virtual_memory()
         try:
-            await self.client.database.add_stat_counter(entity="memory", add_counter=ps.virtual_memory().percent)
+            await self.client.database.add_stat_counter(
+                entity="memory used",
+                add_counter=mem.used // 1024 // 1024
+            )
+            await self.client.database.add_stat_counter(
+                entity="memory free",
+                add_counter=mem.free
+            )
+            await self.client.database.add_stat_counter(
+                entity="memory cached",
+                add_counter=mem.cached
+            )
+            await self.client.database.add_stat_counter(
+                entity="memory percent",
+                add_counter=mem.percent
+            )
         except Exception as e:
             logger.error(f"An error occurred when adding memory stat: {repr(e)}")
         else:
