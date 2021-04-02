@@ -3,6 +3,7 @@ import typing
 import datetime
 import humanize
 
+from core.exceptions import BadTimeArgument
 from core.utils.time_utils import get_timezone_obj
 from core.utils.other import check_filters
 from core.bases.cog_base import BaseCog
@@ -252,7 +253,7 @@ class Moderate(BaseCog):
 				expiry_at = await process_converters(ctx, Expiry.__args__, options[0], True)
 				options.pop(0)
 				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
-			except commands.BadArgument:
+			except BadTimeArgument:
 				reason = " ".join(options)
 		else:
 			reason = "Причина не указана"
@@ -342,7 +343,7 @@ class Moderate(BaseCog):
 				expiry_at = await process_converters(ctx, Expiry.__args__, options[0], True)
 				options.pop(0)
 				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
-			except commands.BadArgument:
+			except BadTimeArgument:
 				reason = " ".join(options)
 		else:
 			reason = "Причина не указана"
@@ -423,7 +424,7 @@ class Moderate(BaseCog):
 				expiry_at = await process_converters(ctx, Expiry.__args__, options[0], True)
 				options.pop(0)
 				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
-			except commands.BadArgument:
+			except BadTimeArgument:
 				reason = " ".join(options)
 		else:
 			reason = "Причина не указана"
@@ -588,7 +589,7 @@ class Moderate(BaseCog):
 				expiry_at = await process_converters(ctx, Expiry.__args__, options[0], True)
 				options.pop(0)
 				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
-			except commands.BadArgument:
+			except BadTimeArgument:
 				reason = " ".join(options)
 		else:
 			reason = "Причина не указана"

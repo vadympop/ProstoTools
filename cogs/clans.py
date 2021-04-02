@@ -2,6 +2,7 @@ import uuid
 import random
 import discord
 
+from core.converters import ColorConverter
 from core.bases.cog_base import BaseCog
 from datetime import datetime
 from string import ascii_uppercase
@@ -932,7 +933,7 @@ class Clans(BaseCog):
 		description="Покупает указаный предмет для клана",
 	)
 	@commands.bot_has_permissions(manage_roles=True, manage_channels=True)
-	async def buy(self, ctx, item: str, color: str = None):
+	async def buy(self, ctx, item: str, color: ColorConverter = None):
 		user_data = await self.client.database.sel_user(target=ctx.author)
 		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
 		item = item.lower()
@@ -1047,66 +1048,43 @@ class Clans(BaseCog):
 						await ctx.send(embed=emb)
 						return
 				elif item == "color" or item == "colour" or item == "цвет":
-					colors = {
-						"teal": 0x1ABC9C,
-						"dark_teal": 0x11806A,
-						"green": 0x2ECC71,
-						"dark_green": 0x1F8B4C,
-						"blue": 0x3498DB,
-						"dark_blue": 0x206694,
-						"purple": 0x9B59B6,
-						"dark_purple": 0x71368A,
-						"magenta": 0xE91E63,
-						"dark_magenta": 0xAD1457,
-						"gold": 0xF1C40F,
-						"dark_gold": 0xC27C0E,
-						"orange": 0xE67E22,
-						"dark_orange": 0xA84300,
-						"red": 0xE74C3C,
-						"dark_red": 0x992D22,
-						"lighter_gray": 0x95A5A6,
-						"dark_gray": 0x607D8B,
-						"light_gray": 0x979C9F,
-						"darker_gray": 0x546E7A,
-						"blurple": 0x7289DA,
-						"greyple": 0x99AAB5,
-					}
-					if color not in colors.keys():
+					if color is None:
 						emb = await self.client.utils.create_error_embed(
-							ctx, f"Указан не правильный цвет, укажите из этих: {', '.join(colors.keys())}!"
+							ctx, f"Укажите цвет роли!"
 						)
 						await ctx.send(embed=emb)
 						return
 
 					if user_data.coins >= 5000:
-						try:
-							await ctx.guild.get_role(clan["role_id"]).edit(
-								colour=colors[color.lower()]
-							)
-							emb = discord.Embed(
-								description="**Вы успешно купили новый цвет для роли вашего клана!**",
-								colour=discord.Color.green(),
-							)
-							emb.set_author(
-								name=ctx.author.name, icon_url=ctx.author.avatar_url
-							)
-							emb.set_footer(
-								text=self.FOOTER, icon_url=self.client.user.avatar_url
-							)
-							await ctx.send(embed=emb)
-
-							user_data.coins -= 5000
-							await self.client.database.update(
-								"users",
-								where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
-								coins=user_data.coins
-							)
-						except:
+						clan_role = ctx.guild.get_role(clan["role_id"])
+						if clan_role is None:
 							emb = await self.client.utils.create_error_embed(
 								ctx, f"Роль клана удалена!"
 							)
 							await ctx.send(embed=emb)
 							return
+
+						await clan_role.edit(
+							colour=color
+						)
+						emb = discord.Embed(
+							description="**Вы успешно купили новый цвет для роли вашего клана!**",
+							colour=discord.Color.green(),
+						)
+						emb.set_author(
+							name=ctx.author.name, icon_url=ctx.author.avatar_url
+						)
+						emb.set_footer(
+							text=self.FOOTER, icon_url=self.client.user.avatar_url
+						)
+						await ctx.send(embed=emb)
+
+						user_data.coins -= 5000
+						await self.client.database.update(
+							"users",
+							where={"user_id": ctx.author.id, "guild_id": ctx.guild.id},
+							coins=user_data.coins
+						)
 					else:
 						emb = await self.client.utils.create_error_embed(
 							ctx, "У вас не достаточно коинов!"
@@ -1115,7 +1093,7 @@ class Clans(BaseCog):
 						return
 				else:
 					emb = await self.client.utils.create_error_embed(
-						ctx, "Вы указали не правильный предмет!"
+						ctx, "Вы указали неправильный предмет!"
 					)
 					await ctx.send(embed=emb)
 					return

@@ -24,16 +24,19 @@ async def process_converters(
         argument: typing.Any,
         return_exception: bool = False
 ) -> typing.Any:
+    error = None
     for conv in converters:
         try:
             result = await conv().convert(
                 ctx, argument
             )
-        except commands.BadArgument as e:
-            if return_exception:
-                raise e
+        except commands.CommandError as e:
+            error = e
         else:
             return result
+
+    if return_exception and error is not None:
+        raise error
 
 
 async def check_moderate_roles(ctx):

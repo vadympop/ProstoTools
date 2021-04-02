@@ -37,22 +37,24 @@ class Errors(BaseCog):
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.MissingRequiredArgument):
 			ctx.command.reset_cooldown(ctx)
+			command_usage = f"\n*Использование команды:*\n{PREFIX}{ctx.command.usage}" if ctx.command.usage is not None else ""
+			command_help = f"\n\n{ctx.command.help.format(Prefix=PREFIX)}" if ctx.command.help is not None else ""
 			emb = await self.client.utils.create_error_embed(
 				ctx,
-				f"**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указаной команде!**\n\n{ctx.command.help.format(Prefix=PREFIX)}"
-				if ctx.command.help is not None
-				else "**Указан не правильный аргумент!**",
-				bold=False
+				f"**Вы не указали аргумент. Укажити аргумент - {error.param.name} к указанной команде!**"+command_usage+command_help
+			)
+			await ctx.send(embed=emb)
+		elif isinstance(error, commands.BadColourArgument):
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Цвет указан в неправильном формате! Цвет должен быть в `hex` формате"
 			)
 			await ctx.send(embed=emb)
 		elif isinstance(error, (commands.errors.BadArgument, commands.errors.BadUnionArgument)):
 			ctx.command.reset_cooldown(ctx)
+			command_usage = f"\n*Использование команды:*\n{PREFIX}{ctx.command.usage}" if ctx.command.usage is not None else ""
+			command_help = f"\n\n{ctx.command.help.format(Prefix=PREFIX)}" if ctx.command.help is not None else ""
 			emb = await self.client.utils.create_error_embed(
-				ctx,
-				f"**Указан не правильный аргумент!**\n\n{ctx.command.help.format(Prefix=PREFIX)}"
-				if ctx.command.help is not None
-				else "**Указан не правильный аргумент!**",
-				bold=False
+				ctx, f"**Указан неправильный аргумент!**"+command_usage+command_help
 			)
 			await ctx.send(embed=emb)
 		elif isinstance(error, commands.errors.BotMissingPermissions):
@@ -71,6 +73,12 @@ class Errors(BaseCog):
 		elif isinstance(error, commands.errors.MemberNotFound):
 			ctx.command.reset_cooldown(ctx)
 			emb = await self.client.utils.create_error_embed(ctx, "Указаный пользователь не найден!")
+			await ctx.send(embed=emb)
+		elif isinstance(error, BadTimeArgument):
+			emb = await self.client.utils.create_error_embed(
+				ctx,
+				"Время указанно в неправильном формате!\n\n*Примеры правильного использования:*\n`1m` - через одну минуту\n`2030-05-01.10:30` - в определенное время, в 2030-ом году первого мая в 10:30"
+			)
 			await ctx.send(embed=emb)
 		elif isinstance(error, Blacklisted):
 			try:

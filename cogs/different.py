@@ -1,87 +1,78 @@
 import discord
 
+from core.converters import ColorConverter
 from core.bases.cog_base import BaseCog
 from discord.ext import commands
 from random import randint
 
 
 class Different(BaseCog):
-	@commands.command(
+	@commands.group(
 		usage="color [Цвет]",
-		description="Устанавливает роль с указаным цветом",
+		description="Устанавливает роль с указанным цветом",
 		help="**Полезное:**\nЦвет надо указывать в формате HEX - #444444\n\n**Примеры использования:**\n1. {Prefix}color #444444\n2. {Prefix}color remove\n\n**Пример 1:** Установит вам роль с указаным цветом в HEX формате(Поддерживаеться только HEX)\n**Пример 2:** Удалить у вас роль с цветом",
 	)
 	@commands.cooldown(1, 300, commands.BucketType.member)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def color(self, ctx, color: str):
-		remove_words = ["del", "delete", "rem", "remove"]
-		state = False
-		if color.lower() in remove_words:
-			for role in ctx.author.roles:
-				if role.name.startswith(self.client.config.COLOR_ROLE):
-					await role.delete()
-					state = True
-					break
-
-			if not state:
+	async def color(self, ctx, color: ColorConverter):
+		if ctx.invoked_subcommand is None:
+			if (ctx.author.top_role.position + 1) >= ctx.guild.me.top_role.position:
 				emb = await self.client.utils.create_error_embed(
-					ctx, "У вас нет роли цвета!"
+					ctx, "У меня не хватает прав на добавления роли к вам!"
 				)
 				await ctx.send(embed=emb)
 				return
 
+			for r in ctx.author.roles:
+				if r.name.startswith(self.client.config.COLOR_ROLE):
+					await r.delete()
+					break
+
+			name = self.client.config.COLOR_ROLE+str(color)
+			roles = {role.name: role.id for role in ctx.guild.roles}
+			if name in roles.keys():
+				role = ctx.guild.get_role(roles[name])
+			else:
+				role = await ctx.guild.create_role(
+					name=name,
+					color=color
+				)
+				await role.edit(position=ctx.author.top_role.position+1)
+			await ctx.author.add_roles(role)
 			try:
 				await ctx.message.add_reaction("✅")
 			except discord.errors.Forbidden:
 				pass
 			except discord.errors.HTTPException:
 				pass
-			return
 
-		if color.startswith("#"):
-			hex = color[1:]
-			if len(hex) == 6:
-				if (ctx.author.top_role.position + 1) >= ctx.guild.me.top_role.position:
-					emb = await self.client.utils.create_error_embed(
-						ctx, "У меня не хватает прав на добавления роли к вам!"
-					)
-					await ctx.send(embed=emb)
-					return
+	@color.command(
+		name="delete",
+		usage="color delete",
+		aliases=["rs", "reset", "rm", "remove", "del", "rem"],
+		description="Удаляет роль цвета"
+	)
+	async def color_reset(self, ctx):
+		state = False
+		for role in ctx.author.roles:
+			if role.name.startswith(self.client.config.COLOR_ROLE):
+				await role.delete()
+				state = True
+				break
 
-				for r in ctx.author.roles:
-					if r.name.startswith(self.client.config.COLOR_ROLE):
-						await r.delete()
-						break
-
-				name = self.client.config.COLOR_ROLE+hex
-				roles = {role.name: role.id for role in ctx.guild.roles}
-				if name in roles.keys():
-					role = ctx.guild.get_role(roles[name])
-				else:
-					role = await ctx.guild.create_role(
-						name=name,
-						color=discord.Colour(int(hex, 16))
-					)
-					await role.edit(position=ctx.author.top_role.position+1)
-				await ctx.author.add_roles(role)
-				try:
-					await ctx.message.add_reaction("✅")
-				except discord.errors.Forbidden:
-					pass
-				except discord.errors.HTTPException:
-					pass
-			else:
-				emb = await self.client.utils.create_error_embed(
-					ctx, "Указан не правильный формат цвета!"
-				)
-				await ctx.send(embed=emb)
-				return
-		else:
+		if not state:
 			emb = await self.client.utils.create_error_embed(
-				ctx, "Указан не правильный формат цвета!"
+				ctx, "У вас нет роли цвета!"
 			)
 			await ctx.send(embed=emb)
 			return
+
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 	@commands.command(
 		aliases=["usersend"],

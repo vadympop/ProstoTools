@@ -47,3 +47,7 @@ class TakeActionWithOwner(ProstoToolsException):
 
 class Blacklisted(ProstoToolsException):
     pass
+
+
+class BadTimeArgument(ProstoToolsException):
+    pass
