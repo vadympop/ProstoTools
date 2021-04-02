@@ -9,7 +9,7 @@ from random import randint
 class Different(BaseCog):
 	@commands.group()
 	@commands.cooldown(1, 300, commands.BucketType.member)
-	async def color(self):
+	async def color(self, ctx):
 		pass
 
 	@color.command(
