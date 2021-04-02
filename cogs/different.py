@@ -13,42 +13,42 @@ class Different(BaseCog):
 		pass
 
 	@color.command(
-		usage="color [Цвет]",
+		name="set",
+		usage="color set [Цвет]",
 		description="Устанавливает роль с указанным цветом",
 		help="**Полезное:**\nЦвет надо указывать в формате HEX - #444444\n\n**Примеры использования:**\n1. {Prefix}color #444444\n2. {Prefix}color remove\n\n**Пример 1:** Установит вам роль с указаным цветом в HEX формате(Поддерживаеться только HEX)\n**Пример 2:** Удалить у вас роль с цветом",
 	)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def color_set(self, ctx, color: ColorConverter):
-		if ctx.invoked_subcommand is None:
-			if (ctx.author.top_role.position + 1) >= ctx.guild.me.top_role.position:
-				emb = await self.client.utils.create_error_embed(
-					ctx, "У меня не хватает прав на добавления роли к вам!"
-				)
-				await ctx.send(embed=emb)
-				return
+		if (ctx.author.top_role.position + 1) >= ctx.guild.me.top_role.position:
+			emb = await self.client.utils.create_error_embed(
+				ctx, "У меня не хватает прав на добавления роли к вам!"
+			)
+			await ctx.send(embed=emb)
+			return
 
-			for r in ctx.author.roles:
-				if r.name.startswith(self.client.config.COLOR_ROLE):
-					await r.delete()
-					break
+		for r in ctx.author.roles:
+			if r.name.startswith(self.client.config.COLOR_ROLE):
+				await r.delete()
+				break
 
-			name = self.client.config.COLOR_ROLE+str(color)
-			roles = {role.name: role.id for role in ctx.guild.roles}
-			if name in roles.keys():
-				role = ctx.guild.get_role(roles[name])
-			else:
-				role = await ctx.guild.create_role(
-					name=name,
-					color=color
-				)
-				await role.edit(position=ctx.author.top_role.position+1)
-			await ctx.author.add_roles(role)
-			try:
-				await ctx.message.add_reaction("✅")
-			except discord.errors.Forbidden:
-				pass
-			except discord.errors.HTTPException:
-				pass
+		name = self.client.config.COLOR_ROLE+str(color)
+		roles = {role.name: role.id for role in ctx.guild.roles}
+		if name in roles.keys():
+			role = ctx.guild.get_role(roles[name])
+		else:
+			role = await ctx.guild.create_role(
+				name=name,
+				color=color
+			)
+			await role.edit(position=ctx.author.top_role.position+1)
+		await ctx.author.add_roles(role)
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 	@color.command(
 		name="delete",

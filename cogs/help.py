@@ -28,11 +28,10 @@ class Help(BaseCog):
 			try:
 				if await command.can_run(ctx):
 					commands_string += f"`{prefix}{command}` {command.description}\n"
+				else:
+					commands_string += f"~~`{prefix}{command}` {command.description}~~\n"
 			except commands.CommandError:
-				pass
-
-		if not commands_string:
-			commands_string = "Вы не можете использовать ни одну из команд этой категории"
+				commands_string += f"~~`{prefix}{command}` {command.description}~~\n"
 
 		return discord.Embed(
 			title=f"Категория команд: {cog_name.capitalize()} - {prefix}help {cog_name.lower()}",
@@ -49,7 +48,7 @@ class Help(BaseCog):
 	async def build_help(self, ctx, prefix: str) -> list:
 		emb = discord.Embed(
 			title="**Доступные команды:**",
-			description=f'Префикс на этом сервере - `{prefix}`, также вы можете в качестве префикса использовать упоминания бота - {ctx.guild.me.mention}. Показаны только команды которые вы можете выполнить.\n\n`{prefix}help [Команда]` - что бы посмотреть помощь по команде\n`{prefix}help [Модуль]` - что бы посмотреть помощь по модулю\n\nСписок доступных категорий: {", ".join([f"`{cog}`" for cog in self.cogs])}\n\n*Навигация по категориям осуществляется стрелками снизу*',
+			description=f'Префикс на этом сервере - `{prefix}`, также вы можете в качестве префикса использовать упоминания бота - {ctx.guild.me.mention}. Зачеркнутые команды бот/вы не можете выполнить из-за нехватки прав.\n\n`{prefix}help [Команда]` - что бы посмотреть помощь по команде\n`{prefix}help [Модуль]` - что бы посмотреть помощь по модулю\n\nСписок доступных категорий: {", ".join([f"`{cog}`" for cog in self.cogs])}\n\n*Навигация по категориям осуществляется стрелками снизу*',
 			colour=discord.Color.green()
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
