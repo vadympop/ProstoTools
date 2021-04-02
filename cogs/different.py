@@ -7,14 +7,18 @@ from random import randint
 
 
 class Different(BaseCog):
-	@commands.group(
+	@commands.group()
+	@commands.cooldown(1, 300, commands.BucketType.member)
+	async def color(self):
+		pass
+
+	@color.command(
 		usage="color [Цвет]",
 		description="Устанавливает роль с указанным цветом",
 		help="**Полезное:**\nЦвет надо указывать в формате HEX - #444444\n\n**Примеры использования:**\n1. {Prefix}color #444444\n2. {Prefix}color remove\n\n**Пример 1:** Установит вам роль с указаным цветом в HEX формате(Поддерживаеться только HEX)\n**Пример 2:** Удалить у вас роль с цветом",
 	)
-	@commands.cooldown(1, 300, commands.BucketType.member)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def color(self, ctx, color: ColorConverter):
+	async def color_set(self, ctx, color: ColorConverter):
 		if ctx.invoked_subcommand is None:
 			if (ctx.author.top_role.position + 1) >= ctx.guild.me.top_role.position:
 				emb = await self.client.utils.create_error_embed(
@@ -52,6 +56,7 @@ class Different(BaseCog):
 		aliases=["rs", "reset", "rm", "remove", "del", "rem"],
 		description="Удаляет роль цвета"
 	)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def color_reset(self, ctx):
 		state = False
 		for role in ctx.author.roles:
