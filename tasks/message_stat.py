@@ -19,10 +19,18 @@ class TasksMessageStat(BaseCog):
 
 			server_stats = (await self.client.database.sel_guild(guild=guild)).server_stats
 			if "message" in server_stats.keys():
+				channel = guild.get_channel(server_stats["message"][1])
+				if channel is None:
+					server_stats.pop("message")
+					await self.client.database.update(
+						"guilds",
+						where={"guild_id": guild.id},
+						server_stats=server_stats
+					)
+					continue
+
 				try:
-					message = await guild.get_channel(
-						server_stats["message"][1]
-					).fetch_message(server_stats["message"][0])
+					message = await channel.fetch_message(server_stats["message"][0])
 				except discord.errors.NotFound:
 					server_stats.pop("message")
 					await self.client.database.update(
