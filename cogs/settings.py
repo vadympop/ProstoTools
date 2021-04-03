@@ -1691,7 +1691,7 @@ class Settings(BaseCog):
 			await self.client.database.update(
 				"guilds",
 				where={"guild_id": ctx.guild.id},
-				autoresponders=json.dumps(auto_responders)
+				autoresponders=auto_responders
 			)
 
 			emb = discord.Embed(

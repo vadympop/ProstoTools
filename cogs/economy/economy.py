@@ -1188,6 +1188,7 @@ class Economy(BaseCog):
 			"idle": "sleep",
 		}
 		async with ctx.typing():
+			user_rank = "---"
 			users_rank = list(User.objects.filter(guild_id=ctx.guild.id).order_by("-exp"))
 			for user in users_rank:
 				if user.user_id == member.id:
@@ -1198,16 +1199,16 @@ class Economy(BaseCog):
 			multi = (await self.client.database.sel_guild(guild=ctx.guild)).exp_multi
 			user_warns = len(await self.client.database.get_warns(user_id=member.id, guild_id=ctx.guild.id))
 			level_exp = math.floor(9 * (user_data.level ** 2) + 50 * user_data.level + 125 * multi)
-			previus_level_exp = math.floor(
+			previous_level_exp = math.floor(
 				9 * ((user_data.level - 1) ** 2) + 50 * (user_data.level - 1) + 125 * multi
 			)
 			progress_bar_percent = round(
-				((level_exp - user_data.exp) / (level_exp - previus_level_exp)) * 100
+				((level_exp - user_data.exp) / (level_exp - previous_level_exp)) * 100
 			)
 			user_image_status = Image.open(
 				self.IMAGES_PATH + statuses[member.status.name] + ".png"
 			).convert("RGBA")
-			levels_delta = round(level_exp - previus_level_exp)
+			levels_delta = round(level_exp - previous_level_exp)
 			user_state_prison = "На свободе" if user_data.prison else "Сейчас в тюрме"
 			if user_data.profile is None:
 				img = Image.open(self.IMAGES_PATH+"default.png")
@@ -1268,7 +1269,7 @@ class Economy(BaseCog):
 			idraw.rectangle((230, 285, 855, 340), fill="#909090")
 			draw_progress(img, progress_bar_percent)
 			idraw.text(
-				(get_width_info_exp(round(level_exp - previus_level_exp)), 250),
+				(get_width_info_exp(round(level_exp - previous_level_exp)), 250),
 				f"{levels_delta}/{round(levels_delta-(level_exp - user_data.exp))} exp",
 				font=midletext,
 				fill=colours[user_data.profile][3],

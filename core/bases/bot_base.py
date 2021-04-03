@@ -34,7 +34,6 @@ class ProstoTools(commands.AutoShardedBot):
         )
         self.remove_command("help")
         self.config = Config
-        self.session = None
         self.http_client = HTTPClient()
         self.cache = Cache()
         self.database = Database(client=self)

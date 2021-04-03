@@ -1,5 +1,6 @@
 import discord
 import random
+import aiohttp
 
 from core.bases.cog_base import BaseCog
 from bs4 import BeautifulSoup as bs
@@ -84,8 +85,9 @@ class FunRandomImage(BaseCog):
             "User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0"
         }
         async with ctx.typing():
-            async with self.client.session.request("GET", url=url, headers=headers) as response:
-                html = await response.text()
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url=url, headers=headers) as response:
+                    html = await response.text()
 
             soup = bs(html, "lxml")
             data = soup.find_all("div", {"class": "topicbox"})
