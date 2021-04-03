@@ -37,7 +37,7 @@ class EventsAudit(BaseCog):
 							value = f"{role.mention}(`{role.id}`)"
 
 				e = discord.Embed(
-					description=f"У пользователя `{str(after)}` были изменены роли",
+					description=f"У пользователя `{after}` были изменены роли",
 					colour=discord.Color.blurple(),
 					timestamp=await self.client.utils.get_guild_time(after.guild),
 				)
@@ -54,18 +54,18 @@ class EventsAudit(BaseCog):
 
 			if not before.display_name == after.display_name:
 				e = discord.Embed(
-					description=f"Пользователь `{str(before)}` изменил ник",
+					description=f"Пользователь `{before}` изменил ник",
 					colour=discord.Color.blue(),
 					timestamp=await self.client.utils.get_guild_time(after.guild),
 				)
 				e.add_field(
 					name="Действующее имя",
-					value=f"`{after.display_name+'#'+after.discriminator}`",
+					value=f"`{after}`",
 					inline=False,
 				)
 				e.add_field(
 					name="Предыдущее имя",
-					value=f"`{before.display_name+'#'+before.discriminator}`",
+					value=f"`{before}`",
 					inline=False,
 				)
 				e.add_field(name="Id Участника", value=f"`{after.id}`", inline=False)
@@ -81,13 +81,14 @@ class EventsAudit(BaseCog):
 		audit = (await self.client.database.sel_guild(guild=guild)).audit
 		if "member_ban" not in audit.keys():
 			return
+
 		channel = self.client.get_channel(audit["member_ban"])
 		if channel is None:
 			return
 
 		ban = await guild.fetch_ban(user)
 		e = discord.Embed(
-			description=f"Пользователь `{str(user)}` был забанен",
+			description=f"Пользователь `{user}` был забанен",
 			colour=discord.Color.red(),
 			timestamp=await self.client.utils.get_guild_time(guild),
 		)
@@ -109,12 +110,13 @@ class EventsAudit(BaseCog):
 		audit = (await self.client.database.sel_guild(guild=guild)).audit
 		if "member_unban" not in audit.keys():
 			return
+
 		channel = self.client.get_channel(audit["member_unban"])
 		if channel is None:
 			return
 
 		e = discord.Embed(
-			description=f"Пользователь `{str(user)}` был разбанен",
+			description=f"Пользователь `{user}` был разбанен",
 			colour=discord.Color.green(),
 			timestamp=await self.client.utils.get_guild_time(guild),
 		)
@@ -172,44 +174,42 @@ class EventsAudit(BaseCog):
 		)
 
 	@commands.Cog.listener()
-	async def on_raw_message_delete(self, payload):
-		message = payload.cached_message
+	async def on_message_delete(self, message):
+		if message.author.bot:
+			return
 
-		if message is not None:
-			if message.author.bot:
-				return
+		audit = (await self.client.database.sel_guild(guild=message.guild)).audit
+		if "message_delete" not in audit.keys():
+			return
 
-			audit = (await self.client.database.sel_guild(guild=message.guild)).audit
-			if "message_delete" not in audit.keys():
-				return
-			channel = self.client.get_channel(audit["message_delete"])
-			if channel is None:
-				return
+		channel = self.client.get_channel(audit["message_delete"])
+		if channel is None:
+			return
 
-			if len(message.content) > 1000:
-				return
+		if len(message.content) > 1000:
+			return
 
-			e = discord.Embed(
-				colour=discord.Color.orange(), timestamp=await self.client.utils.get_guild_time(message.guild)
-			)
-			e.add_field(
-				name="Удалённое сообщение",
-				value=f"```{message.content}```"
-				if message.content
-				else "Сообщения отсутствует ",
-				inline=False,
-			)
-			e.add_field(
-				name="Автор сообщения", value=f"`{message.mention}`", inline=False
-			)
-			e.add_field(name="Канал", value=f"`{message.channel.mention}`", inline=False)
-			e.add_field(name="Id Сообщения", value=f"`{message.id}`", inline=False)
-			e.set_author(
-				name="Журнал аудита | Удаление сообщения",
-				icon_url=message.author.avatar_url,
-			)
-			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await channel.send(embed=e)
+		e = discord.Embed(
+			colour=discord.Color.orange(), timestamp=await self.client.utils.get_guild_time(message.guild)
+		)
+		e.add_field(
+			name="Удалённое сообщение",
+			value=f"```{message.content}```"
+			if message.content
+			else "Сообщения отсутствует ",
+			inline=False,
+		)
+		e.add_field(
+			name="Автор сообщения", value=f"{message.author}(`{message.author.id}`)", inline=False
+		)
+		e.add_field(name="Канал", value=f"{message.channel.mention}(`{message.channel.id}`)", inline=False)
+		e.add_field(name="Id Сообщения", value=f"`{message.id}`", inline=False)
+		e.set_author(
+			name="Журнал аудита | Удаление сообщения",
+			icon_url=message.author.avatar_url,
+		)
+		e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+		await channel.send(embed=e)
 
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):
@@ -222,6 +222,7 @@ class EventsAudit(BaseCog):
 		audit = (await self.client.database.sel_guild(guild=before.guild)).audit
 		if "message_edit" not in audit.keys():
 			return
+
 		channel = self.client.get_channel(audit["message_edit"])
 		if channel is None:
 			return
@@ -237,8 +238,8 @@ class EventsAudit(BaseCog):
 		e.add_field(
 			name="Новое соодержиое", value=f"```{after.content}```", inline=False
 		)
-		e.add_field(name="Автор", value=f"`{before.author.mention}`", inline=False)
-		e.add_field(name="Канал", value=f"`{before.channel.mention}`", inline=False)
+		e.add_field(name="Автор", value=f"`{after.author}(`{after.author.id}`)`", inline=False)
+		e.add_field(name="Канал", value=f"{after.channel.mention}(`{after.channel.id}`)", inline=False)
 		e.add_field(name="Id Сообщения", value=f"`{before.id}`", inline=False)
 		e.set_author(
 			name="Журнал аудита | Изменение сообщения",
