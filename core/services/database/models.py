@@ -110,6 +110,8 @@ class BotStat(models.Model):
 
 class Error(models.Model):
     error_id = models.TextField(primary_key=True)
+    guild_id = models.BigIntegerField()
+    user_id = models.BigIntegerField()
     time = models.DateTimeField()
     traceback = models.TextField()
     command = models.TextField()

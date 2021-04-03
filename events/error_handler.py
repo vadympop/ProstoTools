@@ -139,7 +139,13 @@ class Errors(BaseCog):
 				return
 
 			error_id = str(uuid.uuid4())
-			await self.client.database.add_error(error_id, repr(error), ctx.message.content)
+			await self.client.database.add_error(
+				error_id=error_id,
+				traceback=repr(error),
+				command=ctx.message.content,
+				guild_id=ctx.guild.id,
+				user_id=ctx.author.id
+			)
 			try:
 				await ctx.message.add_reaction("❌")
 			except discord.errors.Forbidden:

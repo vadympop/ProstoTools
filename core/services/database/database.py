@@ -389,9 +389,11 @@ class Database:
             entity=entity
         )
 
-    async def add_error(self, error_id: str, traceback: str, command: str) -> None:
+    async def add_error(self, error_id: str, traceback: str, command: str, guild_id: int, user_id: int) -> None:
         Error.objects.create(
             error_id=error_id,
+            guild_id=guild_id,
+            user_id=user_id,
             time=datetime.datetime.utcnow(),
             traceback=traceback,
             command=command
