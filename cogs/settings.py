@@ -1043,48 +1043,6 @@ class Settings(BaseCog):
 			pass
 
 	@setting.command(
-		name="react-commands",
-		description="Настройка команд по реакциям",
-		usage="setting react-commands [on/off]",
-	)
-	@commands.has_permissions(administrator=True)
-	async def react_commands(self, ctx, action: str):
-		actions = ["on", "off", "true", "false", "0", "1"]
-		if action.lower() not in actions:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Вы не правильно указали действие! Укажите из этих вариантов: on, off!"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		data = await self.client.database.sel_guild(guild=ctx.guild)
-		emb = discord.Embed(
-			description=f"**Настройки команд по реакциям успешно обновленны!**",
-			colour=discord.Color.green(),
-		)
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
-
-		if action.lower() == "on" or action.lower() == "true" or action.lower() == "1":
-			action = True
-		elif (
-			action.lower() == "off"
-			or action.lower() == "false"
-			or action.lower() == "0"
-		):
-			action = False
-
-		settings = data.auto_mod
-		settings.update({"react_commands": action})
-
-		await self.client.database.update(
-			"guilds",
-			where={"guild_id": ctx.guild.id},
-			auto_mod=settings
-		)
-
-	@setting.command(
 		name="exp-multi",
 		aliases=["exp-multiplier"],
 		description="Настройка множителя опыта на сервере",
