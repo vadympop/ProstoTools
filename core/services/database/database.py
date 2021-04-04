@@ -434,9 +434,26 @@ class Database:
         self.cache.blacklist.remove(**kwargs)
         return True
 
-    async def add_audit_log(self, **kwargs) -> int:
+    async def add_audit_log(
+            self, user: discord.User, channel: discord.TextChannel, guild_id: int, action_type: str, **kwargs
+    ) -> int:
         new_log = AuditLogs(
-            **kwargs
+            guild_id=guild_id,
+            time=datetime.datetime.utcnow(),
+            avatar_url=user.avatar_url_as(
+                 format="gif" if user.is_avatar_animated() else "png", size=1024
+            ),
+            type=action_type,
+            channel={
+                "id": channel.id,
+                "name": channel.name,
+            },
+            user={
+                "id": user.id,
+                "username": user.name,
+                "discriminator": user.discriminator
+            },
+            options=kwargs
         )
         new_log.save()
         return new_log.id

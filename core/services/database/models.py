@@ -187,12 +187,11 @@ class Blacklist(models.Model):
 class AuditLogs(models.Model):
     id = models.BigAutoField(primary_key=True)
     guild_id = models.BigIntegerField()
-    user_id = models.BigIntegerField()
     time = models.DateTimeField()
-    username = models.TextField()
-    discriminator = models.IntegerField()
-    avatar_url = models.TextField()
     type = models.TextField()
+    channel = models.JSONField()
+    user = models.JSONField()
+    options = models.JSONField()
 
     class Meta:
         db_table = "audit_logs"

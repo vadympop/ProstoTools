@@ -13,76 +13,94 @@ class EventsAudit(BaseCog):
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
-		if self.client.is_ready():
-			try:
-				audit = (await self.client.database.sel_guild(guild=before.guild)).audit
-			except AttributeError:
-				return
-			if "member_update" not in audit.keys():
-				return
-			channel = self.client.get_channel(audit["member_update"])
-			if channel is None:
-				return
+		data = await self.client.database.sel_guild(guild=before.guild)
 
-			if not len(before.roles) == len(after.roles):
-				if len(before.roles) > len(after.roles):
-					for role in before.roles:
-						if role not in after.roles:
-							name = "Была убрана роль"
-							value = f"{role.mention}(`{role.id}`)"
-				elif len(before.roles) < len(after.roles):
-					for role in after.roles:
-						if role not in before.roles:
-							name = "Была добавлена роль"
-							value = f"{role.mention}(`{role.id}`)"
+		if "member_update" not in data.audit.keys():
+			return
 
-				e = discord.Embed(
-					description=f"У пользователя `{after}` были изменены роли",
-					colour=discord.Color.blurple(),
-					timestamp=await self.client.utils.get_guild_time(after.guild),
-				)
-				e.add_field(
-					name=name, value=value, inline=False
-				)
-				e.add_field(name="Id Участника", value=f"`{after.id}`", inline=False)
-				e.set_author(
-					name="Журнал аудита | Изменение ролей участника",
-					icon_url=before.avatar_url,
-				)
-				e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await channel.send(embed=e)
+		channel = self.client.get_channel(data.audit["member_update"])
+		if channel is None:
+			return
 
-			if not before.display_name == after.display_name:
-				e = discord.Embed(
-					description=f"Пользователь `{before}` изменил ник",
-					colour=discord.Color.blue(),
-					timestamp=await self.client.utils.get_guild_time(after.guild),
+		if not len(before.roles) == len(after.roles):
+			if len(before.roles) > len(after.roles):
+				for role in before.roles:
+					if role not in after.roles:
+						name = "Была убрана роль"
+						value = f"@{role}(`{role.id}`)"
+			elif len(before.roles) < len(after.roles):
+				for role in after.roles:
+					if role not in before.roles:
+						name = "Была добавлена роль"
+						value = f"@{role}(`{role.id}`)"
+
+			e = discord.Embed(
+				description=f"У пользователя `{after}` были изменены роли",
+				colour=discord.Color.blurple(),
+				timestamp=await self.client.utils.get_guild_time(after.guild),
+			)
+			e.add_field(
+				name=name, value=value, inline=False
+			)
+			e.add_field(name="Id Участника", value=f"`{after.id}`", inline=False)
+			e.set_author(
+				name="Журнал аудита | Изменение ролей участника",
+				icon_url=before.avatar_url,
+			)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await channel.send(embed=e)
+
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=after,
+					channel=channel,
+					guild_id=after.guild.id,
+					action_type="member_update",
+					updated_role=value,
+					action=name
 				)
-				e.add_field(
-					name="Действующее имя",
-					value=f"`{after}`",
-					inline=False,
+
+		if not before.display_name == after.display_name:
+			e = discord.Embed(
+				description=f"Пользователь `{before}` изменил ник",
+				colour=discord.Color.blue(),
+				timestamp=await self.client.utils.get_guild_time(after.guild),
+			)
+			e.add_field(
+				name="Действующее имя",
+				value=f"`{after}`",
+				inline=False,
+			)
+			e.add_field(
+				name="Предыдущее имя",
+				value=f"`{before}`",
+				inline=False,
+			)
+			e.add_field(name="Id Участника", value=f"`{after.id}`", inline=False)
+			e.set_author(
+				name="Журнал аудита | Изменение ника участника",
+				icon_url=before.avatar_url,
+			)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await channel.send(embed=e)
+
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=after,
+					channel=channel,
+					guild_id=after.guild.id,
+					action_type="member_update",
+					after_nick=str(after),
+					before_nick=str(before)
 				)
-				e.add_field(
-					name="Предыдущее имя",
-					value=f"`{before}`",
-					inline=False,
-				)
-				e.add_field(name="Id Участника", value=f"`{after.id}`", inline=False)
-				e.set_author(
-					name="Журнал аудита | Изменение ника участника",
-					icon_url=before.avatar_url,
-				)
-				e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-				await channel.send(embed=e)
 
 	@commands.Cog.listener()
 	async def on_member_ban(self, guild, user):
-		audit = (await self.client.database.sel_guild(guild=guild)).audit
-		if "member_ban" not in audit.keys():
+		data = await self.client.database.sel_guild(guild=guild)
+		if "member_ban" not in data.audit.keys():
 			return
 
-		channel = self.client.get_channel(audit["member_ban"])
+		channel = self.client.get_channel(data.audit["member_ban"])
 		if channel is None:
 			return
 
@@ -102,16 +120,25 @@ class EventsAudit(BaseCog):
 		e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await channel.send(embed=e)
 
+		if data.donate:
+			await self.client.database.add_audit_log(
+				user=user,
+				channel=channel,
+				guild_id=guild.id,
+				action_type="member_ban",
+				ban_reason=ban.reason
+			)
+
 	@commands.Cog.listener()
 	async def on_member_unban(self, guild, user):
 		if user.bot:
 			return
 
-		audit = (await self.client.database.sel_guild(guild=guild)).audit
-		if "member_unban" not in audit.keys():
+		data = await self.client.database.sel_guild(guild=guild)
+		if "member_unban" not in data.audit.keys():
 			return
 
-		channel = self.client.get_channel(audit["member_unban"])
+		channel = self.client.get_channel(data.audit["member_unban"])
 		if channel is None:
 			return
 
@@ -126,6 +153,14 @@ class EventsAudit(BaseCog):
 		)
 		e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await channel.send(embed=e)
+
+		if data.donate:
+			await self.client.database.add_audit_log(
+				user=user,
+				channel=channel,
+				guild_id=guild.id,
+				action_type="member_unban",
+			)
 
 	@commands.Cog.listener()
 	async def on_raw_bulk_message_delete(self, payload):
@@ -178,11 +213,11 @@ class EventsAudit(BaseCog):
 		if message.author.bot:
 			return
 
-		audit = (await self.client.database.sel_guild(guild=message.guild)).audit
-		if "message_delete" not in audit.keys():
+		data = await self.client.database.sel_guild(guild=message.guild)
+		if "message_delete" not in data.audit.keys():
 			return
 
-		channel = self.client.get_channel(audit["message_delete"])
+		channel = self.client.get_channel(data.audit["message_delete"])
 		if channel is None:
 			return
 
@@ -211,6 +246,16 @@ class EventsAudit(BaseCog):
 		e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await channel.send(embed=e)
 
+		if data.donate:
+			await self.client.database.add_audit_log(
+				user=message.author,
+				channel=message.channel,
+				guild_id=message.guild.id,
+				action_type="message_delete",
+				message_content=message.content,
+				message_id=message.id
+			)
+
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):
 		if before.content == after.content:
@@ -219,11 +264,11 @@ class EventsAudit(BaseCog):
 		if before.author.bot:
 			return
 
-		audit = (await self.client.database.sel_guild(guild=before.guild)).audit
-		if "message_edit" not in audit.keys():
+		data = await self.client.database.sel_guild(guild=before.guild)
+		if "message_edit" not in data.audit.keys():
 			return
 
-		channel = self.client.get_channel(audit["message_edit"])
+		channel = self.client.get_channel(data.audit["message_edit"])
 		if channel is None:
 			return
 
@@ -247,6 +292,17 @@ class EventsAudit(BaseCog):
 		)
 		e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await channel.send(embed=e)
+
+		if data.donate:
+			await self.client.database.add_audit_log(
+				user=after.author,
+				channel=after.channel,
+				guild_id=after.guild.id,
+				action_type="message_edit",
+				after_content=after.content,
+				before_content=before.content,
+				message_id=after.id
+			)
 
 
 def setup(client):
