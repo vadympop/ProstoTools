@@ -236,7 +236,7 @@ class EventsAudit(BaseCog):
 			name="Старое содержимое", value=f"```{before.content}```", inline=False
 		)
 		e.add_field(
-			name="Новое соодержиое", value=f"```{after.content}```", inline=False
+			name="Новое содержимое", value=f"```{after.content}```", inline=False
 		)
 		e.add_field(name="Автор", value=f"{after.author}(`{after.author.id}`)", inline=False)
 		e.add_field(name="Канал", value=f"{after.channel.mention}(`{after.channel.id}`)", inline=False)
