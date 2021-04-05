@@ -92,5 +92,5 @@ class ColorConverter(commands.Converter):
             raise commands.BadColourArgument(argument)
 
 
-BlacklistEntity = typing.Union[commands.MemberConverter, GuildConverter]
+BlacklistEntity = typing.Union[commands.UserConverter, GuildConverter]
 Expiry = typing.Union[Duration, ISODateTime]
