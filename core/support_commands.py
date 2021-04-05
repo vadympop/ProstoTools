@@ -119,7 +119,7 @@ class SupportCommands:
 				warn_id=[warn for warn in cur_warns if not warn.state][0].id
 			)
 
-		if len([warn for warn in cur_warns if warn["state"]]) >= max_warns:
+		if len([warn for warn in cur_warns if warn.state]) >= max_warns:
 			if warn_punishment is not None:
 				expiry_at = None
 				if warn_punishment["time"] is not None:

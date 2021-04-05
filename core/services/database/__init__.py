@@ -16,7 +16,8 @@ conf = {
             'USER': Config.DB_USER,
             'PASSWORD': Config.DB_PASSWORD,
             'HOST': Config.DB_HOST,
-            'PORT': '3306'
+            'PORT': '3306',
+            "OPTIONS": {'charset': 'utf8', 'use_unicode': True}
         }
     }
 }
