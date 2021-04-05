@@ -237,98 +237,6 @@ class Moderate(BaseCog):
 		)
 
 	@commands.command(
-		aliases=["softban"],
-		name="soft-ban",
-		description="Апаратно банит указанного участника - участник имеет доступ к серверу, но к каналам доступа нет",
-		usage="soft-ban [@Участник] |Длительность| |Причина|",
-		help="**Полезное:**\n\n**Примеры использования:**\n1. {Prefix}soft-ban @Участник 10d Нарушения правил сервера\n2. {Prefix}soft-ban 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}soft-ban @Участник 10d\n4. {Prefix}soft-ban 660110922865704980 10d\n5. {Prefix}soft-ban @Участник\n6. {Prefix}soft-ban 660110922865704980\n7. {Prefix}soft-ban @Участник Нарушения правил сервера\n8. {Prefix}soft-ban 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Апапаратно банит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Апапаратно банит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Апапаратно банит упомянутого участника без причины на 10 дней\n**Пример 4:** Апапаратно банит участника с указаным id без причины на 10 дней\n**Пример 5:** Даёт перманентный апапаратный бан упомянутому участнику без причины\n**Пример 6:** Даёт перманентный апапаратный бан участнику с указаным id без причины\n**Пример 7:** Даёт перманентный апапаратный бан упомянутому участнику по причине\n`Нарушения правил сервера`\n**Пример 8:** Даёт апапаратный апапаратный бан участнику с указаным id по причине\n`Нарушения правил сервера`",
-	)
-	@commands.check(check_moderate_roles)
-	@commands.bot_has_permissions(manage_roles=True)
-	async def soft_ban(self, ctx, member: TargetUser, *options: str):
-		options = list(options)
-		expiry_at = None
-		if len(options) > 0:
-			try:
-				expiry_at = await process_converters(ctx, Expiry.__args__, options[0], True)
-				options.pop(0)
-				reason = " ".join(options) if len(options) > 0 else "Причина не указана"
-			except BadTimeArgument:
-				reason = " ".join(options)
-		else:
-			reason = "Причина не указана"
-
-		await self.client.support_commands.soft_ban(
-			ctx=ctx,
-			member=member,
-			author=ctx.author,
-			expiry_at=expiry_at,
-			reason=reason[:1024]
-		)
-
-	@commands.command(
-		aliases=["unsoftban"],
-		name="unsoft-ban",
-		description="Снимает апаратный с указаного участника",
-		usage="unsoft-ban [@Участник]",
-		help="**Примеры использования:**\n1. {Prefix}unsoft-ban @Участник\n2. {Prefix}unsoft-ban 660110922865704980\n\n**Пример 1:** Снимает апаратный бан с упомянутого участника\n**Пример 2:** Снимает апаратный бан с участника с указаным id",
-	)
-	@commands.check(check_moderate_roles)
-	@commands.bot_has_permissions(manage_roles=True)
-	async def unsoftban(self, ctx, member: TargetUser):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
-		guild_time = await self.client.utils.get_guild_time(ctx.guild)
-
-		emb = discord.Embed(
-			description=f"`{ctx.author}` **Снял апаратный бан с** `{member}`({member.mention})",
-			colour=discord.Color.green(),
-			timestamp=guild_time
-		)
-		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
-
-		emb = discord.Embed(
-			description=f"**С вас был снят апаратный бан на сервере** `{ctx.guild.name}`",
-			colour=discord.Color.green(),
-			timestamp=guild_time
-		)
-		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		try:
-			await member.send(embed=emb)
-		except:
-			pass
-
-		role = get(ctx.guild.roles, name=self.SOFTBAN_ROLE)
-		if role is None:
-			role = await ctx.guild.create_role(name=self.SOFTBAN_ROLE)
-
-		if role in member.roles:
-			await member.remove_roles(role)
-
-		if "moderate" in audit.keys():
-			e = discord.Embed(
-				description=f"С пользователя `{str(member)}` был снят апаратный бан",
-				colour=discord.Color.green(),
-				timestamp=guild_time
-			)
-			e.add_field(
-				name="Модератором",
-				value=str(ctx.author),
-				inline=False,
-			)
-			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(
-				name="Журнал аудита | Апаратный разбан пользователя",
-				icon_url=ctx.author.avatar_url,
-			)
-			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["moderate"])
-			if channel is not None:
-				await channel.send(embed=e)
-
-	@commands.command(
 		description="Банит учасника по указанной причине",
 		usage="ban [@Участник] |Длительность| |Причина|",
 		help="**Примеры использования:**\n1. {Prefix}ban @Участник 10d Нарушения правил сервера\n2. {Prefix}ban 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}ban @Участник 10d\n4. {Prefix}ban 660110922865704980 10d\n5. {Prefix}ban @Участник\n6. {Prefix}ban 660110922865704980\n7. {Prefix}ban @Участник Нарушения правил сервера\n8. {Prefix}ban 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Банит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Банит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Банит упомянутого участника без причины на 10 дней\n**Пример 4:** Банит участника с указаным id без причины на 10 дней\n**Пример 5:** Перманентно банит упомянутого участника без причины\n**Пример 6:** Перманентно банит участника с указаным id без причины\n**Пример 7:** Перманентно банит упомянутого участника по причине\n`Нарушения правил сервера`\n**Пример 8:** Перманентно банит участника с указаным id по причине\n`Нарушения правил сервера`",
@@ -403,7 +311,7 @@ class Moderate(BaseCog):
 					break
 
 			if not state:
-				emb = await self.client.utils.create_error_embed(ctx, "Указаный пользователь не забанен!")
+				emb = await self.client.utils.create_error_embed(ctx, "Указанный пользователь не забанен!")
 				await ctx.send(embed=emb)
 				return
 
@@ -415,7 +323,7 @@ class Moderate(BaseCog):
 	@commands.bot_has_permissions(manage_roles=True)
 	@commands.check(check_moderate_roles)
 	async def vmute(self, ctx, member: TargetUser, *options: str):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		guild_time = await self.client.utils.get_guild_time(ctx.guild)
 		options = list(options)
 		expiry_at = None
@@ -442,6 +350,7 @@ class Moderate(BaseCog):
 
 		if role is None:
 			role = await ctx.guild.create_role(name=self.VMUTE_ROLE)
+
 		for channel in ctx.guild.voice_channels:
 			await channel.set_permissions(role, overwrite=overwrite)
 
@@ -478,7 +387,7 @@ class Moderate(BaseCog):
 				role_id=int(role.id)
 			)
 
-		if "moderate" in audit.keys():
+		if data.audit["member_vmute"]["state"]:
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был замьючен в голосовых каналах",
 				colour=discord.Color.teal(),
@@ -502,9 +411,26 @@ class Moderate(BaseCog):
 				icon_url=ctx.author.avatar_url,
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["moderate"])
+			channel = ctx.guild.get_channel(data.audit["member_vmute"]["channel_id"])
 			if channel is not None:
 				await channel.send(embed=e)
+
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=member,
+					channel=ctx.channel,
+					guild_id=ctx.guild.id,
+					action_type="member_vmute",
+					reason=reason,
+					expiry_at=expiry_at.timestamp(),
+					author={
+						"username": ctx.author.name,
+						"discriminator": ctx.author.discriminator,
+						"avatar_url": ctx.author.avatar_url_as(
+							format="gif" if ctx.author.is_avatar_animated() else "png", size=1024
+						)
+					}
+				)
 
 	@commands.command(
 		aliases=["unvmute"],
@@ -516,7 +442,7 @@ class Moderate(BaseCog):
 	@commands.check(check_moderate_roles)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unvmute(self, ctx, member: TargetUser):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		for vmute_role in ctx.guild.roles:
 			if vmute_role.name == self.VMUTE_ROLE:
 				guild_time = await self.client.utils.get_guild_time(ctx.guild)
@@ -550,7 +476,7 @@ class Moderate(BaseCog):
 				except:
 					pass
 
-				if "moderate" in audit.keys():
+				if data.audit["member_unvmute"]["state"]:
 					e = discord.Embed(
 						description=f"Пользователь `{str(member)}` был размьючен в голосовых каналах",
 						colour=discord.Color.green(),
@@ -569,9 +495,24 @@ class Moderate(BaseCog):
 						icon_url=ctx.author.avatar_url,
 					)
 					e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-					channel = ctx.guild.get_channel(audit["moderate"])
+					channel = ctx.guild.get_channel(data.audit["member_unvmute"]["channel_id"])
 					if channel is not None:
 						await channel.send(embed=e)
+
+					if data.donate:
+						await self.client.database.add_audit_log(
+							user=member,
+							channel=ctx.channel,
+							guild_id=ctx.guild.id,
+							action_type="member_unvmute",
+							author={
+								"username": ctx.author.name,
+								"discriminator": ctx.author.discriminator,
+								"avatar_url": ctx.author.avatar_url_as(
+									format="gif" if ctx.author.is_avatar_animated() else "png", size=1024
+								)
+							}
+						)
 				return
 
 	@commands.command(
@@ -612,7 +553,7 @@ class Moderate(BaseCog):
 	@commands.check(check_moderate_roles)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unmute(self, ctx, member: TargetUser):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		for role in ctx.guild.roles:
 			if role.name == self.MUTE_ROLE:
 				guild_time = await self.client.utils.get_guild_time(ctx.guild)
@@ -642,7 +583,7 @@ class Moderate(BaseCog):
 				except:
 					pass
 
-				if "moderate" in audit.keys():
+				if data.audit["member_unmute"]["state"]:
 					e = discord.Embed(
 						description=f"Пользователь `{str(member)}` был размьючен",
 						colour=discord.Color.green(),
@@ -659,9 +600,24 @@ class Moderate(BaseCog):
 						icon_url=ctx.author.avatar_url,
 					)
 					e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-					channel = ctx.guild.get_channel(audit["moderate"])
+					channel = ctx.guild.get_channel(data.audit["member_unmute"]["channel_id"])
 					if channel is not None:
 						await channel.send(embed=e)
+
+					if data.donate:
+						await self.client.database.add_audit_log(
+							user=member,
+							channel=ctx.channel,
+							guild_id=ctx.guild.id,
+							action_type="member_unmute",
+							author={
+								"username": ctx.author.name,
+								"discriminator": ctx.author.discriminator,
+								"avatar_url": ctx.author.avatar_url_as(
+									format="gif" if ctx.author.is_avatar_animated() else "png", size=1024
+								)
+							}
+						)
 				break
 
 	@commands.command(
@@ -673,7 +629,7 @@ class Moderate(BaseCog):
 	)
 	@commands.check(check_moderate_roles)
 	async def clearwarn(self, ctx, member: TargetUser):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		guild_time = await self.client.utils.get_guild_time(ctx.guild)
 
 		async with ctx.typing():
@@ -688,7 +644,7 @@ class Moderate(BaseCog):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
-		if "moderate" in audit.keys():
+		if data.audit["warns_reset"]["state"]:
 			e = discord.Embed(
 				description=f"У пользователя `{str(member)}` были сняты все предупреждения",
 				colour=discord.Color.green(),
@@ -705,9 +661,24 @@ class Moderate(BaseCog):
 				icon_url=ctx.author.avatar_url,
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["moderate"])
+			channel = ctx.guild.get_channel(data.audit["warns_reset"]["channel_id"])
 			if channel is not None:
 				await channel.send(embed=e)
+
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=member,
+					channel=ctx.channel,
+					guild_id=ctx.guild.id,
+					action_type="warns_reset",
+					author={
+						"username": ctx.author.name,
+						"discriminator": ctx.author.discriminator,
+						"avatar_url": ctx.author.avatar_url_as(
+							format="gif" if ctx.author.is_avatar_animated() else "png", size=1024
+						)
+					}
+				)
 
 	@commands.command(
 		description="Дает придупреждения учаснику по указанной причине",
@@ -741,7 +712,6 @@ class Moderate(BaseCog):
 	async def rem_warn(self, ctx, warn_id: int):
 		data = await self.client.database.del_warn(warn_id)
 		guild_time = await self.client.utils.get_guild_time(ctx.guild)
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 
 		if data is None:
 			emb = await self.client.utils.create_error_embed(
@@ -760,7 +730,7 @@ class Moderate(BaseCog):
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 		await ctx.send(embed=emb)
 
-		if "moderate" in audit.keys():
+		if data.audit["warns_reset"]["state"]:
 			e = discord.Embed(
 				description=f"У пользователя `{member}` было снято предупреждения",
 				colour=discord.Color.green(),
@@ -781,9 +751,25 @@ class Moderate(BaseCog):
 				icon_url=ctx.author.avatar_url,
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["moderate"])
+			channel = ctx.guild.get_channel(data.audit["warns_reset"]["channel_id"])
 			if channel is not None:
 				await channel.send(embed=e)
+
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=member,
+					channel=ctx.channel,
+					guild_id=ctx.guild.id,
+					action_type="warns_reset",
+					warn_id=warn_id,
+					author={
+						"username": ctx.author.name,
+						"discriminator": ctx.author.discriminator,
+						"avatar_url": ctx.author.avatar_url_as(
+							format="gif" if ctx.author.is_avatar_animated() else "png", size=1024
+						)
+					}
+				)
 
 	@commands.command(
 		description="Показывает список предупреждений",

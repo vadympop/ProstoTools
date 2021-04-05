@@ -48,6 +48,54 @@ class EventsJoin(BaseCog):
 		await self.client.database.add_stat_counter(entity="users", add_counter=len(self.client.users))
 
 		guild_data = await self.client.database.sel_guild(guild=member.guild)
+		if not member.bot:
+			if guild_data.audit["member_join"]["state"]:
+				e = discord.Embed(
+					description=f"Пользователь `{member}` присоединился",
+					colour=discord.Color.green(),
+					timestamp=await self.client.utils.get_guild_time(member.guild)
+				)
+				e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
+				e.set_author(
+					name="Журнал аудита | Новый пользователь", icon_url=member.avatar_url
+				)
+				e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				channel = member.guild.get_channel(guild_data.audit["member_join"]["channel_id"])
+				if channel is not None:
+					await channel.send(embed=e)
+
+				if guild_data.donate:
+					await self.client.database.add_audit_log(
+						user=member,
+						channel=channel,
+						guild_id=member.guild.id,
+						action_type="member_join",
+					)
+		else:
+			if guild_data.audit["bot_join"]["state"]:
+				e = discord.Embed(
+					description=f"Бот `{member}` присоединился",
+					colour=discord.Color.light_grey(),
+					timestamp=await self.client.utils.get_guild_time(member.guild)
+				)
+				e.add_field(name="Id Бота", value=f"`{member.id}`", inline=False)
+				e.set_author(
+					name="Журнал аудита | Новый бот", icon_url=member.avatar_url
+				)
+				e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+				channel = member.guild.get_channel(guild_data.audit["bot_join"]["channel_id"])
+				if channel is not None:
+					await channel.send(embed=e)
+
+				if guild_data.donate:
+					await self.client.database.add_audit_log(
+						user=member,
+						channel=channel,
+						guild_id=member.guild.id,
+						action_type="bot_join",
+					)
+				return
+
 		if not guild_data.welcomer["join"]["state"]:
 			return
 

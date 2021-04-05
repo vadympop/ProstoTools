@@ -126,14 +126,6 @@ async def process_auto_moderate(ctx: commands.Context, auto_moderate: str, data)
                 expiry_at=expiry_at,
                 reason=reason,
             )
-        elif type_punishment == "soft-ban":
-            await ctx.bot.support_commands.soft_ban(
-                ctx=ctx,
-                member=ctx.author,
-                author=ctx.guild.me,
-                expiry_at=expiry_at,
-                reason=reason,
-            )
 
     if "delete_message" in data.auto_mod[auto_moderate].keys():
         await ctx.message.delete()

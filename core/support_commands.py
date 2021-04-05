@@ -15,7 +15,7 @@ class SupportCommands:
 		self.FOOTER = self.client.config.FOOTER_TEXT
 
 	async def mute(self, ctx, member: discord.Member, author: discord.Member, expiry_at: datetime.datetime, reason: str):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		guild_time = await self.client.utils.get_guild_time(ctx.guild)
 		delta = None
 		if expiry_at is not None:
@@ -72,7 +72,7 @@ class SupportCommands:
 				author=author.id,
 			)
 
-		if "moderate" in audit.keys():
+		if data.audit["member_mute"]["state"]:
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был замьючен",
 				colour=discord.Color.teal(),
@@ -95,12 +95,28 @@ class SupportCommands:
 				name="Журнал аудита | Мьют пользователя", icon_url=author.avatar_url
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["moderate"])
+			channel = ctx.guild.get_channel(data.audit["member_mute"]["channel_id"])
 			if channel is not None:
 				await channel.send(embed=e)
 
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=member,
+					channel=ctx.channel,
+					guild_id=ctx.guild.id,
+					action_type="member_mute",
+					reason=reason,
+					expiry_at=expiry_at.timestamp(),
+					author={
+						"username": author.name,
+						"discriminator": author.discriminator,
+						"avatar_url": author.avatar_url_as(
+							format="gif" if author.is_avatar_animated() else "png", size=1024
+						)
+					}
+				)
+
 	async def warn(self, ctx, member: discord.Member, author: discord.Member, reason: str):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 		guild_time = await self.client.utils.get_guild_time(ctx.guild)
 		guild_settings = await self.client.database.sel_guild(guild=ctx.guild)
 		max_warns = int(guild_settings.warns_settings["max"])
@@ -120,7 +136,7 @@ class SupportCommands:
 			)
 
 		if len([warn for warn in cur_warns if warn["state"]]) >= max_warns:
-			if warn_punishment is not None:
+			if guild_settings.warns_settings["state"] and warn_punishment is not None:
 				expiry_at = None
 				if warn_punishment["time"] is not None:
 					expiry_at = await process_converters(
@@ -149,14 +165,6 @@ class SupportCommands:
 						expiry_at=expiry_at,
 						reason=reason,
 						author=author,
-					)
-				elif warn_punishment["type"] == "soft-ban":
-					await self.soft_ban(
-						ctx=ctx,
-						member=member,
-						author=author,
-						expiry_at=expiry_at,
-						reason=reason
 					)
 
 			emb = discord.Embed(
@@ -203,7 +211,7 @@ class SupportCommands:
 			except:
 				pass
 
-		if "moderate" in audit.keys():
+		if guild_settings.audit["new_warn"]["state"]:
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` получил предупреждения",
 				colour=discord.Color.teal(),
@@ -225,9 +233,26 @@ class SupportCommands:
 				icon_url=author.avatar_url,
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["moderate"])
+			channel = ctx.guild.get_channel(guild_settings.audit["new_warn"]["channel_id"])
 			if channel is not None:
 				await channel.send(embed=e)
+
+			if guild_settings.donate:
+				await self.client.database.add_audit_log(
+					user=member,
+					channel=ctx.channel,
+					guild_id=ctx.guild.id,
+					action_type="new_warn",
+					reason=reason,
+					warn_id=warn_id,
+					author={
+						"username": author.name,
+						"discriminator": author.discriminator,
+						"avatar_url": author.avatar_url_as(
+							format="gif" if author.is_avatar_animated() else "png", size=1024
+						)
+					}
+				)
 
 	async def ban(self, ctx, member: discord.Member, author: discord.Member, expiry_at: datetime.datetime, reason: str):
 		guild_time = await self.client.utils.get_guild_time(ctx.guild)
@@ -260,89 +285,8 @@ class SupportCommands:
 				member=member
 			)
 
-	async def soft_ban(self, ctx, member: discord.Member, author: discord.Member, expiry_at: datetime.datetime, reason: str):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
-		guild_time = await self.client.utils.get_guild_time(ctx.guild)
-		delta = None
-		if expiry_at is not None:
-			delta = humanize.naturaldelta(
-				expiry_at+datetime.timedelta(seconds=1),
-				when=guild_time
-			)
-
-		emb = discord.Embed(
-			description=f"**{member}**({member.mention}) Был апаратно забанен\nМодератор: `{author}`\nПричина: **{reason}**",
-			colour=discord.Color.green(),
-			timestamp=guild_time
-		)
-		emb.set_author(name=author.name, icon_url=author.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
-
-		emb = discord.Embed(
-			description=f"Вы были апаратно забанены на сервере\nСервер: `{ctx.guild.name}`\nМодератор: `{author}`\nПричина: **{reason}**",
-			colour=discord.Color.green(),
-			timestamp=guild_time
-		)
-		emb.set_author(name=author.name, icon_url=author.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		try:
-			await member.send(embed=emb)
-		except:
-			pass
-
-		overwrite = discord.PermissionOverwrite(
-			connect=False, view_channel=False, send_messages=False
-		)
-		role = get(ctx.guild.roles, name=self.SOFTBAN_ROLE)
-
-		if role is None:
-			role = await ctx.guild.create_role(name=self.SOFTBAN_ROLE)
-
-		await member.edit(voice_channel=None)
-		for channel in ctx.guild.channels:
-			await channel.set_permissions(role, overwrite=overwrite)
-
-		await member.add_roles(role)
-
-		if expiry_at is not None:
-			await self.client.database.add_punishment(
-				type_punishment="temprole",
-				time=expiry_at.timestamp(),
-				member=member,
-				role=role.id
-			)
-
-		if "moderate" in audit.keys():
-			e = discord.Embed(
-				description=f"Пользователь `{str(member)}` был апаратно забанен",
-				colour=discord.Color.red(),
-				timestamp=guild_time
-			)
-			e.add_field(
-				name=f"Модератором {str(author)}",
-				value=f"Длительность: {delta}"
-				if delta is not None
-				else "Перманентно",
-				inline=False,
-			)
-			e.add_field(
-				name="Причина",
-				value=reason,
-				inline=False,
-			)
-			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(
-				name="Журнал аудита | Апаратный бан пользователя",
-				icon_url=author.avatar_url,
-			)
-			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["moderate"])
-			if channel is not None:
-				await channel.send(embed=e)
-
 	async def kick(self, ctx, member: discord.Member, author: discord.Member, reason: str):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		guild_time = await self.client.utils.get_guild_time(ctx.guild)
 		await member.kick(reason=reason)
 
@@ -367,7 +311,7 @@ class SupportCommands:
 		except:
 			pass
 
-		if "moderate" in audit.keys():
+		if data.audit["member_kick"]["state"]:
 			e = discord.Embed(
 				description=f"Пользователь `{str(member)}` был выгнан",
 				colour=discord.Color.dark_gold(),
@@ -388,6 +332,22 @@ class SupportCommands:
 				name="Журнал аудита | Кик пользователя", icon_url=author.avatar_url
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["moderate"])
+			channel = ctx.guild.get_channel(data.audit["member_kick"]["channel_id"])
 			if channel is not None:
 				await channel.send(embed=e)
+
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=member,
+					channel=ctx.channel,
+					guild_id=ctx.guild.id,
+					action_type="member_kick",
+					reason=reason,
+					author={
+						"username": author.name,
+						"discriminator": author.discriminator,
+						"avatar_url": author.avatar_url_as(
+							format="gif" if author.is_avatar_animated() else "png", size=1024
+						)
+					}
+				)

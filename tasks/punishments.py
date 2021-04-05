@@ -46,8 +46,8 @@ class TasksPunishments(BaseCog):
                             except:
                                 pass
 
-                            audit = (await self.client.database.sel_guild(guild=guild)).audit
-                            if "moderate" in audit.keys():
+                            data = await self.client.database.sel_guild(guild=guild)
+                            if data.audit["member_unmute"]["state"]:
                                 e = discord.Embed(
                                     description=f"Пользователь `{str(member)}` был размьючен",
                                     colour=discord.Color.green(),
@@ -59,9 +59,17 @@ class TasksPunishments(BaseCog):
                                     icon_url=self.client.user.avatar_url,
                                 )
                                 e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-                                channel = guild.get_channel(audit["moderate"])
+                                channel = guild.get_channel(data.audit["member_unmute"]["channel_id"])
                                 if channel is not None:
                                     await channel.send(embed=e)
+
+                                if data.donate:
+                                    await self.client.database.add_audit_log(
+                                        user=member,
+                                        channel=channel,
+                                        guild_id=guild.id,
+                                        action_type="member_unmute",
+                                    )
 
     @tasks.loop(minutes=1)
     async def ban_loop(self):
@@ -166,8 +174,8 @@ class TasksPunishments(BaseCog):
                             except:
                                 pass
 
-                            audit = (await self.client.database.sel_guild(guild=guild)).audit
-                            if "moderate" in audit.keys():
+                            data = await self.client.database.sel_guild(guild=guild)
+                            if data.audit["member_unvmute"]["state"]:
                                 e = discord.Embed(
                                     description=f"Пользователь `{str(member)}` был размьючен в голосовых каналах",
                                     colour=discord.Color.green(),
@@ -179,9 +187,17 @@ class TasksPunishments(BaseCog):
                                     icon_url=self.client.user.avatar_url,
                                 )
                                 e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-                                channel = guild.get_channel(audit["moderate"])
+                                channel = guild.get_channel(data.audit["member_unvmute"]["channel_id"])
                                 if channel is not None:
                                     await channel.send(embed=e)
+
+                                if data.donate:
+                                    await self.client.database.add_audit_log(
+                                        user=member,
+                                        channel=channel,
+                                        guild_id=guild.id,
+                                        action_type="member_unvmute",
+                                    )
 
     def cog_unload(self):
         self.mute_loop.cancel()
