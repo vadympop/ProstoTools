@@ -398,7 +398,8 @@ class Database:
                 rank_message={
                     "state": False,
                     "type": "channel",
-                    "channel_id": None
+                    "channel_id": None,
+                    "not_sending_channels": []
                 },
                 commands_settings={},
                 warns_settings={

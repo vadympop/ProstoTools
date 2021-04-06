@@ -54,7 +54,7 @@ class EventsLeveling(BaseCog):
 		exp_end = math.floor(9 * (data.level ** 2) + 50 * data.level + 125 * guild_data.exp_multi)
 		if exp_end < data.exp:
 			data.level += 1
-			if guild_data.rank_message["state"]:
+			if guild_data.rank_message["state"] and message.channel.id not in guild_data.rank_message["not_sending_channels"]:
 				ctx = await self.client.get_context(message)
 				try:
 					text = await self.client.template_engine.render(

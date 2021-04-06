@@ -1,5 +1,4 @@
 import discord
-import json
 import typing
 
 from core.bases.cog_base import BaseCog
@@ -9,6 +8,7 @@ from discord.ext import commands
 class Settings(BaseCog):
 	def __init__(self, client):
 		super().__init__(client)
+		self.FILTERS = self.client.config.FILTERS
 		self.commands = [
 			command.name
 			for cog in self.client.cogs
@@ -1186,63 +1186,137 @@ class Settings(BaseCog):
 		usage="setting auto-reactions [set/off] |Канал| |Эмодзи|",
 	)
 	@commands.has_permissions(administrator=True)
-	async def auto_reactions(self, ctx, action: str, channel: typing.Optional[discord.TextChannel], *, reactions: str = None):
+	async def auto_reactions(self, ctx, action: str, channel: typing.Optional[discord.TextChannel], *reactions):
 		auto_reactions = (await self.client.database.sel_guild(guild=ctx.guild)).auto_reactions
+		if action.lower() not in ("set", "off", "setting-filters", "sf", "set-filters"):
+			emb = await self.client.utils.create_error_embed(
+				ctx, "Укажите одно из этих действий: set, off, settings-filters"
+			)
+			await ctx.send(embed=emb)
+
+		if channel is None:
+			channel = ctx.channel
+
 		if action.lower() == "set":
-			if reactions is None:
+			if len(reactions) <= 0:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Укажите эмодзи!"
 				)
 				await ctx.send(embed=emb)
 				return
 
-			if channel is None:
-				channel = ctx.channel
-
-			emojis = [emoji for emoji in reactions.split(" ") if emoji]
-			auto_reactions.update({channel.id: emojis})
-			await self.client.database.update(
-				"guilds",
-				where={"guild_id": ctx.guild.id},
-				auto_reactions=auto_reactions
-			)
-			try:
-				await ctx.message.add_reaction("✅")
-			except discord.errors.Forbidden:
-				pass
-			except discord.errors.HTTPException:
-				pass
-			return
+			auto_reactions.update({
+				channel.id: {
+					"reactions": reactions,
+					"filter_mode": "all",
+					"filters": []
+				}
+			})
 		elif action.lower() == "off":
-			if channel is None:
-				channel = ctx.channel
-
 			try:
-				auto_reactions.pop(str(channel.id))
+				auto_reactions.pop(channel.id)
 			except KeyError:
 				emb = await self.client.utils.create_error_embed(
-					ctx, "Для указаного канала авто-реакции не настроены!"
+					ctx, "Для указанного канала авто-реакции не настроены!"
+				)
+				await ctx.send(embed=emb)
+				return
+		elif action.lower() in ("setting-filters", "sf", "set-filters"):
+			if len(reactions) <= 0:
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите настройку изменения!"
 				)
 				await ctx.send(embed=emb)
 				return
 
-			await self.client.database.update(
-				"guilds",
-				where={"guild_id": ctx.guild.id},
-				auto_reactions=auto_reactions
-			)
-			try:
-				await ctx.message.add_reaction("✅")
-			except discord.errors.Forbidden:
-				pass
-			except discord.errors.HTTPException:
-				pass
-			return
-		else:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Укажите одно из этих действий: set, off"
-			)
-			await ctx.send(embed=emb)
+			if reactions[0].lower() not in ("mode", "add", "remove"):
+				emb = await self.client.utils.create_error_embed(
+					ctx, "Укажите одну из этих настроек: mode, add, remove"
+				)
+				await ctx.send(embed=emb)
+				return
+
+			if reactions[0].lower() == "mode":
+				if len(reactions) <= 1:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите режим фильтров!"
+					)
+					await ctx.send(embed=emb)
+					return
+
+				if reactions[1].lower() not in ("any", "all"):
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Указан неправильный режим!"
+					)
+					await ctx.send(embed=emb)
+					return
+
+				try:
+					auto_reactions[channel.id]["filter_mode"] = reactions[1].lower()
+				except KeyError:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Авто-реакции для указанного канала нету"
+					)
+					await ctx.send(embed=emb)
+					return
+			elif reactions[0].lower() == "add":
+				if len(reactions) <= 1:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите фильтр!"
+					)
+					await ctx.send(embed=emb)
+					return
+
+				if reactions[1].lower() not in self.FILTERS:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Указан неправильный фильтр!"
+					)
+					await ctx.send(embed=emb)
+					return
+
+				try:
+					auto_reactions[channel.id]["filters"].append(reactions[1].lower())
+				except KeyError:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Авто-реакции для указанного канала нету"
+					)
+					await ctx.send(embed=emb)
+					return
+			elif reactions[0].lower() == "remove":
+				if len(reactions) <= 1:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Укажите фильтр!"
+					)
+					await ctx.send(embed=emb)
+					return
+
+				if reactions[1].lower() not in self.FILTERS:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Указан неправильный фильтр!"
+					)
+					await ctx.send(embed=emb)
+					return
+
+				try:
+					auto_reactions[channel.id]["filters"].remove(reactions[1].lower())
+				except KeyError:
+					emb = await self.client.utils.create_error_embed(
+						ctx, "Авто-реакции для указанного канала нету/В списке фильтров нету указанного"
+					)
+					await ctx.send(embed=emb)
+					return
+
+		await self.client.database.update(
+			"guilds",
+			where={"guild_id": ctx.guild.id},
+			auto_reactions=auto_reactions
+		)
+		try:
+			await ctx.message.add_reaction("✅")
+		except discord.errors.Forbidden:
+			pass
+		except discord.errors.HTTPException:
+			pass
 
 	@setting.command(
 		name="custom-command",
