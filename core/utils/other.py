@@ -70,12 +70,10 @@ async def process_auto_moderate(ctx: commands.Context, auto_moderate: str, data)
 
     if "target_roles" in data.auto_mod[auto_moderate].keys():
         if data.auto_mod[auto_moderate]["target_roles"]:
-            state = False
-            for role in ctx.author.roles:
-                if role.id in data.auto_mod[auto_moderate]["target_roles"]:
-                    state = True
-
-            if not state:
+            if not any([
+                role.id in data.auto_mod[auto_moderate]["target_roles"]
+                for role in ctx.author.roles
+            ]):
                 return
 
     if "ignore_channels" in data.auto_mod[auto_moderate].keys():
