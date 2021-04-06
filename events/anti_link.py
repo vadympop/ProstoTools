@@ -1,3 +1,5 @@
+import re
+
 from core.bases.cog_base import BaseCog
 from core.utils.other import process_auto_moderate
 from discord.ext import commands
@@ -14,6 +16,9 @@ class EventsAntiLink(BaseCog):
 
         data = await self.client.database.sel_guild(guild=message.guild)
         if data.auto_mod["anti_link"]["state"]:
+            if all([re.search(d, message.content) is None for d in data.auto_mod["domains"]]):
+                return
+
             await process_auto_moderate(await self.client.get_context(message), "anti_link", data)
 
 
