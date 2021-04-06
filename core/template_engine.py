@@ -153,7 +153,7 @@ class Rank:
         self.exp = data.exp
         self.level = data.level
         self.level_exp = math.floor(
-            9 * (self.lvl ** 2) + 50 * self.lvl + 125 * data.multi
+            9 * (self.level ** 2) + 50 * self.level + 125 * data.multi
         )
         self.remaining_exp = self.level_exp - self.exp
         self.money = data.money
