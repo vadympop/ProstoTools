@@ -104,8 +104,73 @@ def update():
 
     for i in Guild.objects.all():
         i.warns_settings.update({"state": i.warns_settings["punishment"] is not None})
-        i.auto_mod.update(
-            {"anti_mentions": {"state": False}, "anti_link": {"state": False}, "auto_nick_corrector": {"state": False}})
+        i.auto_mod.update({
+            "anti_mentions": {
+                "state": False,
+                "max_mentions": 4,
+                "target_roles": [],
+                "target_channels": [],
+                "ignore_roles": [],
+                "ignore_channels": [],
+            },
+            "anti_link": {
+                "state": False,
+                "domains": [],
+                "target_roles": [],
+                "target_channels": [],
+                "ignore_roles": [],
+                "ignore_channels": [],
+            },
+            "auto_nick_corrector": {
+                "state": False,
+                "target_roles": [],
+                "ignore_roles": [],
+                "replace_with": "New nick",
+                "percent": 60
+            },
+        })
+        if "anti_caps" in i.auto_mod.keys():
+            i.auto_mod["anti_caps"].update({"min_chars": 10})
+            for j in ("target_roles", "target_channels", "ignore_roles", "ignore_channels"):
+                if j not in i.auto_mod["anti_caps"].keys():
+                    i.auto_mod["anti_caps"][j] = []
+        else:
+            i.auto_mod["anti_caps"] = {
+                "state": False,
+                "percent": 40,
+                "min_chars": 10,
+                "target_roles": [],
+                "target_channels": [],
+                "ignore_roles": [],
+                "ignore_channels": [],
+            }
+
+        if "anti_flud" in i.auto_mod.keys():
+            for j in ("target_roles", "target_channels", "ignore_roles", "ignore_channels"):
+                if j not in i.auto_mod["anti_flud"].keys():
+                    i.auto_mod["anti_flud"][j] = []
+        else:
+            i.auto_mod["anti_flud"] = {
+                "state": False,
+                "target_roles": [],
+                "target_channels": [],
+                "ignore_roles": [],
+                "ignore_channels": [],
+            }
+
+        if "anti_invite" in i.auto_mod.keys():
+            for j in ("target_roles", "target_channels", "ignore_roles", "ignore_channels"):
+                if j not in i.auto_mod["anti_invite"].keys():
+                    i.auto_mod["anti_invite"][j] = []
+        else:
+            i.auto_mod["anti_invite"] = {
+                "state": False,
+                "target_roles": [],
+                "target_channels": [],
+                "ignore_roles": [],
+                "ignore_channels": [],
+            }
+
         ec = i.audit["economy"] if "economy" in i.audit.keys() else None
         mc = i.audit["moderate"] if "moderate" in i.audit.keys() else None
         cc = i.audit["clans"] if "clans" in i.audit.keys() else None
