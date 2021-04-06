@@ -28,7 +28,9 @@ class EventsAntiCaps(BaseCog):
             if not upper_percent >= data.auto_mod["anti_caps"]["percent"]:
                 return
 
-            await process_auto_moderate(await self.client.get_context(message), "anti_caps", data)
+            await process_auto_moderate(
+                await self.client.get_context(message), "anti_caps", data, "Авто-модерация: Капс"
+            )
 
 
 def setup(client):

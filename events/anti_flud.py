@@ -1,5 +1,4 @@
 import discord
-import datetime
 
 from core.bases.cog_base import BaseCog
 from core.utils.other import process_auto_moderate
@@ -72,7 +71,9 @@ class EventsAntiFlud(BaseCog):
             self.remove(f"{message.guild.id}/{message.author.id}", messages_after)
             data = await self.client.database.sel_guild(guild=message.guild)
             if data.auto_mod["anti_flud"]["state"]:
-                await process_auto_moderate(await self.client.get_context(message), "anti_flud", data)
+                await process_auto_moderate(
+                    await self.client.get_context(message), "anti_flud", data, "Авто-модерация: Флуд"
+                )
 
 
 def setup(client):

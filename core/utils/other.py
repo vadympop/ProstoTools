@@ -62,7 +62,7 @@ async def get_prefix(client, message):
     return commands.when_mentioned_or(*(str(prefix),))(client, message)
 
 
-async def process_auto_moderate(ctx: commands.Context, auto_moderate: str, data):
+async def process_auto_moderate(ctx: commands.Context, auto_moderate: str, data, reason: str):
     if "target_channels" in data.auto_mod[auto_moderate].keys():
         if data.auto_mod[auto_moderate]["target_channels"]:
             if ctx.channel.id not in data.auto_mod["anti_caps"]["target_channels"]:
@@ -88,7 +88,6 @@ async def process_auto_moderate(ctx: commands.Context, auto_moderate: str, data)
                 return
 
     if "punishment" in data.auto_mod[auto_moderate].keys():
-        reason = "Авто-модерация: Приглашения"
         type_punishment = data.auto_mod[auto_moderate]["punishment"]["type"]
         expiry_at = None
         if data.auto_mod[auto_moderate]["punishment"]["time"] is not None:

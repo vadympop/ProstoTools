@@ -41,7 +41,9 @@ class EventsAntiInvite(BaseCog):
             if invites == []:
                 return
 
-            await process_auto_moderate(await self.client.get_context(message), "anti_invite", data)
+            await process_auto_moderate(
+                await self.client.get_context(message), "anti_invite", data, "Авто-модерация: Приглашения"
+            )
 
 
 def setup(client):
