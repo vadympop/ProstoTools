@@ -399,7 +399,12 @@ class Database:
                     "state": False
                 },
                 commands_settings={},
-                warns_settings={"state": False, "max": 3, "punishment": None},
+                warns_settings={
+                    "state": False,
+                    "max": 3,
+                    "punishment": None,
+                    "role": {"type": "add", "role_id": None, "time": None}
+                },
             )
             self.cache.guilds.add(model_to_dict(new_guild))
             return new_guild
