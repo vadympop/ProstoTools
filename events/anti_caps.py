@@ -14,6 +14,9 @@ class EventsAntiCaps(BaseCog):
 
         data = await self.client.database.sel_guild(guild=message.guild)
         if data.auto_mod["anti_caps"]["state"]:
+            if len(message.content) < data.auto_mod["anti_caps"]["min_chars"]:
+                return
+
             content_without_spaces = message.content.replace(" ", "")
             num_upper_chars = 0
             for char in list(content_without_spaces):
