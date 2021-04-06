@@ -1,5 +1,4 @@
 import discord
-import datetime
 
 from core.bases.cog_base import BaseCog
 from core.utils.other import process_auto_moderate
@@ -9,7 +8,6 @@ from discord.ext import commands
 class EventsAntiFlud(BaseCog):
     def __init__(self, client):
         super().__init__(client)
-        self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
         self.messages = {}
 
     def update(self, time: int, key: str, message: discord.Message):

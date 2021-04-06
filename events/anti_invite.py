@@ -1,6 +1,5 @@
 import re
 import discord
-import jinja2
 
 from core.bases.cog_base import BaseCog
 from core.utils.other import process_auto_moderate
@@ -10,7 +9,6 @@ from discord.ext import commands
 class EventsAntiInvite(BaseCog):
     def __init__(self, client):
         super().__init__(client)
-        self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
         self.pattern = re.compile(
             "discord\s?(?:(?:.|dot|(.)|(dot))\s?gg|(?:app)?\s?.\s?com\s?/\s?invite)\s?/\s?([A-Z0-9-]{2,18})", re.I
         )

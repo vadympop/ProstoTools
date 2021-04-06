@@ -4,10 +4,6 @@ from discord.ext import commands
 
 
 class EventsAntiCaps(BaseCog):
-    def __init__(self, client):
-        super().__init__(client)
-        self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
-
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.guild is None:

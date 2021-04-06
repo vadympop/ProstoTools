@@ -156,7 +156,8 @@ class Config:
 		"events.anti_invite",
 		"events.captcha",
 		"events.anti_caps",
-		"events.status_reminders"
+		"events.status_reminders",
+		"events.anti_mentions"
 	)
 
 	# Database config
