@@ -72,7 +72,11 @@ class EventsLeveling(BaseCog):
 					await message.channel.send(embed=emb)
 				else:
 					if guild_data.rank_message["type"] == "channel":
-						await message.channel.send(text)
+						level_channel = message.guild.get_channel(guild_data.rank_message["channel_id"])
+						if level_channel is None:
+							await message.channel.send(text)
+						else:
+							await level_channel.send(text)
 					elif guild_data.rank_message["type"] == "dm":
 						await message.author.send(text)
 

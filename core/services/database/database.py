@@ -396,7 +396,9 @@ class Database:
                     'warns_reset': {'state': False, "channel_id": None},
                 },
                 rank_message={
-                    "state": False
+                    "state": False,
+                    "type": "channel",
+                    "channel_id": None
                 },
                 commands_settings={},
                 warns_settings={

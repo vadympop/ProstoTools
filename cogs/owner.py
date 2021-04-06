@@ -208,8 +208,10 @@ def update():
             'new_warn': {'state': ms, "channel_id": mc},
             'warns_reset': {'state': ms, "channel_id": mc}
         }
+        i.rank_message.update(type="channel", channel_id=None)
         Guild.objects.filter(guild_id=i.guild_id).update(
             warns_settings=i.warns_settings,
             audit=i.audit,
-            auto_mod=i.auto_mod
+            auto_mod=i.auto_mod,
+            rank_message=i.rank_message
         )
