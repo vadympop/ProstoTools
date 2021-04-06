@@ -157,7 +157,8 @@ class Config:
 		"events.captcha",
 		"events.anti_caps",
 		"events.status_reminders",
-		"events.anti_mentions"
+		"events.anti_mentions",
+		"events.auto_nick_corrector"
 	)
 
 	# Database config
