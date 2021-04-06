@@ -439,8 +439,98 @@ class EventsAudit(BaseCog):
 			)
 
 	@commands.Cog.listener()
-	async def on_voice_state_update(self, before, after, member):
-		pass
+	async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+		data = await self.client.database.sel_guild(guild=member.guild)
+
+		if before.channel is None and after.channel is not None:
+			if not data.audit["member_voice_connect"]["state"]:
+				return
+
+			channel = self.client.get_channel(data.audit["member_voice_connect"]["channel_id"])
+			if channel is None:
+				return
+
+			e = discord.Embed(
+				description=f"Участник подключился к голосовому каналу",
+				colour=discord.Color.green(),
+				timestamp=await self.client.utils.get_guild_time(member.guild),
+			)
+			e.add_field(name="Участник", value=f"{member}(`{member.id}`)", inline=False)
+			e.add_field(name="Канал", value=f"{after.channel.mention}(`{after.channel.id}`)", inline=False)
+			e.set_author(
+				name="Журнал аудита | Подключения к голосовому каналу",
+				icon_url=self.client.user.avatar_url,
+			)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await channel.send(embed=e)
+
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=member,
+					channel=after.channel,
+					guild_id=member.guild.id,
+					action_type="member_voice_connect",
+				)
+		elif before.channel is not None and after.channel is None:
+			if not data.audit["member_voice_disconnect"]["state"]:
+				return
+
+			channel = self.client.get_channel(data.audit["member_voice_disconnect"]["channel_id"])
+			if channel is None:
+				return
+
+			e = discord.Embed(
+				description=f"Участник покинул голосовой канал",
+				colour=discord.Color.green(),
+				timestamp=await self.client.utils.get_guild_time(member.guild),
+			)
+			e.add_field(name="Участник", value=f"{member}(`{member.id}`)", inline=False)
+			e.add_field(name="Канал", value=f"{before.channel.mention}(`{before.channel.id}`)", inline=False)
+			e.set_author(
+				name="Журнал аудита | Отключения от голосового канала",
+				icon_url=self.client.user.avatar_url,
+			)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await channel.send(embed=e)
+
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=member,
+					channel=before.channel,
+					guild_id=member.guild.id,
+					action_type="member_voice_disconnect",
+				)
+		elif before.channel is not None and after.channel is not None:
+			if not data.audit["member_voice_move"]["state"]:
+				return
+
+			channel = self.client.get_channel(data.audit["member_voice_move"]["channel_id"])
+			if channel is None:
+				return
+
+			e = discord.Embed(
+				description=f"Участник перешел в другой голосовой канал",
+				colour=discord.Color.green(),
+				timestamp=await self.client.utils.get_guild_time(member.guild),
+			)
+			e.add_field(name="Участник", value=f"{member}(`{member.id}`)", inline=False)
+			e.add_field(name="С канала", value=f"{before.channel.mention}(`{before.channel.id}`)", inline=False)
+			e.add_field(name="В канал", value=f"{after.channel.mention}(`{after.channel.id}`)", inline=False)
+			e.set_author(
+				name="Журнал аудита | Переход в другой голосовой канал",
+				icon_url=self.client.user.avatar_url,
+			)
+			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
+			await channel.send(embed=e)
+
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=member,
+					channel=before.channel,
+					guild_id=member.guild.id,
+					action_type="member_voice_move",
+					to_channel=after.channel
+				)
 
 
 def setup(client):
