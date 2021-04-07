@@ -1,11 +1,21 @@
-def update():
-    from core.services.database.models import Guild
+from core.services.database.models import Guild
 
+
+def update():
     for i in Guild.objects.all():
-        i.warns_settings.update({
-            "state": i.warns_settings["punishment"] is not None,
-            "role": {"type": "add", "role_id": None, "time": None}
-        })
+        i.warns_settings = {
+            "max": 3,
+            "punishment": {
+                "state": False,
+                "type": "mute",
+                "time": None
+            },
+            "role": {
+                "type": "add",
+                "role_id": None,
+                "time": None
+            }
+        }
         i.auto_mod.update({
             "anti_mentions": {
                 "state": False,

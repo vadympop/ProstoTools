@@ -136,10 +136,11 @@ class SupportCommands:
 			)
 
 		if len([warn for warn in cur_warns if warn["state"]]) >= max_warns:
-			if guild_settings.warns_settings["state"]:
+			if guild_settings.warns_settings["role"]["role_id"] is not None:
 				changed_role = ctx.guild.get_role(guild_settings.warns_settings["role"]["role_id"])
 				if changed_role is not None:
-					if guild_settings.warns_settings["role"]["time"] is not None and guild_settings.warns_settings["role"]["type"] == "add":
+					if guild_settings.warns_settings["role"]["time"] is not None and guild_settings.warns_settings["role"][
+						"type"] == "add":
 						await member.add_roles(changed_role)
 						role_expiry_at = await process_converters(
 							ctx, Expiry.__args__, guild_settings.warns_settings["role"]["time"]
@@ -154,36 +155,36 @@ class SupportCommands:
 					elif guild_settings.warns_settings["role"]["type"] == "remove":
 						await member.remove_roles(changed_role)
 
-				if warn_punishment is not None:
-					expiry_at = None
-					if warn_punishment["time"] is not None:
-						expiry_at = await process_converters(
-							ctx, Expiry.__args__, warn_punishment["time"]
-						)
+			if warn_punishment["state"]:
+				expiry_at = None
+				if warn_punishment["time"] is not None:
+					expiry_at = await process_converters(
+						ctx, Expiry.__args__, warn_punishment["time"]
+					)
 
-					if warn_punishment["type"] == "mute":
-						await self.mute(
-							ctx=ctx,
-							member=member,
-							expiry_at=expiry_at,
-							reason=reason,
-							author=author,
-						)
-					elif warn_punishment["type"] == "kick":
-						await self.client.support_commands.kick(
-							ctx=ctx,
-							member=member,
-							author=author,
-							reason=reason
-						)
-					elif warn_punishment["type"] == "ban":
-						await self.ban(
-							ctx=ctx,
-							member=member,
-							expiry_at=expiry_at,
-							reason=reason,
-							author=author,
-						)
+				if warn_punishment["type"] == "mute":
+					await self.mute(
+						ctx=ctx,
+						member=member,
+						expiry_at=expiry_at,
+						reason=reason,
+						author=author,
+					)
+				elif warn_punishment["type"] == "kick":
+					await self.client.support_commands.kick(
+						ctx=ctx,
+						member=member,
+						author=author,
+						reason=reason
+					)
+				elif warn_punishment["type"] == "ban":
+					await self.ban(
+						ctx=ctx,
+						member=member,
+						expiry_at=expiry_at,
+						reason=reason,
+						author=author,
+					)
 
 			emb = discord.Embed(
 				description=f"**{member}**({member.mention}) Достиг максимальное количество предупреждений и получил наказания\nId предупреждения: {warn_id}\nКоличество предупреждений: `{len(cur_warns)+1}`\nМодератор: `{author}`\nПричина: **{reason}**",

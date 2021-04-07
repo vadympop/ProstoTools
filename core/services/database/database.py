@@ -403,10 +403,17 @@ class Database:
                 },
                 commands_settings={},
                 warns_settings={
-                    "state": False,
                     "max": 3,
-                    "punishment": None,
-                    "role": {"type": "add", "role_id": None, "time": None}
+                    "punishment": {
+                        "state": False,
+                        "type": "mute",
+                        "time": None
+                    },
+                    "role": {
+                        "type": "add",
+                        "role_id": None,
+                        "time": None
+                    }
                 },
             )
             self.cache.guilds.add(model_to_dict(new_guild))
