@@ -410,6 +410,7 @@ class Database:
                         "time": None
                     },
                     "role": {
+                        "state": False,
                         "type": "add",
                         "role_id": None,
                         "time": None

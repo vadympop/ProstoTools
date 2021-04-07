@@ -81,9 +81,11 @@ async def process_auto_moderate(ctx: commands.Context, auto_moderate: str, data)
             return
 
     if "ignore_roles" in data.auto_mod[auto_moderate].keys():
-        for role in ctx.author.roles:
-            if role.id in data.auto_mod[auto_moderate]["ignore_roles"]:
-                return
+        if not any([
+            role.id in data.auto_mod[auto_moderate]["ignore_roles"]
+            for role in ctx.author.roles
+        ]):
+            return
 
     if "punishment" in data.auto_mod[auto_moderate].keys():
         reason = "Авто-модерация: Приглашения"

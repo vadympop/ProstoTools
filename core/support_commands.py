@@ -136,7 +136,7 @@ class SupportCommands:
 			)
 
 		if len([warn for warn in cur_warns if warn["state"]]) >= max_warns:
-			if guild_settings.warns_settings["role"]["role_id"] is not None:
+			if guild_settings.warns_settings["role"]["state"]:
 				changed_role = ctx.guild.get_role(guild_settings.warns_settings["role"]["role_id"])
 				if changed_role is not None:
 					if guild_settings.warns_settings["role"]["time"] is not None and guild_settings.warns_settings["role"][

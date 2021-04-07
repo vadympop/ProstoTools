@@ -3,19 +3,6 @@ from core.services.database.models import Guild
 
 def update():
     for i in Guild.objects.all():
-        i.warns_settings = {
-            "max": 3,
-            "punishment": {
-                "state": False,
-                "type": "mute",
-                "time": None
-            },
-            "role": {
-                "type": "add",
-                "role_id": None,
-                "time": None
-            }
-        }
         i.auto_mod.update({
             "anti_mentions": {
                 "state": False,
@@ -119,9 +106,23 @@ def update():
         }
         i.rank_message.update(type="channel", channel_id=None, not_sending_channels=[])
         Guild.objects.filter(guild_id=i.guild_id).update(
-            warns_settings=i.warns_settings,
+            warns_settings={
+                "max": 3,
+                "punishment": {
+                    "state": False,
+                    "type": "mute",
+                    "time": None
+                },
+                "role": {
+                    "state": False,
+                    "type": "add",
+                    "role_id": None,
+                    "time": None
+                }
+            },
             audit=i.audit,
             auto_mod=i.auto_mod,
             rank_message=i.rank_message,
-            auto_reactions={}
+            auto_reactions={},
+            shop_list=[]
         )
