@@ -67,14 +67,14 @@ class Embed:
             description: str = discord.Embed.Empty,
             url: str = discord.Embed.Empty,
             timestamp: datetime.datetime = discord.Embed.Empty,
-            color: str = discord.Embed.Empty
+            color: str = None
     ):
         self._embed = discord.Embed(
             title=title,
             description=description,
             url=url,
             timestamp=timestamp,
-            colour=int(hex(int(color.replace("#", ""), 16)), 0)
+            colour=int(hex(int(color.replace("#", ""), 16)), 0) if color is not None else discord.Embed.Empty
         )
 
     def add_field(self, name: str, value: str, inline: bool = True):
