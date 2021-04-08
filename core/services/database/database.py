@@ -309,6 +309,12 @@ class Database:
                 auto_mod={
                     "anti_flud": {
                         "state": False,
+                        "delete_message": False,
+                        "punishment": {
+                            "state": False,
+                            "type": "mute",
+                            "time": None
+                        },
                         "target_roles": [],
                         "target_channels": [],
                         "ignore_roles": [],
@@ -316,6 +322,12 @@ class Database:
                     },
                     "anti_invite": {
                         "state": False,
+                        "delete_message": False,
+                        "punishment": {
+                            "state": False,
+                            "type": "mute",
+                            "time": None
+                        },
                         "target_roles": [],
                         "target_channels": [],
                         "ignore_roles": [],
@@ -323,6 +335,12 @@ class Database:
                     },
                     "anti_caps": {
                         "state": False,
+                        "delete_message": False,
+                        "punishment": {
+                            "state": False,
+                            "type": "mute",
+                            "time": None
+                        },
                         "percent": 40,
                         "min_chars": 10,
                         "target_roles": [],
@@ -332,6 +350,12 @@ class Database:
                     },
                     "anti_mentions": {
                         "state": False,
+                        "delete_message": False,
+                        "punishment": {
+                            "state": False,
+                            "type": "mute",
+                            "time": None
+                        },
                         "max_mentions": 4,
                         "target_roles": [],
                         "target_channels": [],
@@ -340,6 +364,12 @@ class Database:
                     },
                     "anti_link": {
                         "state": False,
+                        "delete_message": False,
+                        "punishment": {
+                            "state": False,
+                            "type": "mute",
+                            "time": None
+                        },
                         "domains": [],
                         "target_roles": [],
                         "target_channels": [],

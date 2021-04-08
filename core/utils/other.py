@@ -63,31 +63,27 @@ async def get_prefix(client, message):
 
 
 async def process_auto_moderate(ctx: commands.Context, auto_moderate: str, data):
-    if "target_channels" in data.auto_mod[auto_moderate].keys():
-        if data.auto_mod[auto_moderate]["target_channels"]:
-            if ctx.channel.id not in data.auto_mod["anti_caps"]["target_channels"]:
-                return
-
-    if "target_roles" in data.auto_mod[auto_moderate].keys():
-        if data.auto_mod[auto_moderate]["target_roles"]:
-            if not any([
-                role.id in data.auto_mod[auto_moderate]["target_roles"]
-                for role in ctx.author.roles
-            ]):
-                return
-
-    if "ignore_channels" in data.auto_mod[auto_moderate].keys():
-        if ctx.channel.id in data.auto_mod[auto_moderate]["ignore_channels"]:
+    if data.auto_mod[auto_moderate]["target_channels"]:
+        if ctx.channel.id not in data.auto_mod["anti_caps"]["target_channels"]:
             return
 
-    if "ignore_roles" in data.auto_mod[auto_moderate].keys():
+    if data.auto_mod[auto_moderate]["target_roles"]:
         if not any([
-            role.id in data.auto_mod[auto_moderate]["ignore_roles"]
+            role.id in data.auto_mod[auto_moderate]["target_roles"]
             for role in ctx.author.roles
         ]):
             return
 
-    if "punishment" in data.auto_mod[auto_moderate].keys():
+    if ctx.channel.id in data.auto_mod[auto_moderate]["ignore_channels"]:
+        return
+
+    if not any([
+        role.id in data.auto_mod[auto_moderate]["ignore_roles"]
+        for role in ctx.author.roles
+    ]):
+        return
+
+    if data.auto_mod[auto_moderate]["punishment"]["state"]:
         reason = "Авто-модерация: Приглашения"
         type_punishment = data.auto_mod[auto_moderate]["punishment"]["type"]
         expiry_at = None
@@ -127,7 +123,7 @@ async def process_auto_moderate(ctx: commands.Context, auto_moderate: str, data)
                 reason=reason,
             )
 
-    if "delete_message" in data.auto_mod[auto_moderate].keys():
+    if data.auto_mod[auto_moderate]["delete_message"]:
         await ctx.message.delete()
 
     if "message" in data.auto_mod[auto_moderate].keys():
