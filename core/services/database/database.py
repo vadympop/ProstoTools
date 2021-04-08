@@ -329,6 +329,7 @@ class Database:
                 commands_settings={},
                 warns_settings={"max": 3, "punishment": None},
             )
+            new_guild.save()
             self.cache.guilds.add(model_to_dict(new_guild))
             return new_guild
 
