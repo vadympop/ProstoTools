@@ -26,6 +26,12 @@ class EventsCustomCommands(BaseCog):
             return
 
         if self.cd_mapping.get_bucket(message).update_rate_limit():
+            try:
+                await message.add_reaction("⏰")
+            except discord.errors.Forbidden:
+                pass
+            except discord.errors.HTTPException:
+                pass
             return
 
         PREFIX = str(await self.client.database.get_prefix(guild=message.guild))
