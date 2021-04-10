@@ -126,11 +126,11 @@ async def process_auto_moderate(ctx: commands.Context, auto_moderate: str, data)
     if data.auto_mod[auto_moderate]["delete_message"]:
         await ctx.message.delete()
 
-    if "message" in data.auto_mod[auto_moderate].keys():
+    if data.auto_mod[auto_moderate]["message"]["state"]:
         try:
             try:
                 text = await ctx.bot.template_engine.render(
-                    ctx.message, ctx.author, data.auto_mod[auto_moderate]["message"]["text"]
+                    ctx.message, ctx.author, data.auto_mod[auto_moderate]["message"]["content"]["text"]
                 )
             except discord.errors.HTTPException:
                 emb = await ctx.bot.utils.create_error_embed(

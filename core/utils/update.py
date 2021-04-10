@@ -12,6 +12,14 @@ def update():
                     "type": "mute",
                     "time": None
                 },
+                "message": {
+                    "state": False,
+                    "type": "channel",
+                    "content": {
+                        "code": None,
+                        "text": None
+                    }
+                },
                 "max_mentions": 4,
                 "target_roles": [],
                 "target_channels": [],
@@ -22,6 +30,14 @@ def update():
                 "state": False,
                 "domains": [],
                 "delete_message": False,
+                "message": {
+                    "state": False,
+                    "type": "channel",
+                    "content": {
+                        "code": None,
+                        "text": None
+                    }
+                },
                 "punishment": {
                     "state": False,
                     "type": "mute",
@@ -42,6 +58,16 @@ def update():
         })
         if "anti_caps" in i.auto_mod.keys():
             i.auto_mod["anti_caps"].update({"min_chars": 10})
+            i.auto_mod["anti_caps"].update({
+                "message": {
+                    "state": False,
+                    "type": "channel",
+                    "content": {
+                        "code": None,
+                        "text": None
+                    }
+                }
+            })
             for j in ("target_roles", "target_channels", "ignore_roles", "ignore_channels", "delete_message", "punishment"):
                 if j not in i.auto_mod["anti_caps"].keys():
                     if j == "delete_message":
@@ -62,6 +88,14 @@ def update():
                 "percent": 40,
                 "min_chars": 10,
                 "delete_message": False,
+                "message": {
+                    "state": False,
+                    "type": "channel",
+                    "content": {
+                        "code": None,
+                        "text": None
+                    }
+                },
                 "punishment": {
                     "state": False,
                     "type": "mute",
@@ -74,6 +108,16 @@ def update():
             }
 
         if "anti_flud" in i.auto_mod.keys():
+            i.auto_mod["anti_flud"].update({
+                "message": {
+                    "state": False,
+                    "type": "channel",
+                    "content": {
+                        "code": None,
+                        "text": None
+                    }
+                }
+            })
             for j in ("target_roles", "target_channels", "ignore_roles", "ignore_channels", "delete_message", "punishment"):
                 if j not in i.auto_mod["anti_flud"].keys():
                     if j == "delete_message":
@@ -92,6 +136,14 @@ def update():
             i.auto_mod["anti_flud"] = {
                 "state": False,
                 "delete_message": False,
+                "message": {
+                    "state": False,
+                    "type": "channel",
+                    "content": {
+                        "code": None,
+                        "text": None
+                    }
+                },
                 "punishment": {
                     "state": False,
                     "type": "mute",
@@ -104,6 +156,16 @@ def update():
             }
 
         if "anti_invite" in i.auto_mod.keys():
+            i.auto_mod["anti_invite"].update({
+                "message": {
+                    "state": False,
+                    "type": "channel",
+                    "content": {
+                        "code": None,
+                        "text": None
+                    }
+                }
+            })
             for j in ("target_roles", "target_channels", "ignore_roles", "ignore_channels", "delete_message", "punishment"):
                 if j not in i.auto_mod["anti_invite"].keys():
                     if j == "delete_message":
@@ -121,6 +183,14 @@ def update():
             i.auto_mod["anti_invite"] = {
                 "state": False,
                 "delete_message": False,
+                "message": {
+                    "state": False,
+                    "type": "channel",
+                    "content": {
+                        "code": None,
+                        "text": None
+                    }
+                },
                 "punishment": {
                     "state": False,
                     "type": "mute",

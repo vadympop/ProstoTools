@@ -315,6 +315,14 @@ class Database:
                             "type": "mute",
                             "time": None
                         },
+                        "message": {
+                            "state": False,
+                            "type": "channel",
+                            "content": {
+                                "code": None,
+                                "text": None
+                            }
+                        },
                         "target_roles": [],
                         "target_channels": [],
                         "ignore_roles": [],
@@ -328,6 +336,14 @@ class Database:
                             "type": "mute",
                             "time": None
                         },
+                        "message": {
+                            "state": False,
+                            "type": "channel",
+                            "content": {
+                                "code": None,
+                                "text": None
+                            }
+                        },
                         "target_roles": [],
                         "target_channels": [],
                         "ignore_roles": [],
@@ -340,6 +356,14 @@ class Database:
                             "state": False,
                             "type": "mute",
                             "time": None
+                        },
+                        "message": {
+                            "state": False,
+                            "type": "channel",
+                            "content": {
+                                "code": None,
+                                "text": None
+                            }
                         },
                         "percent": 40,
                         "min_chars": 10,
@@ -356,6 +380,14 @@ class Database:
                             "type": "mute",
                             "time": None
                         },
+                        "message": {
+                            "state": False,
+                            "type": "channel",
+                            "content": {
+                                "code": None,
+                                "text": None
+                            }
+                        },
                         "max_mentions": 4,
                         "target_roles": [],
                         "target_channels": [],
@@ -369,6 +401,14 @@ class Database:
                             "state": False,
                             "type": "mute",
                             "time": None
+                        },
+                        "message": {
+                            "state": False,
+                            "type": "channel",
+                            "content": {
+                                "code": None,
+                                "text": None
+                            }
                         },
                         "domains": [],
                         "target_roles": [],
