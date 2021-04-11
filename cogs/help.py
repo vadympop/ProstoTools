@@ -65,22 +65,7 @@ class Help(BaseCog):
 	)
 	async def help(self, ctx, *, entity: str = None):
 		prefix = str(await self.client.database.get_prefix(guild=ctx.guild))
-		cogs_aliases = {
-			"economy": "Economy",
-			"funeditimage": "FunEditImage",
-			"funother": "FunOther",
-			"funrandomimage": "FunRandomImage",
-			"clans": "Clans",
-			"different": "Different",
-			"moderate": "Moderate",
-			"settings": "Settings",
-			"utils": "Utils",
-			"works": "Works",
-			"showconfigs": "ShowConfigs",
-			"giveaways": "Giveaways",
-			"information": "Information",
-			"reminders": "Reminders"
-		}
+		cogs_aliases = {allowed_cog.lower(): allowed_cog for allowed_cog in self.client.config.ALLOWED_COGS}
 
 		if entity is None:
 			embeds = await self.build_help(ctx, prefix)

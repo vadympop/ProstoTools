@@ -79,7 +79,9 @@ class Config:
 		"FunOther",
 		"FunEditImage",
 		"FunRandomImage",
-		"Information"
+		"Information",
+		"Giveaways",
+		"ShowConfigs"
 	)
 	PERMISSIONS_DICT = {
 		"add_reactions": "Добавлять реакции",
