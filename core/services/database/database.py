@@ -429,8 +429,24 @@ class Database:
                 moderators=[],
                 auto_reactions={},
                 welcomer={
-                    "join": {"state": False},
-                    "leave": {"state": False}
+                    "join": {
+                        "state": False,
+                        "type": "channel",
+                        "channel_id": None,
+                        "message": {
+                            "text": None,
+                            "code": None
+                        }
+                    },
+                    "leave": {
+                        "state": False,
+                        "type": "channel",
+                        "channel_id": None,
+                        "message": {
+                            "text": None,
+                            "code": None
+                        }
+                    }
                 },
                 auto_roles={},
                 custom_commands=[],
@@ -469,7 +485,11 @@ class Database:
                     "state": False,
                     "type": "channel",
                     "channel_id": None,
-                    "not_sending_channels": []
+                    "not_sending_channels": [],
+                    "message": {
+                        "text": None,
+                        "code": None
+                    }
                 },
                 commands_settings={},
                 warns_settings={

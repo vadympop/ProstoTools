@@ -58,7 +58,7 @@ class EventsLeveling(BaseCog):
 				ctx = await self.client.get_context(message)
 				try:
 					text = await self.client.template_engine.render(
-						message, message.author, guild_data.rank_message["text"]
+						message, message.author, guild_data.rank_message["message"]
 					)
 				except discord.errors.HTTPException:
 					emb = await self.client.utils.create_error_embed(

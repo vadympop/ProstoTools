@@ -236,7 +236,7 @@ def update():
             'new_warn': {'state': ms, "channel_id": mc},
             'warns_reset': {'state': ms, "channel_id": mc}
         }
-        i.rank_message.update(type="channel", channel_id=None, not_sending_channels=[])
+
         Guild.objects.filter(guild_id=i.guild_id).update(
             warns_settings={
                 "max": 3,
@@ -254,7 +254,36 @@ def update():
             },
             audit=i.audit,
             auto_mod=i.auto_mod,
-            rank_message=i.rank_message,
+            rank_message={
+                "state": False,
+                "type": "channel",
+                "channel_id": None,
+                "not_sending_channels": [],
+                "message": {
+                    "text": None,
+                    "code": None
+                }
+            },
             auto_reactions={},
-            shop_list=[]
+            shop_list=[],
+            welcomer={
+                "join": {
+                    "state": False,
+                    "type": "channel",
+                    "channel_id": None,
+                    "message": {
+                        "text": None,
+                        "code": None
+                    }
+                },
+                "leave": {
+                    "state": False,
+                    "type": "channel",
+                    "channel_id": None,
+                    "message": {
+                        "text": None,
+                        "code": None
+                    }
+                }
+            }
         )

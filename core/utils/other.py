@@ -130,7 +130,7 @@ async def process_auto_moderate(ctx: commands.Context, auto_moderate: str, data)
         try:
             try:
                 text = await ctx.bot.template_engine.render(
-                    ctx.message, ctx.author, data.auto_mod[auto_moderate]["message"]["content"]["text"]
+                    ctx.message, ctx.author, data.auto_mod[auto_moderate]["message"]["content"]
                 )
             except discord.errors.HTTPException:
                 emb = await ctx.bot.utils.create_error_embed(

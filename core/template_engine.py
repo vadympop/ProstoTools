@@ -1,4 +1,6 @@
 import abc
+import json
+
 import discord
 import math
 import datetime
@@ -101,9 +103,9 @@ class Embed:
 async def render(
         message: typing.Optional[discord.Message],
         member: discord.Member,
-        render_text: str
+        render_text: dict
 ):
-    template = Template(render_text, enable_async=True)
+    template = Template(json.dumps(render_text), enable_async=True)
     context = {
         "member": await Member(member),
         "guild": await Guild(member.guild),
@@ -117,20 +119,26 @@ async def render(
         })
 
     context.update(DEFAULT_CONTEXT)
-    result = await template.render_async(context)
-    return result
+    return json.loads(await template.render_async(context)).get("text")
 
 
 class Messageable(abc.ABC):
+    def __init__(self):
+        self.counter = 3
+
     def _get_channel(self):
         raise NotImplementedError
 
     async def send(self, content: str = None, embed: Embed = None):
+        if self.counter <= 0:
+            return False
+
         try:
             await self._get_channel().send(content=content, embed=embed._embed)
         except discord.HTTPException:
             return False
         else:
+            self.counter -= 1
             return True
 
 
@@ -169,6 +177,7 @@ class Channel(Messageable):
     __slots__ = "id", "name", "position", "mention", "created_at", "topic"
 
     def __init__(self, data: discord.TextChannel):
+        super().__init__()
         self.id = data.id
         self.name = data.name
         self.position = data.position
@@ -243,6 +252,7 @@ class User(Messageable):
     __slots__ = "id", "name", "bot", "avatar_url", "tag", "created_at", "discriminator"
 
     def __init__(self, data: discord.Member):
+        super().__init__()
         self.id = data.id
         self.name = data.name
         self.bot = data.bot

@@ -105,16 +105,16 @@ class EventsJoin(BaseCog):
 					await member.send(
 						await self.client.template_engine.render(
 							member=member,
-							render_text=guild_data.welcomer["join"]["text"]
+							render_text=guild_data.welcomer["join"]["message"]
 						)
 					)
 				elif guild_data.welcomer["join"]["type"] == "channel":
-					channel = member.guild.get_channel(guild_data.welcomer["join"]["channel"])
+					channel = member.guild.get_channel(guild_data.welcomer["join"]["channel_id"])
 					if channel is not None:
 						await channel.send(
 							await self.client.template_engine.render(
 								member=member,
-								render_text=guild_data.welcomer["join"]["text"]
+								render_text=guild_data.welcomer["join"]["message"]
 							)
 						)
 			except discord.errors.HTTPException:

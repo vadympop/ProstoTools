@@ -81,18 +81,18 @@ class EventsLeave(BaseCog):
 					await member.send(
 						await self.client.template_engine.render(
 							member=member,
-							render_text=guild_data.welcomer["leave"]["text"]
+							render_text=guild_data.welcomer["leave"]["message"]
 						)
 					)
 				elif guild_data.welcomer["leave"]["type"] == "channel":
 					channel = member.guild.get_channel(
-						guild_data.welcomer["leave"]["channel"]
+						guild_data.welcomer["leave"]["channel_id"]
 					)
 					if channel is not None:
 						await channel.send(
 							await self.client.template_engine.render(
 								member=member,
-								render_text=guild_data.welcomer["leave"]["text"]
+								render_text=guild_data.welcomer["leave"]["message"]
 							)
 						)
 			except discord.errors.HTTPException:

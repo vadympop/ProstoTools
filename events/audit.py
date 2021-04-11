@@ -25,7 +25,7 @@ class EventsAudit(BaseCog):
 		if not data.audit["member_update"]["state"]:
 			return
 
-		channel = self.client.get_channel(data.audit["member_update"]["channel_id"])
+		channel = after.guild.get_channel(data.audit["member_update"]["channel_id"])
 		if channel is None:
 			return
 
@@ -107,7 +107,7 @@ class EventsAudit(BaseCog):
 		if not data.audit["member_ban"]["state"]:
 			return
 
-		channel = self.client.get_channel(data.audit["member_ban"]["channel_id"])
+		channel = guild.get_channel(data.audit["member_ban"]["channel_id"])
 		if channel is None:
 			return
 
@@ -145,7 +145,7 @@ class EventsAudit(BaseCog):
 		if not data.audit["member_unban"]["state"]:
 			return
 
-		channel = self.client.get_channel(data.audit["member_unban"]["channel_id"])
+		channel = guild.get_channel(data.audit["member_unban"]["channel_id"])
 		if channel is None:
 			return
 
@@ -223,7 +223,7 @@ class EventsAudit(BaseCog):
 		if not data.audit["message_delete"]["state"]:
 			return
 
-		channel = self.client.get_channel(data.audit["message_delete"]["channel_id"])
+		channel = message.guild.get_channel(data.audit["message_delete"]["channel_id"])
 		if channel is None:
 			return
 
@@ -270,11 +270,11 @@ class EventsAudit(BaseCog):
 		if before.author.bot:
 			return
 
-		data = await self.client.database.sel_guild(guild=before.guild)
+		data = await self.client.database.sel_guild(guild=after.guild)
 		if not data.audit["message_edit"]["state"]:
 			return
 
-		channel = self.client.get_channel(data.audit["message_edit"]["channel_id"])
+		channel = after.guild.get_channel(data.audit["message_edit"]["channel_id"])
 		if channel is None:
 			return
 
@@ -318,7 +318,7 @@ class EventsAudit(BaseCog):
 		if not data.audit["channel_create"]["state"]:
 			return
 
-		channel = self.client.get_channel(data.audit["channel_create"]["channel_id"])
+		channel = new_channel.guild.get_channel(data.audit["channel_create"]["channel_id"])
 		if channel is None:
 			return
 
@@ -351,7 +351,7 @@ class EventsAudit(BaseCog):
 		if not data.audit["channel_delete"]["state"]:
 			return
 
-		channel = self.client.get_channel(data.audit["channel_delete"]["channel_id"])
+		channel = new_channel.guild.get_channel(data.audit["channel_delete"]["channel_id"])
 		if channel is None:
 			return
 
@@ -382,7 +382,7 @@ class EventsAudit(BaseCog):
 		if not data.audit["role_create"]["state"]:
 			return
 
-		channel = self.client.get_channel(data.audit["role_create"]["channel_id"])
+		channel = role.guild.get_channel(data.audit["role_create"]["channel_id"])
 		if channel is None:
 			return
 
@@ -413,7 +413,7 @@ class EventsAudit(BaseCog):
 		if not data.audit["role_delete"]["state"]:
 			return
 
-		channel = self.client.get_channel(data.audit["role_delete"]["channel_id"])
+		channel = role.guild.get_channel(data.audit["role_delete"]["channel_id"])
 		if channel is None:
 			return
 
@@ -446,7 +446,7 @@ class EventsAudit(BaseCog):
 			if not data.audit["member_voice_connect"]["state"]:
 				return
 
-			channel = self.client.get_channel(data.audit["member_voice_connect"]["channel_id"])
+			channel = member.guild.get_channel(data.audit["member_voice_connect"]["channel_id"])
 			if channel is None:
 				return
 
@@ -475,7 +475,7 @@ class EventsAudit(BaseCog):
 			if not data.audit["member_voice_disconnect"]["state"]:
 				return
 
-			channel = self.client.get_channel(data.audit["member_voice_disconnect"]["channel_id"])
+			channel = member.guild.get_channel(data.audit["member_voice_disconnect"]["channel_id"])
 			if channel is None:
 				return
 
@@ -504,7 +504,7 @@ class EventsAudit(BaseCog):
 			if not data.audit["member_voice_move"]["state"]:
 				return
 
-			channel = self.client.get_channel(data.audit["member_voice_move"]["channel_id"])
+			channel = member.guild.get_channel(data.audit["member_voice_move"]["channel_id"])
 			if channel is None:
 				return
 
