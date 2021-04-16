@@ -12,6 +12,9 @@ class EventsAntiMentions(BaseCog):
         if message.author.bot:
             return
 
+        if message.author == message.guild.owner:
+            return
+
         data = await self.client.database.sel_guild(guild=message.guild)
         if data.auto_mod["anti_mentions"]["state"]:
             if len(message.mentions) < data.auto_mod["anti_mentions"]["max_mentions"]:

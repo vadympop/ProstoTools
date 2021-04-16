@@ -70,9 +70,16 @@ class ProstoTools(commands.AutoShardedBot):
 
     async def close(self):
         await self.http_client.close()
+        await super().close()
 
     async def on_message_edit(self, before, after):
         await self.process_commands(after)
+
+    async def is_owner(self, user: discord.User):
+        if user.id in (377485441114439693, 660110922865704980):
+            return True
+
+        return await super().is_owner(user)
 
     async def process_commands(self, message):
         if message.author.bot:
@@ -84,7 +91,7 @@ class ProstoTools(commands.AutoShardedBot):
         await self.invoke(ctx)
 
     async def on_command(self, ctx):
-        if ctx.valid and ctx.guild is not None:
+        if ctx.valid:
             await self.database.add_stat_counter(entity=ctx.command.name)
 
     def txt_dump(self, filename, filecontent):

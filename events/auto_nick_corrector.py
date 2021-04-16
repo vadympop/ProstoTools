@@ -17,6 +17,9 @@ class EventsAutoNickCorrector(BaseCog):
         if not data.auto_mod["auto_nick_corrector"]["state"]:
             return
 
+        if member == member.guild.owner:
+            return
+
         non_unicode_chars = [
             c for c in list(member.display_name)
             if MIN_CYRILLIC_CODE <= ord(c) <= MAX_CYRILLIC_CODE or MIN_LATIN_CODE <= ord(c) <= MAX_LATIN_CODE

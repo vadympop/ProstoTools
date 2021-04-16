@@ -48,7 +48,7 @@ class Help(BaseCog):
 	async def build_help(self, ctx, prefix: str) -> list:
 		emb = discord.Embed(
 			title="**Доступные команды:**",
-			description=f'Префикс на этом сервере - `{prefix}`, также вы можете в качестве префикса использовать упоминания бота - {ctx.guild.me.mention}. Зачеркнутые команды бот/вы не можете выполнить из-за нехватки прав.\n\n`{prefix}help [Команда]` - что бы посмотреть помощь по команде\n`{prefix}help [Модуль]` - что бы посмотреть помощь по модулю\n\nСписок доступных категорий: {", ".join([f"`{cog}`" for cog in self.cogs])}\n\n*Навигация по категориям осуществляется стрелками снизу*',
+			description=f'Префикс на этом сервере - `{prefix}`, также вы можете в качестве префикса использовать упоминания бота - {self.client.user.mention}. Зачеркнутые команды бот/вы не можете выполнить из-за нехватки прав.\n\n`{prefix}help [Команда]` - что бы посмотреть помощь по команде\n`{prefix}help [Модуль]` - что бы посмотреть помощь по модулю\n\nСписок доступных категорий: {", ".join([f"`{cog}`" for cog in self.cogs])}\n\n*Навигация по категориям осуществляется стрелками снизу*',
 			colour=discord.Color.green()
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
@@ -64,7 +64,7 @@ class Help(BaseCog):
 		help="**Примеры использования:**\n1. {Prefix}help\n2. {Prefix}help moderate\n2. {Prefix}help ban\n\n**Пример 1:** Показывает список всех команд бота\n**Пример 2:** Показывает список всех указаной групы\n**Пример 3:** Показывает документацию по указаной команде"
 	)
 	async def help(self, ctx, *, entity: str = None):
-		prefix = str(await self.client.database.get_prefix(guild=ctx.guild))
+		prefix = await self.client.database.get_prefix(guild=ctx.guild)
 		cogs_aliases = {
 			"economy": "Economy",
 			"funeditimage": "FunEditImage",

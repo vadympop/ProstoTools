@@ -5,7 +5,7 @@ import datetime
 
 from core.utils.time_utils import get_timezone_obj
 from core.services.database.models import User
-from core.utils.other import check_filters, check_moderate_roles
+from core.utils.other import check_filters, is_moderator, is_guild_owner
 from core.bases.cog_base import BaseCog
 from core.paginator import Paginator
 from discord.ext import commands
@@ -24,8 +24,9 @@ class Utils(BaseCog):
 		usage="voice-rooms [Вкл/Выкл]",
 		help="**Примеры использования:**\n1. {Prefix}voice-rooms вкл\n2. {Prefix}voice-rooms выкл\n\n**Пример 1:** Включает приватные голосовые комнаты на сервере\n**Пример 2:** Выключает приватные голосовые комнаты на сервере",
 	)
+	@commands.guild_only()
 	@commands.bot_has_permissions(manage_channels=True)
-	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
+	@commands.check(is_guild_owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def voicechannel(self, ctx, state: str):
 		on_answers = ["on", "вкл", "включить", "true"]
@@ -84,8 +85,9 @@ class Utils(BaseCog):
 		usage="server-stats [Счетчик] |off|",
 		help="**Примеры использования:**\n1. {Prefix}server-stats all\n2. {Prefix}server-stats сообщения\n\n**Пример 1:** Создаёт счетчик всех пользователей сервера\n**Пример 2:** Создаёт сообщения в текущем канале с основной информацией о сервере",
 	)
+	@commands.guild_only()
 	@commands.bot_has_permissions(manage_channels=True)
-	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
+	@commands.check(is_guild_owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def serverstats(self, ctx, counter: str, action: str = None):
 		members_count = len(
@@ -259,6 +261,7 @@ class Utils(BaseCog):
 		usage="mass-role [add/remove] [@Роль] [@Изменяемая роль]",
 		help="**Примеры использования:**\n1. {Prefix}mass-role add @Роль @ИзменяемаяРоль\n2. {Prefix}mass-role add 717776604461531146 717776604461531146\n3. {Prefix}mass-role remove @Роль @ИзменяемаяРоль\n4. {Prefix}mass-role remove 717776604461531146 717776604461531146\n\n**Пример 1:** Добавляет упомянутою роль участникам с упомянутою ролью\n**Пример 2:** Добавляет роль с указаным id участникам с ролью с указаным id\n**Пример 3:** Убирает упомянутою роль в участников с упомянутой ролью\n**Пример 4:** Убирает роль с указаным id в участников с ролью с указаным id",
 	)
+	@commands.guild_only()
 	@commands.cooldown(1, 1800, commands.BucketType.member)
 	@commands.bot_has_permissions(manage_roles=True)
 	@commands.has_permissions(administrator=True)
@@ -345,7 +348,8 @@ class Utils(BaseCog):
 		usage="list-moderators",
 		help="**Примеры использования:**\n1. {Prefix}list-moderators\n\n**Пример 1:** Показывает список ролей модераторов",
 	)
-	@commands.check(check_moderate_roles)
+	@commands.guild_only()
+	@commands.check(is_moderator)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def list_moderators(self, ctx):
 		data = (await self.client.database.sel_guild(guild=ctx.guild)).moderators
@@ -368,7 +372,8 @@ class Utils(BaseCog):
 		usage="list-mutes |@Участник|",
 		help="**Примеры использования:**\n1. {Prefix}list-mutes\n\n**Пример 1:** Показывает все мьюты на сервере",
 	)
-	@commands.check(check_moderate_roles)
+	@commands.guild_only()
+	@commands.check(is_moderator)
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def mutes(self, ctx, member: discord.Member = None):
 		guild_timezone = get_timezone_obj(await self.client.database.get_guild_timezone(ctx.guild))
@@ -434,7 +439,8 @@ class Utils(BaseCog):
 		usage="api-key",
 		help="**Примеры использования:**\n1. {Prefix}api-key\n\n**Пример 1:** Отправляет ключ API сервера",
 	)
-	@commands.check(lambda ctx: ctx.author == ctx.guild.owner)
+	@commands.guild_only()
+	@commands.check(is_guild_owner)
 	@commands.cooldown(1, 60, commands.BucketType.member)
 	async def api_key(self, ctx):
 		key = (await self.client.database.sel_guild(guild=ctx.guild)).api_key
@@ -456,7 +462,8 @@ class Utils(BaseCog):
 		usage="regenerate-api-key",
 		help="**Примеры использования:**\n1. {Prefix}regenerate-api-key\n\n**Пример 1:** Перегенерирует ключ API для сервера",
 	)
-	@commands.check(lambda ctx: ctx.author.id == ctx.guild.owner.id)
+	@commands.guild_only()
+	@commands.check(is_guild_owner)
 	@commands.cooldown(1, 43200, commands.BucketType.member)
 	async def regenerate_api_key(self, ctx):
 		await self.client.database.update(

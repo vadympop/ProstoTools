@@ -12,6 +12,9 @@ class EventsAntiCaps(BaseCog):
         if message.author.bot:
             return
 
+        if message.author == message.guild.owner:
+            return
+
         data = await self.client.database.sel_guild(guild=message.guild)
         if data.auto_mod["anti_caps"]["state"]:
             if len(message.content) < data.auto_mod["anti_caps"]["min_chars"]:

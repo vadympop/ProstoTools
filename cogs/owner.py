@@ -10,7 +10,7 @@ from discord.ext import commands
 
 class Owner(BaseCog):
     async def cog_check(self, ctx):
-        return await ctx.bot.is_owner(ctx.author)
+        return await ctx.bot.is_guild_owner(ctx.author)
 
     @commands.group(aliases=["bl", "b"])
     async def blacklist(self, ctx):

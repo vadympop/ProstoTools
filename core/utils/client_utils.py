@@ -38,7 +38,10 @@ class Utils:
             pass
         return emb
 
-    async def global_command_check(self, ctx):
+    async def global_command_check(self, ctx: commands.Context):
+        if ctx.guild is None:
+            return True
+
         if await self.client.database.get_blacklist_entity(
             entity_id=ctx.guild.id
         ) is not None or await self.client.database.get_blacklist_entity(

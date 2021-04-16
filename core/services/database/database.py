@@ -514,6 +514,9 @@ class Database:
         return db_guild
 
     async def get_prefix(self, guild: discord.Guild):
+        if guild is None:
+            return self.client.config.DEFAULT_PREFIX
+
         cached_guild = self.cache.guilds.get(guild_id=guild.id)
         if cached_guild is not None:
             return cached_guild.prefix

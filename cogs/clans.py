@@ -42,10 +42,11 @@ class Clans(BaseCog):
 		description="Категория команда - кланы",
 		help=f"""**Команды групы:** buy, members, accept-join-request, send-join-request, kick, reject-join-request, list-join-requests, list, use-invite, info, create, edit, leave, create-invite, trans-owner-ship, delete\n\n"""
 	)
+	@commands.guild_only()
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def clan(self, ctx):
 		if ctx.invoked_subcommand is None:
-			PREFIX = str(await self.client.database.get_prefix(ctx.guild))
+			PREFIX = await self.client.database.get_prefix(ctx.guild)
 			commands = "\n".join(
 				[f"`{PREFIX}clan {c.name}`" for c in self.client.get_command("clan").commands]
 			)

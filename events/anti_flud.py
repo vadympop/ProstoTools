@@ -57,6 +57,9 @@ class EventsAntiFlud(BaseCog):
         if message.author.bot:
             return
 
+        if message.author == message.guild.owner:
+            return
+
         key = f"{message.guild.id}/{message.author.id}"
         time = (await self.client.utils.get_guild_time(message.guild)).timestamp()
         self.update(time, key, message)

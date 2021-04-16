@@ -15,6 +15,7 @@ class Reminders(BaseCog):
         description="Категория команд - напоминания",
         help=f"""**Команды групы:** create, delete, list\n\n"""
     )
+    @commands.guild_only()
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def reminder(self, ctx):
         if ctx.invoked_subcommand is None:

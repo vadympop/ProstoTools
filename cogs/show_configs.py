@@ -1,6 +1,6 @@
 import discord
 
-from core.utils.other import check_moderate_roles
+from core.utils.other import is_moderator
 from core.bases.cog_base import BaseCog
 from core.paginator import Paginator
 from discord.ext import commands
@@ -56,7 +56,7 @@ class ShowConfigs(BaseCog):
         usage="show-config server-stats",
         description="Покажет настройки статистики сервера",
     )
-    @commands.check(check_moderate_roles)
+    @commands.check(is_moderator)
     async def server_stats(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild)).server_stats
         if data == {}:
@@ -92,7 +92,7 @@ class ShowConfigs(BaseCog):
         usage="show-config ignored-channels",
         description="Покажет игнорируемые каналы",
     )
-    @commands.check(check_moderate_roles)
+    @commands.check(is_moderator)
     async def ignored_channels(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild)).ignored_channels
         if data == []:
@@ -118,7 +118,7 @@ class ShowConfigs(BaseCog):
         usage="show-config auto-moderate",
         description="Покажет настройки авто-модерации",
     )
-    @commands.check(check_moderate_roles)
+    @commands.check(is_moderator)
     async def auto_moderate(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild)).auto_mod
         categories = {
@@ -214,7 +214,7 @@ class ShowConfigs(BaseCog):
         usage="show-config auto-reactions",
         description="Покажет настройки авто-реакций",
     )
-    @commands.check(check_moderate_roles)
+    @commands.check(is_moderator)
     async def auto_reactions(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild)).auto_reactions
         if data == {}:
@@ -239,7 +239,7 @@ class ShowConfigs(BaseCog):
         usage="show-config audit",
         description="Покажет настройки аудита",
     )
-    @commands.check(check_moderate_roles)
+    @commands.check(is_moderator)
     async def audit(self, ctx):
         data = (await self.client.database.sel_guild(guild=ctx.guild)).audit
         convert_categories = {

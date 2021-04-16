@@ -39,24 +39,33 @@ async def process_converters(
         raise error
 
 
-async def check_moderate_roles(ctx):
-    data = await ctx.bot.database.get_moder_roles(guild=ctx.guild)
-    roles = ctx.guild.roles[::-1]
-    data.append(roles[0].id)
+async def is_moderator(ctx):
+    data = []
+    if ctx.guild is not None:
+        data = await ctx.bot.database.get_moder_roles(guild=ctx.guild)
+        roles = ctx.guild.roles[::-1]
+        data.append(roles[0].id)
 
-    if data != []:
+    if data and ctx.guild is not None:
         for role_id in data:
             role = ctx.guild.get_role(role_id)
             if role in ctx.author.roles:
                 return True
         return ctx.author.guild_permissions.administrator
     else:
-        return ctx.author.guild_permissions.administrator
+        return ctx.author.guild_permissions.administrator if ctx.guild is not None else False
+
+
+def is_guild_owner(ctx):
+    if ctx.guild is None:
+        return False
+
+    return ctx.author == ctx.guild.owner
 
 
 async def get_prefix(client, message):
     if message.guild is None:
-        return client.config.DEF_PREFIX
+        return client.config.DEFAULT_PREFIX
 
     prefix = await client.database.get_prefix(guild=message.guild)
     return commands.when_mentioned_or(*(str(prefix),))(client, message)

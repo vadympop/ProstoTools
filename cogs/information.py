@@ -39,7 +39,7 @@ class Information(BaseCog):
         return activity_info
 
     @commands.command(
-        aliases=["userinfo", "user"],
+        aliases=["userinfo", "user", "u"],
         name="user-info",
         description="Показывает информацию указанного учасника",
         usage="user-info |@Участник|",
@@ -56,25 +56,32 @@ class Information(BaseCog):
             "offline": "<:offline:730392846573633626> - Не в сети",
             "idle": "<:sleep:730390502972850256> - Отошёл",
         }
-        joined_at = datetime.datetime.strftime(member.joined_at, "%d %B %Y %X")
+        joined_at = None
+        if ctx.guild is not None:
+            joined_at = datetime.datetime.strftime(member.joined_at, "%d %B %Y %X")
+
         created_at = datetime.datetime.strftime(member.created_at, "%d %B %Y %X")
 
         if not member.bot:
-            data = await self.client.database.sel_user(target=member)
-            description = f"""
-{self._get_bio(data)}**Имя пользователя:** {member}
-**Статус:** {statuses[member.status.name]}{self._get_activity(member.activity)}
+            data = None
+            if ctx.guild is not None:
+                data = await self.client.database.sel_user(target=member)
+
+            description = (f"""
+{self._get_bio(data) if data else ''}**Имя пользователя:** {member}
+{f"** Статус:** {statuses[member.status.name]}{self._get_activity(member.activity)}" if ctx.guild is not None else ""}
 **Id пользователя:** {member.id}
 **Акаунт создан:** {created_at}
-**Присоиденился:** {joined_at}
-"""
+{f"**Присоеденился:** {joined_at}" if joined_at is not None else ""}
+""")
+
         else:
             description = f"""
 **Имя бота:** {member}
-**Статус:** {statuses[member.status.name]}{self._get_activity(member.activity)}
+{f"** Статус:** {statuses[member.status.name]}{self._get_activity(member.activity)}" if ctx.guild is not None else ""}
 **Id бота:** {member.id}
 **Акаунт создан:** {created_at}
-**Присоиденился:** {joined_at}
+{f"**Присоеденился:** {joined_at}" if joined_at is not None else ""}
 """
 
         emb = discord.Embed(
@@ -234,6 +241,7 @@ class Information(BaseCog):
         usage="server-info",
         help="**Примеры использования:**\n1. {Prefix}server-info\n\n**Пример 1:** Покажет информацию о сервере",
     )
+    @commands.guild_only()
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def serverinfo(self, ctx):
         created_at = datetime.datetime.strftime(ctx.guild.created_at, "%d %B %Y %X")
@@ -316,6 +324,7 @@ class Information(BaseCog):
         usage="invite-info [Код приглашения]",
         help="**Примеры использования:**\n1. {Prefix}invite-info aGeFrt46\n\n**Пример 1:** Покажет информацию о приглашении с указаным кодом",
     )
+    @commands.guild_only()
     @commands.cooldown(1, 60, commands.BucketType.member)
     async def invite_info(self, ctx, invite_code: str):
         async with ctx.typing():
@@ -354,6 +363,7 @@ class Information(BaseCog):
         usage="c-help",
         help="**Примеры использования:**\n1. {Prefix}c-help\n\n**Пример 1:** Показывает помощь по кастомным командам",
     )
+    @commands.guild_only()
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def c_help(self, ctx):
         custom_commands = (await self.client.database.sel_guild(guild=ctx.guild)).custom_commands

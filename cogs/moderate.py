@@ -7,7 +7,7 @@ from core.exceptions import BadTimeArgument
 from core.utils.time_utils import get_timezone_obj
 from core.utils.other import check_filters
 from core.bases.cog_base import BaseCog
-from core.utils.other import process_converters, check_moderate_roles
+from core.utils.other import process_converters, is_moderator
 from core.converters import Expiry, TargetUser
 from core import Paginator
 from discord.ext import commands
@@ -29,7 +29,8 @@ class Moderate(BaseCog):
 		help="**Полезное:**\nМаксимальное число удаляемых сообщений равняется 100\nБот не может удалить сообщения старше 14 дней\n\n**Примеры использования:**\n1. {Prefix}clear 10\n2. {Prefix}clear @Участник 10\n3. {Prefix}clear 660110922865704980 10\n\n**Пример 1:** Удалит 10 сообщений\n**Пример 2:** Удалит 10 сообщений упомянотого участника в текущем канале\n**Пример 3:** Удалит 10 сообщений участника с указаным id",
 	)
 	@commands.bot_has_permissions(manage_messages=True)
-	@commands.check(check_moderate_roles)
+	@commands.check(is_moderator)
+	@commands.guild_only()
 	async def clear(self, ctx, member: typing.Optional[discord.Member], amount: int, *args):
 		if amount <= 0:
 			emb = await self.client.utils.create_error_embed(ctx, "Укажите число удаляемых сообщения больше 0!")
@@ -99,8 +100,9 @@ class Moderate(BaseCog):
 		usage="temp-role [@Участник] [@Роль] [Длительность]",
 		help="**Примеры использования:**\n1. {Prefix}temp-role @Участник @Роль 10m\n2. {Prefix}temp-role 660110922865704980 717776604461531146 10m\n3. {Prefix}temp-role @Участник 717776604461531146 10m\n4. {Prefix}temp-role 660110922865704980 @Роль 10m\n\n**Пример 1:** Даёт упомянутую роль упомянутому участнику\n**Пример 2:** Даёт роль с указаным id участнику с указаным id\n**Пример 3:** Даёт роль с указаным id упомянутому участнику\n**Пример 4:** Даёт упомянутую роль участнику с указаным id",
 	)
-	@commands.check(check_moderate_roles)
+	@commands.check(is_moderator)
 	@commands.bot_has_permissions(manage_roles=True)
+	@commands.guild_only()
 	async def temprole(self, ctx, member: discord.Member, role: discord.Role, expiry_at: Expiry):
 		if member == ctx.author:
 			emb = await self.client.utils.create_error_embed(
@@ -167,7 +169,8 @@ class Moderate(BaseCog):
 		usage="slow-mode [Время] |Канал|",
 		help="**Примеры использования:**\n1. {Prefix}slow-mode 10 #Канал\n2. {Prefix}slow-mode 10 717776571406090313\n\n**Пример 1:** Ставит упомянутому канала медленный режим на 10 секунд\n**Пример 2:** Ставит каналу с указаным id медленный режим на 10 секунд",
 	)
-	@commands.check(check_moderate_roles)
+	@commands.check(is_moderator)
+	@commands.guild_only()
 	@commands.bot_has_permissions(manage_channels=True)
 	async def slowmode(self, ctx, delay: int, channel: discord.TextChannel = None):
 		if delay > 21000:
@@ -226,7 +229,8 @@ class Moderate(BaseCog):
 		usage="kick [@Участник] |Причина|",
 		help="**Примеры использования:**\n1. {Prefix}kick @Участник Нарушения правил сервера\n2. {Prefix}kick 660110922865704980 Нарушения правил сервера\n3. {Prefix}kick @Участник\n4. {Prefix}kick 660110922865704980\n\n**Пример 1:** Кикает с сервера упомянутого участника по причине `Нарушения правил сервера`\n**Пример 2:** Кикает с сервера участника с указаным id по причине `Нарушения правил сервера`\n**Пример 3:** Кикает с сервера упомянутого участника без причины\n**Пример 4:** Кикает с сервера участника с указаным id без причины",
 	)
-	@commands.check(check_moderate_roles)
+	@commands.check(is_moderator)
+	@commands.guild_only()
 	@commands.bot_has_permissions(kick_members=True)
 	async def kick(self, ctx, member: TargetUser, *, reason: str = "Причина не указана"):
 		await self.client.support_commands.kick(
@@ -241,7 +245,8 @@ class Moderate(BaseCog):
 		usage="ban [@Участник] |Длительность| |Причина|",
 		help="**Примеры использования:**\n1. {Prefix}ban @Участник 10d Нарушения правил сервера\n2. {Prefix}ban 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}ban @Участник 10d\n4. {Prefix}ban 660110922865704980 10d\n5. {Prefix}ban @Участник\n6. {Prefix}ban 660110922865704980\n7. {Prefix}ban @Участник Нарушения правил сервера\n8. {Prefix}ban 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Банит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Банит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Банит упомянутого участника без причины на 10 дней\n**Пример 4:** Банит участника с указаным id без причины на 10 дней\n**Пример 5:** Перманентно банит упомянутого участника без причины\n**Пример 6:** Перманентно банит участника с указаным id без причины\n**Пример 7:** Перманентно банит упомянутого участника по причине\n`Нарушения правил сервера`\n**Пример 8:** Перманентно банит участника с указаным id по причине\n`Нарушения правил сервера`",
 	)
-	@commands.check(check_moderate_roles)
+	@commands.guild_only()
+	@commands.check(is_moderator)
 	@commands.bot_has_permissions(ban_members=True)
 	async def ban(self, ctx, member: TargetUser, *options: str):
 		options = list(options)
@@ -271,7 +276,8 @@ class Moderate(BaseCog):
 		usage="un-ban [@Пользователь]",
 		help="**Примеры использования:**\n1. {Prefix}un-ban @Ник+тэг\n2. {Prefix}un-ban 660110922865704980\n\n**Пример 1:** Разбанит указаного пользователя\n**Пример 2:** Разбанит пользователя с указаным id",
 	)
-	@commands.check(check_moderate_roles)
+	@commands.guild_only()
+	@commands.check(is_moderator)
 	@commands.bot_has_permissions(ban_members=True)
 	async def unban(self, ctx, *, member: TargetUser):
 		async with ctx.typing():
@@ -320,8 +326,9 @@ class Moderate(BaseCog):
 		usage="vmute [@Участник] |Длительность| |Причина|",
 		help="**Примеры использования:**\n1. {Prefix}vmute @Участник 10d Нарушения правил сервера\n2. {Prefix}vmute 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}vmute @Участник 10d\n4. {Prefix}vmute 660110922865704980 10d\n5. {Prefix}vmute @Участник\n6. {Prefix}vmute 660110922865704980\n7. {Prefix}vmute @Участник Нарушения правил сервера\n8. {Prefix}vmute 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Мьютит упомянутого участника в голосовых каналах по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Мьютит участника с указаным id в голосовых каналах по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Мьютит упомянутого участника в голосовых каналах без причины на 10 дней\n**Пример 4:** Мьютит участника с указаным id в голосовых каналах без причины на 10 дней\n**Пример 5:** Перманентно мьютит упомянутого участника в голосовых каналах без причины\n**Пример 6:** Перманентно мьютит участника с указаным id в голосовых каналах без причины\n**Пример 7:** Перманентно мьютит упомянутого участника в голосовых каналах по причине\n`Нарушения правил сервера`\n**Пример 8:** Перманентно мьютит участника с указаным id в голосовых каналах по причине\n`Нарушения правил сервера`",
 	)
+	@commands.guild_only()
 	@commands.bot_has_permissions(manage_roles=True)
-	@commands.check(check_moderate_roles)
+	@commands.check(is_moderator)
 	async def vmute(self, ctx, member: TargetUser, *options: str):
 		data = await self.client.database.sel_guild(guild=ctx.guild)
 		guild_time = await self.client.utils.get_guild_time(ctx.guild)
@@ -439,7 +446,8 @@ class Moderate(BaseCog):
 		usage="un-vmute [@Участник]",
 		help="**Примеры использования:**\n1. {Prefix}un-vmute @Участник\n2. {Prefix}un-vmute 660110922865704980\n\n**Пример 1:** Размьютит указаного участника в голосовых каналах\n**Пример 2:** Размьютит участника с указаным id в голосовых каналах",
 	)
-	@commands.check(check_moderate_roles)
+	@commands.guild_only()
+	@commands.check(is_moderator)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unvmute(self, ctx, member: TargetUser):
 		data = await self.client.database.sel_guild(guild=ctx.guild)
@@ -520,7 +528,8 @@ class Moderate(BaseCog):
 		usage="mute [@Участник] |Длительность| |Причина|",
 		help="**Примеры использования:**\n1. {Prefix}mute @Участник 10d Нарушения правил сервера\n2. {Prefix}mute 660110922865704980 10d Нарушения правил сервера\n3. {Prefix}mute @Участник 10d\n4. {Prefix}mute 660110922865704980 10d\n5. {Prefix}mute @Участник\n6. {Prefix}mute 660110922865704980\n7. {Prefix}mute @Участник Нарушения правил сервера\n8. {Prefix}mute 660110922865704980 Нарушения правил сервера\n\n**Пример 1:** Мьютит упомянутого участника по причине `Нарушения правил сервера` на 10 дней\n**Пример 2:** Мьютит участника с указаным id по причине\n`Нарушения правил сервера` на 10 дней\n**Пример 3:** Мьютит упомянутого участника без причины на 10 дней\n**Пример 4:** Мьютит участника с указаным id без причины на 10 дней\n**Пример 5:** Перманентно мьютит упомянутого участника без причины\n**Пример 6:** Перманентно мьютит участника с указаным id без причины\n**Пример 7:** Перманентно мьютит упомянутого участника по причине\n`Нарушения правил сервера`\n**Пример 8:** Перманентно мьютит участника с указаным id по причине\n`Нарушения правил сервера`",
 	)
-	@commands.check(check_moderate_roles)
+	@commands.guild_only()
+	@commands.check(is_moderator)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def mute(self, ctx, member: TargetUser, *options: str):
 		options = list(options)
@@ -550,7 +559,8 @@ class Moderate(BaseCog):
 		usage="un-mute [@Участник]",
 		help="**Примеры использования:**\n1. {Prefix}un-mute @Участник\n2. {Prefix}un-mute 660110922865704980\n\n**Пример 1:** Размьютит указаного участника\n**Пример 2:** Размьютит участника с указаным id",
 	)
-	@commands.check(check_moderate_roles)
+	@commands.guild_only()
+	@commands.check(is_moderator)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unmute(self, ctx, member: TargetUser):
 		data = await self.client.database.sel_guild(guild=ctx.guild)
@@ -627,7 +637,8 @@ class Moderate(BaseCog):
 		usage="clear-warns [@Участник]",
 		help="**Примеры использования:**\n1. {Prefix}clear-warns @Участник\n2. {Prefix}clear-warns 660110922865704980\n\n**Пример 1:** Очищает все предупреждения указаного участника\n**Пример 2:** Очищает все предупреждения участника с указаным id",
 	)
-	@commands.check(check_moderate_roles)
+	@commands.guild_only()
+	@commands.check(is_moderator)
 	async def clearwarn(self, ctx, member: TargetUser):
 		data = await self.client.database.sel_guild(guild=ctx.guild)
 		guild_time = await self.client.utils.get_guild_time(ctx.guild)
@@ -685,7 +696,8 @@ class Moderate(BaseCog):
 		usage="warn [@Участник] |Причина|",
 		help="**Примеры использования:**\n1. {Prefix}warn @Участник Нарушения правил сервера\n2. {Prefix}warn 660110922865704980 Нарушения правил сервера\n3. {Prefix}warn @Участник\n4. {Prefix}warn 660110922865704980\n\n**Пример 1:** Даёт предупреждения упомянутого участнику по причине `Нарушения правил сервера`\n**Пример 2:** Даёт предупреждения участнику с указаным id по причине\n`Нарушения правил сервера`\n**Пример 3:** Даёт предупреждения упомянутого участнику без причины\n**Пример 4:** Даёт предупреждения участнику с указаным id без причины",
 	)
-	@commands.check(check_moderate_roles)
+	@commands.guild_only()
+	@commands.check(is_moderator)
 	async def warn(self, ctx, member: TargetUser, *, reason: str = "Причина не указана"):
 		if member.bot:
 			emb = await self.client.utils.create_error_embed(
@@ -708,7 +720,8 @@ class Moderate(BaseCog):
 		usage="remove-warn [Id предупреждения]",
 		help="**Примеры использования:**\n1. {Prefix}remove-warn 1\n\n**Пример 1:** Снимает прежупреждения с id - `1`",
 	)
-	@commands.check(check_moderate_roles)
+	@commands.guild_only()
+	@commands.check(is_moderator)
 	async def rem_warn(self, ctx, warn_id: int):
 		data = await self.client.database.del_warn(warn_id)
 		guild_time = await self.client.utils.get_guild_time(ctx.guild)
@@ -776,6 +789,7 @@ class Moderate(BaseCog):
 		usage="warns |@Участник|",
 		help="**Примеры использования:**\n1. {Prefix}warns @Участник\n2. {Prefix}warns 660110922865704980\n\n**Пример 1:** Показывает предупреждения указаного участника\n**Пример 2:** Показывает предупреждения участника с указаным id",
 	)
+	@commands.guild_only()
 	async def warns(self, ctx, member: discord.Member = None):
 		if member is None:
 			member = ctx.author

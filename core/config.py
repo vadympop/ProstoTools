@@ -18,6 +18,7 @@ class Config:
 	CAPTCHA_ROLE = "PT-CHECKING"
 	COLOR_ROLE = 'PT-COLOR-'
 	TOKEN = os.getenv('BOT_TOKEN')
+	DEFAULT_PREFIX = "p."
 	MESSAGE_FILTERS = (
 		"--with-attachments",
 		"--without-attachments",

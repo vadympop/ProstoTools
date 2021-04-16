@@ -25,21 +25,21 @@ class EventsCustomCommands(BaseCog):
         if message.author.bot:
             return
 
-        if self.cd_mapping.get_bucket(message).update_rate_limit():
-            try:
-                await message.add_reaction("⏰")
-            except discord.errors.Forbidden:
-                pass
-            except discord.errors.HTTPException:
-                pass
-            return
-
         PREFIX = str(await self.client.database.get_prefix(guild=message.guild))
         if message.content.startswith(PREFIX):
             guild_data = await self.client.database.sel_guild(guild=message.guild)
             command = message.content.split(" ")[0].replace(PREFIX, "")
             commands_names = [c["name"] for c in guild_data.custom_commands]
             if command in commands_names:
+                if self.cd_mapping.get_bucket(message).update_rate_limit():
+                    try:
+                        await message.add_reaction("⏰")
+                    except discord.errors.Forbidden:
+                        pass
+                    except discord.errors.HTTPException:
+                        pass
+                    return
+
                 custom_command_data = self.find_custom_command(command, guild_data.custom_commands)
                 if "target_channels" in custom_command_data.keys():
                     if custom_command_data["target_channels"]:

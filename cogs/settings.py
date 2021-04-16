@@ -27,6 +27,7 @@ class Settings(BaseCog):
 		description="Категория команд - настройки",
 		help=f"""**Команды групы:** anti-invite, level-up-message, time-delete-channel, shop-role, exp-multi, text-channels-category, set-audit, max-warns, prefix, anti-flud, react-commands, moderation-role, ignore-channels, custom-command, auto-reactions, auto-responder\n\n"""
 	)
+	@commands.guild_only()
 	@commands.has_permissions(administrator=True)
 	async def setting(self, ctx):
 		if ctx.invoked_subcommand is None:
