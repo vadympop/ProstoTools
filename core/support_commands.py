@@ -35,7 +35,7 @@ class SupportCommands:
 			await ctx.send(embed=emb)
 			return
 
-		overwrite = discord.PermissionOverwrite(send_messages=False)
+		overwrite = discord.PermissionOverwrite(send_messages=False, connect=False)
 		await member.add_roles(role)
 		for channel in ctx.guild.text_channels:
 			await channel.set_permissions(role, overwrite=overwrite)
