@@ -1234,7 +1234,7 @@ class Economy(BaseCog):
 				(230, 60), f"Репутация: {user_data.reputation}", font=bigtext, fill=colours[user_data.profile][2]
 			)
 			idraw.text(
-				(10, 200), f"Exp: {user_data.exp}", font=midletext, fill=colours[user_data.profile][0]
+				(10, 200), f"Опыт: {user_data.exp}", font=midletext, fill=colours[user_data.profile][0]
 			)
 			idraw.text(
 				(10, 230),
@@ -1268,9 +1268,11 @@ class Economy(BaseCog):
 			)
 			idraw.rectangle((230, 285, 855, 340), fill="#909090")
 			draw_progress(img, progress_bar_percent)
+
+			exp_string = f"{user_data.exp}/{level_exp} exp"
 			idraw.text(
-				(get_width_info_exp(round(level_exp - previous_level_exp)), 250),
-				f"{levels_delta}/{round(levels_delta-(level_exp - user_data.exp))} exp",
+				(get_width_info_exp(level_exp), 250),
+				f"{user_data.exp}/{level_exp} exp",
 				font=midletext,
 				fill=colours[user_data.profile][3],
 			)
