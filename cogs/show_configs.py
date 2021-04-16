@@ -335,6 +335,15 @@ class ShowConfigs(BaseCog):
                 await ctx.send(embed=emb)
                 return
 
+            if command_name.lower() not in commands_settings.keys():
+                commands_settings[command_name.lower()] = {
+                    "state": True,
+                    "ignore_channels": [],
+                    "ignore_roles": [],
+                    "target_roles": [],
+                    "target_channels": []
+                }
+
             command_setting = commands_settings[command_name]
             description = f"""
 Состояния: `{"Включена" if command_setting["state"] else "Выключена"}`
