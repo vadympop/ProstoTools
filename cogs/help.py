@@ -108,6 +108,7 @@ class Help(BaseCog):
 					else ""
 				)
 				command_usage = prefix+current_command.usage+"\n\n" if current_command.usage is not None else ""
+				command_description = f"**{current_command.description}**"+"\n\n" if current_command.description is not None else ""
 				command_help = (
 					current_command.help.format(Prefix=prefix)
 					if current_command.help is not None
@@ -115,7 +116,7 @@ class Help(BaseCog):
 				)
 				emb = discord.Embed(
 					title=f"Команда: {prefix+entity.lower()}",
-					description=aliases+command_usage+command_help,
+					description=aliases+command_usage+command_description+command_help,
 					colour=discord.Color.green(),
 				)
 				emb.set_author(
