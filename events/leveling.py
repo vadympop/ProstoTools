@@ -51,7 +51,7 @@ class EventsLeveling(BaseCog):
 			coins=data.coins,
 		)
 
-		exp_end = math.floor(9 * (data.level ** 2) + 50 * data.level + 125 * guild_data.exp_multi)
+		exp_end = math.floor(9 * (data.level ** 2) + 50 * data.level + 125 * (guild_data.exp_multi/100))
 		if exp_end < data.exp:
 			data.level += 1
 			if guild_data.rank_message["state"]:

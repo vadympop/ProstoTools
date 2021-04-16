@@ -1198,9 +1198,9 @@ class Economy(BaseCog):
 			user_data = await self.client.database.sel_user(target=member)
 			multi = (await self.client.database.sel_guild(guild=ctx.guild)).exp_multi
 			user_warns = len(await self.client.database.get_warns(user_id=member.id, guild_id=ctx.guild.id))
-			level_exp = math.floor(9 * (user_data.level ** 2) + 50 * user_data.level + 125 * multi)
+			level_exp = math.floor(9 * (user_data.level ** 2) + 50 * user_data.level + 125 * (multi/100))
 			previous_level_exp = math.floor(
-				9 * ((user_data.level - 1) ** 2) + 50 * (user_data.level - 1) + 125 * multi
+				9 * ((user_data.level - 1) ** 2) + 50 * (user_data.level - 1) + 125 * (multi/100)
 			)
 			progress_bar_percent = round(
 				((level_exp - user_data.exp) / (level_exp - previous_level_exp)) * 100
