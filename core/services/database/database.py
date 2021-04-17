@@ -3,6 +3,7 @@ import datetime
 import typing
 import discord
 
+from django.db.models import Max
 from django.forms.models import model_to_dict
 from .models import (
     User,
@@ -379,13 +380,17 @@ class Database:
     ) -> None:
         if add_counter is None:
             BotStat.objects.create(
-                count=BotStat.objects.filter(entity="all commands").count()+1,
+                count=BotStat.objects.filter(
+                    entity='all commands'
+                ).aggregate(Max('count')).get('count__max')+1,
                 timestamp=datetime.datetime.utcnow(),
                 entity="all commands"
             )
 
         BotStat.objects.create(
-            count=add_counter if add_counter is not None else BotStat.objects.filter(entity=entity).count()+1,
+            count=add_counter if add_counter is not None else BotStat.objects.filter(
+                entity=entity
+            ).aggregate(Max('count')).get('count__max')+1,
             timestamp=datetime.datetime.utcnow(),
             entity=entity
         )
