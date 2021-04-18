@@ -1189,7 +1189,7 @@ class Economy(BaseCog):
 		}
 		async with ctx.typing():
 			user_rank = "---"
-			users_rank = list(User.objects.filter(guild_id=ctx.guild.id).order_by("-exp"))
+			users_rank = list(User.objects.filter(guild_id=ctx.guild.id).exclude(exp__lte=0).order_by("-exp"))
 			for user in users_rank:
 				if user.user_id == member.id:
 					user_rank = users_rank.index(user) + 1
