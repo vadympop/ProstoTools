@@ -31,17 +31,18 @@ class Economy(BaseCog):
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 
-		num = 1
-		for user in User.objects.filter(guild_id=ctx.guild.id).exclude(exp__lte=0).order_by("-exp")[:20]:
+		for index, user in enumerate(User.objects.filter(
+				guild_id=ctx.guild.id
+		).exclude(exp__lte=0).order_by("-exp")[:20]):
 			member = ctx.guild.get_member(user.user_id)
 			if member is not None:
 				if not member.bot:
-					field_name = f"#{num}"
-					if num == 1:
+					field_name = f"#{index+1}"
+					if index+1 == 1:
 						field_name += " :first_place:"
-					elif num == 2:
+					elif index+1 == 2:
 						field_name += " :second_place:"
-					elif num == 3:
+					elif index+1 == 3:
 						field_name += " :third_place:"
 
 					emb.add_field(
@@ -49,7 +50,6 @@ class Economy(BaseCog):
 						value=f"Уровень: `{user.level}` **|** Опыт: `{user.exp}` **|** Репутация: `{user.reputation}` **|** Деньги: `{user.money}`",
 						inline=False,
 					)
-					num += 1
 
 		await ctx.send(embed=emb)
 
