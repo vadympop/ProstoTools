@@ -44,7 +44,7 @@ class Economy(BaseCog):
 		).exclude(exp__lte=0).order_by("-exp"):
 			member = ctx.guild.get_member(user.user_id)
 			if member is not None and not member.bot:
-				users_per_page = 15*(len(embeds) if len(embeds) > 0 else 1)
+				users_per_page = 15*(len(embeds) if len(embeds) > 0 else 1 if num != 15 else 2)
 				print(users_per_page, len(embeds), num)
 				if num >= users_per_page:
 					embeds.append(emb)
