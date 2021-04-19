@@ -45,7 +45,6 @@ class Economy(BaseCog):
 			member = ctx.guild.get_member(user.user_id)
 			if member is not None and not member.bot:
 				users_per_page = 15*(len(embeds)+1)
-				print(users_per_page, len(embeds), num)
 				if num >= users_per_page:
 					embeds.append(emb)
 					emb = discord.Embed(title=f"Лидеры сервера", colour=discord.Color.green())
