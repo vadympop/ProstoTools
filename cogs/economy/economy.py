@@ -44,9 +44,9 @@ class Economy(BaseCog):
 		).exclude(exp__lte=0).order_by("-exp"):
 			member = ctx.guild.get_member(user.user_id)
 			if member is not None and not member.bot:
-				if num > 20*len(num_to_medal):
+				if num > 20*len(embeds):
 					embeds.append(emb)
-					emb = discord.Embed(title="Лидеры сервера", colour=discord.Color.green())
+					emb = discord.Embed(title=f"Лидеры сервера {20*len(embeds)}", colour=discord.Color.green())
 					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 
