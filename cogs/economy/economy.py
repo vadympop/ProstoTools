@@ -32,7 +32,7 @@ class Economy(BaseCog):
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 
-		embeds = [emb]
+		embeds = []
 		num_to_medal = {
 			1: ' :first_place:',
 			2: " :second_place:",
@@ -46,7 +46,6 @@ class Economy(BaseCog):
 			if member is not None and not member.bot:
 				users_per_page = 20*len(embeds)
 				if num > users_per_page:
-					print(users_per_page)
 					embeds.append(emb)
 					emb = discord.Embed(title=f"Лидеры сервера", colour=discord.Color.green())
 					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -63,7 +62,7 @@ class Economy(BaseCog):
 				)
 				num += 1
 
-		message = await ctx.send(embed=embeds[0])
+		message = await ctx.send(embed=embeds[0] if len(embeds) > 0 else emb)
 		if len(embeds) > 1:
 			paginator = Paginator(ctx, message, embeds, footer=True)
 			await paginator.start()
