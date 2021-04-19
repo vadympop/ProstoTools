@@ -46,6 +46,7 @@ class Economy(BaseCog):
 			if member is not None and not member.bot:
 				users_per_page = 20*len(embeds)
 				if num > users_per_page:
+					print(users_per_page)
 					if users_per_page > 20:
 						embeds.append(emb)
 
