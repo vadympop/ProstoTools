@@ -57,7 +57,7 @@ class Economy(BaseCog):
 				num += 1
 				users_per_page = 20*(len(embeds) if len(embeds) > 0 else 1)
 				print(users_per_page, len(embeds), num)
-				if num > users_per_page:
+				if num >= users_per_page:
 					embeds.append(emb)
 					emb = discord.Embed(title=f"Лидеры сервера", colour=discord.Color.green())
 					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
