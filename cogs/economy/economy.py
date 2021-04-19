@@ -31,18 +31,19 @@ class Economy(BaseCog):
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 
-		for index, user in enumerate(User.objects.filter(
+		num = 1
+		for user in User.objects.filter(
 				guild_id=ctx.guild.id
-		).exclude(exp__lte=0).order_by("-exp")[:20]):
+		).exclude(exp__lte=0).order_by("-exp")[:20]:
 			member = ctx.guild.get_member(user.user_id)
 			if member is not None:
 				if not member.bot:
-					field_name = f"#{index+1}"
-					if index+1 == 1:
+					field_name = f"#{num}"
+					if num == 1:
 						field_name += " :first_place:"
-					elif index+1 == 2:
+					elif num == 2:
 						field_name += " :second_place:"
-					elif index+1 == 3:
+					elif num == 3:
 						field_name += " :third_place:"
 
 					emb.add_field(
@@ -50,6 +51,7 @@ class Economy(BaseCog):
 						value=f"Уровень: `{user.level}` **|** Опыт: `{user.exp}` **|** Репутация: `{user.reputation}` **|** Деньги: `{user.money}`",
 						inline=False,
 					)
+					num += 1
 
 		await ctx.send(embed=emb)
 
@@ -1191,7 +1193,8 @@ class Economy(BaseCog):
 			user_rank = "---"
 			users_rank = list(User.objects.filter(guild_id=ctx.guild.id).exclude(exp__lte=0).order_by("-exp"))
 			for user in users_rank:
-				if user.user_id == member.id:
+				user_obj = ctx.guild.get_member(user.user_id)
+				if user_obj is not None and not user_obj.bot and user.user_id == member.id:
 					user_rank = users_rank.index(user) + 1
 					break
 
@@ -1208,7 +1211,6 @@ class Economy(BaseCog):
 			user_image_status = Image.open(
 				self.IMAGES_PATH + statuses[member.status.name] + ".png"
 			).convert("RGBA")
-			levels_delta = round(level_exp - previous_level_exp)
 			user_state_prison = "На свободе" if user_data.prison else "Сейчас в тюрме"
 			if user_data.profile is None:
 				img = Image.open(self.IMAGES_PATH+"default.png")
