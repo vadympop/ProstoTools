@@ -5,6 +5,7 @@ import io
 import uuid
 import discord
 
+from core import Paginator
 from core.utils.economy import parse_inventory, crime_member, rob_func
 from core.services.database.models import User
 from core.bases.cog_base import BaseCog
@@ -31,29 +32,39 @@ class Economy(BaseCog):
 		emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 
+		embeds = [emb]
+		num_to_medal = {
+			1: ' :first_place:',
+			2: " :second_place:",
+			3: " :third_place:"
+		}
 		num = 1
 		for user in User.objects.filter(
 				guild_id=ctx.guild.id
-		).exclude(exp__lte=0).order_by("-exp")[:20]:
+		).exclude(exp__lte=0).order_by("-exp"):
 			member = ctx.guild.get_member(user.user_id)
-			if member is not None:
-				if not member.bot:
-					field_name = f"#{num}"
-					if num == 1:
-						field_name += " :first_place:"
-					elif num == 2:
-						field_name += " :second_place:"
-					elif num == 3:
-						field_name += " :third_place:"
+			if member is not None and not member.bot:
+				if num > 20*len(num_to_medal):
+					embeds.append(emb)
+					emb = discord.Embed(title="Лидеры сервера", colour=discord.Color.green())
+					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 
-					emb.add_field(
-						name=f"{field_name} {member}",
-						value=f"Уровень: `{user.level}` **|** Опыт: `{user.exp}` **|** Репутация: `{user.reputation}` **|** Деньги: `{user.money}`",
-						inline=False,
-					)
-					num += 1
+				field_name = f"#{num}"
+				if 1 <= num <= 3:
+					field_name += num_to_medal[num]
 
-		await ctx.send(embed=emb)
+				emb.add_field(
+					name=f"{field_name} {member}",
+					value=f"Уровень: `{user.level}` **|** Опыт: `{user.exp}` **|** Репутация: `{user.reputation}` **|** Деньги: `{user.money}`",
+					inline=False,
+				)
+				num += 1
+
+		message = await ctx.send(embed=embeds[0])
+		if len(embeds) > 1:
+			paginator = Paginator(ctx, message, embeds, footer=True)
+			await paginator.start()
 
 	@commands.command(
 		aliases=["reputation"],
