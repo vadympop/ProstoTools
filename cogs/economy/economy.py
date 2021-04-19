@@ -54,14 +54,13 @@ class Economy(BaseCog):
 					inline=False,
 				)
 
-				users_per_page = 20*len(embeds)
+				num += 1
+				users_per_page = 20*(len(embeds) if len(embeds) > 0 else 1)
 				if num > users_per_page:
 					embeds.append(emb)
 					emb = discord.Embed(title=f"Лидеры сервера", colour=discord.Color.green())
 					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-
-				num += 1
 
 		message = await ctx.send(embed=embeds[0] if len(embeds) > 0 else emb)
 		if len(embeds) > 1:
