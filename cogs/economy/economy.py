@@ -46,8 +46,9 @@ class Economy(BaseCog):
 			if member is not None and not member.bot:
 				users_per_page = 20*len(embeds)
 				if num > users_per_page:
-					print(users_per_page)
-					embeds.append(emb)
+					if users_per_page > 20:
+						embeds.append(emb)
+
 					emb = discord.Embed(title=f"Лидеры сервера", colour=discord.Color.green())
 					emb.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
 					emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
