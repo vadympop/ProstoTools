@@ -382,7 +382,7 @@ class Database:
             BotStat.objects.create(
                 count=BotStat.objects.filter(
                     entity='all commands'
-                ).aggregate(Max('count')).get('count__max')+1,
+                ).aggregate(Max('count')).get('count__max', 0)+1,
                 timestamp=datetime.datetime.utcnow(),
                 entity="all commands"
             )
@@ -390,7 +390,7 @@ class Database:
         BotStat.objects.create(
             count=add_counter if add_counter is not None else BotStat.objects.filter(
                 entity=entity
-            ).aggregate(Max('count')).get('count__max')+1,
+            ).aggregate(Max('count')).get('count__max', 0)+1,
             timestamp=datetime.datetime.utcnow(),
             entity=entity
         )
