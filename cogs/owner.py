@@ -3,9 +3,13 @@ import json
 import discord
 import datetime
 
-from core import Paginator
+from core import Paginator, Utils, SupportCommands, template_engine as temp_eng
+from core.config import Config
 from core.converters import BlacklistEntity
 from core.bases.cog_base import BaseCog
+from core.http import HTTPClient, RandomAPI
+from core.services.cache import Cache
+from core.services.database import Database
 from discord.ext import commands
 
 
@@ -76,6 +80,19 @@ class Owner(BaseCog):
 			emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
+
+	@commands.command(name='reloadcore', aliases=['rc', 'rcore'])
+	async def reload_core(self, ctx):
+		ctx.bot.config = Config
+		ctx.bot.http_client = HTTPClient()
+		ctx.bot.cache = Cache()
+		ctx.bot.database = Database(client=ctx.bot)
+		ctx.bot.utils = Utils(client=ctx.bot)
+		ctx.bot.random_api = RandomAPI(client=ctx.bot)
+		ctx.bot.support_commands = SupportCommands(client=ctx.bot)
+		ctx.bot.template_engine = temp_eng
+		ctx.bot.template_engine.client = ctx.bot
+		await ctx.message.add_reaction("✅")
 
 	@commands.command()
 	async def _sh(self, ctx, *, message: str = None):
