@@ -1224,7 +1224,7 @@ class Economy(BaseCog):
 			user_image_status = Image.open(
 				self.IMAGES_PATH + statuses[member.status.name] + ".png"
 			).convert("RGBA")
-			user_state_prison = "На свободе" if user_data.prison else "Сейчас в тюрме"
+			user_state_prison = "На свободе" if not user_data.prison else "Сейчас в тюрме"
 			if user_data.profile is None:
 				img = Image.open(self.IMAGES_PATH+"default.png")
 			elif user_data.profile is not None:
