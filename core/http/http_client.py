@@ -1,6 +1,7 @@
 import aiohttp
 import typing
 import logging
+import json
 
 from .exceptions import *
 
@@ -16,11 +17,17 @@ class HTTPClient:
     def prepare(self, session: aiohttp.ClientSession):
         self.session = session
 
+    async def _json_or_text(self, response: aiohttp.ClientResponse) -> typing.Union[dict, str]:
+        text = await response.text()
+        if 'application/json' in response.headers.get('Content-Type', 'text/plain'):
+            return json.loads(text)
+        return text
+
     async def request(self, method: str, url: str, **kwargs):
         logger.info(f"Make request for {url} with method {method}")
 
         async with self.session.request(method, url=url, **kwargs) as response:
-            response_json = await response.json()
+            response_json = await self._json_or_text(response)
             logger.info(f"Response of request to {url} with method {method}: {response_json}")
             logger.info(f"Response status of request to {url} with method {method}: {response.status}")
 
