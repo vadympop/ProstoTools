@@ -19,11 +19,14 @@ class Warn(models.Model):
     user_id = models.BigIntegerField()
     guild_id = models.BigIntegerField()
     reason = models.TextField()
-    state = models.BooleanField()
+    state_field = models.BooleanField(name='state')
     time = models.BigIntegerField()
     author = models.BigIntegerField()
     num = models.IntegerField()
     objects = Manager()
+
+    def state(self):
+        return bool(self.state_field)
 
     class Meta:
         db_table = "warns"
@@ -129,7 +132,7 @@ class User(models.Model):
     money = models.BigIntegerField()
     coins = models.BigIntegerField()
     reputation = models.BigIntegerField()
-    prison = models.BooleanField()
+    prison_field = models.BooleanField(name='prison')
     profile = models.TextField()
     bio = models.TextField()
     clan = models.TextField()
@@ -138,6 +141,9 @@ class User(models.Model):
     transactions = models.JSONField()
     bonuses = models.JSONField()
     objects = Manager()
+
+    def prison(self):
+        return bool(self.prison_field)
 
     class Meta:
         db_table = "users"
