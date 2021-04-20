@@ -81,19 +81,6 @@ class Owner(BaseCog):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
-	@commands.command(name='reloadcore', aliases=['rc', 'rcore'])
-	async def reload_core(self, ctx):
-		ctx.bot.config = Config
-		ctx.bot.http_client = HTTPClient()
-		ctx.bot.cache = Cache()
-		ctx.bot.database = Database(client=ctx.bot)
-		ctx.bot.utils = Utils(client=ctx.bot)
-		ctx.bot.random_api = RandomAPI(client=ctx.bot)
-		ctx.bot.support_commands = SupportCommands(client=ctx.bot)
-		ctx.bot.template_engine = temp_eng
-		ctx.bot.template_engine.client = ctx.bot
-		await ctx.message.add_reaction("✅")
-
 	@commands.command()
 	async def _sh(self, ctx, *, message: str = None):
 		try:
