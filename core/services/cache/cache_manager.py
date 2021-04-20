@@ -5,6 +5,9 @@ class CacheItem:
     def __init__(self, **kwargs):
         self._dict = {**kwargs}
 
+    def to_dict(self):
+        return self._dict
+
     def clear(self):
         return self._dict.clear()
 

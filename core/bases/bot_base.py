@@ -7,6 +7,7 @@ from cogs.economy.buy_cmd import buy
 from core.http import RandomAPI, HTTPClient
 from core.services.cache import Cache
 from core.services.database import Database
+from core.services.api import API
 from core.utils.other import get_prefix
 from core import Utils, SupportCommands, template_engine as temp_eng
 from core.config import Config
@@ -36,6 +37,7 @@ class ProstoTools(commands.AutoShardedBot):
         self.config = Config
         self.http_client = HTTPClient()
         self.cache = Cache()
+        self.low_level_api = API(self, port=1111, host='localhost')
         self.database = Database(client=self)
         self.utils = Utils(client=self)
         self.random_api = RandomAPI(client=self)
@@ -56,6 +58,7 @@ class ProstoTools(commands.AutoShardedBot):
             )
         )
         await self.cache.run()
+        await self.low_level_api.run()
         self.http_client.prepare(aiohttp.ClientSession(loop=self.loop))
 
     async def on_ready(self):

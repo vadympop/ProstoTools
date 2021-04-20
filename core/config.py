@@ -17,6 +17,7 @@ class Config:
 	SOFTBAN_ROLE = 'PT-SOFT-BANNED'
 	CAPTCHA_ROLE = "PT-CHECKING"
 	COLOR_ROLE = 'PT-COLOR-'
+	LOW_LEVEL_API_KEY = os.getenv('BOT_API_KEY', default='somesuperduperapikey')
 	TOKEN = os.getenv('BOT_TOKEN')
 	DEFAULT_PREFIX = "p."
 	MESSAGE_FILTERS = (
