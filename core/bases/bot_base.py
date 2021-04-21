@@ -34,22 +34,19 @@ class ProstoTools(commands.AutoShardedBot):
             case_insensitive=True
         )
         self.remove_command("help")
-        self.config = Config
-        self.http_client = HTTPClient()
-        self.cache = Cache()
-        self.low_level_api = API(self, port=1111, host='localhost')
-        self.database = Database(client=self)
-        self.utils = Utils(client=self)
-        self.random_api = RandomAPI(client=self)
-        self.support_commands = SupportCommands(client=self)
-        self.template_engine = temp_eng
-        self.template_engine.client = self
+        self.config = None
+        self.http_client = None
+        self.cache = None
+        self.low_level_api = None
+        self.database = None
+        self.utils = None
+        self.random_api = None
+        self.support_commands = None
+        self.template_engine = None
         self.launched_at = datetime.datetime.utcnow()
 
     async def on_connect(self):
-        logger.info(
-            f"{self.user} is connected to discord server"
-        )
+        logger.info(f"{self.user} is connected to discord server")
         await self.change_presence(
             status=discord.Status.online,
             activity=discord.Activity(
@@ -62,21 +59,19 @@ class ProstoTools(commands.AutoShardedBot):
         self.http_client.prepare(aiohttp.ClientSession(loop=self.loop))
 
     async def on_ready(self):
-        logger.info(
-            f"{self.user} is ready to work"
-        )
+        logger.info(f"{self.user} is ready to work")
 
     async def on_disconnect(self):
-        logger.info(
-            f"{self.user} is disconnected from discord server"
-        )
+        logger.info(f"{self.user} is disconnected from discord server")
 
     async def close(self):
         await self.http_client.close()
+        await self.low_level_api.close()
         await super().close()
 
     async def on_message_edit(self, before, after):
-        await self.process_commands(after)
+        if before.content != after.content:
+            await self.process_commands(after)
 
     async def is_owner(self, user: discord.User):
         if user.id in (377485441114439693, 660110922865704980):
@@ -101,11 +96,7 @@ class ProstoTools(commands.AutoShardedBot):
         with open(filename, "w+", encoding="utf-8") as f:
             f.writelines(filecontent)
 
-    def txt_load(self, filename):
-        with open(filename, "r", encoding="utf-8") as f:
-            return f.read()
-
-    def run(self):
+    def setup_extensions(self):
         for extension in self.config.EXTENSIONS:
             try:
                 self.load_extension(extension)
@@ -115,6 +106,22 @@ class ProstoTools(commands.AutoShardedBot):
                 logger.info(f"{extension} was loaded")
 
         self.load_extension("jishaku")
+
+    def setup_modules(self):
+        self.config = Config
+        self.http_client = HTTPClient()
+        self.cache = Cache()
+        self.low_level_api = API(self, port=1111, host='localhost')
+        self.database = Database(client=self)
+        self.utils = Utils(client=self)
+        self.random_api = RandomAPI(client=self)
+        self.support_commands = SupportCommands(client=self)
+        self.template_engine = temp_eng
+        self.template_engine.client = self
+
+    def run(self):
+        self.setup_modules()
+        self.setup_extensions()
         self.add_command(buy)
         self.add_check(self.utils.global_command_check)
         super().run(self.config.TOKEN)
