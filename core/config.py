@@ -92,7 +92,7 @@ class Config:
 		"connect": "Подключатся к голосовому каналу",
 		"create_instant_invite": "Создавать приглашения",
 		"deafen_members": "Отключать в участников звук",
-		"embed_links": "Отправлять эмбеды",
+		"embed_links": "Встраивать ссылки",
 		"external_emojis": "Использовать внешнии эмодзи",
 		"kick_members": "Кикать участников",
 		"manage_channels": "Управлять каналами",

@@ -189,7 +189,9 @@ class EventsAudit(BaseCog):
 
 			deleted_messages += f"""\n{message.created_at.strftime("%H:%M:%S %d-%m-%Y")} -- {str(message.author)}\n{message.content}\n\n"""
 
-		self.client.txt_dump(delete_messages_fp, deleted_messages)
+		with open(delete_messages_fp, "w+", encoding="utf-8") as f:
+			f.writelines(deleted_messages)
+
 		e = discord.Embed(
 			description=f"Удалено `{len(payload.cached_messages)}` сообщений",
 			colour=discord.Color.orange(),

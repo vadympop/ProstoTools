@@ -4,6 +4,7 @@ import datetime
 import logging
 
 from cogs.economy.buy_cmd import buy
+from core.context import Context
 from core.http import RandomAPI, HTTPClient
 from core.services.cache import Cache
 from core.services.database import Database
@@ -64,6 +65,9 @@ class ProstoTools(commands.AutoShardedBot):
     async def on_disconnect(self):
         logger.info(f"{self.user} is disconnected from discord server")
 
+    async def get_context(self, message, *, cls=None):
+        return await super().get_context(message, cls=cls or Context)
+
     async def close(self):
         await self.http_client.close()
         await self.low_level_api.close()
@@ -85,16 +89,16 @@ class ProstoTools(commands.AutoShardedBot):
 
         ctx = await self.get_context(message)
         if ctx.valid:
-            await ctx.trigger_typing()
+            try:
+                await ctx.trigger_typing()
+            except discord.Forbidden:
+                pass
+
         await self.invoke(ctx)
 
     async def on_command(self, ctx):
         if ctx.valid:
             await self.database.add_stat_counter(entity=ctx.command.name)
-
-    def txt_dump(self, filename, filecontent):
-        with open(filename, "w+", encoding="utf-8") as f:
-            f.writelines(filecontent)
 
     def setup_extensions(self):
         for extension in self.config.EXTENSIONS:
