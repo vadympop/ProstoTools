@@ -25,9 +25,9 @@ class TasksPunishments(BaseCog):
                     mute_time = await self.client.utils.get_guild_time_from_timestamp(mute.time, guild, tz)
                     guild_time = await self.client.utils.get_guild_time(guild, tz)
                     if mute_time <= guild_time:
-                        await self.client.database.del_punishment(
-                            member=member, guild_id=guild.id, type_punishment="mute"
-                        )
+                        await self.client.database.del_punishment(id=mute.id)
+                        await self.client.database.del_mute(mute.user_id, mute.guild_id)
+
                         mute_role = guild.get_role(mute.role_id)
                         if member is not None and mute_role is not None:
                             await member.remove_roles(mute_role)
@@ -78,11 +78,7 @@ class TasksPunishments(BaseCog):
                             ban_time = await self.client.utils.get_guild_time_from_timestamp(ban.time, guild, tz)
                             guild_time = await self.client.utils.get_guild_time(guild, tz)
                             if ban_time <= guild_time:
-                                await self.client.database.del_punishment(
-                                    member=user,
-                                    guild_id=guild.id,
-                                    type_punishment="ban",
-                                )
+                                await self.client.database.del_punishment(id=ban.id)
                                 await guild.unban(user)
 
                                 emb = discord.Embed(
@@ -114,11 +110,7 @@ class TasksPunishments(BaseCog):
                     temprole_time = await self.client.utils.get_guild_time_from_timestamp(temprole.time, guild, tz)
                     guild_time = await self.client.utils.get_guild_time(guild, tz)
                     if temprole_time <= guild_time:
-                        await self.client.database.del_punishment(
-                            member=member,
-                            guild_id=guild.id,
-                            type_punishment="temprole",
-                        )
+                        await self.client.database.del_punishment(id=temprole.id)
                         temprole_role = guild.get_role(temprole.role_id)
                         if member is not None and temprole_role is not None:
                             await member.remove_roles(temprole_role)
@@ -135,11 +127,7 @@ class TasksPunishments(BaseCog):
                     vmute_time = await self.client.utils.get_guild_time_from_timestamp(vmute.time, guild, tz)
                     guild_time = await self.client.utils.get_guild_time(guild, tz)
                     if vmute_time <= guild_time:
-                        await self.client.database.del_punishment(
-                            member=member,
-                            guild_id=guild.id,
-                            type_punishment="vmute",
-                        )
+                        await self.client.database.del_punishment(id=vmute.id)
                         vmute_role = guild.get_role(vmute.role_id)
                         if member is not None and vmute_role is not None:
                             await member.remove_roles(vmute_role)

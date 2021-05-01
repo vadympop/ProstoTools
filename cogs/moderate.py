@@ -377,7 +377,7 @@ class Moderate(BaseCog):
 					guild_time = await self.client.utils.get_guild_time(ctx.guild)
 					await ctx.guild.unban(user)
 					await self.client.database.del_punishment(
-						member=member, guild_id=ctx.guild.id, type_punishment="ban"
+						user_id=member.id, guild_id=ctx.guild.id, type="ban"
 					)
 
 					emb = discord.Embed(
@@ -521,7 +521,7 @@ class Moderate(BaseCog):
 			if vmute_role.name == self.VMUTE_ROLE:
 				guild_time = await self.client.utils.get_guild_time(ctx.guild)
 				await self.client.database.del_punishment(
-					member=member, guild_id=ctx.guild.id, type_punishment="vmute"
+					user_id=member.id, guild_id=ctx.guild.id, type="vmute"
 				)
 				await member.remove_roles(vmute_role)
 				overwrite = discord.PermissionOverwrite(connect=None)
@@ -616,9 +616,9 @@ class Moderate(BaseCog):
 		for role in ctx.guild.roles:
 			if role.name == self.MUTE_ROLE:
 				guild_time = await self.client.utils.get_guild_time(ctx.guild)
-				await self.client.database.del_punishment(
-					member=member, guild_id=ctx.guild.id, type_punishment="mute"
-				)
+				await self.client.database.del_punishment(user_id=member.id, guild_id=ctx.guild.id, type='mute')
+				await self.client.database.del_mute(member.id, ctx.guild.id)
+
 				await member.remove_roles(role)
 
 				emb = discord.Embed(

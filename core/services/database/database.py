@@ -247,16 +247,13 @@ class Database:
 
         return Punishment.objects.all()
 
-    async def del_punishment(self, member: discord.Member, guild_id: int, type_punishment: str) -> None:
-        if type_punishment == "mute":
-            await self.del_mute(member.id, member.guild.id)
-
-        db_punishment = Punishment.objects.get(user_id=member.id, guild_id=guild_id, type=type_punishment)
+    async def del_punishment(self, **kwargs) -> None:
+        db_punishment = Punishment.objects.get(**kwargs)
         if db_punishment is None:
             return
 
         db_punishment.delete()
-        self.cache.punishments.remove(user_id=member.id, guild_id=guild_id, type=type_punishment)
+        self.cache.punishments.remove(**kwargs)
 
     async def sel_user(self, target: discord.Member) -> User:
         cached_user = self.cache.users.get(guild_id=target.guild.id, user_id=target.id)
