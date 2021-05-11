@@ -44,29 +44,25 @@ class EventsCustomCommands(BaseCog):
                         pass
                     return
 
-                if "target_channels" in custom_command_data.keys():
-                    if custom_command_data["target_channels"]:
-                        if message.channel.id not in custom_command_data["target_channels"]:
-                            return
-
-                if "target_roles" in custom_command_data.keys():
-                    if custom_command_data["target_roles"]:
-                        if not any([
-                            role.id in custom_command_data["target_roles"]
-                            for role in message.author.roles
-                        ]):
-                            return
-
-                if "ignore_channels" in custom_command_data.keys():
-                    if message.channel.id in custom_command_data["ignore_channels"]:
+                if custom_command_data["target_channels"]:
+                    if message.channel.id not in custom_command_data["target_channels"]:
                         return
 
-                if "ignore_roles" in custom_command_data.keys():
+                if custom_command_data["target_roles"]:
                     if not any([
-                        role.id in custom_command_data["ignore_roles"]
+                        role.id in custom_command_data["target_roles"]
                         for role in message.author.roles
                     ]):
                         return
+
+                if message.channel.id in custom_command_data["ignore_channels"]:
+                    return
+
+                if any([
+                    role.id in custom_command_data["ignore_roles"]
+                    for role in message.author.roles
+                ]):
+                    return
 
                 ctx = await self.client.get_context(message)
                 try:
