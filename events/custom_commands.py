@@ -31,6 +31,10 @@ class EventsCustomCommands(BaseCog):
             command = message.content.split(" ")[0].replace(PREFIX, "")
             commands_names = [c["name"] for c in guild_data.custom_commands]
             if command in commands_names:
+                custom_command_data = self.find_custom_command(command, guild_data.custom_commands)
+                if not custom_command_data['state']:
+                    return
+
                 if self.cd_mapping.get_bucket(message).update_rate_limit():
                     try:
                         await message.add_reaction("⏰")
@@ -40,7 +44,6 @@ class EventsCustomCommands(BaseCog):
                         pass
                     return
 
-                custom_command_data = self.find_custom_command(command, guild_data.custom_commands)
                 if "target_channels" in custom_command_data.keys():
                     if custom_command_data["target_channels"]:
                         if message.channel.id not in custom_command_data["target_channels"]:
@@ -69,7 +72,7 @@ class EventsCustomCommands(BaseCog):
                 try:
                     try:
                         await message.channel.send(await self.client.template_engine.render(
-                            message, message.author, custom_command_data["code"]
+                            message, message.author, custom_command_data["message"]
                         ))
                     except discord.errors.HTTPException:
                         emb = await self.client.utils.create_error_embed(
