@@ -51,27 +51,27 @@ class Utils:
 
         commands_settings = (await self.client.database.sel_guild(guild=ctx.guild)).commands_settings
         if ctx.command.name in commands_settings.keys():
-            if not commands_settings[ctx.command.name]["state"]:
+            if not commands_settings[ctx.command.qualified_name]["state"]:
                 raise CommandOff
 
-            if commands_settings[ctx.command.name]["target_channels"]:
+            if commands_settings[ctx.command.qualified_name]["target_channels"]:
                 if ctx.channel.id not in commands_settings[ctx.command.name]["target_channels"]:
                     raise CommandChannelRequired
 
-            if commands_settings[ctx.command.name]["target_roles"]:
+            if commands_settings[ctx.command.qualified_name]["target_roles"]:
                 state = False
                 for role in ctx.author.roles:
-                    if role.id in commands_settings[ctx.command.name]["target_roles"]:
+                    if role.id in commands_settings[ctx.command.qualified_name]["target_roles"]:
                         state = True
 
                 if not state:
                     raise CommandRoleRequired
 
-            if ctx.channel.id in commands_settings[ctx.command.name]["ignore_channels"]:
+            if ctx.channel.id in commands_settings[ctx.command.qualified_name]["ignore_channels"]:
                 raise CommandChannelIgnored
 
             for role in ctx.author.roles:
-                if role.id in commands_settings[ctx.command.name]["ignore_roles"]:
+                if role.id in commands_settings[ctx.command.qualified_name]["ignore_roles"]:
                     raise CommandRoleIgnored
 
         return True

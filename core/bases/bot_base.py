@@ -83,19 +83,6 @@ class ProstoTools(commands.AutoShardedBot):
 
         return await super().is_owner(user)
 
-    async def process_commands(self, message):
-        if message.author.bot:
-            return
-
-        ctx = await self.get_context(message)
-        if ctx.valid:
-            try:
-                await ctx.trigger_typing()
-            except discord.Forbidden:
-                pass
-
-        await self.invoke(ctx)
-
     async def on_command(self, ctx):
         if ctx.valid:
             await self.database.add_stat_counter(entity=ctx.command.name)
