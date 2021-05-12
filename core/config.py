@@ -20,6 +20,7 @@ class Config:
 	LOW_LEVEL_API_KEY = os.getenv('BOT_API_KEY', default='somesuperduperapikey')
 	TOKEN = os.getenv('BOT_TOKEN')
 	DEFAULT_PREFIX = "p."
+	MAX_LENGTH_AUTORESPONDER_NAME = 64
 	MESSAGE_FILTERS = (
 		"--with-attachments",
 		"--without-attachments",

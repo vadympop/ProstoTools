@@ -15,7 +15,6 @@ class EventsCustomCommands(BaseCog):
         for command in iterable:
             if command["name"] == command_name:
                 return command
-        return None
 
     @commands.Cog.listener()
     async def on_message(self, message):

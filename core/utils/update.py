@@ -4,6 +4,7 @@ from core.services.database.models import Guild
 def update():
     for i in Guild.objects.all():
         i.custom_commands = []
+        i.autoresponders = []
         i.auto_mod.update({
             "anti_mentions": {
                 "state": False,
