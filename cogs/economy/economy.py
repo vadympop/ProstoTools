@@ -645,8 +645,6 @@ class Economy(BaseCog):
 	@commands.has_permissions(administrator=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def remove_role(self, ctx, member: discord.Member, role: discord.Role):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
-
 		if member.bot:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете снимать роль боту!"
@@ -696,32 +694,6 @@ class Economy(BaseCog):
 			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
 			await ctx.send(embed=emb)
 
-		if "economy" in audit.keys():
-			e = discord.Embed(
-				description=f"У пользователя `{str(member)}` была убрана роль",
-				colour=discord.Color.orange(),
-				timestamp=await self.client.utils.get_guild_time(ctx.guild),
-			)
-			e.add_field(
-				name="Модератором",
-				value=str(ctx.author),
-				inline=False,
-			)
-			e.add_field(
-				name="Роль",
-				value=role.name,
-				inline=False,
-			)
-			e.add_field(name="Id Участника", value=f"`{member.id}`", inline=False)
-			e.set_author(
-				name="Журнал аудита | Удаления роли пользователя",
-				icon_url=ctx.author.avatar_url,
-			)
-			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["economy"])
-			if channel is not None:
-				await channel.send(embed=e)
-
 	@commands.command(
 		aliases=["addmoney"],
 		name="add-money",
@@ -732,8 +704,6 @@ class Economy(BaseCog):
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	async def add_money(self, ctx, member: discord.Member, num: int):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
-
 		if member.bot:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете изменять профиль бота!"
@@ -775,7 +745,8 @@ class Economy(BaseCog):
 			money=(await self.client.database.sel_user(target=member)).money+num,
 		)
 
-		if "economy" in audit.keys():
+		data = await self.client.database.sel_guild(guild=ctx.guild)
+		if data.audit["money_add"]["state"]:
 			e = discord.Embed(
 				description=f"Пользователю `{str(member)}` были добавлены деньги",
 				colour=discord.Color.blurple(),
@@ -797,9 +768,25 @@ class Economy(BaseCog):
 				icon_url=ctx.author.avatar_url,
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["economy"])
+			channel = ctx.guild.get_channel(data.audit["money_add"]["channel_id"])
 			if channel is not None:
 				await channel.send(embed=e)
+
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=member,
+					channel=ctx.channel,
+					guild_id=ctx.guild.id,
+					action_type="money_add",
+					count=num,
+					author={
+						"username": ctx.author.name,
+						"discriminator": ctx.author.discriminator,
+						"avatar_url": ctx.author.avatar_url_as(
+							format="gif" if ctx.author.is_avatar_animated() else "png", size=1024
+						)
+					}
+				)
 
 	@commands.command(
 		aliases=["removemoney"],
@@ -811,8 +798,6 @@ class Economy(BaseCog):
 	@commands.has_permissions(administrator=True)
 	@commands.cooldown(1, 14400, commands.BucketType.member)
 	async def remove_money(self, ctx, member: discord.Member, num: int):
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
-
 		if member.bot:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Вы не можете изменять профиль бота!"
@@ -846,7 +831,8 @@ class Economy(BaseCog):
 			money=(await self.client.database.sel_user(target=member)).money-num,
 		)
 
-		if "economy" in audit:
+		data = await self.client.database.sel_guild(guild=ctx.guild)
+		if data.audit["money_remove"]["state"]:
 			e = discord.Embed(
 				description=f"У пользователя `{str(member)}` были отняты деньги",
 				colour=discord.Color.green(),
@@ -868,9 +854,25 @@ class Economy(BaseCog):
 				icon_url=ctx.author.avatar_url,
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["economy"])
+			channel = ctx.guild.get_channel(data.audit["money_remove"]["channel_id"])
 			if channel is not None:
 				await channel.send(embed=e)
+
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=member,
+					channel=ctx.channel,
+					guild_id=ctx.guild.id,
+					action_type="money_remove",
+					count=num,
+					author={
+						"username": ctx.author.name,
+						"discriminator": ctx.author.discriminator,
+						"avatar_url": ctx.author.avatar_url_as(
+							format="gif" if ctx.author.is_avatar_animated() else "png", size=1024
+						)
+					}
+				)
 
 	@commands.command(
 		description="Этой командой можно ограбить пользователя",

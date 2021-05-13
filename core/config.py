@@ -17,7 +17,10 @@ class Config:
 	SOFTBAN_ROLE = 'PT-SOFT-BANNED'
 	CAPTCHA_ROLE = "PT-CHECKING"
 	COLOR_ROLE = 'PT-COLOR-'
+	LOW_LEVEL_API_KEY = os.getenv('BOT_API_KEY', default='somesuperduperapikey')
 	TOKEN = os.getenv('BOT_TOKEN')
+	DEFAULT_PREFIX = "p."
+	MAX_LENGTH_AUTORESPONDER_NAME = 64
 	MESSAGE_FILTERS = (
 		"--with-attachments",
 		"--without-attachments",
@@ -92,7 +95,7 @@ class Config:
 		"connect": "Подключатся к голосовому каналу",
 		"create_instant_invite": "Создавать приглашения",
 		"deafen_members": "Отключать в участников звук",
-		"embed_links": "Отправлять эмбеды",
+		"embed_links": "Встраивать ссылки",
 		"external_emojis": "Использовать внешнии эмодзи",
 		"kick_members": "Кикать участников",
 		"manage_channels": "Управлять каналами",
@@ -158,7 +161,9 @@ class Config:
 		"events.anti_invite",
 		"events.captcha",
 		"events.anti_caps",
-		"events.status_reminders"
+		"events.status_reminders",
+		"events.anti_mentions",
+		"events.auto_nick_corrector"
 	)
 
 	# Database config

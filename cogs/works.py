@@ -11,11 +11,12 @@ class Works(BaseCog):
 		description="Категория команд - работы",
 		help=f"""**Команды групы:** barman, treasurehunter, cleaner, windowasher, loader\n\n"""
 	)
+	@commands.guild_only()
 	@commands.cooldown(2, 7200, commands.BucketType.member)
 	async def work(self, ctx):
 		if ctx.invoked_subcommand is None:
 			self.work.reset_cooldown(ctx)
-			PREFIX = str(await self.client.database.get_prefix(ctx.guild))
+			PREFIX = await self.client.database.get_prefix(ctx.guild)
 			emb = discord.Embed(
 				title="Список работ",
 				description=f"**Грузчик - {PREFIX}work loader**\nДля работы нужно иметь более 3-го уровня и перчатки, кулдавн 3 часа после двух попыток, зарабатывает от 80$ до 100$\n\n**Охотник за кладом - {PREFIX}work treasure-hunter**\nДля работы нужен металоискатель(любого уровня), кулдавн 5 часов, может ничего не найти(0$, металоискатель 2-го уровня повышает шанс найти клад на 30%), если найдёт от 1$ до 500$\n\n**Барман - {PREFIX}work barman**\nДля работы нужно иметь более 4-го уровня, кулдавн 3 часа, зарабатывает от 150 до 200\n\n**Уборщик - {PREFIX}work cleaner**\nДля повышения эфективности работы нужно иметь веник или швабру, кулдавн 2 часа после 3 попыток\n\n**Мойщик окон - {PREFIX}work window-washer**\nДля работы нужно иметь более 5-го уровня, кулдавн 5 часов, от 250$ до 300$, может упасть и потерять 300$",

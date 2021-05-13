@@ -305,27 +305,205 @@ class Database:
                 shop_list=[],
                 ignored_channels=[],
                 auto_mod={
-                    "anti_flud": {"state": False},
-                    "anti_invite": {"state": False},
-                    "anti_caps": {"state": False},
+                    "anti_flud": {
+                        "state": False,
+                        "delete_message": False,
+                        "punishment": {
+                            "state": False,
+                            "type": "mute",
+                            "time": None
+                        },
+                        "message": {
+                            "state": False,
+                            "type": "channel",
+                            "content": {
+                                "code": None,
+                                "text": None
+                            }
+                        },
+                        "target_roles": [],
+                        "target_channels": [],
+                        "ignore_roles": [],
+                        "ignore_channels": [],
+                    },
+                    "anti_invite": {
+                        "state": False,
+                        "delete_message": False,
+                        "punishment": {
+                            "state": False,
+                            "type": "mute",
+                            "time": None
+                        },
+                        "message": {
+                            "state": False,
+                            "type": "channel",
+                            "content": {
+                                "code": None,
+                                "text": None
+                            }
+                        },
+                        "target_roles": [],
+                        "target_channels": [],
+                        "ignore_roles": [],
+                        "ignore_channels": [],
+                    },
+                    "anti_caps": {
+                        "state": False,
+                        "delete_message": False,
+                        "punishment": {
+                            "state": False,
+                            "type": "mute",
+                            "time": None
+                        },
+                        "message": {
+                            "state": False,
+                            "type": "channel",
+                            "content": {
+                                "code": None,
+                                "text": None
+                            }
+                        },
+                        "percent": 40,
+                        "min_chars": 10,
+                        "target_roles": [],
+                        "target_channels": [],
+                        "ignore_roles": [],
+                        "ignore_channels": [],
+                    },
+                    "anti_mentions": {
+                        "state": False,
+                        "delete_message": False,
+                        "punishment": {
+                            "state": False,
+                            "type": "mute",
+                            "time": None
+                        },
+                        "message": {
+                            "state": False,
+                            "type": "channel",
+                            "content": {
+                                "code": None,
+                                "text": None
+                            }
+                        },
+                        "max_mentions": 4,
+                        "target_roles": [],
+                        "target_channels": [],
+                        "ignore_roles": [],
+                        "ignore_channels": [],
+                    },
+                    "anti_link": {
+                        "state": False,
+                        "delete_message": False,
+                        "punishment": {
+                            "state": False,
+                            "type": "mute",
+                            "time": None
+                        },
+                        "message": {
+                            "state": False,
+                            "type": "channel",
+                            "content": {
+                                "code": None,
+                                "text": None
+                            }
+                        },
+                        "domains": [],
+                        "target_roles": [],
+                        "target_channels": [],
+                        "ignore_roles": [],
+                        "ignore_channels": [],
+                    },
+                    "auto_nick_corrector": {
+                        "state": False,
+                        "target_roles": [],
+                        "ignore_roles": [],
+                        "replace_with": "New nick",
+                        "percent": 60
+                    },
                     "captcha": {"state": False}
                 },
                 clans=[],
                 moderators=[],
                 auto_reactions={},
                 welcomer={
-                    "join": {"state": False},
-                    "leave": {"state": False}
+                    "join": {
+                        "state": False,
+                        "type": "channel",
+                        "channel_id": None,
+                        "message": {
+                            "text": None,
+                            "code": None
+                        }
+                    },
+                    "leave": {
+                        "state": False,
+                        "type": "channel",
+                        "channel_id": None,
+                        "message": {
+                            "text": None,
+                            "code": None
+                        }
+                    }
                 },
                 auto_roles={},
                 custom_commands=[],
                 autoresponders={},
-                audit={},
+                audit={
+                    'message_edit': {"state": False, "channel_id": None},
+                    'message_delete': {"state": False, "channel_id": None},
+                    'member_nick_update': {"state": False, "channel_id": None},
+                    'member_roles_update': {"state": False, "channel_id": None},
+                    'member_mute': {'state': False, "channel_id": None},
+                    'member_unmute': {'state': False, "channel_id": None},
+                    'member_vmute': {'state': False, "channel_id": None},
+                    'member_unvmute': {'state': False, "channel_id": None},
+                    'member_ban': {'state': False, "channel_id": None},
+                    'member_unban': {'state': False, "channel_id": None},
+                    'clan_delete': {'state': False, "channel_id": None},
+                    'clan_create': {'state': False, "channel_id": None},
+                    'money_remove': {'state': False, "channel_id": None},
+                    'money_add': {'state': False, "channel_id": None},
+                    'channel_create': {'state': False, "channel_id": None},
+                    'channel_delete': {'state': False, "channel_id": None},
+                    'role_create': {'state': False, "channel_id": None},
+                    'role_delete': {'state': False, "channel_id": None},
+                    'member_voice_move': {'state': False, "channel_id": None},
+                    'member_voice_connect': {'state': False, "channel_id": None},
+                    'member_voice_disconnect': {'state': False, "channel_id": None},
+                    'member_join': {'state': False, "channel_id": None},
+                    'member_leave': {'state': False, "channel_id": None},
+                    'bot_join': {'state': False, "channel_id": None},
+                    'bot_leave': {'state': False, "channel_id": None},
+                    'member_kick': {'state': False, "channel_id": None},
+                    'new_warn': {'state': False, "channel_id": None},
+                    'warns_reset': {'state': False, "channel_id": None},
+                },
                 rank_message={
-                    "state": False
+                    "state": False,
+                    "type": "channel",
+                    "channel_id": None,
+                    "not_sending_channels": [],
+                    "message": {
+                        "text": None,
+                        "code": None
+                    }
                 },
                 commands_settings={},
-                warns_settings={"max": 3, "punishment": None},
+                warns_settings={
+                    "max": 3,
+                    "punishment": {
+                        "state": False,
+                        "type": "mute",
+                        "time": None
+                    },
+                    "role": {
+                        "state": False,
+                        "type": "add",
+                        "role_id": None,
+                        "time": None
+                    }
+                },
             )
             new_guild.save()
             self.cache.guilds.add(model_to_dict(new_guild))
@@ -335,6 +513,9 @@ class Database:
         return db_guild
 
     async def get_prefix(self, guild: discord.Guild):
+        if guild is None:
+            return self.client.config.DEFAULT_PREFIX
+
         cached_guild = self.cache.guilds.get(guild_id=guild.id)
         if cached_guild is not None:
             return cached_guild.prefix
@@ -437,9 +618,26 @@ class Database:
         self.cache.blacklist.remove(**kwargs)
         return True
 
-    async def add_audit_log(self, **kwargs) -> int:
+    async def add_audit_log(
+            self, user: discord.User, channel: discord.TextChannel, guild_id: int, action_type: str, **kwargs
+    ) -> int:
         new_log = AuditLogs(
-            **kwargs
+            guild_id=guild_id,
+            time=datetime.datetime.utcnow(),
+            avatar_url=user.avatar_url_as(
+                 format="gif" if user.is_avatar_animated() else "png", size=1024
+            ),
+            type=action_type,
+            channel={
+                "id": channel.id,
+                "name": channel.name,
+            },
+            user={
+                "id": user.id,
+                "username": user.name,
+                "discriminator": user.discriminator
+            },
+            options=kwargs
         )
         new_log.save()
         return new_log.id

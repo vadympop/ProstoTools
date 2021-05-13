@@ -42,10 +42,11 @@ class Clans(BaseCog):
 		description="Категория команда - кланы",
 		help=f"""**Команды групы:** buy, members, accept-join-request, send-join-request, kick, reject-join-request, list-join-requests, list, use-invite, info, create, edit, leave, create-invite, trans-owner-ship, delete\n\n"""
 	)
+	@commands.guild_only()
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def clan(self, ctx):
 		if ctx.invoked_subcommand is None:
-			PREFIX = str(await self.client.database.get_prefix(ctx.guild))
+			PREFIX = await self.client.database.get_prefix(ctx.guild)
 			commands = "\n".join(
 				[f"`{PREFIX}clan {c.name}`" for c in self.client.get_command("clan").commands]
 			)
@@ -63,11 +64,10 @@ class Clans(BaseCog):
 	@clan.command(usage="clan create [Названия]", description="Создаёт клан")
 	@commands.bot_has_permissions(manage_roles=True)
 	async def create(self, ctx, *, name: str):
-		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		user_data = await self.client.database.sel_user(target=ctx.author)
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 
-		for clan in data:
+		for clan in data.clans:
 			if ctx.author.id in clan["members"]:
 				emb = await self.client.utils.create_error_embed(
 					ctx, "Вы уже находитесь в одном из кланов сервера!"
@@ -82,7 +82,7 @@ class Clans(BaseCog):
 			await ctx.send(embed=emb)
 			return
 
-		if len(data) > 20:
+		if len(data.clans) > 20:
 			emb = await self.client.utils.create_error_embed(
 				ctx, "Превышен лимит кланов на сервере!"
 			)
@@ -93,7 +93,7 @@ class Clans(BaseCog):
 		await ctx.author.add_roles(role)
 		user_data.coins -= 15000
 		new_id = str(uuid.uuid4())
-		data.append(
+		data.clans.append(
 			{
 				"id": new_id,
 				"name": name,
@@ -121,7 +121,7 @@ class Clans(BaseCog):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			clans=data
+			clans=data.clans
 		)
 		await self.client.database.update(
 			"users",
@@ -130,7 +130,7 @@ class Clans(BaseCog):
 			coins=user_data.coins
 		)
 
-		if "clans" in audit.keys():
+		if data.audit["clan_create"]["state"]:
 			e = discord.Embed(
 				description=f"Создан новый клан",
 				colour=discord.Color.blurple(),
@@ -142,9 +142,18 @@ class Clans(BaseCog):
 				icon_url=ctx.author.avatar_url,
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["clans"])
+			channel = ctx.guild.get_channel(data.audit["clan_create"]["channel_id"])
 			if channel is not None:
 				await channel.send(embed=e)
+
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=ctx.author,
+					channel=ctx.channel,
+					guild_id=ctx.guild.id,
+					action_type="clan_create",
+					clan_id=new_id
+				)
 
 	@clan.command(
 		usage="clan edit [Параметр] [Новое значения]",
@@ -270,9 +279,8 @@ class Clans(BaseCog):
 	@clan.command(usage="clan delete", description="Удаляет клан")
 	@commands.bot_has_permissions(manage_roles=True, manage_channels=True)
 	async def delete(self, ctx):
-		data = (await self.client.database.sel_guild(guild=ctx.guild)).clans
+		data = await self.client.database.sel_guild(guild=ctx.guild)
 		user_clan = (await self.client.database.sel_user(target=ctx.author)).clan
-		audit = (await self.client.database.sel_guild(guild=ctx.guild)).audit
 
 		if user_clan == "":
 			emb = await self.client.utils.create_error_embed(
@@ -281,7 +289,7 @@ class Clans(BaseCog):
 			await ctx.send(embed=emb)
 			return
 
-		for clan in data:
+		for clan in data.clans:
 			if clan["id"] == user_clan:
 				if clan["owner"] == ctx.author.id:
 					delete_clan = clan
@@ -292,7 +300,7 @@ class Clans(BaseCog):
 								await channel.delete()
 							await category.delete()
 					try:
-						data.remove(clan)
+						data.clans.remove(clan)
 						for member_id in clan["members"]:
 							try:
 								await ctx.guild.get_member(member_id).remove_roles(
@@ -317,7 +325,7 @@ class Clans(BaseCog):
 		await self.client.database.update(
 			"guilds",
 			where={"guild_id": ctx.guild.id},
-			clans=data
+			clans=data.clans
 		)
 		for member_id in delete_clan["members"]:
 			await self.client.database.update(
@@ -338,7 +346,7 @@ class Clans(BaseCog):
 		except discord.errors.HTTPException:
 			pass
 
-		if "clans" in audit.keys():
+		if data.audit['clan_delete']['state']:
 			e = discord.Embed(
 				description=f"Удален клан",
 				colour=discord.Color.orange(),
@@ -355,9 +363,19 @@ class Clans(BaseCog):
 				icon_url=ctx.author.avatar_url,
 			)
 			e.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			channel = ctx.guild.get_channel(audit["clans"])
+			channel = ctx.guild.get_channel(data.audit["clan_delete"]["channel_id"])
 			if channel is not None:
 				await channel.send(embed=e)
+
+			if data.donate:
+				await self.client.database.add_audit_log(
+					user=ctx.author,
+					channel=ctx.channel,
+					guild_id=ctx.guild.id,
+					action_type="clan_delete",
+					clan_id=delete_clan["id"],
+					clan_name=delete_clan["name"]
+				)
 
 	@clan.command(
 		usage="clan members", description="Показывает всех участников клана"

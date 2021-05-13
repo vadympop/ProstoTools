@@ -54,11 +54,11 @@ class EventsLeveling(BaseCog):
 		exp_end = math.floor(9 * (data.level ** 2) + 50 * data.level + 125 * (guild_data.exp_multi/100))
 		if exp_end < data.exp:
 			data.level += 1
-			if guild_data.rank_message["state"]:
+			if guild_data.rank_message["state"] and message.channel.id not in guild_data.rank_message["not_sending_channels"]:
 				ctx = await self.client.get_context(message)
 				try:
 					text = await self.client.template_engine.render(
-						message, message.author, guild_data.rank_message["text"]
+						message, message.author, guild_data.rank_message["message"]
 					)
 				except discord.errors.HTTPException:
 					emb = await self.client.utils.create_error_embed(
@@ -72,7 +72,11 @@ class EventsLeveling(BaseCog):
 					await message.channel.send(embed=emb)
 				else:
 					if guild_data.rank_message["type"] == "channel":
-						await message.channel.send(text)
+						level_channel = message.guild.get_channel(guild_data.rank_message["channel_id"])
+						if level_channel is None:
+							await message.channel.send(text)
+						else:
+							await level_channel.send(text)
 					elif guild_data.rank_message["type"] == "dm":
 						await message.author.send(text)
 

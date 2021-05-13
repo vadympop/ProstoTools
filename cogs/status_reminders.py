@@ -20,6 +20,7 @@ class StatusReminders(BaseCog):
             "status_remin"
         ]
     )
+    @commands.guild_only()
     @commands.cooldown(2, 10, commands.BucketType.member)
     async def status_reminder(self, ctx):
         if ctx.invoked_subcommand is None:

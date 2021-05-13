@@ -48,7 +48,7 @@ class Help(BaseCog):
 	async def build_help(self, ctx, prefix: str) -> list:
 		emb = discord.Embed(
 			title="**Доступные команды:**",
-			description=f'Префикс на этом сервере - `{prefix}`, также вы можете в качестве префикса использовать упоминания бота - {ctx.guild.me.mention}. Зачеркнутые команды бот/вы не можете выполнить из-за нехватки прав.\n\n`{prefix}help [Команда]` - что бы посмотреть помощь по команде\n`{prefix}help [Модуль]` - что бы посмотреть помощь по модулю\n\nСписок доступных категорий: {", ".join([f"`{cog}`" for cog in self.cogs])}\n\n*Навигация по категориям осуществляется стрелками снизу*',
+			description=f'Префикс на этом сервере - `{prefix}`, также вы можете в качестве префикса использовать упоминания бота - {self.client.user.mention}. Зачеркнутые команды бот/вы не можете выполнить из-за нехватки прав.\n\n`{prefix}help [Команда]` - что бы посмотреть помощь по команде\n`{prefix}help [Модуль]` - что бы посмотреть помощь по модулю\n\nСписок доступных категорий: {", ".join([f"`{cog}`" for cog in self.cogs])}\n\n*Навигация по категориям осуществляется стрелками снизу*',
 			colour=discord.Color.green()
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
@@ -93,6 +93,7 @@ class Help(BaseCog):
 					else ""
 				)
 				command_usage = prefix+current_command.usage+"\n\n" if current_command.usage is not None else ""
+				command_description = f"**{current_command.description}**"+"\n\n" if current_command.description is not None else ""
 				command_help = (
 					current_command.help.format(Prefix=prefix)
 					if current_command.help is not None
@@ -100,7 +101,7 @@ class Help(BaseCog):
 				)
 				emb = discord.Embed(
 					title=f"Команда: {prefix+entity.lower()}",
-					description=aliases+command_usage+command_help,
+					description=aliases+command_usage+command_description+command_help,
 					colour=discord.Color.green(),
 				)
 				emb.set_author(

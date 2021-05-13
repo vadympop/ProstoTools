@@ -39,24 +39,33 @@ async def process_converters(
         raise error
 
 
-async def check_moderate_roles(ctx):
-    data = await ctx.bot.database.get_moder_roles(guild=ctx.guild)
-    roles = ctx.guild.roles[::-1]
-    data.append(roles[0].id)
+async def is_moderator(ctx):
+    data = []
+    if ctx.guild is not None:
+        data = await ctx.bot.database.get_moder_roles(guild=ctx.guild)
+        roles = ctx.guild.roles[::-1]
+        data.append(roles[0].id)
 
-    if data != []:
+    if data and ctx.guild is not None:
         for role_id in data:
             role = ctx.guild.get_role(role_id)
             if role in ctx.author.roles:
                 return True
         return ctx.author.guild_permissions.administrator
     else:
-        return ctx.author.guild_permissions.administrator
+        return ctx.author.guild_permissions.administrator if ctx.guild is not None else False
+
+
+def is_guild_owner(ctx):
+    if ctx.guild is None:
+        return False
+
+    return ctx.author == ctx.guild.owner
 
 
 async def get_prefix(client, message):
     if message.guild is None:
-        return client.config.DEF_PREFIX
+        return client.config.DEFAULT_PREFIX
 
     prefix = await client.database.get_prefix(guild=message.guild)
     return commands.when_mentioned_or(*(str(prefix),))(client, message)
@@ -65,29 +74,26 @@ async def get_prefix(client, message):
 async def process_auto_moderate(ctx: commands.Context, auto_moderate: str, data, reason: str):
     if "target_channels" in data.auto_mod[auto_moderate].keys():
         if data.auto_mod[auto_moderate]["target_channels"]:
-            if ctx.channel.id not in data.auto_mod["anti_caps"]["target_channels"]:
+            if ctx.channel.id not in data.auto_mod[auto_moderate]["target_channels"]:
                 return
 
-    if "target_roles" in data.auto_mod[auto_moderate].keys():
-        if data.auto_mod[auto_moderate]["target_roles"]:
-            state = False
-            for role in ctx.author.roles:
-                if role.id in data.auto_mod[auto_moderate]["target_roles"]:
-                    state = True
-
-            if not state:
-                return
-
-    if "ignore_channels" in data.auto_mod[auto_moderate].keys():
-        if ctx.channel.id in data.auto_mod[auto_moderate]["ignore_channels"]:
+    if data.auto_mod[auto_moderate]["target_roles"]:
+        if not any([
+            role.id in data.auto_mod[auto_moderate]["target_roles"]
+            for role in ctx.author.roles
+        ]):
             return
 
-    if "ignore_roles" in data.auto_mod[auto_moderate].keys():
-        for role in ctx.author.roles:
-            if role.id in data.auto_mod[auto_moderate]["ignore_roles"]:
-                return
+    if ctx.channel.id in data.auto_mod[auto_moderate]["ignore_channels"]:
+        return
 
-    if "punishment" in data.auto_mod[auto_moderate].keys():
+    if not any([
+        role.id in data.auto_mod[auto_moderate]["ignore_roles"]
+        for role in ctx.author.roles
+    ]):
+        return
+
+    if data.auto_mod[auto_moderate]["punishment"]["state"]:
         type_punishment = data.auto_mod[auto_moderate]["punishment"]["type"]
         expiry_at = None
         if data.auto_mod[auto_moderate]["punishment"]["time"] is not None:
@@ -125,23 +131,15 @@ async def process_auto_moderate(ctx: commands.Context, auto_moderate: str, data,
                 expiry_at=expiry_at,
                 reason=reason,
             )
-        elif type_punishment == "soft-ban":
-            await ctx.bot.support_commands.soft_ban(
-                ctx=ctx,
-                member=ctx.author,
-                author=ctx.guild.me,
-                expiry_at=expiry_at,
-                reason=reason,
-            )
 
-    if "delete_message" in data.auto_mod[auto_moderate].keys():
+    if data.auto_mod[auto_moderate]["delete_message"]:
         await ctx.message.delete()
 
-    if "message" in data.auto_mod[auto_moderate].keys():
+    if data.auto_mod[auto_moderate]["message"]["state"]:
         try:
             try:
                 text = await ctx.bot.template_engine.render(
-                    ctx.message, ctx.author, data.auto_mod[auto_moderate]["message"]["text"]
+                    ctx.message, ctx.author, data.auto_mod[auto_moderate]["message"]["content"]
                 )
             except discord.errors.HTTPException:
                 emb = await ctx.bot.utils.create_error_embed(

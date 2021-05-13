@@ -8,6 +8,7 @@ from random import randint
 
 class Different(BaseCog):
 	@commands.group()
+	@commands.guild_only()
 	@commands.cooldown(1, 300, commands.BucketType.member)
 	async def color(self, ctx):
 		pass
@@ -248,6 +249,7 @@ class Different(BaseCog):
 		usage="bio [Текст]",
 		help="**Примеры использования:**\n1. {Prefix}bio -\n2. {Prefix}bio\n3. {Prefix}bio New biography\n\n**Пример 1:** Очистит биографию\n**Пример 2:** Покажет текущую биограцию\n**Пример 3:** Поставит новую биограцию - `New biography`",
 	)
+	@commands.guild_only()
 	@commands.cooldown(2, 10, commands.BucketType.member)
 	async def bio(self, ctx, *, text: str = None):
 		cur_bio = (await self.client.database.sel_user(target=ctx.author)).bio

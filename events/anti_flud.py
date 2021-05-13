@@ -8,7 +8,6 @@ from discord.ext import commands
 class EventsAntiFlud(BaseCog):
     def __init__(self, client):
         super().__init__(client)
-        self.SOFTBAN_ROLE = self.client.config.SOFTBAN_ROLE
         self.messages = {}
 
     def update(self, time: int, key: str, message: discord.Message):
@@ -56,6 +55,9 @@ class EventsAntiFlud(BaseCog):
             return
 
         if message.author.bot:
+            return
+
+        if message.author == message.guild.owner:
             return
 
         key = f"{message.guild.id}/{message.author.id}"

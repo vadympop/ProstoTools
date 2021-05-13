@@ -2,6 +2,7 @@ import discord
 import asyncio
 import datetime
 
+from core.utils.other import is_moderator
 from core.utils.time_utils import get_timezone_obj
 from core.bases.cog_base import BaseCog
 from core.converters import Expiry
@@ -15,6 +16,8 @@ class Giveaways(BaseCog):
         description="Категория команд - розыгрыши",
         help=f"""**Команды групы:** create, end, delete, list\n\n"""
     )
+    @commands.guild_only()
+    @commands.check(is_moderator)
     async def giveaway(self, ctx):
         if ctx.invoked_subcommand is None:
             PREFIX = str(await self.client.database.get_prefix(ctx.guild))
