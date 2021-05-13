@@ -456,8 +456,6 @@ class Database:
                     'member_roles_update': {"state": False, "channel_id": None},
                     'member_mute': {'state': False, "channel_id": None},
                     'member_unmute': {'state': False, "channel_id": None},
-                    'member_vmute': {'state': False, "channel_id": None},
-                    'member_unvmute': {'state': False, "channel_id": None},
                     'member_ban': {'state': False, "channel_id": None},
                     'member_unban': {'state': False, "channel_id": None},
                     'clan_delete': {'state': False, "channel_id": None},

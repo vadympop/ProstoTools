@@ -22,14 +22,14 @@ class EventsAudit(BaseCog):
 	async def on_member_update(self, before, after):
 		data = await self.client.database.sel_guild(guild=before.guild)
 
-		if not data.audit["member_update"]["state"]:
-			return
-
-		channel = after.guild.get_channel(data.audit["member_update"]["channel_id"])
-		if channel is None:
-			return
-
 		if not len(before.roles) == len(after.roles):
+			if not data.audit["member_roles_update"]["state"]:
+				return
+
+			channel = after.guild.get_channel(data.audit["member_roles_update"]["channel_id"])
+			if channel is None:
+				return
+
 			if len(before.roles) > len(after.roles):
 				for role in before.roles:
 					if role not in after.roles:
@@ -68,6 +68,13 @@ class EventsAudit(BaseCog):
 				)
 
 		if not before.display_name == after.display_name:
+			if not data.audit["member_nick_update"]["state"]:
+				return
+
+			channel = after.guild.get_channel(data.audit["member_nick_update"]["channel_id"])
+			if channel is None:
+				return
+
 			e = discord.Embed(
 				description=f"Пользователь `{before}` изменил ник",
 				colour=discord.Color.blue(),
