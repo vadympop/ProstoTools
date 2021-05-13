@@ -102,7 +102,7 @@ class ProstoTools(commands.AutoShardedBot):
         self.config = Config
         self.http_client = HTTPClient()
         self.cache = Cache()
-        self.low_level_api = API(self, port=1111, host='localhost')
+        self.low_level_api = API(self, port=1111, host='0.0.0.0')
         self.database = Database(client=self)
         self.utils = Utils(client=self)
         self.random_api = RandomAPI(client=self)
