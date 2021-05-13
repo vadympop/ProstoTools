@@ -17,7 +17,7 @@ class EventsJoin(BaseCog):
 
 		emb = discord.Embed(
 			title="Спасибо за приглашения нашего бота! Мы вам всегда рады",
-			description=f"Стандартний префикс - `p.`, команда помощи - p.help, \nкоманда настроёк - p.setting. \n Полезные ссылки:\n[Наш сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](https://api.prosto-tools.ml/)\n[Документация](https://vythonlui.gitbook.io/prostotools/)",
+			description=f"Стандартний префикс - `p.`, команда помощи - p.help, \nкоманда настроёк - p.setting. \n Полезные ссылки:\n[Наш сервер поддержки]({self.HELP_SERVER})\n[Patreon](https://www.patreon.com/join/prostotools)\n[API](https://api.prosto-tools.ml/)\n[Документация](https://vythonlui.gitbook.io/prostotools/)\n[Панель управления вашего сервера](https://prosto-tools.ml/dashboard/{guild.id})",
 			colour=discord.Color.green(),
 		)
 		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
