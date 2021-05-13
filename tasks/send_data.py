@@ -31,11 +31,17 @@ class TasksSendData(BaseCog):
 					{
 						"name": str(command),
 						"description": command.description.replace("\n", "/n"),
-						"usage": command.usage,
+						"usage": (
+							command.usage
+							if command.usage is not None
+							else "Использование для команды не указанно"
+						),
 						"category": command.cog_name,
-						"help": command.help.replace("\n", "/n")
-						if command.help is not None
-						else "Подробной информации о команде не указанно"
+						"help": (
+							command.help.replace("\n", "/n")
+							if command.help is not None
+							else "Подробной информации о команде не указанно"
+						)
 					}
 					for command in self.client.walk_commands()
 					if command.cog_name in self.allowed_cogs
