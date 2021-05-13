@@ -51,8 +51,8 @@ class ProstoTools(commands.AutoShardedBot):
         await self.change_presence(
             status=discord.Status.online,
             activity=discord.Activity(
-                type=discord.ActivityType.playing,
-                name=" {prefix}help | {prefix}invite ".format(prefix=self.config.DEF_PREFIX)
+                type=discord.ActivityType.watching,
+                name="https://prosto-tools.ml"
             )
         )
         await self.cache.run()
@@ -72,6 +72,23 @@ class ProstoTools(commands.AutoShardedBot):
         await self.http_client.close()
         await self.low_level_api.close()
         await super().close()
+
+    async def on_message(self, message):
+        if message.author.bot:
+            return
+
+        if message.guild is None:
+            return
+
+        if message.content.strip() in (
+            f"<@{self.user.id}>",
+            f"<@!{self.user.id}>"
+        ):
+            await message.channel.send(
+                f':information_source: Мой префикс на этом сервере - `{await self.database.get_prefix(message.guild)}`'
+            )
+
+        await self.process_commands(message)
 
     async def on_message_edit(self, before, after):
         if before.content != after.content:
