@@ -342,30 +342,6 @@ class Utils(BaseCog):
 			await ctx.send(embed=emb)
 
 	@commands.command(
-		aliases=["list-moders", "moders", "moderators"],
-		name="list-moderators",
-		description="Показывает список ролей модераторов",
-		usage="list-moderators",
-		help="**Примеры использования:**\n1. {Prefix}list-moderators\n\n**Пример 1:** Показывает список ролей модераторов",
-	)
-	@commands.guild_only()
-	@commands.check(is_moderator)
-	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def list_moderators(self, ctx):
-		data = (await self.client.database.sel_guild(guild=ctx.guild)).moderators
-		if data:
-			roles = "\n".join(f"`{ctx.guild.get_role(i).name}`" for i in data)
-		else:
-			roles = "Роли модераторов не настроены"
-
-		emb = discord.Embed(
-			title="Роли модераторов", description=roles, colour=discord.Color.green()
-		)
-		emb.set_author(name=self.client.user.name, icon_url=self.client.user.avatar_url)
-		emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-		await ctx.send(embed=emb)
-
-	@commands.command(
 		aliases=["mutes-list", "listmutes", "muteslist", "mutes"],
 		name="list-mutes",
 		description="Показывает все мьюты на сервере",
