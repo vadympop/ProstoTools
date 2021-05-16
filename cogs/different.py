@@ -135,7 +135,7 @@ class Different(BaseCog):
 	async def bug(self, ctx, *, description: str):
 		bug_channel = self.client.get_channel(792820806132564028)
 		emb = discord.Embed(
-			description=f"Описания бага: \n>>> {description}",
+			description=f"Описание бага: \n>>> {description}",
 			colour=discord.Color.orange()
 		)
 		emb.set_author(name=f"Баг нашел {ctx.author} | {ctx.author.id}", icon_url=ctx.author.avatar_url)
@@ -164,7 +164,7 @@ class Different(BaseCog):
 	async def idea(self, ctx, *, description: str):
 		idea_channel = self.client.get_channel(799635206390284298)
 		emb = discord.Embed(
-			description=f"Описания идеи: \n>>> {description}",
+			description=f"Описание идеи: \n>>> {description}",
 			colour=discord.Color.blurple()
 		)
 		emb.set_author(name=f"Идея от {ctx.author} | {ctx.author.id}", icon_url=ctx.author.avatar_url)
@@ -245,7 +245,7 @@ class Different(BaseCog):
 		await ctx.send(embed=emb)
 
 	@commands.command(
-		description="Устанавливает краткое описания о вас",
+		description="Устанавливает краткое описание о вас",
 		usage="bio [Текст]",
 		help="**Примеры использования:**\n1. {Prefix}bio -\n2. {Prefix}bio\n3. {Prefix}bio New biography\n\n**Пример 1:** Очистит биографию\n**Пример 2:** Покажет текущую биограцию\n**Пример 3:** Поставит новую биограцию - `New biography`",
 	)
@@ -302,43 +302,6 @@ class Different(BaseCog):
 			pass
 		except discord.errors.HTTPException:
 			pass
-
-	@commands.command(
-		name="calc",
-		aliases=["calculator", "c"],
-		description="Выполняет математические операции",
-		usage="calc [Операция]",
-		help="**Примеры использования:**\n1. {Prefix}calc 2+1\n\n**Пример 1:** Вычислит уравнения `2+1`",
-	)
-	@commands.cooldown(2, 10, commands.BucketType.member)
-	async def calc(self, ctx, *, exp: str = None):
-		if exp is None:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Укажите пример!"
-			)
-			await ctx.send(embed=emb)
-			return
-
-		link = "http://api.mathjs.org/v4/"
-		data = {"expr": [exp]}
-
-		try:
-			response = await self.client.http_client.get(link, params=data)
-
-			emb = discord.Embed(title="Калькулятор", color=discord.Color.green())
-			emb.add_field(name="Задача:", value=exp)
-			emb.add_field(name="Решение:", value=str(response))
-			emb.set_author(
-				name=self.client.user.name, icon_url=self.client.user.avatar_url
-			)
-			emb.set_footer(text=self.FOOTER, icon_url=self.client.user.avatar_url)
-			await ctx.send(embed=emb)
-		except:
-			emb = await self.client.utils.create_error_embed(
-				ctx, "Что-то пошло не так :("
-			)
-			await ctx.send(embed=emb)
-			return
 
 
 def setup(client):

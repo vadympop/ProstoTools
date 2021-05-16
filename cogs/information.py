@@ -72,7 +72,7 @@ class Information(BaseCog):
 {f"** Статус:** {statuses[member.status.name]}{self._get_activity(member.activity)}" if ctx.guild is not None else ""}
 **Id пользователя:** {member.id}
 **Акаунт создан:** {created_at}
-{f"**Присоеденился:** {joined_at}" if joined_at is not None else ""}
+{f"**Присоединился:** {joined_at}" if joined_at is not None else ""}
 """)
 
         else:
@@ -81,7 +81,7 @@ class Information(BaseCog):
 {f"** Статус:** {statuses[member.status.name]}{self._get_activity(member.activity)}" if ctx.guild is not None else ""}
 **Id бота:** {member.id}
 **Акаунт создан:** {created_at}
-{f"**Присоеденился:** {joined_at}" if joined_at is not None else ""}
+{f"**Присоединился:** {joined_at}" if joined_at is not None else ""}
 """
 
         emb = discord.Embed(
@@ -369,7 +369,7 @@ class Information(BaseCog):
         custom_commands = (await self.client.database.sel_guild(guild=ctx.guild)).custom_commands
         commands = ("\n".join([
             f"`{command['name']}` - {command['description']}"
-            if "description" in command.keys()
+            if command["description"]
             else f"`{command['name']}` - Не указано"
             for command in custom_commands
         ]) if custom_commands != [] else "На сервере ещё нет кастомных команд")
