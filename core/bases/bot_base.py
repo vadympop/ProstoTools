@@ -51,7 +51,7 @@ class ProstoTools(commands.AutoShardedBot):
         await self.change_presence(
             status=discord.Status.online,
             activity=discord.Activity(
-                type=discord.ActivityType.watching,
+                type=discord.ActivityType.playing,
                 name="prosto-tools.ml | p.help"
             )
         )
