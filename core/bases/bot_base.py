@@ -52,7 +52,7 @@ class ProstoTools(commands.AutoShardedBot):
             status=discord.Status.online,
             activity=discord.Activity(
                 type=discord.ActivityType.watching,
-                name="https://prosto-tools.ml"
+                name="prosto-tools.ml | p.help"
             )
         )
         await self.cache.run()
