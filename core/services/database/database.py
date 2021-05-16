@@ -622,9 +622,6 @@ class Database:
         new_log = AuditLogs(
             guild_id=guild_id,
             time=datetime.datetime.utcnow(),
-            avatar_url=user.avatar_url_as(
-                 format="gif" if user.is_avatar_animated() else "png", size=1024
-            ),
             type=action_type,
             channel={
                 "id": channel.id,
@@ -633,7 +630,10 @@ class Database:
             user={
                 "id": user.id,
                 "username": user.name,
-                "discriminator": user.discriminator
+                "discriminator": user.discriminator,
+                "avatar_url": user.avatar_url_as(
+                    format="gif" if user.is_avatar_animated() else "png", size=1024
+                )
             },
             options=kwargs
         )

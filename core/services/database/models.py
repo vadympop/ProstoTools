@@ -198,6 +198,7 @@ class AuditLogs(models.Model):
     channel = models.JSONField()
     user = models.JSONField()
     options = models.JSONField()
+    objects = Manager()
 
     class Meta:
         db_table = "audit_logs"
